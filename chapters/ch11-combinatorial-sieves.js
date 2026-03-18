@@ -6,488 +6,508 @@ window.CHAPTERS.push({
     subtitle: 'Hunting primes by elimination',
     sections: [
         // ================================================================
-        // SECTION 1: Beyond L-Functions
+        // SECTION 1: Motivation — Why Sieves?
         // ================================================================
         {
             id: 'sec-motivation',
-            title: 'Beyond L-Functions',
+            title: 'Why Sieves?',
             content: `
-<h2>Beyond L-Functions</h2>
+<h2>Why Sieves?</h2>
 
 <div class="env-block intuition">
-    <div class="env-title">A Different Kind of Question</div>
+    <div class="env-title">The Fundamental Problem</div>
     <div class="env-body">
-        <p>So far, our main tool has been the Riemann zeta function and its relatives. We locate primes by studying the zeros of \\(\\zeta(s)\\), extract asymptotics via contour integrals, and prove equidistribution by pushing zero-free regions. This is analytic machinery: the primes emerge as residues and Fourier coefficients.</p>
-        <p>But some questions resist this approach. Are there infinitely many twin primes \\((p, p+2)\\)? How many primes lie in the set \\(\\{n^2 + 1 : n \\in \\mathbb{Z}\\}\\)? The L-function method has no obvious handle on these. We need a different strategy: <strong>sieve methods</strong>.</p>
+        <p>How many primes are there up to \\(N\\)? How many twin primes? How many primes of the form \\(n^2 + 1\\)? These questions share a common structure: we start with a set of integers and want to count those that survive after removing multiples of small primes. A <strong>sieve</strong> is a systematic method for performing this elimination.</p>
     </div>
 </div>
 
-<p>The idea is ancient. Instead of asking where primes <em>are</em>, we eliminate composite numbers. Start with all integers in some range. Strike out multiples of 2, then 3, then 5, and so on. What remains after eliminating multiples of all small primes must consist of large primes (plus the primes themselves, which survive).</p>
+<p>The oldest and most intuitive approach is the <em>Sieve of Eratosthenes</em>, which dates to the 3rd century BCE. The idea is disarmingly simple: to find all primes up to \\(N\\), write down all integers from 2 to \\(N\\), then cross out multiples of 2, then multiples of 3, then multiples of 5, and so on. What remains after crossing out multiples of all primes up to \\(\\sqrt{N}\\) is exactly the set of primes in \\([2, N]\\).</p>
 
-<h3>The General Setup</h3>
+<p>But we want more than a procedure; we want <strong>estimates</strong>. How many numbers survive the sieve? Can we turn the sieve into an analytic tool for bounding \\(\\pi(N)\\) or counting primes in arithmetic progressions?</p>
 
-<p>Let \\(\\mathcal{A}\\) be a finite set of integers, and let \\(\\mathcal{P}\\) be a set of primes. We want to count</p>
-\\[S(\\mathcal{A}, \\mathcal{P}, z) = \\#\\{a \\in \\mathcal{A} : \\gcd(a, P(z)) = 1\\}\\]
-<p>where \\(P(z) = \\prod_{p \\in \\mathcal{P},\\, p < z} p\\) is the product of the "sieving primes." Elements surviving the sieve are not divisible by any prime \\(p < z\\) in \\(\\mathcal{P}\\).</p>
+<h3>From Algorithm to Analysis</h3>
 
-<div class="env-block definition">
-    <div class="env-title">Definition 11.1 (Sieve Problem)</div>
-    <div class="env-body">
-        <p>Given:</p>
-        <ul>
-            <li>A finite set \\(\\mathcal{A} \\subset \\mathbb{Z}\\), the <strong>sifted set</strong></li>
-            <li>A set of primes \\(\\mathcal{P}\\), the <strong>sieving primes</strong></li>
-            <li>A parameter \\(z > 0\\), the <strong>sieve level</strong></li>
-        </ul>
-        <p>Let \\(\\mathcal{A}_d = \\{a \\in \\mathcal{A} : d \\mid a\\}\\) and write \\(|\\mathcal{A}_d| = \\frac{X}{d} \\omega(d) + r_d\\), where \\(\\omega\\) is a multiplicative function approximating the density of \\(\\mathcal{A}\\) modulo \\(d\\), \\(X\\) is the "size" of \\(\\mathcal{A}\\), and \\(r_d\\) is the remainder. The <strong>sieve function</strong> is</p>
-        \\[S(\\mathcal{A}, \\mathcal{P}, z) = \\sum_{\\substack{a \\in \\mathcal{A} \\\\ \\gcd(a, P(z)) = 1}} 1.\\]
-    </div>
-</div>
+<p>The transition from sieve-as-algorithm to sieve-as-estimate involves three ideas:</p>
 
-<h3>Why Not Just Use PNT?</h3>
+<ol>
+    <li><strong>Inclusion-exclusion</strong> gives an exact formula for the count of survivors, but it has exponentially many terms.</li>
+    <li><strong>Truncation</strong> (Brun's idea): stop the inclusion-exclusion at a controlled depth to get upper and lower bounds instead of exact counts.</li>
+    <li><strong>Optimization</strong> (Selberg, Rosser): choose the truncation weights carefully to make the bounds as tight as possible.</li>
+</ol>
 
-<p>For the set \\(\\mathcal{A} = \\{1, \\ldots, N\\}\\), the Prime Number Theorem tells us \\(S(\\mathcal{A}, \\mathcal{P}, \\sqrt{N}) \\approx \\pi(N)\\). But sieves apply to <em>thin</em> sets where the PNT gives no information. If \\(\\mathcal{A} = \\{n(n+2) : n \\leq N\\}\\), asking when both \\(n\\) and \\(n+2\\) survive the sieve asks about twin primes, and no L-function directly controls this.</p>
-
-<p>Sieves trade precision for generality. They typically yield upper bounds and sometimes lower bounds, but not exact formulas. The fundamental tension of sieve theory is that the natural approach via inclusion-exclusion <em>explodes</em>, and the art lies in taming that explosion.</p>
+<p>This chapter covers the first two ideas. We develop the sieve of Eratosthenes as a counting tool, connect it to inclusion-exclusion, introduce Brun's truncation, and prove Brun's theorem on the convergence of the twin prime reciprocal sum.</p>
 
 <div class="env-block remark">
     <div class="env-title">Historical Note</div>
     <div class="env-body">
-        <p>The ancient Sieve of Eratosthenes (3rd century BCE) is the conceptual ancestor. Modern sieve theory began with Viggo Brun (1920), who showed that the sum of reciprocals of twin primes converges. Atle Selberg's 1947 sieve revolutionized the field with its elegant optimization. In the 21st century, sieves became central to the breakthroughs of Goldston-Pintz-Yildirim (2005) and Zhang (2013) on bounded gaps between primes.</p>
+        <p>Viggo Brun (1885--1978) revolutionized sieve theory in 1919 by showing that truncated inclusion-exclusion could yield non-trivial upper bounds for prime-counting problems that seemed completely out of reach. His proof that the sum of reciprocals of twin primes converges was the first major result about twin primes, and it remains one of the deepest facts we know about them unconditionally.</p>
     </div>
 </div>
 `,
-            visualizations: [
-                {
-                    id: 'viz-sieve-function',
-                    title: 'The Sieve Function S(A, P, z)',
-                    description: 'Watch how S(A, P, z) changes as z increases. The sifted set starts as all integers up to N; each prime p < z eliminates its multiples. Drag the z-slider to see survivors vanish.',
-                    setup: function(body, controls) {
-                        var N = 80;
-                        var viz = new VizEngine(body, { width: 560, height: 340, originX: 40, originY: 300, scale: 1 });
-                        var zVal = 2;
-                        var primes = VizEngine.sievePrimes(N);
-
-                        VizEngine.createSlider(controls, 'z (sieve level)', 2, 12, 2, 1, function(v) {
-                            zVal = Math.round(v);
-                            draw();
-                        });
-
-                        function isSurvivor(n) {
-                            for (var i = 0; i < primes.length; i++) {
-                                if (primes[i] >= zVal) break;
-                                if (n % primes[i] === 0) return false;
-                            }
-                            return true;
-                        }
-
-                        function draw() {
-                            viz.clear();
-                            var ctx = viz.ctx;
-                            var cols = 16;
-                            var cellSize = Math.floor((viz.width - 60) / cols);
-                            var rows = Math.ceil(N / cols);
-                            var startX = 30;
-                            var startY = 30;
-                            var survivors = 0;
-
-                            viz.screenText('Integers 1 to ' + N + ', sieved by primes < ' + zVal, viz.width / 2, 14, viz.colors.white, 13);
-
-                            for (var n = 1; n <= N; n++) {
-                                var row = Math.floor((n - 1) / cols);
-                                var col = (n - 1) % cols;
-                                var x = startX + col * cellSize;
-                                var y = startY + row * cellSize;
-                                var survived = isSurvivor(n);
-                                var isPrime = primes.indexOf(n) >= 0;
-
-                                if (survived) {
-                                    survivors++;
-                                    ctx.fillStyle = isPrime ? viz.colors.teal + 'cc' : viz.colors.blue + '55';
-                                    ctx.fillRect(x, y, cellSize - 2, cellSize - 2);
-                                } else {
-                                    ctx.fillStyle = viz.colors.grid;
-                                    ctx.fillRect(x, y, cellSize - 2, cellSize - 2);
-                                }
-
-                                ctx.font = '9px -apple-system,sans-serif';
-                                ctx.textAlign = 'center';
-                                ctx.textBaseline = 'middle';
-                                ctx.fillStyle = survived ? viz.colors.white : viz.colors.text + '44';
-                                ctx.fillText(n, x + cellSize / 2 - 1, y + cellSize / 2 - 1);
-                            }
-
-                            viz.screenText('Survivors: ' + survivors + '   P(z) = ' + primes.filter(function(p) { return p < zVal; }).join('\u00d7'), viz.width / 2, viz.height - 16, viz.colors.yellow, 12);
-                        }
-                        draw();
-                        return viz;
-                    }
-                }
-            ],
+            visualizations: [],
             exercises: [
                 {
-                    question: 'Let \\(\\mathcal{A} = \\{1, 2, \\ldots, 30\\}\\) and \\(\\mathcal{P} = \\{2, 3, 5\\}\\). Compute \\(S(\\mathcal{A}, \\mathcal{P}, 6)\\) by direct enumeration.',
-                    hint: 'An element survives if and only if it shares no factor with \\(P(6) = 2 \\cdot 3 \\cdot 5 = 30\\). Which numbers in \\([1,30]\\) are coprime to 30?',
-                    solution: 'The survivors are numbers in \\([1,30]\\) coprime to 30. By Euler\'s phi function, \\(\\phi(30) = 30(1 - 1/2)(1 - 1/3)(1 - 1/5) = 8\\) numbers per period of 30. These are \\(\\{1, 7, 11, 13, 17, 19, 23, 29\\}\\), giving \\(S = 8\\).'
+                    question: 'Explain informally why we only need to sieve by primes up to \\(\\sqrt{N}\\) to identify all primes up to \\(N\\).',
+                    hint: 'If \\(n \\leq N\\) is composite, what can you say about its smallest prime factor?',
+                    solution: 'If \\(n \\leq N\\) is composite, write \\(n = ab\\) with \\(1 < a \\leq b\\). Then \\(a^2 \\leq ab = n \\leq N\\), so \\(a \\leq \\sqrt{N}\\). In particular, the smallest prime factor of \\(n\\) is at most \\(\\sqrt{N}\\). So every composite \\(n \\leq N\\) is crossed out when we sieve by primes \\(p \\leq \\sqrt{N}\\).'
                 }
             ]
         },
 
         // ================================================================
-        // SECTION 2: Sieve of Eratosthenes & Legendre's Formula
+        // SECTION 2: The Sieve of Eratosthenes
         // ================================================================
         {
             id: 'sec-eratosthenes',
-            title: 'Sieve of Eratosthenes',
+            title: 'The Sieve of Eratosthenes',
             content: `
-<h2>Sieve of Eratosthenes</h2>
+<h2>The Sieve of Eratosthenes</h2>
 
 <div class="env-block intuition">
     <div class="env-title">The Algorithm</div>
     <div class="env-body">
-        <p>To find all primes up to \\(N\\): write down all integers from 2 to \\(N\\). Circle 2 (it is prime), then cross out all multiples of 2. The next uncrossed number is 3; circle it and cross out all multiples of 3. Continue: the next uncrossed number is always prime. Stop when you reach \\(\\sqrt{N}\\); everything still standing is prime.</p>
-        <p>Why stop at \\(\\sqrt{N}\\)? Any composite number \\(n \\leq N\\) has a prime factor \\(\\leq \\sqrt{N}\\), so it was already crossed out.</p>
+        <p>Write the integers \\(2, 3, 4, \\ldots, N\\) in a grid. Start with \\(p = 2\\): cross out \\(4, 6, 8, \\ldots\\) (multiples of 2 greater than 2). The next uncrossed number is 3: cross out \\(9, 12, 15, \\ldots\\) (multiples of 3 greater than 3, starting at \\(3^2 = 9\\) since smaller multiples were already crossed out). Continue with 5, 7, 11, \\ldots until \\(p > \\sqrt{N}\\). The surviving numbers are exactly the primes up to \\(N\\).</p>
     </div>
 </div>
 
-<h3>Legendre's Formula</h3>
-
-<p>The sieve of Eratosthenes has a clean formula. Let \\(\\pi(x)\\) count primes up to \\(x\\). Legendre observed that for \\(2 \\leq z \\leq x\\):</p>
-
-\\[\\pi(x) - \\pi(z) + 1 = S(\\{1, \\ldots, \\lfloor x \\rfloor\\}, \\mathcal{P}, z)\\]
-
-<p>when \\(z \\leq \\sqrt{x}\\). The "+1" accounts for 1 surviving (it has no prime factors) and subtracting the primes \\(\\leq z\\) that were already counted. More usefully, for \\(z = \\sqrt{x}\\):</p>
-
-\\[\\pi(x) = S(\\mathcal{A}, \\mathcal{P}, \\sqrt{x}) + \\pi(\\sqrt{x}) - 1.\\]
-
-<p>The Legendre-Eratosthenes formula evaluates \\(S\\) via inclusion-exclusion on prime divisors:</p>
-
-<div class="env-block theorem">
-    <div class="env-title">Theorem 11.1 (Legendre's Sieve)</div>
-    <div class="env-body">
-        <p>With \\(P(z) = \\prod_{p < z} p\\),</p>
-        \\[S(\\mathcal{A}, \\mathcal{P}, z) = \\sum_{d \\mid P(z)} \\mu(d) \\left\\lfloor \\frac{x}{d} \\right\\rfloor\\]
-        <p>where \\(\\mu\\) is the Mobius function, and \\(\\mathcal{A} = \\{1, \\ldots, x\\}\\).</p>
-    </div>
-</div>
-
-<p>This is inclusion-exclusion: we subtract those divisible by each prime \\(p < z\\), add back those divisible by \\(pq\\), subtract those divisible by \\(pqr\\), and so on. The Mobius function \\(\\mu(d)\\) precisely encodes the alternating sign pattern.</p>
-
-<h3>Why Legendre's Formula Fails</h3>
-
-<p>The formula is exact but computationally useless for large \\(x\\). The number of divisors of \\(P(z)\\) is \\(2^{\\pi(z)}\\). Taking \\(z = \\sqrt{x}\\), this is \\(2^{\\pi(\\sqrt{x})} \\approx 2^{2\\sqrt{x}/\\log x}\\), which grows faster than any polynomial in \\(x\\). The exact formula has exponentially many terms.</p>
-
-<p>Even analytically, the error terms \\(r_d = \\lfloor x/d \\rfloor - x/d\\) accumulate. There are \\(2^{\\pi(z)}\\) such terms, each at most 1 in absolute value, giving a total error up to \\(2^{\\pi(z)}\\), which can dwarf the main term. This is the <strong>parity problem</strong> in embryonic form.</p>
+<p>Let us formalize this. Define the <strong>sifting function</strong>:</p>
 
 <div class="env-block definition">
-    <div class="env-title">Definition 11.2 (Sieve Dimension)</div>
+    <div class="env-title">Definition (Sifting Function)</div>
     <div class="env-body">
-        <p>The <strong>dimension</strong> (or density) of a sieve is the constant \\(\\kappa\\) such that</p>
-        \\[\\sum_{p < z} \\frac{\\omega(p)}{p} = \\kappa \\log z + O(1).\\]
-        <p>For the sieve over all integers (\\(\\omega(p) = 1\\) for all \\(p\\)), \\(\\kappa = 1\\) (linear sieve). Twin prime sieves have \\(\\kappa = 2\\) because both \\(n\\) and \\(n+2\\) must avoid each prime, contributing \\(2/p\\) instead of \\(1/p\\).</p>
+        <p>For a finite set \\(\\mathcal{A}\\) of positive integers, a set of primes \\(\\mathcal{P}\\), and a parameter \\(z > 0\\), define</p>
+        \\[S(\\mathcal{A}, \\mathcal{P}, z) = |\\{a \\in \\mathcal{A} : \\gcd(a, P(z)) = 1\\}|,\\]
+        <p>where \\(P(z) = \\prod_{p \\in \\mathcal{P},\\, p < z} p\\). This counts elements of \\(\\mathcal{A}\\) not divisible by any prime \\(p < z\\) in \\(\\mathcal{P}\\).</p>
     </div>
 </div>
+
+<p>For the classical Eratosthenes sieve, \\(\\mathcal{A} = \\{2, 3, \\ldots, N\\}\\), \\(\\mathcal{P}\\) is the set of all primes, and \\(z = \\sqrt{N}\\). Then \\(S(\\mathcal{A}, \\mathcal{P}, z)\\) counts exactly the primes in \\([2, N]\\) (plus the number 1 is not in \\(\\mathcal{A}\\), so this is exactly \\(\\pi(N)\\)).</p>
+
+<div class="env-block definition">
+    <div class="env-title">Definition (Sieve Notation)</div>
+    <div class="env-body">
+        <p>For a squarefree integer \\(d\\) whose prime factors all lie in \\(\\mathcal{P}\\), define</p>
+        \\[\\mathcal{A}_d = \\{a \\in \\mathcal{A} : d \\mid a\\},\\]
+        <p>the subset of \\(\\mathcal{A}\\) divisible by \\(d\\). We write \\(|\\mathcal{A}_d|\\) for its cardinality.</p>
+    </div>
+</div>
+
+<p>The key observation is that \\(|\\mathcal{A}_d|\\) can usually be decomposed as a "main term" plus an "error term":</p>
+
+\\[|\\mathcal{A}_d| = \\frac{\\omega(d)}{d} \\cdot X + r_d,\\]
+
+<p>where \\(X\\) is some parameter approximating \\(|\\mathcal{A}|\\), \\(\\omega\\) is a multiplicative function satisfying \\(0 \\leq \\omega(p) < p\\), and \\(r_d\\) is a remainder. For \\(\\mathcal{A} = \\{1, 2, \\ldots, N\\}\\), we have \\(|\\mathcal{A}_d| = \\lfloor N/d \\rfloor = N/d + O(1)\\), so \\(X = N\\), \\(\\omega(d) = d\\), and \\(|r_d| \\leq 1\\).</p>
+
+<div class="viz-placeholder" data-viz="viz-eratosthenes-grid"></div>
 `,
             visualizations: [
                 {
                     id: 'viz-eratosthenes-grid',
                     title: 'Animated Sieve of Eratosthenes',
-                    description: 'Watch the sieve sweep through primes one by one, crossing out composite numbers. Press Play to animate; use the speed slider to control the pace.',
+                    description: 'Watch the sieve eliminate composite numbers step by step. Each prime crosses out its multiples. Surviving numbers (shown in bright colors) are prime.',
                     setup: function(body, controls) {
-                        var N = 120;
-                        var viz = new VizEngine(body, { width: 560, height: 360, originX: 0, originY: 0, scale: 1 });
-                        var cols = 15;
-                        var cellSize = Math.floor((viz.width - 10) / cols);
-                        var startX = 5;
-                        var startY = 45;
+                        var viz = new VizEngine(body, {
+                            width: 580, height: 420,
+                            originX: 0, originY: 0, scale: 1
+                        });
 
-                        var sieve = new Uint8Array(N + 1); // 0 = unchecked, 1 = composite, 2 = prime
-                        var currentP = 2;
-                        var animStep = 0;
+                        var N = 100;
+                        var sieveState = []; // 0=untouched, 1=prime, 2=crossed out
+                        var currentPrime = 0;
+                        var currentMult = 0;
                         var animating = false;
-                        var animIntervalId = null;
-                        var speed = 80;
-                        var highlightSet = new Set();
+                        var animSpeed = 80;
+                        var sievingPrimes = [];
+
+                        function reset() {
+                            sieveState = new Array(N + 1).fill(0);
+                            sieveState[0] = 2; sieveState[1] = 2;
+                            currentPrime = 0;
+                            currentMult = 0;
+                            sievingPrimes = [];
+                            draw();
+                        }
+
+                        VizEngine.createSlider(controls, 'N', 30, 200, N, 10, function(v) {
+                            N = Math.round(v);
+                            reset();
+                        });
+
+                        VizEngine.createButton(controls, 'Run Sieve', function() {
+                            if (animating) return;
+                            reset();
+                            animating = true;
+                            currentPrime = 2;
+                            currentMult = 4;
+                            stepSieve();
+                        });
+
+                        VizEngine.createButton(controls, 'Reset', function() {
+                            animating = false;
+                            reset();
+                        });
 
                         function stepSieve() {
-                            // Find composites for currentP
-                            if (currentP > Math.sqrt(N)) {
-                                // Mark remaining unchecked as prime
+                            if (!animating) return;
+
+                            if (currentPrime * currentPrime > N) {
+                                // Mark remaining untouched as prime
                                 for (var i = 2; i <= N; i++) {
-                                    if (!sieve[i]) sieve[i] = 2;
+                                    if (sieveState[i] === 0) {
+                                        sieveState[i] = 1;
+                                    }
                                 }
-                                clearInterval(animIntervalId);
                                 animating = false;
-                                highlightSet.clear();
                                 draw();
                                 return;
                             }
-                            if (!sieve[currentP]) {
-                                sieve[currentP] = 2;
-                                highlightSet.clear();
-                                for (var j = currentP * currentP; j <= N; j += currentP) {
-                                    sieve[j] = 1;
-                                    highlightSet.add(j);
+
+                            if (sieveState[currentPrime] === 2) {
+                                currentPrime++;
+                                currentMult = currentPrime * currentPrime;
+                                stepSieve();
+                                return;
+                            }
+
+                            // Mark current as prime
+                            sieveState[currentPrime] = 1;
+                            sievingPrimes.push(currentPrime);
+
+                            if (currentMult <= N) {
+                                sieveState[currentMult] = 2;
+                                draw();
+                                currentMult += currentPrime;
+                                setTimeout(stepSieve, animSpeed);
+                            } else {
+                                currentPrime++;
+                                while (currentPrime <= Math.sqrt(N) && sieveState[currentPrime] === 2) {
+                                    currentPrime++;
                                 }
-                                animStep++;
+                                currentMult = currentPrime * currentPrime;
+                                draw();
+                                setTimeout(stepSieve, animSpeed);
                             }
-                            // find next prime
-                            currentP++;
-                            while (currentP <= N && sieve[currentP] === 1) currentP++;
-                            draw();
                         }
-
-                        function reset() {
-                            if (animIntervalId) clearInterval(animIntervalId);
-                            sieve = new Uint8Array(N + 1);
-                            currentP = 2;
-                            animStep = 0;
-                            animating = false;
-                            highlightSet = new Set();
-                            draw();
-                        }
-
-                        var playBtn = VizEngine.createButton(controls, 'Play', function() {
-                            if (animating) return;
-                            animating = true;
-                            animIntervalId = setInterval(stepSieve, speed);
-                        });
-                        VizEngine.createButton(controls, 'Step', function() {
-                            if (animIntervalId) clearInterval(animIntervalId);
-                            animating = false;
-                            stepSieve();
-                        });
-                        VizEngine.createButton(controls, 'Reset', reset);
-                        VizEngine.createSlider(controls, 'Speed', 20, 300, speed, 20, function(v) {
-                            speed = 320 - v;
-                            if (animating) {
-                                clearInterval(animIntervalId);
-                                animIntervalId = setInterval(stepSieve, speed);
-                            }
-                        });
 
                         function draw() {
                             viz.clear();
                             var ctx = viz.ctx;
-                            var primeCount = 0;
 
-                            viz.screenText('Sieve of Eratosthenes: N = ' + N, viz.width / 2, 14, viz.colors.white, 13);
+                            viz.screenText('Sieve of Eratosthenes up to ' + N, viz.width / 2, 18, viz.colors.white, 15);
 
-                            for (var n = 1; n <= N; n++) {
-                                var row = Math.floor((n - 1) / cols);
-                                var col = (n - 1) % cols;
-                                var x = startX + col * cellSize;
-                                var y = startY + row * cellSize;
+                            var cols = Math.ceil(Math.sqrt(N * 1.4));
+                            var rows = Math.ceil(N / cols);
+                            var cellW = Math.min(36, (viz.width - 40) / cols);
+                            var cellH = Math.min(28, (viz.height - 70) / rows);
+                            var startX = (viz.width - cols * cellW) / 2;
+                            var startY = 40;
 
-                                var bg;
-                                if (sieve[n] === 2) { bg = viz.colors.teal; primeCount++; }
-                                else if (highlightSet.has(n)) { bg = viz.colors.red + 'bb'; }
-                                else if (sieve[n] === 1) { bg = viz.colors.grid; }
-                                else { bg = viz.colors.blue + '33'; }
+                            for (var i = 2; i <= N; i++) {
+                                var col = (i - 2) % cols;
+                                var row = Math.floor((i - 2) / cols);
+                                var x = startX + col * cellW;
+                                var y = startY + row * cellH;
 
-                                ctx.fillStyle = bg;
-                                ctx.fillRect(x, y, cellSize - 2, cellSize - 2);
+                                var state = sieveState[i];
+                                var bgColor, textColor;
 
-                                ctx.font = '9px -apple-system,sans-serif';
+                                if (state === 1) {
+                                    // Prime
+                                    bgColor = viz.colors.blue + '55';
+                                    textColor = viz.colors.blue;
+                                } else if (state === 2) {
+                                    // Crossed out
+                                    bgColor = viz.colors.red + '22';
+                                    textColor = viz.colors.text + '55';
+                                } else {
+                                    // Untouched
+                                    bgColor = null;
+                                    textColor = viz.colors.white;
+                                }
+
+                                if (bgColor) {
+                                    ctx.fillStyle = bgColor;
+                                    ctx.fillRect(x, y, cellW - 2, cellH - 2);
+                                }
+
+                                ctx.font = (cellW < 24 ? '9' : '11') + 'px -apple-system,sans-serif';
                                 ctx.textAlign = 'center';
                                 ctx.textBaseline = 'middle';
-                                var tc = (sieve[n] === 2) ? viz.colors.white : (sieve[n] === 1 ? viz.colors.text + '44' : viz.colors.text + 'aa');
-                                ctx.fillStyle = tc;
-                                ctx.fillText(n, x + cellSize / 2 - 1, y + cellSize / 2 - 1);
+                                ctx.fillStyle = textColor;
+                                ctx.fillText(i.toString(), x + cellW / 2 - 1, y + cellH / 2);
+
+                                if (state === 2) {
+                                    ctx.strokeStyle = viz.colors.red + '44';
+                                    ctx.lineWidth = 1;
+                                    ctx.beginPath();
+                                    ctx.moveTo(x + 2, y + 2);
+                                    ctx.lineTo(x + cellW - 4, y + cellH - 4);
+                                    ctx.stroke();
+                                }
                             }
 
-                            var status = animating ? 'Sieving by p = ' + (currentP - 1) : (animStep === 0 ? 'Press Play to start' : 'Done: ' + primeCount + ' primes found');
-                            viz.screenText(status, viz.width / 2, viz.height - 14, viz.colors.yellow, 12);
+                            // Stats
+                            var primeCount = 0;
+                            for (var j = 2; j <= N; j++) {
+                                if (sieveState[j] === 1) primeCount++;
+                            }
+                            if (primeCount > 0 || !animating) {
+                                var crossed = 0;
+                                for (var k = 2; k <= N; k++) { if (sieveState[k] === 2) crossed++; }
+                                viz.screenText(
+                                    'Primes found: ' + primeCount + '   Eliminated: ' + crossed,
+                                    viz.width / 2, viz.height - 10, viz.colors.teal, 12
+                                );
+                            }
+                            if (animating && currentPrime > 0) {
+                                viz.screenText(
+                                    'Sieving by p = ' + currentPrime,
+                                    viz.width / 2, viz.height - 28, viz.colors.orange, 12
+                                );
+                            }
                         }
-                        draw();
+                        reset();
                         return viz;
                     }
                 }
             ],
             exercises: [
                 {
-                    question: 'Use Legendre\'s formula to compute \\(\\pi(30)\\). Verify by listing all primes up to 30.',
-                    hint: 'Apply inclusion-exclusion with primes \\(p < \\sqrt{30} \\approx 5.5\\), i.e., \\(p \\in \\{2, 3, 5\\}\\). Compute \\(\\sum_{d \\mid 30} \\mu(d) \\lfloor 30/d \\rfloor\\), then add \\(\\pi(\\sqrt{30}) - 1 = 3 - 1 = 2\\) to get \\(\\pi(30)\\).',
-                    solution: 'We have \\(P(\\sqrt{30}) = 30\\). The divisors of 30 with nonzero \\(\\mu\\) are squarefree: \\(\\{1,2,3,5,6,10,15,30\\}\\). Computing: \\(\\lfloor 30/1 \\rfloor - \\lfloor 30/2 \\rfloor - \\lfloor 30/3 \\rfloor - \\lfloor 30/5 \\rfloor + \\lfloor 30/6 \\rfloor + \\lfloor 30/10 \\rfloor + \\lfloor 30/15 \\rfloor - \\lfloor 30/30 \\rfloor = 30 - 15 - 10 - 6 + 5 + 3 + 2 - 1 = 8\\). Adding \\(\\pi(5) - 1 = 2\\) gives \\(\\pi(30) = 10\\). The primes are \\(2, 3, 5, 7, 11, 13, 17, 19, 23, 29\\). \\(\\checkmark\\)'
+                    question: 'Run the sieve of Eratosthenes by hand for \\(N = 50\\). How many primes are there up to 50? Which prime is the last one you need to sieve by?',
+                    hint: '\\(\\sqrt{50} \\approx 7.07\\), so you sieve by 2, 3, 5, 7.',
+                    solution: 'Sieving by 2, 3, 5, 7 suffices since \\(7^2 = 49 \\leq 50 < 64 = 8^2\\). The primes up to 50 are: 2, 3, 5, 7, 11, 13, 17, 19, 23, 29, 31, 37, 41, 43, 47. That is \\(\\pi(50) = 15\\) primes.'
                 }
             ]
         },
 
         // ================================================================
-        // SECTION 3: Inclusion-Exclusion Explosion
+        // SECTION 3: Inclusion-Exclusion and the Legendre Sieve
         // ================================================================
         {
             id: 'sec-inclusion-exclusion',
-            title: 'The Inclusion-Exclusion Explosion',
+            title: 'Inclusion-Exclusion and the Legendre Sieve',
             content: `
-<h2>The Inclusion-Exclusion Explosion</h2>
+<h2>Inclusion-Exclusion and the Legendre Sieve</h2>
 
-<p>The Legendre sieve is exact but the error terms make it computationally impractical. To understand <em>why</em> the error explodes, we need to examine the structure of the inclusion-exclusion sum carefully.</p>
+<div class="env-block intuition">
+    <div class="env-title">Counting Survivors</div>
+    <div class="env-body">
+        <p>How many integers in \\(\\{1, \\ldots, 30\\}\\) are divisible by neither 2 nor 3? By inclusion-exclusion: start with 30, subtract the \\(\\lfloor 30/2 \\rfloor = 15\\) multiples of 2, subtract the \\(\\lfloor 30/3 \\rfloor = 10\\) multiples of 3, then add back the \\(\\lfloor 30/6 \\rfloor = 5\\) multiples of both (which we subtracted twice). Answer: \\(30 - 15 - 10 + 5 = 10\\).</p>
+    </div>
+</div>
 
-<h3>The Bonferroni Inequalities</h3>
-
-<p>Let \\(A_p = \\{n \\in \\mathcal{A} : p \\mid n\\}\\) for each prime \\(p < z\\). We want to count elements in none of the \\(A_p\\). The full inclusion-exclusion gives an exact answer, but truncating it gives bounds:</p>
+<h3>The General Inclusion-Exclusion Principle</h3>
 
 <div class="env-block theorem">
-    <div class="env-title">Theorem 11.2 (Bonferroni Inequalities)</div>
+    <div class="env-title">Theorem 11.1 (Inclusion-Exclusion)</div>
     <div class="env-body">
-        <p>Define the partial inclusion-exclusion sums</p>
-        \\[S_k = \\sum_{\\substack{d \\mid P(z) \\\\ \\Omega(d) = k}} |\\mathcal{A}_d|\\]
-        <p>where \\(\\Omega(d)\\) is the number of prime factors of \\(d\\). Then for any \\(r \\geq 0\\):</p>
-        \\[\\sum_{k=0}^{2r+1} (-1)^k S_k \\leq S(\\mathcal{A}, \\mathcal{P}, z) \\leq \\sum_{k=0}^{2r} (-1)^k S_k.\\]
-        <p>Odd partial sums give lower bounds; even partial sums give upper bounds.</p>
+        <p>Let \\(A_1, A_2, \\ldots, A_k\\) be finite subsets of a finite set \\(U\\). Then</p>
+        \\[\\left| U \\setminus \\bigcup_{i=1}^k A_i \\right| = \\sum_{S \\subseteq \\{1,\\ldots,k\\}} (-1)^{|S|} \\left| \\bigcap_{i \\in S} A_i \\right|,\\]
+        <p>where the empty intersection is \\(U\\) itself.</p>
     </div>
 </div>
 
-<p>This is the <strong>over/under oscillation</strong>: each new "layer" of the inclusion-exclusion alternately overshoots and undershoots the true count. The bounds converge only when we include all layers, but that is the explosive full sum.</p>
-
-<h3>Formal Counting via Mobius</h3>
-
-<p>The Legendre sieve in full generality writes</p>
-\\[S(\\mathcal{A}, \\mathcal{P}, z) = \\sum_{d \\mid P(z)} \\mu(d) |\\mathcal{A}_d|.\\]
-
-<p>If \\(|\\mathcal{A}_d| = \\frac{X}{d}\\omega(d) + r_d\\), separating the "main term" from the "remainder":</p>
-\\[S(\\mathcal{A}, \\mathcal{P}, z) = X \\underbrace{\\sum_{d \\mid P(z)} \\frac{\\mu(d)\\omega(d)}{d}}_{\\text{main term}} + \\underbrace{\\sum_{d \\mid P(z)} \\mu(d) r_d}_{\\text{remainder}}.\\]
-
-<p>The main term is a product over primes:</p>
-\\[\\sum_{d \\mid P(z)} \\frac{\\mu(d)\\omega(d)}{d} = \\prod_{p < z,\\, p \\in \\mathcal{P}} \\left(1 - \\frac{\\omega(p)}{p}\\right).\\]
-
-<p>This is beautiful: the main term factors. For \\(\\mathcal{A} = [1, X]\\) and \\(\\omega(p) = 1\\), it equals \\(\\prod_{p < z}(1 - 1/p) \\sim e^{-\\gamma}/(\\log z)\\) by Mertens' theorem, giving roughly \\(X e^{-\\gamma}/\\log z\\) survivors.</p>
-
-<h3>The Explosion</h3>
-
-<p>The trouble is the remainder: \\(|\\sum_{d \\mid P(z)} \\mu(d) r_d| \\leq \\sum_{d \\mid P(z)} |r_d| \\leq 2^{\\pi(z)}\\). When \\(z = x^{1/2}\\), this is \\(2^{\\pi(\\sqrt{x})} \\sim 2^{2\\sqrt{x}/\\log x}\\), exponential in \\(\\sqrt{x}\\). The main term is only \\(\\sim x / \\log x\\). The error swamps the main term for large \\(x\\).</p>
-
-<p>The key insight of Brun is to <em>truncate</em> the inclusion-exclusion at an appropriate level, accepting approximate bounds rather than exact counts, but keeping the error manageable.</p>
-
-<div class="env-block remark">
-    <div class="env-title">The Parity Barrier</div>
+<div class="env-block proof">
+    <div class="env-title">Proof</div>
     <div class="env-body">
-        <p>Even with all the refinements in this chapter, combinatorial sieves cannot distinguish numbers with an even number of prime factors from those with an odd number. This "parity problem" (Selberg, 1950) is a fundamental obstruction: the sieve cannot prove that a given set contains a prime, only that it contains numbers with few prime factors.</p>
+        <p>Fix an element \\(x \\in U\\). Suppose \\(x\\) belongs to exactly \\(m\\) of the sets \\(A_1, \\ldots, A_k\\). Then \\(x\\)'s contribution to the right side is</p>
+        \\[\\sum_{j=0}^{m} (-1)^j \\binom{m}{j} = (1 - 1)^m = \\begin{cases} 1 & \\text{if } m = 0, \\\\ 0 & \\text{if } m \\geq 1. \\end{cases}\\]
+        <p>So exactly the elements in none of the \\(A_i\\) contribute 1, and the rest contribute 0.</p>
+    </div>
+    <div class="qed"></div>
+</div>
+
+<h3>The Legendre Sieve</h3>
+
+<p>Applying inclusion-exclusion to the sifting function gives the <strong>Legendre formula</strong>:</p>
+
+<div class="env-block theorem">
+    <div class="env-title">Theorem 11.2 (Legendre Sieve)</div>
+    <div class="env-body">
+        <p>With the notation of the previous section,</p>
+        \\[S(\\mathcal{A}, \\mathcal{P}, z) = \\sum_{d \\mid P(z)} \\mu(d) \\, |\\mathcal{A}_d|,\\]
+        <p>where the sum runs over all squarefree divisors of \\(P(z) = \\prod_{p < z,\\, p \\in \\mathcal{P}} p\\), and \\(\\mu\\) is the Mobius function.</p>
     </div>
 </div>
+
+<div class="env-block proof">
+    <div class="env-title">Proof</div>
+    <div class="env-body">
+        <p>For each prime \\(p < z\\) in \\(\\mathcal{P}\\), let \\(A_p = \\{a \\in \\mathcal{A} : p \\mid a\\}\\). Then</p>
+        \\[S(\\mathcal{A}, \\mathcal{P}, z) = \\left| \\mathcal{A} \\setminus \\bigcup_{p} A_p \\right| = \\sum_{S} (-1)^{|S|} \\left| \\bigcap_{p \\in S} A_p \\right|.\\]
+        <p>Since the \\(A_p\\) correspond to divisibility by distinct primes, \\(\\bigcap_{p \\in S} A_p = \\mathcal{A}_d\\) where \\(d = \\prod_{p \\in S} p\\). The sum over subsets \\(S\\) becomes a sum over squarefree divisors \\(d\\) of \\(P(z)\\), and \\((-1)^{|S|} = \\mu(d)\\).</p>
+    </div>
+    <div class="qed"></div>
+</div>
+
+<h3>Applying the Legendre Sieve</h3>
+
+<p>For \\(\\mathcal{A} = \\{1, 2, \\ldots, N\\}\\) with \\(|\\mathcal{A}_d| = \\lfloor N/d \\rfloor\\), the Legendre formula gives</p>
+
+\\[S(\\mathcal{A}, \\mathcal{P}, z) = \\sum_{d \\mid P(z)} \\mu(d) \\lfloor N/d \\rfloor.\\]
+
+<p>Using \\(\\lfloor N/d \\rfloor = N/d + O(1)\\), the main term is</p>
+
+\\[N \\sum_{d \\mid P(z)} \\frac{\\mu(d)}{d} = N \\prod_{p < z} \\left(1 - \\frac{1}{p}\\right),\\]
+
+<p>by the multiplicativity of \\(\\mu(d)/d\\) over squarefree \\(d\\). The remainder is \\(O(2^{\\pi(z)})\\), since there are \\(2^{\\pi(z)}\\) squarefree divisors of \\(P(z)\\).</p>
+
+<div class="env-block warning">
+    <div class="env-title">The Parity Problem</div>
+    <div class="env-body">
+        <p>For \\(z = \\sqrt{N}\\), the error term \\(O(2^{\\pi(z)}) = O(2^{c\\sqrt{N}/\\ln N})\\) dwarfs the main term \\(O(N/\\ln N)\\) for large \\(N\\). The full inclusion-exclusion has too many terms! This is why we need Brun's truncation.</p>
+    </div>
+</div>
+
+<div class="viz-placeholder" data-viz="viz-inclusion-exclusion"></div>
 `,
             visualizations: [
                 {
                     id: 'viz-inclusion-exclusion',
-                    title: 'Inclusion-Exclusion Over/Under Oscillation',
-                    description: 'The partial sums of inclusion-exclusion oscillate above and below the true count. Drag the slider to add more terms. Blue bars are upper bounds (even layers), orange bars are lower bounds (odd layers).',
+                    title: 'Inclusion-Exclusion for Sieving',
+                    description: 'Visualize how inclusion-exclusion counts integers not divisible by any of the first few primes. Watch the alternating over- and under-counting converge to the exact answer.',
                     setup: function(body, controls) {
-                        var viz = new VizEngine(body, { width: 560, height: 340, originX: 50, originY: 290, scale: 1 });
-                        var N = 100;
-                        var primes = [2, 3, 5, 7, 11];
-                        var layersVal = 1;
+                        var viz = new VizEngine(body, {
+                            width: 580, height: 400,
+                            originX: 60, originY: 360, scale: 1
+                        });
 
-                        VizEngine.createSlider(controls, 'Layers of I-E', 0, 5, 1, 1, function(v) {
-                            layersVal = Math.round(v);
+                        var N = 60;
+                        var maxPrimeIdx = 3;
+                        var smallPrimes = [2, 3, 5, 7, 11, 13];
+
+                        VizEngine.createSlider(controls, 'N', 20, 120, N, 10, function(v) {
+                            N = Math.round(v);
+                            draw();
+                        });
+                        VizEngine.createSlider(controls, '# primes', 1, 6, maxPrimeIdx, 1, function(v) {
+                            maxPrimeIdx = Math.round(v);
                             draw();
                         });
 
-                        // Precompute exact count
-                        function exactCount() {
-                            var c = 0;
-                            for (var n = 1; n <= N; n++) {
-                                var ok = true;
-                                for (var pi = 0; pi < primes.length; pi++) {
-                                    if (n % primes[pi] === 0) { ok = false; break; }
-                                }
-                                if (ok) c++;
-                            }
-                            return c;
-                        }
-                        var exact = exactCount();
-
-                        // Partial I-E sum up to r layers
-                        function partialIE(r) {
-                            if (r < 0) return N;
-                            var total = N;
-                            // Layer k: all products of k primes from our list
-                            function combSum(idx, k, prod) {
-                                if (k === 0) return Math.floor(N / prod);
-                                var s = 0;
-                                for (var i = idx; i < primes.length; i++) {
-                                    s += combSum(i + 1, k - 1, prod * primes[i]);
-                                }
-                                return s;
-                            }
-                            var val = N;
-                            for (var k = 1; k <= r; k++) {
-                                var sign = (k % 2 === 1) ? -1 : 1;
-                                val += sign * combSum(0, k, 1);
-                            }
-                            return val;
-                        }
+                        function gcd(a, b) { while (b) { var t = b; b = a % b; a = t; } return a; }
 
                         function draw() {
                             viz.clear();
                             var ctx = viz.ctx;
-                            var chartBottom = 270;
-                            var chartTop = 40;
-                            var chartH = chartBottom - chartTop;
-                            var barW = 60;
-                            var gap = 18;
 
-                            viz.screenText('Inclusion-Exclusion: N=' + N + ', primes ' + primes.join(','), viz.width / 2, 16, viz.colors.white, 12);
-                            viz.screenText('Exact count = ' + exact, viz.width / 2, 30, viz.colors.green, 11);
+                            var primes = smallPrimes.slice(0, maxPrimeIdx);
+                            var P = 1;
+                            for (var i = 0; i < primes.length; i++) P *= primes[i];
 
-                            var maxVal = N + 10;
-                            var yScale = chartH / maxVal;
+                            // Exact count: coprime to all primes
+                            var exact = 0;
+                            for (var n = 1; n <= N; n++) {
+                                if (gcd(n, P) === 1) exact++;
+                            }
 
-                            // Exact count line
-                            var yExact = chartBottom - exact * yScale;
-                            ctx.strokeStyle = viz.colors.green;
+                            // Build all squarefree divisors of P
+                            var divisors = [1];
+                            for (var pi = 0; pi < primes.length; pi++) {
+                                var p = primes[pi];
+                                var len = divisors.length;
+                                for (var di = 0; di < len; di++) {
+                                    divisors.push(divisors[di] * p);
+                                }
+                            }
+                            divisors.sort(function(a, b) { return a - b; });
+
+                            // Group by number of prime factors (for step-by-step I-E)
+                            function countFactors(d) {
+                                var c = 0;
+                                for (var q = 0; q < primes.length; q++) {
+                                    if (d % primes[q] === 0) c++;
+                                }
+                                return c;
+                            }
+
+                            // Compute partial sums for I-E steps
+                            var steps = [];
+                            var running = 0;
+                            for (var k = 0; k <= primes.length; k++) {
+                                var termSum = 0;
+                                for (var dj = 0; dj < divisors.length; dj++) {
+                                    if (countFactors(divisors[dj]) === k) {
+                                        var sign = (k % 2 === 0) ? 1 : -1;
+                                        termSum += sign * Math.floor(N / divisors[dj]);
+                                    }
+                                }
+                                running += termSum;
+                                steps.push({ k: k, partial: running, term: termSum });
+                            }
+
+                            // Title
+                            viz.screenText(
+                                'Inclusion-Exclusion: coprime to {' + primes.join(', ') + '} in [1,' + N + ']',
+                                viz.width / 2, 18, viz.colors.white, 13
+                            );
+
+                            // Bar chart of partial sums
+                            var chartL = 80;
+                            var chartR = viz.width - 60;
+                            var chartW = chartR - chartL;
+                            var barW = Math.min(60, chartW / (steps.length + 1));
+                            var chartBot = 330;
+                            var chartTop = 50;
+                            var maxVal = N;
+                            var chartH = chartBot - chartTop;
+
+                            // Horizontal line at exact answer
+                            var exactY = chartBot - (exact / maxVal) * chartH;
+                            ctx.strokeStyle = viz.colors.teal;
                             ctx.lineWidth = 2;
                             ctx.setLineDash([6, 4]);
                             ctx.beginPath();
-                            ctx.moveTo(20, yExact);
-                            ctx.lineTo(viz.width - 20, yExact);
+                            ctx.moveTo(chartL - 10, exactY);
+                            ctx.lineTo(chartR + 10, exactY);
                             ctx.stroke();
                             ctx.setLineDash([]);
-                            ctx.fillStyle = viz.colors.green;
-                            ctx.font = '10px -apple-system,sans-serif';
-                            ctx.textAlign = 'right';
-                            ctx.fillText('exact=' + exact, viz.width - 24, yExact - 4);
+                            ctx.font = '11px -apple-system,sans-serif';
+                            ctx.textAlign = 'left';
+                            ctx.fillStyle = viz.colors.teal;
+                            ctx.fillText('Exact = ' + exact, chartR + 12, exactY + 4);
 
-                            var startX = 60;
-                            for (var k = 0; k <= layersVal; k++) {
-                                var val = partialIE(k);
-                                var x = startX + k * (barW + gap);
-                                var h = val * yScale;
-                                var isUpper = (k % 2 === 0);
-                                var col = isUpper ? viz.colors.blue : viz.colors.orange;
+                            // Zero line
+                            ctx.strokeStyle = viz.colors.axis;
+                            ctx.lineWidth = 1;
+                            ctx.beginPath();
+                            ctx.moveTo(chartL, chartBot);
+                            ctx.lineTo(chartR, chartBot);
+                            ctx.stroke();
 
-                                ctx.fillStyle = col + '99';
-                                ctx.fillRect(x, chartBottom - h, barW, h);
-                                ctx.strokeStyle = col;
-                                ctx.lineWidth = 2;
-                                ctx.strokeRect(x, chartBottom - h, barW, h);
+                            var barColors = [viz.colors.blue, viz.colors.orange, viz.colors.green, viz.colors.purple, viz.colors.red, viz.colors.yellow, viz.colors.pink];
 
-                                ctx.fillStyle = viz.colors.white;
-                                ctx.font = '11px -apple-system,sans-serif';
+                            for (var si = 0; si < steps.length; si++) {
+                                var cx = chartL + (si + 0.5) * (chartW / steps.length);
+                                var val = steps[si].partial;
+                                var barH = (val / maxVal) * chartH;
+
+                                ctx.fillStyle = barColors[si % barColors.length] + 'aa';
+                                ctx.fillRect(cx - barW / 2, chartBot - barH, barW, barH);
+                                ctx.strokeStyle = barColors[si % barColors.length];
+                                ctx.lineWidth = 1.5;
+                                ctx.strokeRect(cx - barW / 2, chartBot - barH, barW, barH);
+
+                                // Value label
+                                ctx.font = 'bold 12px -apple-system,sans-serif';
                                 ctx.textAlign = 'center';
-                                ctx.fillText(val.toString(), x + barW / 2, chartBottom - h - 8);
+                                ctx.fillStyle = viz.colors.white;
+                                ctx.textBaseline = 'bottom';
+                                ctx.fillText(val.toString(), cx, chartBot - barH - 4);
 
-                                ctx.fillStyle = viz.colors.text;
+                                // Step label
                                 ctx.font = '10px -apple-system,sans-serif';
-                                ctx.fillText('k=' + k, x + barW / 2, chartBottom + 12);
-                                ctx.fillStyle = isUpper ? viz.colors.blue : viz.colors.orange;
-                                ctx.fillText(isUpper ? 'UB' : 'LB', x + barW / 2, chartBottom + 24);
+                                ctx.fillStyle = viz.colors.text;
+                                ctx.textBaseline = 'top';
+                                var label = si === 0 ? 'N' : (si % 2 === 1 ? 'Sub ' + si : 'Add ' + si);
+                                ctx.fillText(label, cx, chartBot + 6);
                             }
 
-                            // Y-axis ticks
-                            ctx.fillStyle = viz.colors.text;
-                            ctx.font = '10px -apple-system,sans-serif';
-                            ctx.textAlign = 'right';
-                            for (var t = 0; t <= maxVal; t += 20) {
-                                var ty = chartBottom - t * yScale;
-                                ctx.fillText(t, 44, ty + 4);
-                                ctx.strokeStyle = viz.colors.grid;
-                                ctx.lineWidth = 0.5;
-                                ctx.beginPath();
-                                ctx.moveTo(48, ty);
-                                ctx.lineTo(viz.width - 20, ty);
-                                ctx.stroke();
-                            }
+                            // Legend
+                            viz.screenText(
+                                'Alternating sums converge to exact count (dashed line)',
+                                viz.width / 2, viz.height - 10, viz.colors.text, 11
+                            );
                         }
                         draw();
                         return viz;
@@ -496,410 +516,235 @@ window.CHAPTERS.push({
             ],
             exercises: [
                 {
-                    question: 'How many integers in \\([1, 100]\\) are not divisible by 2, 3, or 5? Compute using two layers of inclusion-exclusion and compare with the exact answer.',
-                    hint: 'Layer 0: 100. Layer 1: subtract \\(\\lfloor 100/2 \\rfloor + \\lfloor 100/3 \\rfloor + \\lfloor 100/5 \\rfloor\\). Layer 2: add back pairs \\(\\lfloor 100/6 \\rfloor + \\lfloor 100/10 \\rfloor + \\lfloor 100/15 \\rfloor\\). Full formula subtracts \\(\\lfloor 100/30 \\rfloor\\).',
-                    solution: 'After 2 layers: \\(100 - 50 - 33 - 20 + 16 + 10 + 6 = 29\\). Full inclusion-exclusion subtracts \\(\\lfloor 100/30 \\rfloor = 3\\), giving \\(29 - 3 = 26\\). By Euler\'s phi, \\(\\phi(30) \\cdot (100/30) + \\text{correction} = 8 \\cdot 3 + \\text{correction} = 26\\). The 2-layer upper bound 29 overshoots by 3.'
+                    question: 'Use the Legendre sieve to compute the exact number of integers in \\(\\{1, \\ldots, 30\\}\\) that are coprime to \\(30 = 2 \\cdot 3 \\cdot 5\\). Verify using Euler\'s totient: \\(\\varphi(30)\\).',
+                    hint: 'Sum \\(\\mu(d) \\lfloor 30/d \\rfloor\\) over all squarefree divisors \\(d\\) of 30.',
+                    solution: 'The squarefree divisors of 30 are \\(1, 2, 3, 5, 6, 10, 15, 30\\). We compute: \\(\\lfloor 30/1 \\rfloor - \\lfloor 30/2 \\rfloor - \\lfloor 30/3 \\rfloor - \\lfloor 30/5 \\rfloor + \\lfloor 30/6 \\rfloor + \\lfloor 30/10 \\rfloor + \\lfloor 30/15 \\rfloor - \\lfloor 30/30 \\rfloor = 30 - 15 - 10 - 6 + 5 + 3 + 2 - 1 = 8\\). And \\(\\varphi(30) = 30(1 - 1/2)(1 - 1/3)(1 - 1/5) = 30 \\cdot 1/2 \\cdot 2/3 \\cdot 4/5 = 8\\). \\(\\checkmark\\)'
+                },
+                {
+                    question: 'How many squarefree divisors does \\(P(z)\\) have when \\(z = 20\\)? Why does this make the full Legendre sieve impractical for large \\(z\\)?',
+                    hint: '\\(P(20) = 2 \\cdot 3 \\cdot 5 \\cdot 7 \\cdot 11 \\cdot 13 \\cdot 17 \\cdot 19\\). A product of \\(k\\) distinct primes has \\(2^k\\) squarefree divisors.',
+                    solution: 'There are \\(\\pi(20) = 8\\) primes below 20, so \\(P(20)\\) has \\(2^8 = 256\\) squarefree divisors. For \\(z = 100\\), there are \\(\\pi(100) = 25\\) primes, giving \\(2^{25} = 33{,}554{,}432\\) terms. For \\(z = \\sqrt{N}\\), the number of terms \\(2^{\\pi(\\sqrt{N})}\\) grows super-polynomially, eventually swamping the main term.'
                 }
             ]
         },
 
         // ================================================================
-        // SECTION 4: Brun's Sieve
+        // SECTION 4: Brun's Combinatorial Sieve
         // ================================================================
         {
             id: 'sec-brun',
-            title: "Brun's Sieve",
+            title: "Brun's Combinatorial Sieve",
             content: `
-<h2>Brun's Sieve</h2>
+<h2>Brun's Combinatorial Sieve</h2>
 
-<p>Viggo Brun's 1920 insight: instead of including all layers of inclusion-exclusion (which explodes), truncate at a fixed level. By the Bonferroni inequalities, even truncations give upper bounds and odd truncations give lower bounds. The key is to choose the truncation level so that the main term dominates the remainder.</p>
+<div class="env-block intuition">
+    <div class="env-title">Truncation: The Key Idea</div>
+    <div class="env-body">
+        <p>The Legendre sieve uses the full inclusion-exclusion, summing over all \\(2^{\\pi(z)}\\) squarefree divisors of \\(P(z)\\). Brun's insight: if we <strong>truncate</strong> the sum by only including divisors with at most \\(2r\\) prime factors, the alternating sum gives an <strong>upper bound</strong> on the sifting function. If we truncate at \\(2r - 1\\) prime factors, we get a <strong>lower bound</strong>. This is a consequence of the Bonferroni inequalities.</p>
+    </div>
+</div>
 
-<h3>The Truncation Idea</h3>
-
-<p>Define the truncated Mobius-like function \\(\\lambda_d^\\pm\\) supported on squarefree integers \\(d \\mid P(z)\\) with \\(\\Omega(d) \\leq s\\) for some parameter \\(s\\):</p>
-
-\\[\\lambda_d^+ = \\begin{cases} \\mu(d) & \\text{if } \\Omega(d) \\leq s \\text{ and } s \\text{ even,} \\\\ 0 & \\text{if } \\Omega(d) > s \\text{ or}\\end{cases} \\quad \\lambda_d^- = \\begin{cases} \\mu(d) & \\text{if } \\Omega(d) \\leq s \\text{ and } s \\text{ odd,} \\\\ 0 & \\text{otherwise.} \\end{cases}\\]
-
-<p>More precisely, Brun's truncation is:</p>
-\\[\\lambda_d = \\begin{cases} \\mu(d) & \\text{if } d \\mid P(z) \\text{ and } \\Omega(d) \\leq 2\\nu + 1 \\\\ 0 & \\text{otherwise.}\\end{cases}\\]
-
-<p>The Bonferroni inequalities guarantee:</p>
-\\[S^-(\\mathcal{A}) \\leq S(\\mathcal{A}, \\mathcal{P}, z) \\leq S^+(\\mathcal{A})\\]
-<p>where \\(S^\\pm\\) use the truncated weights \\(\\lambda^\\pm\\).</p>
-
-<h3>Brun's Pure Sieve</h3>
+<h3>Bonferroni Inequalities</h3>
 
 <div class="env-block theorem">
-    <div class="env-title">Theorem 11.3 (Brun's Sieve)</div>
+    <div class="env-title">Theorem 11.3 (Bonferroni Inequalities)</div>
     <div class="env-body">
-        <p>Let \\(|\\mathcal{A}_d| \\leq X/d\\) for all \\(d \\mid P(z)\\). For any even integer \\(s\\),</p>
-        \\[S(\\mathcal{A}, \\mathcal{P}, z) \\leq X \\prod_{p < z}\\left(1 - \\frac{1}{p}\\right) \\left(1 + O\\left(\\frac{(2s)^{\\Omega(P(z))}}{(s/e)^s} z^{-c}\\right)\\right) + \\text{error},\\]
-        <p>and similarly for the lower bound with odd \\(s\\). By choosing \\(s = c \\log\\log z\\) for a suitable constant \\(c\\), the correction factor is bounded, and we obtain</p>
-        \\[S(\\mathcal{A}, \\mathcal{P}, z) \\ll X \\prod_{p < z}\\left(1 - \\frac{1}{p}\\right).\\]
+        <p>With the notation of Theorem 11.1, let \\(S_j = \\sum_{|T| = j} |\\bigcap_{i \\in T} A_i|\\). Then for any \\(m\\):</p>
+        \\[\\text{If } m \\text{ is even:} \\quad \\left| U \\setminus \\bigcup A_i \\right| \\leq \\sum_{j=0}^{m} (-1)^j S_j,\\]
+        \\[\\text{If } m \\text{ is odd:} \\quad \\left| U \\setminus \\bigcup A_i \\right| \\geq \\sum_{j=0}^{m} (-1)^j S_j.\\]
     </div>
 </div>
 
-<p>The optimal truncation level \\(s \\asymp \\log\\log z\\) means we only use products of at most \\(O(\\log\\log z)\\) primes. The number of terms is \\(\\binom{\\pi(z)}{s} \\ll z^{c \\log\\log z / \\log z}\\), which is polynomial rather than exponential. This tames the explosion.</p>
+<p>Brun's sieve applies this principle to the sifting function. Define:</p>
 
-<h3>Choosing Parameters</h3>
-
-<p>For twin primes, take \\(\\mathcal{A} = \\{n(n+2) : n \\leq N\\}\\) and \\(\\mathcal{P}\\) = all primes. Here \\(\\omega(p) = 2\\) for \\(p > 2\\) (both \\(n \\equiv 0\\) and \\(n \\equiv -2 \\pmod{p}\\) are excluded). The sieve density is:</p>
-\\[\\prod_{p < z}\\left(1 - \\frac{\\omega(p)}{p}\\right) = \\frac{1}{2} \\prod_{2 < p < z}\\left(1 - \\frac{2}{p}\\right).\\]
-
-<p>By Mertens' third theorem, \\(\\prod_{p < z}(1 - 1/p) \\sim e^{-\\gamma}/\\log z\\). For the twin prime product with factor 2, heuristics give \\(\\prod_p (1 - 2/p) \\cdot (1 - 1/p)^{-2} = 2C_2\\) where \\(C_2 \\approx 0.6601\\ldots\\) is the twin prime constant.</p>
-
-<div class="env-block example">
-    <div class="env-title">Example: Upper Bound for Twin Primes</div>
+<div class="env-block definition">
+    <div class="env-title">Definition (Brun's Sieve Bounds)</div>
     <div class="env-body">
-        <p>Brun's sieve gives \\(\\pi_2(N) \\ll N / (\\log N)^2\\), matching the expected order of magnitude for twin primes from the Hardy-Littlewood conjecture \\(\\pi_2(N) \\sim 2C_2 N / (\\log N)^2\\). The sieve yields the right shape but with an unspecified constant.</p>
+        <p>For a truncation parameter \\(b \\geq 1\\), define</p>
+        \\[S^+(\\mathcal{A}, \\mathcal{P}, z) = \\sum_{\\substack{d \\mid P(z) \\\\ \\nu(d) \\leq 2b}} \\mu(d) |\\mathcal{A}_d|, \\qquad S^-(\\mathcal{A}, \\mathcal{P}, z) = \\sum_{\\substack{d \\mid P(z) \\\\ \\nu(d) \\leq 2b-1}} \\mu(d) |\\mathcal{A}_d|,\\]
+        <p>where \\(\\nu(d)\\) denotes the number of distinct prime factors of \\(d\\). Then</p>
+        \\[S^-(\\mathcal{A}, \\mathcal{P}, z) \\leq S(\\mathcal{A}, \\mathcal{P}, z) \\leq S^+(\\mathcal{A}, \\mathcal{P}, z).\\]
     </div>
 </div>
+
+<h3>Brun's Key Estimate</h3>
+
+<p>The art of Brun's method lies in choosing \\(b\\) optimally relative to \\(z\\) and \\(N\\). The crucial combinatorial estimate is:</p>
+
+<div class="env-block theorem">
+    <div class="env-title">Theorem 11.4 (Brun's Upper Bound)</div>
+    <div class="env-body">
+        <p>Let \\(\\mathcal{A} = \\{1, 2, \\ldots, N\\}\\), \\(\\mathcal{P}\\) the set of all primes, and \\(z = N^{1/u}\\) for some \\(u > 1\\). Then for \\(b = \\lfloor u/2 \\rfloor\\),</p>
+        \\[S(\\mathcal{A}, \\mathcal{P}, z) \\leq N \\prod_{p < z}\\left(1 - \\frac{1}{p}\\right) \\left(1 + O\\left(\\frac{1}{(\\ln z)^{1/3}}\\right)\\right) + O(z).\\]
+        <p>In particular, for \\(z = \\sqrt{N}\\) (so \\(u = 2\\)), Brun's sieve recovers a bound of the correct order for \\(\\pi(N)\\).</p>
+    </div>
+</div>
+
+<p>The error term \\(O(z)\\) replaces the catastrophic \\(O(2^{\\pi(z)})\\) of the Legendre sieve. This is because the truncated sum has only \\(\\sum_{j=0}^{2b} \\binom{\\pi(z)}{j}\\) terms instead of \\(2^{\\pi(z)}\\), and \\(\\binom{\\pi(z)}{j}\\) is much smaller than \\(2^{\\pi(z)}\\) when \\(j\\) is bounded.</p>
+
+<div class="viz-placeholder" data-viz="viz-brun-truncation"></div>
 `,
             visualizations: [
                 {
                     id: 'viz-brun-truncation',
                     title: "Brun's Truncation: Upper and Lower Bounds",
-                    description: "As the truncation level s increases, the upper and lower bounds converge toward the true sieve count. The true count is shown as a green dashed line.",
+                    description: 'See how truncating inclusion-exclusion at different depths produces alternating upper and lower bounds that squeeze the true count.',
                     setup: function(body, controls) {
-                        var viz = new VizEngine(body, { width: 560, height: 340, originX: 60, originY: 300, scale: 1 });
-                        var N = 200;
-                        var primes = [2, 3, 5, 7, 11, 13];
+                        var viz = new VizEngine(body, {
+                            width: 580, height: 400,
+                            originX: 0, originY: 0, scale: 1
+                        });
 
-                        // Exact survivors: coprime to all our primes
-                        function exactSurvivors() {
-                            var c = 0;
-                            for (var n = 1; n <= N; n++) {
-                                var ok = true;
-                                for (var i = 0; i < primes.length; i++) {
-                                    if (n % primes[i] === 0) { ok = false; break; }
-                                }
-                                if (ok) c++;
-                            }
-                            return c;
-                        }
-                        var exact = exactSurvivors();
+                        var N = 100;
 
-                        // Partial inclusion-exclusion sum for all subsets of size <= s
-                        function partialSieve(s) {
-                            var total = N;
-                            function rec(start, depth, prod, sign) {
-                                if (depth === 0 || start === primes.length) return;
-                                for (var i = start; i < primes.length; i++) {
-                                    var np = prod * primes[i];
-                                    total += sign * Math.floor(N / np);
-                                    if (depth > 1) rec(i + 1, depth - 1, np, -sign);
-                                }
-                            }
-                            // This is the direct Bonferroni approach
-                            // Recompute from scratch for each s
-                            total = N;
-                            function compute(start, depth, prod, sgn) {
-                                for (var i = start; i < primes.length; i++) {
-                                    var np = prod * primes[i];
-                                    total += sgn * Math.floor(N / np);
-                                    if (depth > 1) compute(i + 1, depth - 1, np, -sgn);
-                                }
-                            }
-                            for (var k = 1; k <= s; k++) {
-                                // Handled above — redo clean
-                            }
-                            // Cleaner: sum over all subsets of primes with size <= s
-                            total = 0;
-                            var n = primes.length;
-                            for (var mask = 0; mask < (1 << n); mask++) {
-                                var bits = 0, prod2 = 1;
-                                for (var b = 0; b < n; b++) {
-                                    if (mask & (1 << b)) { bits++; prod2 *= primes[b]; }
-                                }
-                                if (bits > s) continue;
-                                var sign2 = (bits % 2 === 0) ? 1 : -1;
-                                total += sign2 * Math.floor(N / prod2);
-                            }
-                            return total;
-                        }
+                        VizEngine.createSlider(controls, 'N', 30, 200, N, 10, function(v) {
+                            N = Math.round(v);
+                            draw();
+                        });
+
+                        function gcd(a, b) { while (b) { var t = b; b = a % b; a = t; } return a; }
 
                         function draw() {
                             viz.clear();
                             var ctx = viz.ctx;
-                            var chartBottom = 280;
-                            var chartTop = 40;
-                            var chartH = chartBottom - chartTop;
-                            var maxBound = N + 10;
-                            var yScale = chartH / maxBound;
 
-                            viz.screenText("Brun Truncation Bounds: N=" + N + ", primes {" + primes.join(',') + "}", viz.width / 2, 16, viz.colors.white, 12);
+                            // Use primes up to sqrt(N)
+                            var sqrtN = Math.floor(Math.sqrt(N));
+                            var primes = VizEngine.sievePrimes(sqrtN);
+                            var k = primes.length;
+
+                            // Build all squarefree divisors of P(sqrt(N))
+                            var divisors = [{ d: 1, nf: 0 }];
+                            for (var pi = 0; pi < k; pi++) {
+                                var p = primes[pi];
+                                var len = divisors.length;
+                                for (var di = 0; di < len; di++) {
+                                    divisors.push({ d: divisors[di].d * p, nf: divisors[di].nf + 1 });
+                                }
+                            }
+
+                            // Compute partial I-E sums truncated at depth m
+                            var exact = 0;
+                            var Pz = 1;
+                            for (var qi = 0; qi < k; qi++) Pz *= primes[qi];
+                            for (var n = 1; n <= N; n++) {
+                                if (gcd(n, Pz) === 1) exact++;
+                            }
+
+                            var partials = [];
+                            var running = 0;
+                            for (var m = 0; m <= k; m++) {
+                                var termSum = 0;
+                                for (var dj = 0; dj < divisors.length; dj++) {
+                                    if (divisors[dj].nf === m) {
+                                        var mu = (m % 2 === 0) ? 1 : -1;
+                                        termSum += mu * Math.floor(N / divisors[dj].d);
+                                    }
+                                }
+                                running += termSum;
+                                partials.push(running);
+                            }
+
+                            viz.screenText(
+                                'Truncated I-E bounds for S(A, P, ' + sqrtN + '), N = ' + N,
+                                viz.width / 2, 18, viz.colors.white, 13
+                            );
+                            viz.screenText(
+                                'Primes used: {' + primes.join(', ') + '}  (k = ' + k + ')',
+                                viz.width / 2, 38, viz.colors.text, 11
+                            );
+
+                            // Chart
+                            var chartL = 70;
+                            var chartR = viz.width - 40;
+                            var chartW = chartR - chartL;
+                            var chartBot = 350;
+                            var chartTop = 60;
+                            var chartH = chartBot - chartTop;
+                            var maxVal = Math.max(N, Math.max.apply(null, partials));
+                            var minVal = Math.min(0, Math.min.apply(null, partials));
+                            var range = maxVal - minVal || 1;
+
+                            function yPos(v) {
+                                return chartBot - ((v - minVal) / range) * chartH;
+                            }
 
                             // Exact line
-                            var yEx = chartBottom - exact * yScale;
-                            ctx.strokeStyle = viz.colors.green;
+                            var ey = yPos(exact);
+                            ctx.strokeStyle = viz.colors.teal;
                             ctx.lineWidth = 2;
                             ctx.setLineDash([6, 4]);
                             ctx.beginPath();
-                            ctx.moveTo(50, yEx);
-                            ctx.lineTo(viz.width - 20, yEx);
+                            ctx.moveTo(chartL, ey);
+                            ctx.lineTo(chartR, ey);
                             ctx.stroke();
                             ctx.setLineDash([]);
-                            ctx.fillStyle = viz.colors.green;
-                            ctx.font = '10px -apple-system,sans-serif';
-                            ctx.textAlign = 'right';
-                            ctx.fillText('exact=' + exact, viz.width - 22, yEx - 5);
+                            ctx.font = '11px -apple-system,sans-serif';
+                            ctx.textAlign = 'left';
+                            ctx.fillStyle = viz.colors.teal;
+                            ctx.fillText('Exact = ' + exact, chartR - 80, ey - 8);
 
-                            // Plot bounds for s=0..6
-                            var pts = [];
-                            for (var s = 0; s <= 6; s++) {
-                                pts.push(partialSieve(s));
+                            // Zero line
+                            if (minVal < 0) {
+                                var zy = yPos(0);
+                                ctx.strokeStyle = viz.colors.axis;
+                                ctx.lineWidth = 0.5;
+                                ctx.beginPath();
+                                ctx.moveTo(chartL, zy);
+                                ctx.lineTo(chartR, zy);
+                                ctx.stroke();
                             }
 
-                            var barW = 50;
-                            var startX = 65;
-                            var gap = 16;
-                            for (var s2 = 0; s2 <= 6; s2++) {
-                                var val = pts[s2];
-                                var x = startX + s2 * (barW + gap);
-                                var h = Math.max(0, val * yScale);
-                                var isUpper = (s2 % 2 === 0);
-                                var col = isUpper ? viz.colors.blue : viz.colors.orange;
+                            // Plot partial sums as connected points
+                            var maxDepth = Math.min(partials.length, 12);
+                            var dx = chartW / Math.max(maxDepth - 1, 1);
 
-                                ctx.fillStyle = col + '88';
-                                ctx.fillRect(x, chartBottom - h, barW, h);
-                                ctx.strokeStyle = col;
-                                ctx.lineWidth = 1.5;
-                                ctx.strokeRect(x, chartBottom - h, barW, h);
+                            for (var si = 0; si < maxDepth; si++) {
+                                var px = chartL + si * dx;
+                                var py = yPos(partials[si]);
 
+                                // Color based on upper/lower
+                                var isUpper = (si % 2 === 0);
+                                var col = isUpper ? viz.colors.orange : viz.colors.blue;
+
+                                // Connect to previous
+                                if (si > 0) {
+                                    var ppx = chartL + (si - 1) * dx;
+                                    var ppy = yPos(partials[si - 1]);
+                                    ctx.strokeStyle = viz.colors.text + '44';
+                                    ctx.lineWidth = 1;
+                                    ctx.beginPath();
+                                    ctx.moveTo(ppx, ppy);
+                                    ctx.lineTo(px, py);
+                                    ctx.stroke();
+                                }
+
+                                // Point
                                 ctx.fillStyle = col;
-                                ctx.font = 'bold 11px -apple-system,sans-serif';
-                                ctx.textAlign = 'center';
-                                ctx.fillText(val.toString(), x + barW / 2, chartBottom - h - 9);
+                                ctx.beginPath();
+                                ctx.arc(px, py, 5, 0, Math.PI * 2);
+                                ctx.fill();
 
-                                ctx.fillStyle = viz.colors.text;
+                                // Value
                                 ctx.font = '10px -apple-system,sans-serif';
-                                ctx.fillText('s=' + s2, x + barW / 2, chartBottom + 12);
-                                ctx.fillStyle = isUpper ? viz.colors.blue : viz.colors.orange;
-                                ctx.fillText(isUpper ? 'upper' : 'lower', x + barW / 2, chartBottom + 24);
-                            }
+                                ctx.textAlign = 'center';
+                                ctx.fillStyle = col;
+                                ctx.textBaseline = isUpper ? 'top' : 'bottom';
+                                ctx.fillText(partials[si].toString(), px, py + (isUpper ? 8 : -8));
 
-                            // y-axis
-                            ctx.fillStyle = viz.colors.text;
-                            ctx.font = '10px -apple-system,sans-serif';
-                            ctx.textAlign = 'right';
-                            for (var t = 0; t <= maxBound; t += 40) {
-                                var ty = chartBottom - t * yScale;
-                                ctx.fillText(t, 44, ty + 4);
-                                ctx.strokeStyle = viz.colors.grid;
-                                ctx.lineWidth = 0.5;
-                                ctx.beginPath();
-                                ctx.moveTo(48, ty);
-                                ctx.lineTo(viz.width - 20, ty);
-                                ctx.stroke();
-                            }
-                        }
-                        draw();
-                        return viz;
-                    }
-                }
-            ],
-            exercises: [
-                {
-                    question: "For the set \\(\\mathcal{A} = \\{n(n+2) : 1 \\leq n \\leq 100\\}\\) and the prime 3, compute \\(\\omega(3)\\): how many residue classes mod 3 does 3 eliminate from this set?",
-                    hint: "The set consists of products \\(n(n+2)\\). An element \\(n(n+2)\\) is divisible by 3 if \\(n \\equiv 0 \\pmod 3\\) or \\(n \\equiv 1 \\pmod 3\\) (since \\(n+2 \\equiv 0\\)). What about \\(n \\equiv 2 \\pmod 3\\)?",
-                    solution: "If \\(n \\equiv 0 \\pmod 3\\), then \\(3 \\mid n\\). If \\(n \\equiv 1 \\pmod 3\\), then \\(n + 2 \\equiv 0 \\pmod 3\\). If \\(n \\equiv 2 \\pmod 3\\), then \\(n \\equiv 2\\) and \\(n+2 \\equiv 1\\), so neither factor is divisible by 3. Thus 3 eliminates 2 out of 3 residue classes: \\(\\omega(3) = 2\\)."
-                }
-            ]
-        },
-
-        // ================================================================
-        // SECTION 5: Brun's Theorem (Twin Primes)
-        // ================================================================
-        {
-            id: 'sec-brun-theorem',
-            title: "Brun's Theorem",
-            content: `
-<h2>Brun's Theorem</h2>
-
-<p>The most famous application of Brun's sieve is to twin primes. While we cannot prove there are infinitely many twin primes, Brun proved something remarkable: even if there are infinitely many, the sum of their reciprocals converges.</p>
-
-<div class="env-block theorem">
-    <div class="env-title">Theorem 11.4 (Brun's Theorem, 1919)</div>
-    <div class="env-body">
-        <p>The sum of reciprocals of twin primes converges:</p>
-        \\[B_2 = \\left(\\frac{1}{3} + \\frac{1}{5}\\right) + \\left(\\frac{1}{5} + \\frac{1}{7}\\right) + \\left(\\frac{1}{11} + \\frac{1}{13}\\right) + \\cdots = \\sum_{\\substack{p,\\, p+2\\, \\text{both prime}}} \\frac{1}{p} < \\infty.\\]
-        <p>The numerical value is \\(B_2 \\approx 1.9021605831\\ldots\\) (Brun's constant).</p>
-    </div>
-</div>
-
-<h3>Why This Is Surprising</h3>
-
-<p>Compare with the prime reciprocal sum \\(\\sum_{p} 1/p = \\infty\\) (Euler). That sum diverges, meaning primes are "abundant" enough for the series to diverge. Twin primes, if they exist in abundance, would also have a divergent series. Brun's theorem says that even the most optimistic scenario (infinitely many twin primes) is consistent with a convergent series: twin primes must be "sparse enough" that \\(\\sum 1/p_n < \\infty\\).</p>
-
-<h3>Proof Sketch</h3>
-
-<p>The key bound is the count of twin primes. Brun's sieve applied to \\(\\mathcal{A} = \\{n(n+2) : n \\leq N\\}\\) gives:</p>
-\\[\\pi_2(N) := \\#\\{p \\leq N : p, p+2 \\text{ both prime}\\} \\ll \\frac{N}{(\\log N)^2}.\\]
-
-<p>With \\(\\pi_2(N) \\ll N / (\\log N)^2\\), partial summation gives:</p>
-\\[\\sum_{p \\leq N,\\, p+2\\, \\text{prime}} \\frac{1}{p} = \\int_2^N \\frac{1}{t} d\\pi_2(t) \\ll \\int_2^N \\frac{1}{t (\\log t)^2} dt + O(1) < \\infty.\\]
-
-<p>The integral \\(\\int_2^\\infty t^{-1} (\\log t)^{-2} dt\\) converges by the substitution \\(u = \\log t\\): it becomes \\(\\int_{\\log 2}^\\infty u^{-2} du < \\infty\\).</p>
-
-<h3>The Sieve Bound for Twin Primes</h3>
-
-<p>More explicitly, for \\(z = (\\log N)^A\\) and suitable \\(A\\):</p>
-\\[\\pi_2(N) \\leq S(\\mathcal{A}, \\mathcal{P}, z) \\ll N \\prod_{p < z}\\left(1 - \\frac{2}{p}\\right) \\ll \\frac{N}{(\\log N)^2}.\\]
-
-<p>The last inequality uses the product estimate:</p>
-\\[\\prod_{p < z}\\left(1 - \\frac{2}{p}\\right) = \\prod_{p < z}\\left(1 - \\frac{1}{p}\\right)^2 \\cdot \\prod_{p < z} \\frac{(1-2/p)}{(1-1/p)^2} \\sim \\frac{C}{(\\log z)^2}\\]
-<p>where \\(C = 2\\prod_{p > 2}(1 - (p-1)^{-2}) \\approx 1.3202\\ldots\\) The product over primes converges because \\(\\sum_p (2/p - (1-2/p)^{-1}(1-1/p)^2)\\) converges.</p>
-
-<div class="env-block remark">
-    <div class="env-title">Computational Note</div>
-    <div class="env-body">
-        <p>Computing \\(B_2\\) to many decimal places requires finding large twin primes. Thomas Nicely (1994, 1995) computed \\(B_2\\) to many digits, and in doing so discovered the famous "Pentium FDIV bug" when his results differed from expected values due to a floating-point error in Intel's Pentium processor. Brun's constant has since been computed to 12 decimal places: \\(B_2 \\approx 1.902160583104\\ldots\\)</p>
-    </div>
-</div>
-`,
-            visualizations: [
-                {
-                    id: 'viz-brun-constant',
-                    title: "Convergence of Brun's Constant",
-                    description: "Partial sums of \\(\\sum 1/p\\) over twin primes grow very slowly and appear to converge. Compare with the divergent sum over all primes.",
-                    setup: function(body, controls) {
-                        var viz = new VizEngine(body, { width: 560, height: 340, originX: 60, originY: 300, scale: 1 });
-
-                        // Precompute twin primes up to a limit
-                        var LIMIT = 100000;
-                        var sieve = VizEngine.sievePrimes(LIMIT + 2);
-                        var sieveSet = new Set(sieve);
-                        var twinPrimes = [];
-                        for (var i = 0; i < sieve.length; i++) {
-                            if (sieveSet.has(sieve[i] + 2)) {
-                                twinPrimes.push(sieve[i]);
-                            }
-                        }
-
-                        // Build cumulative sums sampled at log-spaced points
-                        var NUM_POINTS = 120;
-                        var twinSum = [];
-                        var allSum = [];
-                        var ns = [];
-                        var cumTwin = 0;
-                        var cumAll = 0;
-                        var twinIdx = 0;
-                        var allIdx = 0;
-                        var logMax = Math.log(LIMIT);
-                        for (var k = 1; k <= NUM_POINTS; k++) {
-                            var x = Math.exp(k * logMax / NUM_POINTS);
-                            while (twinIdx < twinPrimes.length && twinPrimes[twinIdx] <= x) {
-                                cumTwin += 2 / twinPrimes[twinIdx];
-                                twinIdx++;
-                            }
-                            while (allIdx < sieve.length && sieve[allIdx] <= x) {
-                                cumAll += 1 / sieve[allIdx];
-                                allIdx++;
-                            }
-                            ns.push(x);
-                            twinSum.push(cumTwin);
-                            allSum.push(cumAll);
-                        }
-
-                        function draw() {
-                            viz.clear();
-                            var ctx = viz.ctx;
-                            var chartBottom = 280;
-                            var chartTop = 40;
-                            var chartH = chartBottom - chartTop;
-                            var chartLeft = 60;
-                            var chartRight = viz.width - 20;
-                            var chartW = chartRight - chartLeft;
-
-                            viz.screenText("Brun's Constant vs. All-Prime Reciprocal Sum", viz.width / 2, 16, viz.colors.white, 13);
-
-                            // Scales
-                            var xMax = Math.log(LIMIT);
-                            var yMax = Math.max(allSum[allSum.length - 1], twinSum[twinSum.length - 1]) * 1.1;
-                            var xScale = chartW / xMax;
-                            var yScale = chartH / yMax;
-
-                            // Axes
-                            ctx.strokeStyle = viz.colors.axis;
-                            ctx.lineWidth = 1.5;
-                            ctx.beginPath();
-                            ctx.moveTo(chartLeft, chartTop);
-                            ctx.lineTo(chartLeft, chartBottom);
-                            ctx.lineTo(chartRight, chartBottom);
-                            ctx.stroke();
-
-                            // Grid
-                            ctx.fillStyle = viz.colors.text;
-                            ctx.font = '10px -apple-system,sans-serif';
-                            ctx.textAlign = 'right';
-                            for (var t = 0; t <= yMax; t += 1) {
-                                var ty = chartBottom - t * yScale;
-                                ctx.fillText(t.toFixed(1), chartLeft - 4, ty + 3);
-                                ctx.strokeStyle = viz.colors.grid;
-                                ctx.lineWidth = 0.5;
-                                ctx.beginPath();
-                                ctx.moveTo(chartLeft, ty);
-                                ctx.lineTo(chartRight, ty);
-                                ctx.stroke();
-                            }
-
-                            // x labels (log scale)
-                            ctx.textAlign = 'center';
-                            ctx.textBaseline = 'top';
-                            [10, 100, 1000, 10000, 100000].forEach(function(v) {
-                                var lx = chartLeft + Math.log(v) * xScale;
+                                // Depth label
                                 ctx.fillStyle = viz.colors.text;
-                                ctx.fillText(v >= 1000 ? (v/1000) + 'k' : v.toString(), lx, chartBottom + 4);
-                            });
-                            ctx.fillText('p (log scale)', (chartLeft + chartRight) / 2, chartBottom + 18);
-
-                            // All-primes sum (orange, diverging)
-                            ctx.strokeStyle = viz.colors.orange;
-                            ctx.lineWidth = 1.5;
-                            ctx.beginPath();
-                            for (var i = 0; i < ns.length; i++) {
-                                var px2 = chartLeft + Math.log(ns[i]) * xScale;
-                                var py2 = chartBottom - allSum[i] * yScale;
-                                if (i === 0) ctx.moveTo(px2, py2);
-                                else ctx.lineTo(px2, py2);
+                                ctx.textBaseline = 'top';
+                                ctx.fillText('m=' + si, px, chartBot + 6);
                             }
-                            ctx.stroke();
-
-                            // Twin-primes sum (teal, converging)
-                            ctx.strokeStyle = viz.colors.teal;
-                            ctx.lineWidth = 2.5;
-                            ctx.beginPath();
-                            for (var j = 0; j < ns.length; j++) {
-                                var px3 = chartLeft + Math.log(ns[j]) * xScale;
-                                var py3 = chartBottom - twinSum[j] * yScale;
-                                if (j === 0) ctx.moveTo(px3, py3);
-                                else ctx.lineTo(px3, py3);
-                            }
-                            ctx.stroke();
-
-                            // Horizontal dashed line at B_2 ~ 1.902
-                            var b2 = 1.902;
-                            var yB2 = chartBottom - b2 * yScale;
-                            ctx.setLineDash([5, 4]);
-                            ctx.strokeStyle = viz.colors.green;
-                            ctx.lineWidth = 1;
-                            ctx.beginPath();
-                            ctx.moveTo(chartLeft, yB2);
-                            ctx.lineTo(chartRight, yB2);
-                            ctx.stroke();
-                            ctx.setLineDash([]);
-                            ctx.fillStyle = viz.colors.green;
-                            ctx.font = '10px -apple-system,sans-serif';
-                            ctx.textAlign = 'right';
-                            ctx.fillText('B\u2082 \u2248 1.902', chartRight, yB2 - 5);
 
                             // Legend
                             ctx.font = '11px -apple-system,sans-serif';
                             ctx.textAlign = 'left';
                             ctx.fillStyle = viz.colors.orange;
-                            ctx.fillText('\u03a3 1/p (all primes, diverges)', chartLeft + 10, chartTop + 10);
-                            ctx.fillStyle = viz.colors.teal;
-                            ctx.fillText('\u03a3 1/p (twin primes, converges to B\u2082)', chartLeft + 10, chartTop + 25);
+                            ctx.fillText('\u25CF Upper bound (even m)', chartL, viz.height - 16);
+                            ctx.fillStyle = viz.colors.blue;
+                            ctx.fillText('\u25CF Lower bound (odd m)', chartL + 200, viz.height - 16);
                         }
                         draw();
                         return viz;
@@ -908,20 +753,310 @@ window.CHAPTERS.push({
             ],
             exercises: [
                 {
-                    question: "Show that if \\(\\pi_2(N) \\gg N/(\\log N)^2\\) (lower bound), then \\(\\sum_{\\text{twin } p \\leq N} 1/p\\) also diverges. This shows the upper bound \\(\\pi_2(N) \\ll N/(\\log N)^2\\) is necessary for Brun's theorem.",
-                    hint: "Apply partial summation: \\(\\sum_{p \\leq N} 1/p = \\pi_2(N)/N + \\int_2^N \\pi_2(t)/t^2 \\, dt\\). If \\(\\pi_2(t) \\geq ct/(\\log t)^2\\), what does the integral give?",
-                    solution: "If \\(\\pi_2(t) \\geq ct/(\\log t)^2\\) for large \\(t\\), then \\(\\int_2^N \\pi_2(t)/t^2 \\, dt \\geq c \\int_2^N (\\log t)^{-2}/t \\, dt = c \\int_{\\log 2}^{\\log N} u^{-2} du \\to c/\\log 2 < \\infty\\). Actually this converges! The argument for divergence requires \\(\\pi_2(N) \\gg N / \\log N\\) (like all primes). The sieve bound \\(\\pi_2(N) \\ll N/(\\log N)^2\\) is precisely what makes the series converge."
-                },
-                {
-                    question: "The first few twin prime pairs are (3,5), (5,7), (11,13), (17,19), (29,31), (41,43). Compute the partial sum \\(\\sum 1/p\\) over all primes in these pairs (counting 5 once). How does it compare to \\(B_2 \\approx 1.902\\)?",
-                    hint: "List the twin primes appearing: 3, 5, 7, 11, 13, 17, 19, 29, 31, 41, 43. Sum their reciprocals.",
-                    solution: "The unique primes are 3, 5, 7, 11, 13, 17, 19, 29, 31, 41, 43. Their reciprocals sum to \\(1/3 + 1/5 + 1/7 + 1/11 + 1/13 + 1/17 + 1/19 + 1/29 + 1/31 + 1/41 + 1/43 \\approx 0.333 + 0.200 + 0.143 + 0.091 + 0.077 + 0.059 + 0.053 + 0.034 + 0.032 + 0.024 + 0.023 \\approx 1.069\\). This is already more than half of \\(B_2 \\approx 1.902\\), illustrating how much of the sum comes from small twin primes."
+                    question: 'Let \\(N = 100\\). Compute the Brun upper bound truncated at depth \\(m = 2\\) (using primes 2, 3, 5, 7) for the count of integers in \\([1, 100]\\) coprime to \\(2 \\cdot 3 \\cdot 5 \\cdot 7 = 210\\).',
+                    hint: 'Include all \\(d \\mid 210\\) with \\(\\nu(d) \\leq 2\\): the divisors 1, and all primes, and all products of two primes. Sum \\(\\mu(d) \\lfloor 100/d \\rfloor\\).',
+                    solution: 'Depth \\(m = 0\\): \\(\\lfloor 100/1 \\rfloor = 100\\). Depth \\(m = 1\\): subtract \\(\\lfloor 100/2 \\rfloor + \\lfloor 100/3 \\rfloor + \\lfloor 100/5 \\rfloor + \\lfloor 100/7 \\rfloor = 50 + 33 + 20 + 14 = 117\\). Depth \\(m = 2\\): add back \\(\\lfloor 100/6 \\rfloor + \\lfloor 100/10 \\rfloor + \\lfloor 100/14 \\rfloor + \\lfloor 100/15 \\rfloor + \\lfloor 100/21 \\rfloor + \\lfloor 100/35 \\rfloor = 16 + 10 + 7 + 6 + 4 + 2 = 45\\). Upper bound: \\(100 - 117 + 45 = 28\\). The exact answer is \\(\\varphi(210) \\cdot 100/210 \\approx 22.9\\), so the upper bound 28 is reasonable.'
                 }
             ]
         },
 
         // ================================================================
-        // SECTION 6: Applications
+        // SECTION 5: Brun's Theorem on Twin Primes
+        // ================================================================
+        {
+            id: 'sec-brun-theorem',
+            title: "Brun's Theorem",
+            content: `
+<h2>Brun's Theorem: The Twin Prime Sum Converges</h2>
+
+<div class="env-block intuition">
+    <div class="env-title">A Remarkable Result</div>
+    <div class="env-body">
+        <p>We know that \\(\\sum_{p \\text{ prime}} 1/p\\) diverges (there are "many" primes). But what about the sum over <strong>twin primes</strong> \\((p, p+2)\\) where both are prime? Is there an inexhaustible supply of twin primes, or do they thin out so rapidly that their reciprocals converge? Brun proved in 1919 that the sum converges, regardless of whether there are infinitely many twin primes.</p>
+    </div>
+</div>
+
+<h3>Setting Up the Sieve</h3>
+
+<p>To count twin primes up to \\(N\\), we sieve the set</p>
+
+\\[\\mathcal{A} = \\{n(n+2) : 1 \\leq n \\leq N\\}\\]
+
+<p>by all primes. An integer \\(n\\) produces a twin prime pair \\((n, n+2)\\) precisely when neither \\(n\\) nor \\(n+2\\) has a small prime factor (below \\(\\sqrt{N}\\)). For a prime \\(p\\), the number of \\(n \\in [1, N]\\) such that \\(p \\mid n(n+2)\\) is approximately \\(2N/p\\) for odd \\(p\\) (since \\(p \\mid n\\) or \\(p \\mid n+2\\), giving two residue classes mod \\(p\\)) and \\(N/2\\) for \\(p = 2\\) (since \\(2 \\mid n(n+2)\\) for all \\(n\\)).</p>
+
+<p>More precisely, the multiplicative function \\(\\omega\\) for this problem satisfies \\(\\omega(p) = 2\\) for odd \\(p\\) and \\(\\omega(2) = 1\\).</p>
+
+<div class="env-block theorem">
+    <div class="env-title">Theorem 11.5 (Brun's Twin Prime Bound)</div>
+    <div class="env-body">
+        <p>Let \\(\\pi_2(N)\\) denote the number of primes \\(p \\leq N\\) such that \\(p + 2\\) is also prime. Then</p>
+        \\[\\pi_2(N) \\ll \\frac{N (\\ln \\ln N)^2}{(\\ln N)^2}.\\]
+    </div>
+</div>
+
+<p>The key step uses Brun's sieve with \\(z = N^{1/u}\\) for \\(u\\) a suitably large constant. The product \\(\\prod_{p < z} (1 - 2/p)\\) over odd primes, combined with the factor from \\(p = 2\\), gives a main term of order \\(N / (\\ln z)^2\\). The choice of \\(u\\) and the resulting error control yield the bound above.</p>
+
+<h3>The Main Theorem</h3>
+
+<div class="env-block theorem">
+    <div class="env-title">Theorem 11.6 (Brun, 1919)</div>
+    <div class="env-body">
+        <p>The sum of the reciprocals of twin primes converges:</p>
+        \\[B_2 = \\sum_{\\substack{p :\\, p \\text{ and } p+2 \\\\ \\text{both prime}}} \\left(\\frac{1}{p} + \\frac{1}{p+2}\\right) < \\infty.\\]
+        <p>The constant \\(B_2\\) is called <strong>Brun's constant</strong>.</p>
+    </div>
+</div>
+
+<div class="env-block proof">
+    <div class="env-title">Proof sketch</div>
+    <div class="env-body">
+        <p>By Theorem 11.5, the number of twin primes in \\((N/2, N]\\) is \\(O(N (\\ln \\ln N)^2 / (\\ln N)^2)\\). By partial summation, the sum of \\(1/p\\) over twin primes \\(p \\in (N/2, N]\\) is</p>
+        \\[O\\left(\\frac{(\\ln \\ln N)^2}{(\\ln N)^2}\\right).\\]
+        <p>Summing over dyadic intervals \\((2^{k-1}, 2^k]\\) for \\(k = 1, 2, \\ldots\\), we get</p>
+        \\[B_2 \\leq C \\sum_{k=1}^{\\infty} \\frac{(\\ln k)^2}{k^2} < \\infty.\\]
+    </div>
+    <div class="qed"></div>
+</div>
+
+<p>The numerical value of Brun's constant is known to about 10 decimal places:</p>
+
+\\[B_2 \\approx 1.902160583104.\\]
+
+<p>This was computed by Thomas Nicely in 1994 (famously uncovering the Pentium FDIV bug in the process).</p>
+
+<div class="env-block remark">
+    <div class="env-title">What Brun's Theorem Does NOT Say</div>
+    <div class="env-body">
+        <p>Brun's theorem does not tell us whether there are finitely or infinitely many twin primes. The sum \\(\\sum 1/p\\) over twin primes converges either way: if there are finitely many, the sum is a finite sum; if infinitely many, they thin out fast enough that the sum still converges. The Twin Prime Conjecture remains open.</p>
+    </div>
+</div>
+
+<div class="viz-placeholder" data-viz="viz-twin-primes"></div>
+<div class="viz-placeholder" data-viz="viz-brun-constant"></div>
+`,
+            visualizations: [
+                {
+                    id: 'viz-twin-primes',
+                    title: 'Twin Primes up to N',
+                    description: 'Visualize the distribution of twin prime pairs. Twin primes are highlighted in the number grid. Notice how they become sparser as N grows.',
+                    setup: function(body, controls) {
+                        var viz = new VizEngine(body, {
+                            width: 580, height: 400,
+                            originX: 0, originY: 0, scale: 1
+                        });
+
+                        var N = 200;
+
+                        VizEngine.createSlider(controls, 'N', 50, 500, N, 50, function(v) {
+                            N = Math.round(v);
+                            draw();
+                        });
+
+                        function draw() {
+                            viz.clear();
+                            var ctx = viz.ctx;
+
+                            var primes = VizEngine.sievePrimes(N + 2);
+                            var isPrime = new Uint8Array(N + 3);
+                            for (var i = 0; i < primes.length; i++) isPrime[primes[i]] = 1;
+
+                            // Find twin primes
+                            var twins = [];
+                            for (var p = 2; p <= N; p++) {
+                                if (isPrime[p] && isPrime[p + 2]) {
+                                    twins.push(p);
+                                }
+                            }
+
+                            var isTwin = new Uint8Array(N + 3);
+                            for (var ti = 0; ti < twins.length; ti++) {
+                                isTwin[twins[ti]] = 1;
+                                isTwin[twins[ti] + 2] = 1;
+                            }
+
+                            viz.screenText('Twin Primes up to ' + N, viz.width / 2, 16, viz.colors.white, 14);
+                            viz.screenText(
+                                twins.length + ' twin prime pairs,  ' + primes.filter(function(p) { return p <= N; }).length + ' primes total',
+                                viz.width / 2, 34, viz.colors.teal, 11
+                            );
+
+                            // Grid
+                            var cols = Math.ceil(Math.sqrt(N * 1.5));
+                            var rows = Math.ceil(N / cols);
+                            var cellW = Math.min(30, (viz.width - 30) / cols);
+                            var cellH = Math.min(22, (viz.height - 70) / rows);
+                            var startX = (viz.width - cols * cellW) / 2;
+                            var startY = 50;
+
+                            for (var n = 2; n <= N; n++) {
+                                var col = (n - 2) % cols;
+                                var row = Math.floor((n - 2) / cols);
+                                var x = startX + col * cellW;
+                                var y = startY + row * cellH;
+
+                                if (isTwin[n]) {
+                                    ctx.fillStyle = viz.colors.orange + '55';
+                                    ctx.fillRect(x, y, cellW - 1, cellH - 1);
+                                } else if (isPrime[n]) {
+                                    ctx.fillStyle = viz.colors.blue + '33';
+                                    ctx.fillRect(x, y, cellW - 1, cellH - 1);
+                                }
+
+                                var textCol = isTwin[n] ? viz.colors.orange : (isPrime[n] ? viz.colors.blue : viz.colors.text + '44');
+                                ctx.font = (cellW < 20 ? '7' : '9') + 'px -apple-system,sans-serif';
+                                ctx.textAlign = 'center';
+                                ctx.textBaseline = 'middle';
+                                ctx.fillStyle = textCol;
+                                ctx.fillText(n.toString(), x + cellW / 2 - 0.5, y + cellH / 2);
+                            }
+                        }
+                        draw();
+                        return viz;
+                    }
+                },
+                {
+                    id: 'viz-brun-constant',
+                    title: "Brun's Constant: Partial Sums",
+                    description: "Watch the partial sums of \\(1/p + 1/(p+2)\\) over twin primes converge to Brun's constant \\(B_2 \\approx 1.902\\).",
+                    setup: function(body, controls) {
+                        var viz = new VizEngine(body, {
+                            width: 580, height: 380,
+                            originX: 70, originY: 330, scale: 1
+                        });
+
+                        var maxN = 5000;
+
+                        VizEngine.createSlider(controls, 'N', 100, 10000, maxN, 100, function(v) {
+                            maxN = Math.round(v);
+                            draw();
+                        });
+
+                        function draw() {
+                            viz.clear();
+                            var ctx = viz.ctx;
+
+                            var primes = VizEngine.sievePrimes(maxN + 2);
+                            var isPrime = new Uint8Array(maxN + 3);
+                            for (var i = 0; i < primes.length; i++) isPrime[primes[i]] = 1;
+
+                            // Compute partial sums
+                            var points = [];
+                            var sum = 0;
+                            for (var p = 2; p <= maxN; p++) {
+                                if (isPrime[p] && isPrime[p + 2]) {
+                                    sum += 1 / p + 1 / (p + 2);
+                                    points.push([p, sum]);
+                                }
+                            }
+
+                            var B2 = 1.902160583;
+
+                            viz.screenText("Brun's Constant: Partial Sums", viz.width / 2, 16, viz.colors.white, 14);
+
+                            // Chart area
+                            var chartL = 70;
+                            var chartR = viz.width - 40;
+                            var chartW = chartR - chartL;
+                            var chartBot = 330;
+                            var chartTop = 40;
+                            var chartH = chartBot - chartTop;
+
+                            // Draw axes
+                            ctx.strokeStyle = viz.colors.axis;
+                            ctx.lineWidth = 1;
+                            ctx.beginPath();
+                            ctx.moveTo(chartL, chartBot);
+                            ctx.lineTo(chartR, chartBot);
+                            ctx.stroke();
+                            ctx.beginPath();
+                            ctx.moveTo(chartL, chartBot);
+                            ctx.lineTo(chartL, chartTop);
+                            ctx.stroke();
+
+                            // Y-axis labels
+                            var yMax = Math.max(B2 + 0.2, sum + 0.1);
+                            var yMin = 0;
+                            ctx.font = '10px -apple-system,sans-serif';
+                            ctx.textAlign = 'right';
+                            ctx.fillStyle = viz.colors.text;
+                            for (var yv = 0; yv <= yMax; yv += 0.5) {
+                                var yy = chartBot - (yv / yMax) * chartH;
+                                ctx.fillText(yv.toFixed(1), chartL - 6, yy + 3);
+                                ctx.strokeStyle = viz.colors.grid;
+                                ctx.lineWidth = 0.5;
+                                ctx.beginPath();
+                                ctx.moveTo(chartL, yy);
+                                ctx.lineTo(chartR, yy);
+                                ctx.stroke();
+                            }
+
+                            // X-axis labels
+                            ctx.textAlign = 'center';
+                            ctx.textBaseline = 'top';
+                            var xStep = Math.max(1, Math.pow(10, Math.floor(Math.log10(maxN / 4))));
+                            for (var xv = 0; xv <= maxN; xv += xStep) {
+                                var xx = chartL + (xv / maxN) * chartW;
+                                ctx.fillStyle = viz.colors.text;
+                                ctx.fillText(xv.toString(), xx, chartBot + 4);
+                            }
+
+                            // B2 reference line
+                            var b2y = chartBot - (B2 / yMax) * chartH;
+                            ctx.strokeStyle = viz.colors.orange;
+                            ctx.lineWidth = 1.5;
+                            ctx.setLineDash([6, 4]);
+                            ctx.beginPath();
+                            ctx.moveTo(chartL, b2y);
+                            ctx.lineTo(chartR, b2y);
+                            ctx.stroke();
+                            ctx.setLineDash([]);
+                            ctx.font = '11px -apple-system,sans-serif';
+                            ctx.textAlign = 'left';
+                            ctx.fillStyle = viz.colors.orange;
+                            ctx.fillText('B\u2082 \u2248 1.902', chartR - 70, b2y - 10);
+
+                            // Plot partial sums
+                            if (points.length > 0) {
+                                ctx.strokeStyle = viz.colors.blue;
+                                ctx.lineWidth = 2;
+                                ctx.beginPath();
+                                for (var j = 0; j < points.length; j++) {
+                                    var px = chartL + (points[j][0] / maxN) * chartW;
+                                    var py = chartBot - (points[j][1] / yMax) * chartH;
+                                    if (j === 0) ctx.moveTo(px, py);
+                                    else ctx.lineTo(px, py);
+                                }
+                                ctx.stroke();
+
+                                // Current value
+                                var lastSum = points[points.length - 1][1];
+                                viz.screenText(
+                                    'Current partial sum: ' + lastSum.toFixed(6) + '  (' + points.length + ' twin prime pairs)',
+                                    viz.width / 2, viz.height - 10, viz.colors.teal, 11
+                                );
+                            }
+                        }
+                        draw();
+                        return viz;
+                    }
+                }
+            ],
+            exercises: [
+                {
+                    question: 'List all twin prime pairs \\((p, p+2)\\) with \\(p \\leq 100\\). Compute the partial sum \\(\\sum (1/p + 1/(p+2))\\) over these pairs to 3 decimal places.',
+                    hint: 'The twin primes below 100 are: (3,5), (5,7), (11,13), (17,19), (29,31), (41,43), (59,61), (71,73).',
+                    solution: 'The twin prime pairs with \\(p \\leq 100\\) are \\((3,5), (5,7), (11,13), (17,19), (29,31), (41,43), (59,61), (71,73)\\). The partial sum is \\((1/3 + 1/5) + (1/5 + 1/7) + (1/11 + 1/13) + (1/17 + 1/19) + (1/29 + 1/31) + (1/41 + 1/43) + (1/59 + 1/61) + (1/71 + 1/73) \\approx 0.533 + 0.343 + 0.168 + 0.111 + 0.067 + 0.048 + 0.033 + 0.028 = 1.331\\). (More precisely \\(\\approx 1.3309\\).)'
+                },
+                {
+                    question: 'Why does the convergence of \\(B_2\\) not resolve the Twin Prime Conjecture?',
+                    hint: 'Consider the sum \\(\\sum_{n=1}^{10} 1/n\\) vs. \\(\\sum_{n=1}^{\\infty} 1/n^2\\). One is finite and the other infinite, but both have finitely many terms below any bound.',
+                    solution: 'A sum can converge either because there are finitely many terms (trivially) or because infinitely many terms decrease fast enough. Brun\'s theorem says the terms \\(1/p + 1/(p+2)\\) decrease fast enough for convergence, but this is consistent with both finitely and infinitely many twin primes. Compare: \\(\\sum 1/n^2\\) converges with infinitely many terms, while \\(\\sum_{n=1}^{10} 1/n\\) converges trivially with only 10 terms.'
+                }
+            ]
+        },
+
+        // ================================================================
+        // SECTION 6: Applications of Combinatorial Sieves
         // ================================================================
         {
             id: 'sec-applications',
@@ -929,111 +1064,181 @@ window.CHAPTERS.push({
             content: `
 <h2>Applications of Combinatorial Sieves</h2>
 
-<p>Brun's sieve and its variants yield a suite of upper bounds that, while short of the full prime-detection goal, are mathematically significant and often sharp in order of magnitude.</p>
+<p>Brun's sieve is a versatile tool. Beyond twin primes, it gives upper bounds for many problems about primes in restricted sets. We present several important applications.</p>
 
-<h3>Upper Bounds for Primes in Arithmetic Progressions</h3>
-
-<p>For \\(\\mathcal{A} = \\{an + b : n \\leq N/a\\}\\) with \\(\\gcd(a, b) = 1\\), the sieve gives</p>
-\\[\\pi(N; a, b) := \\#\\{p \\leq N : p \\equiv b \\pmod{a}\\} \\ll \\frac{N}{\\phi(a) \\log N}.\\]
-<p>This is weaker than the PNT for arithmetic progressions (which gives \\(\\sim N/\\phi(a) \\log N\\)), but holds without requiring the non-vanishing of \\(L(1, \\chi)\\).</p>
-
-<h3>Almost Primes</h3>
-
-<p>Define \\(P_r\\) to be the set of integers with at most \\(r\\) prime factors, counted with multiplicity. These are called <strong>\\(r\\)-almost primes</strong>. For \\(r = 1\\), \\(P_1\\) is the primes. For \\(r = 2\\), \\(P_2 = \\{4, 6, 9, 10, 14, 15, \\ldots\\}\\) includes semiprimes like 6 = 2 · 3.</p>
+<h3>Application 1: Goldbach Representations</h3>
 
 <div class="env-block theorem">
-    <div class="env-title">Theorem 11.5 (Brun: Almost Primes in \\(n^2 + 1\\))</div>
+    <div class="env-title">Theorem 11.7 (Goldbach Upper Bound)</div>
     <div class="env-body">
-        <p>The set \\(\\{n^2 + 1 : n \\leq N\\}\\) contains \\(\\gg N / \\log N\\) elements that are \\(P_r\\) for some fixed \\(r\\). In particular, there are infinitely many integers of the form \\(n^2 + 1\\) with a bounded number of prime factors.</p>
+        <p>Let \\(r(N)\\) denote the number of representations of an even integer \\(N\\) as a sum of two primes. Then</p>
+        \\[r(N) \\ll \\frac{N}{(\\ln N)^2} \\prod_{\\substack{p \\mid N \\\\ p > 2}} \\frac{p - 1}{p - 2}.\\]
     </div>
 </div>
 
-<p>The proof uses the sieve for the set \\(\\mathcal{A} = \\{n^2 + 1 : n \\leq N\\}\\) with \\(\\omega(p) = 1 + \\left(\\frac{-1}{p}\\right)\\) (the number of solutions to \\(x^2 \\equiv -1 \\pmod p\\)), which equals 0 or 2 for odd \\(p\\) and equals 1 for \\(p = 2\\).</p>
+<p>To count representations \\(N = p + q\\), sieve the set \\(\\mathcal{A} = \\{n : 1 \\leq n \\leq N,\\, \\gcd(n, N) = 1\\}\\). The condition that both \\(n\\) and \\(N - n\\) are prime requires sieving by all primes up to \\(\\sqrt{N}\\). The multiplicative function is \\(\\omega(p) = 2\\) for \\(p \\nmid N\\) and \\(\\omega(p) = 1\\) for \\(p \\mid N\\).</p>
 
-<h3>Goldbach's Problem: Almost-Primes Version</h3>
+<h3>Application 2: Almost Primes</h3>
 
-<p>Brun proved that every large even integer can be written as the sum of two \\(P_9\\) numbers (a so-called "9+9 result"). The chain of improvements:</p>
-<ul>
-    <li>Brun (1920): \\(9 + 9\\)</li>
-    <li>Rényi (1947): \\(1 + K\\) for some large \\(K\\)</li>
-    <li>Pan (1962), Barban (1963): \\(1 + 5\\), \\(1 + 4\\), \\(1 + 3\\)</li>
-    <li>Chen (1973): \\(1 + 2\\) (Chen's Theorem)</li>
-</ul>
-<p>Chen's theorem states every large even integer is \\(p + m\\) where \\(p\\) is prime and \\(m \\in P_2\\). This is the closest anyone has come to Goldbach using sieve methods.</p>
-
-<h3>Sieve Upper Bound for Primes Generally</h3>
-
-<div class="env-block theorem">
-    <div class="env-title">Theorem 11.6 (Brun-Titchmarsh Inequality)</div>
+<div class="env-block definition">
+    <div class="env-title">Definition (Almost Prime)</div>
     <div class="env-body">
-        <p>For \\(1 \\leq a < q\\) with \\(\\gcd(a, q) = 1\\) and any \\(x > q\\):</p>
-        \\[\\pi(x; q, a) \\leq \\frac{2x}{\\phi(q) \\log(x/q)}.\\]
-        <p>This is the correct order \\(x / (\\phi(q) \\log x)\\) up to the constant 2 (the Siegel-Walfisz theorem gives asymptotic equality with constant 1, but requires GRH or deep zero-density estimates).</p>
+        <p>An integer \\(n\\) is a \\(P_r\\)-<strong>number</strong> (or \\(r\\)-almost prime) if it has at most \\(r\\) prime factors, counted with multiplicity. Thus \\(P_1\\)-numbers are the primes, \\(P_2\\)-numbers have at most 2 prime factors (primes or semiprimes), etc.</p>
     </div>
 </div>
 
-<p>The Brun-Titchmarsh inequality is remarkable for being <em>unconditional</em> and <em>uniform</em> in \\(q\\) up to \\(q < x\\). It is used extensively in modern analytic number theory, including in the proof of the Bombieri-Vinogradov theorem (Chapter 13).</p>
+<div class="env-block theorem">
+    <div class="env-title">Theorem 11.8 (Brun's Sieve for Almost Primes)</div>
+    <div class="env-body">
+        <p>For any \\(r \\geq 1\\), there exist infinitely many \\(n\\) such that both \\(n\\) and \\(n + 2\\) are \\(P_r\\)-numbers, provided \\(r \\geq 9\\). (Brun originally proved this for \\(r = 9\\); later refinements by Rademacher and others reduced this to smaller \\(r\\).)</p>
+    </div>
+</div>
+
+<p>The idea is that Brun's upper bound sieve, combined with a lower bound sieve, can show that many integers survive with at most \\(r\\) prime factors. This is a stepping stone toward results like Chen's theorem (1973), which proves that every sufficiently large even number is the sum of a prime and a \\(P_2\\)-number.</p>
+
+<h3>Application 3: Primes in Arithmetic Progressions</h3>
+
+<p>Brun's sieve can also give upper bounds for primes in arithmetic progressions. For \\(\\mathcal{A} = \\{n \\leq N : n \\equiv a \\pmod{q}\\}\\) with \\(\\gcd(a, q) = 1\\), we have \\(|\\mathcal{A}_d| \\approx N/(qd)\\) for \\(\\gcd(d, q) = 1\\), giving:</p>
+
+<div class="env-block theorem">
+    <div class="env-title">Theorem 11.9 (Upper Bound for Primes in Progressions)</div>
+    <div class="env-body">
+        <p>For \\(\\gcd(a, q) = 1\\),</p>
+        \\[\\pi(N; q, a) \\ll \\frac{N}{\\varphi(q) \\ln(N/q)},\\]
+        <p>uniformly for \\(1 \\leq q \\leq N^{1-\\epsilon}\\). This is the <strong>Brun-Titchmarsh inequality</strong>.</p>
+    </div>
+</div>
+
+<p>Compare this with the expected asymptotic \\(\\pi(N; q, a) \\sim N / (\\varphi(q) \\ln N)\\) from the prime number theorem for arithmetic progressions. The Brun-Titchmarsh bound is off by a constant factor (essentially 2) but holds uniformly in a much wider range of \\(q\\).</p>
+
+<div class="viz-placeholder" data-viz="viz-sieve-function"></div>
+<div class="viz-placeholder" data-viz="viz-almost-primes"></div>
 `,
             visualizations: [
                 {
-                    id: 'viz-twin-primes',
-                    title: 'Twin Primes on the Number Line',
-                    description: 'Twin prime pairs are highlighted in teal. Observe how they thin out as numbers grow. Use the slider to extend the range.',
+                    id: 'viz-sieve-function',
+                    title: 'The Sifting Function S(A, P, z)',
+                    description: 'Watch how the count of survivors S(A, P, z) decreases as the sieving parameter z increases. Compare with the prediction from the main term.',
                     setup: function(body, controls) {
-                        var viz = new VizEngine(body, { width: 560, height: 320, originX: 0, originY: 0, scale: 1 });
-                        var rangeVal = 150;
+                        var viz = new VizEngine(body, {
+                            width: 580, height: 380,
+                            originX: 70, originY: 330, scale: 1
+                        });
 
-                        VizEngine.createSlider(controls, 'Range N', 50, 400, 150, 10, function(v) {
-                            rangeVal = Math.round(v);
+                        var N = 1000;
+
+                        VizEngine.createSlider(controls, 'N', 100, 5000, N, 100, function(v) {
+                            N = Math.round(v);
                             draw();
                         });
 
                         function draw() {
                             viz.clear();
                             var ctx = viz.ctx;
-                            var N = rangeVal;
-                            var primes = VizEngine.sievePrimes(N + 2);
-                            var primeSet = new Set(primes);
 
-                            var cols = Math.ceil(Math.sqrt(N * 2));
-                            cols = Math.min(cols, 24);
-                            var cellSize = Math.floor((viz.width - 20) / cols);
-                            var startX = 10;
-                            var startY = 40;
-                            var twinCount = 0;
+                            var allPrimes = VizEngine.sievePrimes(Math.ceil(Math.sqrt(N)) + 1);
 
-                            viz.screenText('Twin Primes up to N = ' + N, viz.width / 2, 16, viz.colors.white, 13);
+                            // Compute S(A, P, z) for z = each prime
+                            var points = [];
+                            var mainTermPoints = [];
+                            var isSifted = new Uint8Array(N + 1);
 
-                            for (var n = 1; n <= N; n++) {
-                                var row = Math.floor((n - 1) / cols);
-                                var col2 = (n - 1) % cols;
-                                var x = startX + col2 * cellSize;
-                                var y = startY + row * cellSize;
+                            var survivors = N - 1; // start with [2..N]
+                            points.push([1, survivors]);
+                            mainTermPoints.push([1, N]);
 
-                                if (y + cellSize > viz.height - 30) break;
-
-                                var isPrime = primeSet.has(n);
-                                var isTwin = isPrime && (primeSet.has(n - 2) || primeSet.has(n + 2));
-
-                                var bg;
-                                if (isTwin) { bg = viz.colors.teal; twinCount++; }
-                                else if (isPrime) { bg = viz.colors.blue + '88'; }
-                                else { bg = viz.colors.grid + '44'; }
-
-                                ctx.fillStyle = bg;
-                                ctx.fillRect(x, y, cellSize - 1, cellSize - 1);
-
-                                if (cellSize >= 16) {
-                                    ctx.font = Math.max(7, cellSize - 6) + 'px -apple-system,sans-serif';
-                                    ctx.textAlign = 'center';
-                                    ctx.textBaseline = 'middle';
-                                    ctx.fillStyle = isTwin ? viz.colors.white : (isPrime ? viz.colors.white + 'bb' : viz.colors.text + '55');
-                                    ctx.fillText(n, x + cellSize / 2 - 0.5, y + cellSize / 2 - 0.5);
+                            var prodFactor = 1;
+                            for (var pi = 0; pi < allPrimes.length; pi++) {
+                                var p = allPrimes[pi];
+                                if (p * p > N) break;
+                                // Cross out multiples of p
+                                for (var m = p * p; m <= N; m += p) {
+                                    if (!isSifted[m]) {
+                                        isSifted[m] = 1;
+                                        survivors--;
+                                    }
                                 }
+                                // Also cross out multiples below p^2 that include p
+                                for (var m2 = 2 * p; m2 <= N; m2 += p) {
+                                    if (!isSifted[m2] && m2 !== p) {
+                                        isSifted[m2] = 1;
+                                        survivors--;
+                                    }
+                                }
+                                prodFactor *= (1 - 1 / p);
+                                points.push([p, survivors]);
+                                mainTermPoints.push([p, N * prodFactor]);
                             }
 
-                            var twinPairs = Math.floor(twinCount / 2);
-                            viz.screenText('Twin primes (teal): ' + twinCount + '  |  Twin pairs: ~' + twinPairs, viz.width / 2, viz.height - 14, viz.colors.yellow, 11);
+                            viz.screenText('Sifting Function S(A, P, z) for N = ' + N, viz.width / 2, 16, viz.colors.white, 14);
+
+                            // Chart
+                            var chartL = 70;
+                            var chartR = viz.width - 40;
+                            var chartW = chartR - chartL;
+                            var chartBot = 320;
+                            var chartTop = 40;
+                            var chartH = chartBot - chartTop;
+                            var xMax = points[points.length - 1][0];
+                            var yMax = N;
+
+                            // Axes
+                            ctx.strokeStyle = viz.colors.axis;
+                            ctx.lineWidth = 1;
+                            ctx.beginPath();
+                            ctx.moveTo(chartL, chartBot);
+                            ctx.lineTo(chartR, chartBot);
+                            ctx.stroke();
+                            ctx.beginPath();
+                            ctx.moveTo(chartL, chartBot);
+                            ctx.lineTo(chartL, chartTop);
+                            ctx.stroke();
+
+                            // Labels
+                            ctx.font = '10px -apple-system,sans-serif';
+                            ctx.textAlign = 'center';
+                            ctx.fillStyle = viz.colors.text;
+                            ctx.textBaseline = 'top';
+                            viz.screenText('z (sieving parameter)', viz.width / 2, chartBot + 18, viz.colors.text, 10);
+
+                            // Plot actual S
+                            ctx.strokeStyle = viz.colors.blue;
+                            ctx.lineWidth = 2;
+                            ctx.beginPath();
+                            for (var i = 0; i < points.length; i++) {
+                                var px = chartL + (points[i][0] / xMax) * chartW;
+                                var py = chartBot - (points[i][1] / yMax) * chartH;
+                                if (i === 0) ctx.moveTo(px, py);
+                                else ctx.lineTo(px, py);
+                            }
+                            ctx.stroke();
+
+                            // Plot main term
+                            ctx.strokeStyle = viz.colors.orange;
+                            ctx.lineWidth = 1.5;
+                            ctx.setLineDash([4, 3]);
+                            ctx.beginPath();
+                            for (var j = 0; j < mainTermPoints.length; j++) {
+                                var mpx = chartL + (mainTermPoints[j][0] / xMax) * chartW;
+                                var mpy = chartBot - (mainTermPoints[j][1] / yMax) * chartH;
+                                if (j === 0) ctx.moveTo(mpx, mpy);
+                                else ctx.lineTo(mpx, mpy);
+                            }
+                            ctx.stroke();
+                            ctx.setLineDash([]);
+
+                            // Legend
+                            ctx.font = '11px -apple-system,sans-serif';
+                            ctx.textAlign = 'left';
+                            ctx.fillStyle = viz.colors.blue;
+                            ctx.fillText('\u2014 Actual S(A,P,z)', chartL + 10, chartTop + 10);
+                            ctx.fillStyle = viz.colors.orange;
+                            ctx.fillText('--- Main term N\u220F(1-1/p)', chartL + 10, chartTop + 26);
+
+                            viz.screenText(
+                                'Final survivors: ' + points[points.length - 1][1],
+                                viz.width / 2, viz.height - 10, viz.colors.teal, 11
+                            );
                         }
                         draw();
                         return viz;
@@ -1041,63 +1246,98 @@ window.CHAPTERS.push({
                 },
                 {
                     id: 'viz-almost-primes',
-                    title: 'Almost Primes P_r Colored by Number of Prime Factors',
-                    description: 'Each number is colored by its number of prime factors (with multiplicity). Primes are teal (1 factor), semiprimes P_2 are blue, P_3 are orange, and highly composite numbers are darker.',
+                    title: 'Almost Primes: P_r Numbers',
+                    description: 'Explore the distribution of r-almost primes (numbers with at most r prime factors). As r increases, more numbers qualify.',
                     setup: function(body, controls) {
-                        var viz = new VizEngine(body, { width: 560, height: 320, originX: 0, originY: 0, scale: 1 });
-                        var N = 180;
+                        var viz = new VizEngine(body, {
+                            width: 580, height: 400,
+                            originX: 0, originY: 0, scale: 1
+                        });
 
-                        function bigOmega(n) {
-                            var c = 0, d = 2;
-                            while (d * d <= n) {
-                                while (n % d === 0) { c++; n = Math.floor(n / d); }
-                                d++;
+                        var N = 100;
+                        var r = 2;
+
+                        VizEngine.createSlider(controls, 'N', 30, 200, N, 10, function(v) {
+                            N = Math.round(v);
+                            draw();
+                        });
+                        VizEngine.createSlider(controls, 'r (max prime factors)', 1, 5, r, 1, function(v) {
+                            r = Math.round(v);
+                            draw();
+                        });
+
+                        function countPrimeFactors(n) {
+                            var count = 0;
+                            for (var p = 2; p * p <= n; p++) {
+                                while (n % p === 0) {
+                                    count++;
+                                    n = n / p;
+                                }
                             }
-                            if (n > 1) c++;
-                            return c;
+                            if (n > 1) count++;
+                            return count;
                         }
 
                         function draw() {
                             viz.clear();
                             var ctx = viz.ctx;
-                            var cols = 18;
-                            var cellSize = Math.floor((viz.width - 10) / cols);
-                            var startX = 5;
-                            var startY = 38;
-                            var colorMap = [viz.colors.grid, viz.colors.teal, viz.colors.blue, viz.colors.orange, viz.colors.purple, viz.colors.red];
 
-                            viz.screenText('Almost Primes: Color = number of prime factors \u03a9(n)', viz.width / 2, 14, viz.colors.white, 12);
+                            viz.screenText('P_' + r + ' numbers (at most ' + r + ' prime factors) up to ' + N, viz.width / 2, 16, viz.colors.white, 14);
 
-                            for (var n = 1; n <= N; n++) {
-                                var row = Math.floor((n - 1) / cols);
-                                var col = (n - 1) % cols;
-                                var x = startX + col * cellSize;
-                                var y = startY + row * cellSize;
+                            var cols = Math.ceil(Math.sqrt(N * 1.4));
+                            var rows = Math.ceil(N / cols);
+                            var cellW = Math.min(36, (viz.width - 30) / cols);
+                            var cellH = Math.min(26, (viz.height - 70) / rows);
+                            var startX = (viz.width - cols * cellW) / 2;
+                            var startY = 40;
 
-                                var om = (n === 1) ? 0 : bigOmega(n);
-                                var col_idx = Math.min(om, colorMap.length - 1);
-                                ctx.fillStyle = colorMap[col_idx] + (om === 0 ? '44' : 'cc');
-                                ctx.fillRect(x, y, cellSize - 1, cellSize - 1);
+                            var almostPrimeCount = 0;
+                            var colorMap = [
+                                viz.colors.text + '33',    // 0 factors (n=1)
+                                viz.colors.blue,           // 1 factor (prime)
+                                viz.colors.teal,           // 2 factors
+                                viz.colors.green,          // 3 factors
+                                viz.colors.orange,         // 4 factors
+                                viz.colors.purple          // 5 factors
+                            ];
 
-                                ctx.font = '8px -apple-system,sans-serif';
+                            for (var n = 2; n <= N; n++) {
+                                var col = (n - 2) % cols;
+                                var row = Math.floor((n - 2) / cols);
+                                var x = startX + col * cellW;
+                                var y = startY + row * cellH;
+
+                                var omega = countPrimeFactors(n);
+                                var isAlmostPrime = omega <= r;
+
+                                if (isAlmostPrime) {
+                                    almostPrimeCount++;
+                                    var bgCol = (colorMap[Math.min(omega, 5)] || viz.colors.white) + '33';
+                                    ctx.fillStyle = bgCol;
+                                    ctx.fillRect(x, y, cellW - 1, cellH - 1);
+                                }
+
+                                ctx.font = (cellW < 22 ? '8' : '10') + 'px -apple-system,sans-serif';
                                 ctx.textAlign = 'center';
                                 ctx.textBaseline = 'middle';
-                                ctx.fillStyle = om <= 1 ? viz.colors.white : viz.colors.white + 'cc';
-                                ctx.fillText(n, x + cellSize / 2 - 0.5, y + cellSize / 2 - 0.5);
+                                ctx.fillStyle = isAlmostPrime ? (colorMap[Math.min(omega, 5)] || viz.colors.white) : viz.colors.text + '33';
+                                ctx.fillText(n.toString(), x + cellW / 2 - 0.5, y + cellH / 2);
                             }
 
+                            viz.screenText(
+                                almostPrimeCount + ' numbers are P_' + r + ' out of ' + (N - 1),
+                                viz.width / 2, viz.height - 16, viz.colors.teal, 12
+                            );
+
                             // Legend
-                            var legY = viz.height - 20;
-                            var legX = 10;
-                            var labels = ['1', 'P\u2081 (prime)', 'P\u2082', 'P\u2083', 'P\u2084', 'P\u2085+'];
-                            for (var k = 0; k < colorMap.length; k++) {
-                                ctx.fillStyle = colorMap[k] + 'cc';
-                                ctx.fillRect(legX + k * 85, legY, 14, 12);
-                                ctx.fillStyle = viz.colors.text;
-                                ctx.font = '9px -apple-system,sans-serif';
-                                ctx.textAlign = 'left';
-                                ctx.textBaseline = 'top';
-                                ctx.fillText(labels[k], legX + k * 85 + 17, legY + 1);
+                            var legX = startX;
+                            var legY = viz.height - 36;
+                            ctx.font = '9px -apple-system,sans-serif';
+                            ctx.textAlign = 'left';
+                            for (var li = 1; li <= Math.min(r, 5); li++) {
+                                ctx.fillStyle = colorMap[li];
+                                ctx.fillRect(legX + (li - 1) * 90, legY, 10, 10);
+                                ctx.fillText('\u03A9=' + li, legX + (li - 1) * 90 + 14, legY + 8);
                             }
                         }
                         draw();
@@ -1107,96 +1347,84 @@ window.CHAPTERS.push({
             ],
             exercises: [
                 {
-                    question: "State and prove the easy direction of Chen's theorem: every prime \\(p > 2\\) is a sum of two \\(P_2\\) numbers. (Hint: think trivially.)",
-                    hint: "\\(p = 2 + (p - 2)\\). What is \\(p - 2\\) for a prime \\(p > 3\\)?",
-                    solution: "For any prime \\(p > 3\\), write \\(p = 2 + (p-2)\\). Then 2 is prime (hence \\(P_1 \\subset P_2\\)) and \\(p - 2 > 1\\). If \\(p - 2\\) is prime, done. If not, \\(p - 2\\) must be composite, but this easy direction is trivial: \\(p = p + 0\\) doesn't work (0 is not \\(P_2\\)). The real content is Goldbach: writing an even number as \\(p + P_2\\)."
+                    question: 'Use a sieve argument to show that \\(\\pi(2N) - \\pi(N) \\ll N / \\ln N\\). That is, the number of primes in \\((N, 2N]\\) is \\(O(N / \\ln N)\\).',
+                    hint: 'Sieve \\(\\mathcal{A} = \\{N+1, N+2, \\ldots, 2N\\}\\) by primes up to \\(\\sqrt{2N}\\). Each prime \\(p\\) eliminates about \\(N/p\\) elements.',
+                    solution: 'Apply Brun\'s sieve with \\(\\mathcal{A} = \\{N+1, \\ldots, 2N\\}\\), \\(|\\mathcal{A}| = N\\), \\(z = \\sqrt{2N}\\). The main term is \\(N \\prod_{p \\leq z}(1 - 1/p)\\). By Mertens\' theorem, \\(\\prod_{p \\leq z}(1 - 1/p) \\sim e^{-\\gamma}/\\ln z = e^{-\\gamma}/(\\frac{1}{2}\\ln(2N)) \\ll 1/\\ln N\\). So the sieve gives \\(\\pi(2N) - \\pi(N) \\ll N / \\ln N\\).'
                 },
                 {
-                    question: "For the Brun-Titchmarsh inequality with \\(q = 3, a = 1\\), what upper bound does it give for \\(\\pi(x; 3, 1)\\) (primes \\(\\equiv 1 \\pmod 3\\)) when \\(x = 10^6\\)?",
-                    hint: "Apply \\(\\pi(x; q, a) \\leq 2x/(\\phi(q) \\log(x/q))\\) with \\(q = 3, \\phi(3) = 2, x = 10^6\\).",
-                    solution: "\\(\\pi(10^6; 3, 1) \\leq \\frac{2 \\cdot 10^6}{\\phi(3) \\log(10^6/3)} = \\frac{2 \\cdot 10^6}{2 \\log(333333)} \\approx \\frac{10^6}{12.72} \\approx 78616\\). The actual value is \\(\\pi(10^6; 3, 1) \\approx 39175\\), about half the bound — consistent with the constant 2 being an overestimate."
+                    question: 'Count the \\(P_2\\)-numbers (semiprimes or primes) up to 30. List them.',
+                    hint: 'A \\(P_2\\)-number has at most 2 prime factors counted with multiplicity: primes and products of two primes (e.g., 4, 6, 9, 10, ...).',
+                    solution: 'The \\(P_2\\)-numbers up to 30 are: 2, 3, 4, 5, 6, 7, 9, 10, 11, 13, 14, 15, 21, 22, 25, 26, 29. Wait, let us be careful. Primes: 2, 3, 5, 7, 11, 13, 17, 19, 23, 29. Semiprimes (\\(\\Omega = 2\\)): 4, 6, 9, 10, 14, 15, 21, 22, 25, 26. Total: 20 numbers out of 29.'
+                },
+                {
+                    question: 'State the Brun-Titchmarsh inequality and explain why it is weaker than the prime number theorem for arithmetic progressions by a factor of about 2.',
+                    hint: 'Compare \\(\\pi(N; q, a) \\ll N/(\\varphi(q) \\ln(N/q))\\) with the PNT prediction \\(\\pi(N; q, a) \\sim N/(\\varphi(q) \\ln N)\\).',
+                    solution: 'The Brun-Titchmarsh inequality states \\(\\pi(N; q, a) \\leq (2 + o(1)) N/(\\varphi(q) \\ln(N/q))\\) for \\(q < N\\). The PNT for arithmetic progressions gives \\(\\pi(N; q, a) \\sim N/(\\varphi(q) \\ln N)\\). For fixed \\(q\\), \\(\\ln(N/q) \\sim \\ln N\\), so the Brun-Titchmarsh bound exceeds the true order by a factor of about 2. The factor 2 arises because Brun\'s pure sieve cannot distinguish primes from products of an even number of prime factors (this is related to the "parity problem" in sieve theory).'
                 }
             ]
         },
 
         // ================================================================
-        // SECTION 7: The Limits of Combinatorial Sieves
+        // SECTION 7: Bridge — Toward Selberg's Sieve
         // ================================================================
         {
             id: 'sec-bridge',
-            title: 'The Limits of Combinatorial Sieves',
+            title: 'Bridge: Toward Selberg\'s Sieve',
             content: `
-<h2>The Limits of Combinatorial Sieves</h2>
+<h2>Bridge: From Combinatorial to Analytic Sieves</h2>
 
-<p>Combinatorial sieves are powerful but fundamentally limited. Understanding where they fail guides the development of the Selberg sieve, the large sieve, and modern methods.</p>
+<div class="env-block intuition">
+    <div class="env-title">Where We Stand</div>
+    <div class="env-body">
+        <p>Brun's combinatorial sieve gives us upper bounds of the right order of magnitude, but with an annoying constant factor (roughly 2 in many applications). Can we do better? The answer is yes, and the next chapter develops <strong>Selberg's sieve</strong>, which optimizes the sieve weights using a beautiful variational argument.</p>
+    </div>
+</div>
 
-<h3>The Parity Problem</h3>
+<h3>The Limitations of Brun's Sieve</h3>
 
-<p>The most celebrated obstruction to sieve methods is Selberg's <strong>parity problem</strong>. In rough terms:</p>
+<p>The fundamental limitation of the combinatorial sieve is the <strong>parity problem</strong>. A sieve based on the Mobius function \\(\\mu(d)\\) treats products of an even number of primes and products of an odd number of primes symmetrically. It cannot distinguish a prime \\(p\\) from a product \\(p_1 p_2 p_3\\) of three primes. This inherent symmetry means:</p>
 
 <div class="env-block theorem">
-    <div class="env-title">Theorem 11.7 (Parity Principle, Selberg)</div>
+    <div class="env-title">The Parity Barrier</div>
     <div class="env-body">
-        <p>Combinatorial sieves cannot distinguish between integers with an even number of prime factors and those with an odd number. More precisely, for any sieve weights \\(\\lambda_d\\) arising from the inclusion-exclusion framework, and any sequence \\(\\mathcal{A}\\), the sieve gives the same bound for</p>
-        \\[\\#\\{a \\in \\mathcal{A} : a \\in P_1\\} \\quad \\text{and} \\quad \\#\\{a \\in \\mathcal{A} : a = p \\cdot q, \\text{ two primes}\\}.\\]
+        <p>No "pure" sieve method can prove an asymptotic formula for \\(\\pi(N)\\), or prove that there are infinitely many twin primes, or prove Goldbach's conjecture. Sieve methods give upper bounds (and sometimes lower bounds) but cannot distinguish between primes and almost-primes with an even number of factors.</p>
     </div>
 </div>
 
-<p>As a consequence, no combinatorial sieve can prove that a given sequence (like \\(n^2 + 1\\)) contains infinitely many primes. It can show the sequence contains infinitely many \\(P_2\\) numbers, but distinguishing \\(P_1\\) from \\(P_2\\) is exactly what the parity obstruction prevents.</p>
+<p>This was made precise by Selberg in the 1950s and formalized by Bombieri in the 1970s. The parity barrier is one of the deepest obstructions in analytic number theory.</p>
 
-<h3>The Sieve Constant and Dimension</h3>
+<h3>Selberg's Approach</h3>
 
-<p>For a sieve of dimension \\(\\kappa\\), the best possible upper bound from combinatorial methods is:</p>
-\\[S(\\mathcal{A}, \\mathcal{P}, z) \\leq (F(s) + o(1)) X \\prod_{p < z}\\left(1 - \\frac{\\omega(p)}{p}\\right)\\]
-<p>where \\(s = \\log X / \\log z\\) and \\(F\\) is a function depending only on \\(\\kappa\\). For \\(\\kappa = 1\\) (linear sieve), \\(F(s) \\to 1\\) as \\(s \\to \\infty\\), so the upper bound is asymptotically sharp. For \\(\\kappa = 2\\) (twin prime problem), \\(F(s) \\to 2e^{\\gamma} \\cdot \\kappa / \\kappa = 2\\), and no combinatorial sieve can achieve constant 1.</p>
+<p>Instead of truncating the Mobius function, Selberg (1947) takes a completely different approach. He considers sieve weights \\(\\lambda_d\\) (with \\(\\lambda_1 = 1\\)) and minimizes the quadratic form</p>
 
-<h3>What Comes Next</h3>
+\\[\\sum_{d_1, d_2 \\mid P(z)} \\lambda_{d_1} \\lambda_{d_2} |\\mathcal{A}_{[d_1, d_2]}|,\\]
 
-<p>Several approaches break through the combinatorial limitations:</p>
-<ul>
-    <li><strong>Selberg's sieve (Chapter 12):</strong> Replaces Mobius weights with optimized quadratic weights. Does not fully overcome parity, but dramatically improves constants.</li>
-    <li><strong>Large sieve (Chapter 13):</strong> Operates in a completely different framework, using character sum estimates to average over progressions.</li>
-    <li><strong>GPY sieve (2005):</strong> Goldston-Pintz-Yildirim showed \\(\\liminf (p_{n+1} - p_n) / \\log p_n = 0\\) by combining the Selberg sieve with the Elliott-Halberstam conjecture idea.</li>
-    <li><strong>Zhang-Maynard (2013-2014):</strong> Bounded gaps between primes \\((p_{n+1} - p_n \\leq 246\\) unconditionally, Maynard: \\(\\leq 600\\)) using a multidimensional Selberg sieve that circumvents parity for the <em>gap</em> question.</li>
-</ul>
+<p>where \\([d_1, d_2]\\) is the least common multiple. The minimum can be computed explicitly using multiplicativity, and the resulting upper bound is often sharper than Brun's by a constant factor.</p>
+
+<h3>What Lies Ahead</h3>
+
+<p>The next chapter will develop:</p>
+
+<ol>
+    <li><strong>Selberg's upper bound sieve</strong> and its connection to quadratic optimization.</li>
+    <li>The <strong>large sieve inequality</strong>, a powerful tool from harmonic analysis.</li>
+    <li>Applications to the <strong>Brun-Titchmarsh inequality</strong> with improved constants.</li>
+    <li>The <strong>Bombieri-Vinogradov theorem</strong>, which gives "Riemann Hypothesis on average" for primes in arithmetic progressions.</li>
+</ol>
 
 <div class="env-block remark">
-    <div class="env-title">The Moral of Sieve Theory</div>
+    <div class="env-title">The Sieve as a Philosophy</div>
     <div class="env-body">
-        <p>Sieves are not a complete theory of primes; they are a collection of techniques for getting bounds when analytic methods give no information. The art is knowing which sieve to apply, at what level, and how to combine sieve bounds with character sum estimates, mean value theorems, and exponential sum bounds to extract the most information. The combinatorial sieves of this chapter are the conceptual foundation; the rest of Part IV builds the modern machinery on top of them.</p>
+        <p>Sieve methods exemplify a recurring theme in analytic number theory: when an exact formula is out of reach, settle for sharp inequalities. The art is in choosing the right framework (combinatorial vs. Selberg vs. large sieve) and the right parameters. As we will see, different problems call for different sieves, and the interplay between them is one of the richest areas of modern number theory.</p>
     </div>
 </div>
-
-<h3>Summary of Bounds Obtained</h3>
-
-<table>
-    <thead>
-        <tr><th>Problem</th><th>What we want</th><th>Best sieve bound</th></tr>
-    </thead>
-    <tbody>
-        <tr><td>Twin primes</td><td>\\(\\pi_2(N) \\sim 2C_2 N/(\\log N)^2\\)</td><td>\\(\\pi_2(N) \\ll N/(\\log N)^2\\) (Brun)</td></tr>
-        <tr><td>Goldbach</td><td>Every even \\(n = p + q\\)</td><td>Every even \\(n = p + P_2\\) (Chen)</td></tr>
-        <tr><td>\\(n^2+1\\) prime</td><td>Infinitely many primes</td><td>Infinitely many \\(P_2\\) (Brun-type)</td></tr>
-        <tr><td>Primes in \\([N, N+N^{1/2}]\\)</td><td>\\(\\sim N^{1/2}/\\log N\\)</td><td>\\(\\ll N^{1/2}/\\log N\\) (Selberg, Ch.12)</td></tr>
-    </tbody>
-</table>
 `,
             visualizations: [],
             exercises: [
                 {
-                    question: "Explain in one paragraph why the parity problem prevents Brun's sieve from proving that \\(\\{n^2 + 1\\}\\) contains infinitely many primes, even though it can handle \\(P_2\\) numbers.",
-                    hint: "Think about what distinguishes a prime from a semiprime \\(p \\cdot q\\) in terms of the Mobius function and Liouville function.",
-                    solution: "The Liouville function \\(\\lambda(n) = (-1)^{\\Omega(n)}\\) equals \\(+1\\) for numbers with an even number of prime factors and \\(-1\\) for those with an odd number (primes). Brun's sieve, being built on inclusion-exclusion via Mobius weights, is in essence a sum over \\(\\mu(d)\\), which is a linear functional of arithmetic functions. It turns out that the sieve estimates are identical for sequences weighted by \\(1\\) and by \\(\\lambda\\): formally, \\(S(\\mathcal{A}, \\mathcal{P}, z)\\) cannot distinguish the contribution from primes (\\(\\Omega = 1\\)) from semiprimes (\\(\\Omega = 2\\)) because both groups survive the sieve in the same way. The sieve detects only that an element has no small prime factor, not how many large prime factors it has."
-                },
-                {
-                    question: "The Brun-Titchmarsh bound is \\(\\pi(x; q, a) \\leq 2x/(\\phi(q) \\log(x/q))\\). Show that for \\(q \\leq x^{1/2}\\), this gives \\(\\pi(x; q, a) \\ll x/(\\phi(q) \\log x)\\), matching the expected order of magnitude.",
-                    hint: "When \\(q \\leq x^{1/2}\\), what can you say about \\(\\log(x/q)\\) vs \\(\\log x\\)?",
-                    solution: "If \\(q \\leq x^{1/2}\\), then \\(x/q \\geq x^{1/2}\\), so \\(\\log(x/q) \\geq \\frac{1}{2} \\log x\\). Therefore \\(2x/(\\phi(q) \\log(x/q)) \\leq 2x/(\\phi(q) \\cdot \\frac{1}{2} \\log x) = 4x/(\\phi(q) \\log x)\\). This is \\(O(x/\\phi(q) \\log x)\\), matching the expected order."
-                },
-                {
-                    question: "Compute \\(\\prod_{p \\leq 10}(1 - 1/p)\\) and compare to \\(e^{-\\gamma}/\\log 10\\) where \\(\\gamma \\approx 0.5772\\). This illustrates Mertens' third theorem.",
-                    hint: "The primes up to 10 are 2, 3, 5, 7. Compute the product directly, then evaluate \\(e^{-\\gamma}/\\log 10 \\approx 0.5615 / 2.303\\).",
-                    solution: "\\(\\prod_{p \\leq 10}(1-1/p) = (1-1/2)(1-1/3)(1-1/5)(1-1/7) = \\frac{1}{2} \\cdot \\frac{2}{3} \\cdot \\frac{4}{5} \\cdot \\frac{6}{7} = \\frac{48}{210} = \\frac{8}{35} \\approx 0.2286\\). Mertens' approximation: \\(e^{-\\gamma}/\\log 10 \\approx 0.5615 / 2.303 \\approx 0.2438\\). The ratio is \\(0.2286/0.2438 \\approx 0.94\\), close to 1 for such small \\(z = 10\\)."
+                    question: 'Explain the parity problem informally. Why can\'t a sieve based on \\(\\mu(d)\\) alone distinguish primes from products of three primes?',
+                    hint: 'Think about what \\(\\mu(d)\\) detects: it gives \\((-1)^k\\) for a product of \\(k\\) distinct primes. How does this interact with elements that are themselves products of primes?',
+                    solution: 'The Mobius function \\(\\mu(d)\\) assigns \\((-1)^k\\) to squarefree \\(d\\) with \\(k\\) prime factors. A sieve uses \\(\\sum \\mu(d)\\) over divisors \\(d\\) of an integer \\(n\\) to detect whether \\(n = 1\\). But the sieve weights only see divisibility, not the full factorization structure. An integer with \\(\\Omega(n)\\) even contributes the same sign pattern as one with \\(\\Omega(n)\\) even. Since primes have \\(\\Omega = 1\\) (odd) and triply-composite numbers have \\(\\Omega = 3\\) (odd), a sieve cannot separate them: both contribute with the same parity. To break this barrier, one needs additional input beyond pure sieve inequalities, such as bilinear form estimates or automorphic form theory.'
                 }
             ]
         }
