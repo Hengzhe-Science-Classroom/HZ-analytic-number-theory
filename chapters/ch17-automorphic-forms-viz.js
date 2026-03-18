@@ -1,369 +1,362 @@
+// === Ch17 Automorphic Forms: Extra Visualizations ===
 window.EXTRA_VIZ = window.EXTRA_VIZ || {};
 window.EXTRA_VIZ['ch17'] = {
+    // ================================================================
+    // sec-modular-forms: Heatmap of a modular form on H
+    // ================================================================
+    'sec-modular-forms': [
+        {
+            id: 'viz-modular-form-heatmap',
+            title: 'Modular Form Heatmap on the Upper Half-Plane',
+            description: 'Visualize |f(z)| for Eisenstein series and the Delta function on a region of the upper half-plane. Bright regions indicate large values. The cusp form Delta vanishes at the cusp (large y), while Eisenstein series approach 1.',
+            setup: function(body, controls) {
+                var viz = new VizEngine(body, {
+                    width: 560, height: 380,
+                    originX: 0, originY: 0, scale: 1
+                });
 
-    // ====================================================================
-    // viz-modular-form-heatmap
-    // |Delta(z)| on the upper half-plane using drawHeatmap
-    // ====================================================================
-    'viz-modular-form-heatmap': {
-        title: 'Modular Form |Delta(z)| on the Upper Half-Plane',
-        description: 'Heatmap of |Delta(z)| = |q prod(1-q^n)^24| on the upper half-plane, z = x+iy. Brighter colors indicate larger |Delta|. Observe: |Delta| -> 0 as Im(z) -> infinity (q -> 0), and the SL(2,Z) symmetry: |Delta(z+1)| = |Delta(z)| and |Delta(-1/z)| = |z|^12 |Delta(z)|.',
-        setup: function(body, controls) {
-            var viz = new VizEngine(body, {
-                width: 560, height: 400,
-                originX: 280, originY: 360, scale: 120
-            });
+                var formChoice = 0; // 0 = |E_4|, 1 = |Delta|
+                var yMaxVal = 2.0;
 
-            var colorMap = 'inferno';
-            var truncN = 20; // number of terms in the product
-
-            // Compute |Delta(z)| = |q| * prod |1 - q^n|^24
-            // q = exp(2*pi*i*z), |q| = exp(-2*pi*y)
-            function deltaAbs(x, y) {
-                if (y <= 0.02) return 0;
-                var qAbs = Math.exp(-2 * Math.PI * y);
-                if (qAbs > 0.999) return 0; // avoid near-overflow
-                var logVal = Math.log(qAbs); // log|q|
-                // |Delta| = |q| * prod_{n=1}^infty |1 - q^n|^24
-                // log|Delta| = log|q| + 24 * sum log|1 - q^n * e^{2pi i n x}|
-                var logDelta = logVal;
-                for (var n = 1; n <= truncN; n++) {
-                    var qnAbs = Math.pow(qAbs, n);
-                    if (qnAbs < 1e-10) break;
-                    // |1 - q^n * e^{2pi i n x}|^2 = 1 - 2*q^n*cos(2pi*n*x) + q^{2n}
-                    var angle = 2 * Math.PI * n * x;
-                    var re = 1 - qnAbs * Math.cos(angle);
-                    var im = -qnAbs * Math.sin(angle);
-                    var modSq = re * re + im * im;
-                    if (modSq < 1e-30) continue;
-                    logDelta += 24 * 0.5 * Math.log(modSq);
-                }
-                var result = Math.exp(logDelta);
-                return isFinite(result) ? result : 0;
-            }
-
-            var xRange = [-1.5, 1.5];
-            var yRange = [0.02, 2.5];
-
-            function draw() {
-                viz.clear();
-                // Render heatmap
-                viz.drawHeatmap(function(x, y) {
-                    return deltaAbs(x, y);
-                }, xRange, yRange, colorMap);
-
-                // Overlay: fundamental domain boundary
-                var ctx = viz.ctx;
-                // Convert from heatmap coords to screen
-                function hmToScreen(x, y) {
-                    var px = (x - xRange[0]) / (xRange[1] - xRange[0]) * viz.canvas.width / (window.devicePixelRatio||1);
-                    var py = (1 - (y - yRange[0]) / (yRange[1] - yRange[0])) * viz.canvas.height / (window.devicePixelRatio||1);
-                    return [px, py];
-                }
-
-                // Draw fundamental domain boundary
-                ctx.strokeStyle = '#ffffff88';
-                ctx.lineWidth = 2;
-
-                // Left edge x = -0.5
-                var steps = 60;
-                ctx.beginPath();
-                var [lx0, ly0] = hmToScreen(-0.5, Math.sqrt(3)/2);
-                var [lx1, ly1] = hmToScreen(-0.5, yRange[1]);
-                ctx.moveTo(lx0, ly0); ctx.lineTo(lx1, ly1); ctx.stroke();
-
-                // Right edge x = 0.5
-                ctx.beginPath();
-                var [rx0, ry0] = hmToScreen(0.5, Math.sqrt(3)/2);
-                var [rx1, ry1] = hmToScreen(0.5, yRange[1]);
-                ctx.moveTo(rx0, ry0); ctx.lineTo(rx1, ry1); ctx.stroke();
-
-                // Arc |z|=1, theta in [pi/3, 2pi/3]
-                ctx.beginPath();
-                for (var i = 0; i <= steps; i++) {
-                    var theta = Math.PI/3 + (i/steps) * Math.PI/3;
-                    var ax = Math.cos(theta), ay = Math.sin(theta);
-                    var [asx, asy] = hmToScreen(ax, ay);
-                    if (i === 0) ctx.moveTo(asx, asy); else ctx.lineTo(asx, asy);
-                }
-                ctx.stroke();
-
-                // Labels
-                ctx.fillStyle = '#ffffff';
-                ctx.font = '12px -apple-system,sans-serif';
-                ctx.textAlign = 'center';
-                ctx.fillText('|\u0394(z)| on upper half-plane (truncated product, N=' + truncN + ')', viz.width/2, 18);
-                ctx.fillText('|z|=1 arc', hmToScreen(0, 1.05)[0], hmToScreen(0, 1.05)[1]);
-                ctx.fillStyle = '#cccccc';
-                ctx.font = '11px sans-serif';
-                ctx.textAlign = 'left';
-                ctx.fillText('Re(z)', viz.width - 50, hmToScreen(0, yRange[0])[1] - 5);
-                ctx.textAlign = 'center';
-                ctx.fillText('Im(z)', hmToScreen(0, 2.3)[0] + 20, hmToScreen(0, 2.3)[1]);
-
-                // y-axis tick labels
-                ctx.fillStyle = '#aaaaaa';
-                ctx.font = '10px sans-serif';
-                ctx.textAlign = 'left';
-                for (var y = 0.5; y <= 2.0; y += 0.5) {
-                    var [, ysy] = hmToScreen(xRange[0], y);
-                    ctx.fillText('y=' + y.toFixed(1), 4, ysy + 4);
-                }
-                // x-axis tick labels
-                ctx.textAlign = 'center';
-                for (var x = -1; x <= 1; x++) {
-                    var [xsx] = hmToScreen(x, yRange[0]);
-                    ctx.fillText(x, xsx, viz.height - 5);
-                }
-            }
-
-            draw();
-
-            var maps = ['inferno', 'viridis', 'coolwarm'];
-            var btnRow = document.createElement('div');
-            btnRow.style.cssText = 'display:flex;gap:8px;margin-top:4px;';
-            controls.appendChild(btnRow);
-            maps.forEach(function(m) {
-                VizEngine.createButton(btnRow, m, function() {
-                    colorMap = m;
+                VizEngine.createButton(controls, 'E\u2084', function() {
+                    formChoice = 0;
                     draw();
                 });
-            });
+                VizEngine.createButton(controls, '\u0394', function() {
+                    formChoice = 1;
+                    draw();
+                });
+                VizEngine.createSlider(controls, 'y-range', 0.5, 3.0, yMaxVal, 0.5, function(v) {
+                    yMaxVal = v;
+                    draw();
+                });
 
-            var truncSlider = VizEngine.createSlider(controls, 'Product terms N', 5, 40, truncN, 5, function(v) {
-                truncN = Math.round(v);
-                draw();
-            });
-
-            return viz;
-        }
-    },
-
-    // ====================================================================
-    // viz-langlands-map
-    // Interactive node graph: objects in the Langlands correspondence
-    // ====================================================================
-    'viz-langlands-map': {
-        title: 'The Langlands Correspondence: An Interactive Map',
-        description: 'Drag nodes to explore the web of correspondences in the Langlands program. Click any node to see its description. Edges represent known or conjectured correspondences.',
-        setup: function(body, controls) {
-            var viz = new VizEngine(body, {
-                width: 580, height: 430,
-                originX: 290, originY: 215, scale: 1
-            });
-
-            // Nodes: { id, label, x, y, color, desc }
-            var nodes = [
-                { id: 'gl1-auto', label: 'GL\u2081 Automorphic\n(Hecke chars)', x: 100, y: 100,
-                  color: '#58a6ff', desc: 'GL\u2081 automorphic representations = Hecke characters = Dirichlet characters (for Q). These are the simplest automorphic objects. L-function: Dirichlet L-function L(s, \u03c7).' },
-                { id: 'gl2-holo', label: 'GL\u2082 Holomorphic\n(Modular forms)', x: 100, y: 215,
-                  color: '#3fb9a0', desc: 'Holomorphic cuspidal automorphic representations of GL\u2082(A_Q) correspond to classical modular forms f of weight k \u2265 1. L-function: L(s, f) with Euler product.' },
-                { id: 'gl2-maass', label: 'GL\u2082 Maass forms', x: 100, y: 330,
-                  color: '#f0883e', desc: 'Non-holomorphic automorphic forms: smooth eigenfunctions of the Laplace-Beltrami operator on SL(2,Z)\u2005\\\u2005H. L-function has the same shape as holomorphic case but with different \u0393-factors.' },
-                { id: 'gal-1', label: '1-dim Galois rep\n(\u03c1: Gal \u2192 C*)', x: 480, y: 100,
-                  color: '#bc8cff', desc: '1-dimensional Galois representations factor through finite abelian groups (by Kronecker-Weber). They correspond exactly to Dirichlet characters. This is classical class field theory (proved).' },
-                { id: 'gal-2', label: '2-dim Galois rep\n(\u03c1: Gal \u2192 GL\u2082(C))', x: 480, y: 215,
-                  color: '#f85149', desc: '2-dimensional complex Galois representations conjecturally correspond to GL\u2082 automorphic forms. Proved for elliptic curves (Wiles-Taylor 1995) and many other cases. Open in full generality.' },
-                { id: 'elliptic', label: 'Elliptic curves E/Q', x: 290, y: 330,
-                  color: '#d29922', desc: 'Every elliptic curve E/Q has an L-function L(s, E). Modularity theorem (Wiles-Taylor-BCDT) says L(s,E) = L(s, f_E) for a weight-2 newform f_E. Key to BSD conjecture.' },
-                { id: 'gln-auto', label: 'GL_n Automorphic\n(general)', x: 290, y: 100,
-                  color: '#f778ba', desc: 'For general n, cuspidal automorphic representations of GL_n(A_Q) are the central objects of the Langlands program. Their L-functions are conjectured to equal all "motivic" L-functions via Langlands reciprocity.' },
-                { id: 'mot', label: 'Motives / \u2113-adic\ncohomology', x: 480, y: 330,
-                  color: '#3fb950', desc: 'Motives are a conjectural universal cohomology theory. \u2113-adic cohomology groups of algebraic varieties (e.g. elliptic curves) carry Galois representations. The Langlands program predicts all motivic L-functions are automorphic.' }
-            ];
-
-            // Edges: { from, to, label, status } status: 'proved'|'conjectural'|'partial'
-            var edges = [
-                { from: 'gl1-auto', to: 'gal-1', label: 'CFT', status: 'proved' },
-                { from: 'gl2-holo', to: 'gal-2', label: 'Wiles-Taylor', status: 'partial' },
-                { from: 'elliptic', to: 'gl2-holo', label: 'Modularity', status: 'proved' },
-                { from: 'elliptic', to: 'gal-2', label: '\u2113-adic T_\u2113(E)', status: 'proved' },
-                { from: 'gal-2', to: 'gl2-maass', label: 'Maass lift', status: 'conjectural' },
-                { from: 'gln-auto', to: 'gl1-auto', label: 'n=1', status: 'proved' },
-                { from: 'gln-auto', to: 'gl2-holo', label: 'n=2', status: 'partial' },
-                { from: 'mot', to: 'gln-auto', label: 'Langlands', status: 'conjectural' },
-                { from: 'mot', to: 'elliptic', label: 'H\xb9(E)', status: 'proved' }
-            ];
-
-            var selectedNode = null;
-            var draggingNode = null;
-            var dragOffX = 0, dragOffY = 0;
-
-            function findNodeAt(mx, my) {
-                for (var i = nodes.length - 1; i >= 0; i--) {
-                    var n = nodes[i];
-                    var dx = mx - n.x, dy = my - n.y;
-                    if (Math.sqrt(dx*dx + dy*dy) < 38) return n;
+                // Compute E_4 approximation using q-expansion
+                // E_4(z) = 1 + 240 * sum sigma_3(n) q^n
+                function sigma3(n) {
+                    var s = 0;
+                    for (var d = 1; d * d <= n; d++) {
+                        if (n % d === 0) {
+                            s += d * d * d;
+                            if (d !== n / d) s += (n / d) * (n / d) * (n / d);
+                        }
+                    }
+                    return s;
                 }
-                return null;
-            }
 
-            function draw() {
-                viz.clear();
-                var ctx = viz.ctx;
+                // Precompute sigma3
+                var maxTerms = 30;
+                var sig3 = new Float64Array(maxTerms + 1);
+                for (var n = 1; n <= maxTerms; n++) {
+                    sig3[n] = sigma3(n);
+                }
 
-                // Draw edges
-                for (var i = 0; i < edges.length; i++) {
-                    var e = edges[i];
-                    var fn = nodes.find(function(n) { return n.id === e.from; });
-                    var tn = nodes.find(function(n) { return n.id === e.to; });
-                    if (!fn || !tn) continue;
+                function evalE4(x, y) {
+                    // q = e^{2 pi i z} = e^{2 pi i x} * e^{-2 pi y}
+                    var qabs = Math.exp(-2 * Math.PI * y);
+                    if (qabs > 0.99) return NaN; // too close to real axis
+                    var re = 1, im = 0;
+                    for (var n = 1; n <= maxTerms; n++) {
+                        var qn = Math.pow(qabs, n);
+                        if (qn < 1e-15) break;
+                        var angle = 2 * Math.PI * n * x;
+                        re += 240 * sig3[n] * qn * Math.cos(angle);
+                        im += 240 * sig3[n] * qn * Math.sin(angle);
+                    }
+                    return Math.sqrt(re * re + im * im);
+                }
 
-                    ctx.strokeStyle = e.status === 'proved' ? '#3fb950' :
-                                      e.status === 'partial' ? '#d29922' : '#555577';
-                    ctx.lineWidth = e.status === 'proved' ? 2 : 1.5;
-                    if (e.status === 'conjectural') ctx.setLineDash([5, 4]);
+                // Delta via tau coefficients (precomputed small)
+                var tauVals = [0, 1, -24, 252, -1472, 4830, -6048, -16744, 84480, -113643, -115920,
+                    534612, -370944, -577738, 401856, 1217160, 987136, -6905934,
+                    2727432, 10661420, -7109760, -4219488, -12830688, 18643272,
+                    21288960, -25499225, 13865712, -73279080, 24647168, 128406630];
+
+                function evalDelta(x, y) {
+                    var qabs = Math.exp(-2 * Math.PI * y);
+                    if (qabs > 0.99) return NaN;
+                    var re = 0, im = 0;
+                    var limit = Math.min(tauVals.length, maxTerms);
+                    for (var n = 1; n < limit; n++) {
+                        var qn = Math.pow(qabs, n);
+                        if (qn < 1e-15) break;
+                        var angle = 2 * Math.PI * n * x;
+                        re += tauVals[n] * qn * Math.cos(angle);
+                        im += tauVals[n] * qn * Math.sin(angle);
+                    }
+                    return Math.sqrt(re * re + im * im);
+                }
+
+                function draw() {
+                    var ctx = viz.ctx;
+                    var pw = viz.canvas.width, ph = viz.canvas.height;
+                    var dpr = window.devicePixelRatio || 1;
+
+                    var xRange = [-1.5, 1.5];
+                    var yRange = [0.05, yMaxVal];
+
+                    var evalFn = (formChoice === 0) ? evalE4 : evalDelta;
+
+                    // Sample at lower resolution for performance
+                    var step = 2;
+                    var vMin = Infinity, vMax = -Infinity;
+                    var values = [];
+
+                    for (var py = 0; py < ph; py += step) {
+                        for (var px = 0; px < pw; px += step) {
+                            var xv = xRange[0] + (xRange[1] - xRange[0]) * px / pw;
+                            var yv = yRange[1] - (yRange[1] - yRange[0]) * py / ph;
+                            if (yv <= 0.02) { values.push(NaN); continue; }
+                            var v = evalFn(xv, yv);
+                            values.push(v);
+                            if (isFinite(v)) {
+                                vMin = Math.min(vMin, v);
+                                vMax = Math.max(vMax, v);
+                            }
+                        }
+                    }
+
+                    // Use log scale for better visibility
+                    var logMin = Math.log(Math.max(vMin, 1e-20));
+                    var logMax = Math.log(Math.max(vMax, 1e-10));
+                    var logRange = logMax - logMin || 1;
+
+                    ctx.save();
+                    ctx.setTransform(1, 0, 0, 1, 0, 0);
+                    var imgData = ctx.createImageData(pw, ph);
+                    var data = imgData.data;
+
+                    var cols = Math.ceil(pw / step);
+                    for (var py = 0; py < ph; py++) {
+                        for (var px = 0; px < pw; px++) {
+                            var si = Math.floor(py / step) * cols + Math.floor(px / step);
+                            var val = values[si];
+                            var idx = (py * pw + px) * 4;
+                            if (!isFinite(val) || val <= 0) {
+                                data[idx] = 12; data[idx + 1] = 12; data[idx + 2] = 32; data[idx + 3] = 255;
+                                continue;
+                            }
+                            var t = Math.max(0, Math.min(1, (Math.log(val) - logMin) / logRange));
+                            var rgb = VizEngine.colormapSample(t, 'inferno');
+                            data[idx] = rgb[0]; data[idx + 1] = rgb[1]; data[idx + 2] = rgb[2]; data[idx + 3] = 255;
+                        }
+                    }
+                    ctx.putImageData(imgData, 0, 0);
+                    ctx.restore();
+
+                    // Overlay: fundamental domain outline
+                    var toSx = function(x) { return (x - xRange[0]) / (xRange[1] - xRange[0]) * (pw / dpr); };
+                    var toSy = function(y) { return (yRange[1] - y) / (yRange[1] - yRange[0]) * (ph / dpr); };
+
+                    ctx.strokeStyle = '#ffffff88';
+                    ctx.lineWidth = 1.5;
+                    ctx.setLineDash([4, 3]);
+
+                    // Vertical edges
                     ctx.beginPath();
-                    ctx.moveTo(fn.x, fn.y); ctx.lineTo(tn.x, tn.y);
+                    ctx.moveTo(toSx(-0.5), toSy(yMaxVal));
+                    ctx.lineTo(toSx(-0.5), toSy(Math.sqrt(3) / 2));
+                    ctx.stroke();
+                    ctx.beginPath();
+                    ctx.moveTo(toSx(0.5), toSy(yMaxVal));
+                    ctx.lineTo(toSx(0.5), toSy(Math.sqrt(3) / 2));
+                    ctx.stroke();
+
+                    // Arc
+                    ctx.beginPath();
+                    var arcSteps = 60;
+                    for (var t = 0; t <= arcSteps; t++) {
+                        var angle = 2 * Math.PI / 3 - t * (Math.PI / 3) / arcSteps;
+                        var ax = Math.cos(angle);
+                        var ay = Math.sin(angle);
+                        var sax = toSx(ax), say = toSy(ay);
+                        if (t === 0) ctx.moveTo(sax, say);
+                        else ctx.lineTo(sax, say);
+                    }
                     ctx.stroke();
                     ctx.setLineDash([]);
 
-                    // Edge label
-                    var mx = (fn.x + tn.x)/2, my = (fn.y + tn.y)/2;
-                    ctx.fillStyle = ctx.strokeStyle;
+                    // Labels
+                    var formName = (formChoice === 0) ? '|E\u2084(z)|' : '|\u0394(z)|';
+                    viz.screenText(formName + ' on \u210D', viz.width / 2, 16, '#ffffffcc', 14);
+                    viz.screenText('Re(z)', viz.width / 2, viz.height - 8, '#ffffff88', 10);
+                    viz.screenText('Im(z)', 14, viz.height / 2, '#ffffff88', 10);
+
+                    // Axis ticks
+                    ctx.fillStyle = '#ffffff88';
                     ctx.font = '9px -apple-system,sans-serif';
                     ctx.textAlign = 'center';
-                    ctx.fillText(e.label, mx, my - 6);
-                }
-
-                // Draw nodes
-                for (var j = 0; j < nodes.length; j++) {
-                    var nd = nodes[j];
-                    var isSelected = nd === selectedNode;
-
-                    // Glow for selected
-                    if (isSelected) {
-                        ctx.shadowColor = nd.color;
-                        ctx.shadowBlur = 18;
+                    ctx.textBaseline = 'top';
+                    for (var xt = -1; xt <= 1; xt++) {
+                        ctx.fillText(xt.toString(), toSx(xt), toSy(yRange[0]) + 2);
                     }
-
-                    ctx.beginPath();
-                    ctx.arc(nd.x, nd.y, 34, 0, Math.PI * 2);
-                    ctx.fillStyle = nd.color + (isSelected ? 'cc' : '44');
-                    ctx.fill();
-                    ctx.strokeStyle = nd.color;
-                    ctx.lineWidth = isSelected ? 2.5 : 1.5;
-                    ctx.stroke();
-                    ctx.shadowBlur = 0;
-
-                    // Label (multi-line)
-                    ctx.fillStyle = isSelected ? '#ffffff' : nd.color;
-                    ctx.font = '10px -apple-system,sans-serif';
-                    ctx.textAlign = 'center';
-                    var lines = nd.label.split('\n');
-                    var lineH = 13;
-                    var startY = nd.y - (lines.length - 1) * lineH / 2;
-                    for (var li = 0; li < lines.length; li++) {
-                        ctx.fillText(lines[li], nd.x, startY + li * lineH);
+                    ctx.textAlign = 'right';
+                    ctx.textBaseline = 'middle';
+                    for (var yt = 0.5; yt <= yMaxVal; yt += 0.5) {
+                        ctx.fillText(yt.toFixed(1), toSx(xRange[0]) - 2, toSy(yt));
                     }
                 }
-
-                // Description panel
-                if (selectedNode) {
-                    var panelY = 5, panelH = 55;
-                    ctx.fillStyle = '#0c0c2099';
-                    ctx.fillRect(0, panelY, viz.width, panelH);
-                    ctx.strokeStyle = selectedNode.color;
-                    ctx.lineWidth = 1;
-                    ctx.strokeRect(0, panelY, viz.width, panelH);
-                    ctx.fillStyle = selectedNode.color;
-                    ctx.font = 'bold 11px -apple-system,sans-serif';
-                    ctx.textAlign = 'left';
-                    ctx.fillText(selectedNode.label.replace('\n', ' '), 8, panelY + 16);
-                    ctx.fillStyle = '#c9d1d9';
-                    ctx.font = '10px -apple-system,sans-serif';
-                    // Wrap text
-                    var words = selectedNode.desc.split(' ');
-                    var line2 = '', lineArr = [];
-                    for (var wi = 0; wi < words.length; wi++) {
-                        var test = line2 + (line2 ? ' ' : '') + words[wi];
-                        if (ctx.measureText(test).width > viz.width - 16) {
-                            lineArr.push(line2); line2 = words[wi];
-                        } else { line2 = test; }
-                    }
-                    if (line2) lineArr.push(line2);
-                    for (var li2 = 0; li2 < Math.min(lineArr.length, 3); li2++) {
-                        ctx.fillText(lineArr[li2], 8, panelY + 30 + li2 * 13);
-                    }
-                }
-
-                // Legend
-                var legY = viz.height - 22;
-                ctx.font = '10px sans-serif'; ctx.textAlign = 'left';
-                [[viz.colors.green, 'proved'], ['#d29922', 'partial'], ['#555577', 'conjectural']].forEach(function(item, i) {
-                    ctx.strokeStyle = item[0]; ctx.lineWidth = 2;
-                    if (i === 2) ctx.setLineDash([5,4]);
-                    ctx.beginPath(); ctx.moveTo(10 + i * 130, legY); ctx.lineTo(36 + i * 130, legY); ctx.stroke();
-                    ctx.setLineDash([]);
-                    ctx.fillStyle = item[0];
-                    ctx.fillText(item[1], 40 + i * 130, legY + 4);
-                });
+                draw();
+                return viz;
             }
+        }
+    ],
 
-            draw();
+    // ================================================================
+    // sec-ramanujan: Interactive Langlands map
+    // ================================================================
+    'sec-ramanujan': [
+        {
+            id: 'viz-langlands-map',
+            title: 'The Langlands Correspondence: An Interactive Map',
+            description: 'The Langlands program connects automorphic representations (left) to Galois representations (right). Click nodes to see the correspondence and which theorems establish the link.',
+            setup: function(body, controls) {
+                var viz = new VizEngine(body, {
+                    width: 560, height: 420,
+                    originX: 0, originY: 0, scale: 1
+                });
 
-            // Mouse interactions
-            var canvas = viz.canvas;
-            canvas.addEventListener('mousedown', function(e) {
-                var r = canvas.getBoundingClientRect();
-                var mx = e.clientX - r.left, my = e.clientY - r.top;
-                var nd = findNodeAt(mx, my);
-                if (nd) {
-                    selectedNode = nd;
-                    draggingNode = nd;
-                    dragOffX = mx - nd.x;
-                    dragOffY = my - nd.y;
-                } else {
+                var nodes = {
+                    auto: [
+                        { id: 'gl1-auto', label: 'GL\u2081 automorphic', x: 100, y: 80, desc: 'Hecke characters / Dirichlet characters' },
+                        { id: 'gl2-eis', label: 'GL\u2082 Eisenstein', x: 60, y: 160, desc: 'Eisenstein series E_k, encode \u03B6(s)' },
+                        { id: 'gl2-cusp', label: 'GL\u2082 cuspidal', x: 140, y: 160, desc: 'Cusp forms like \u0394, weight k eigenforms' },
+                        { id: 'gl2-maass', label: 'GL\u2082 Maass', x: 100, y: 240, desc: 'Non-holomorphic eigenforms, \u0394f = \u03BBf' },
+                        { id: 'gln-auto', label: 'GL_n auto', x: 100, y: 320, desc: 'Higher-rank automorphic forms' }
+                    ],
+                    galois: [
+                        { id: 'gl1-galois', label: '1-dim Galois', x: 460, y: 80, desc: 'Abelian characters, class field theory' },
+                        { id: 'gl2-galois-mod', label: '2-dim modular', x: 460, y: 160, desc: '\u2113-adic reps from elliptic curves & eigenforms' },
+                        { id: 'gl2-galois-artin', label: '2-dim Artin', x: 460, y: 240, desc: 'Finite-image reps, Artin L-functions' },
+                        { id: 'gln-galois', label: 'n-dim motivic', x: 460, y: 320, desc: 'Galois reps from algebraic geometry' }
+                    ]
+                };
+
+                var links = [
+                    { from: 'gl1-auto', to: 'gl1-galois', theorem: 'Class field theory (Artin, Tate)', proved: true },
+                    { from: 'gl2-cusp', to: 'gl2-galois-mod', theorem: 'Modularity / Deligne (1974, 1995)', proved: true },
+                    { from: 'gl2-maass', to: 'gl2-galois-artin', theorem: 'Partial: Langlands-Tunnell', proved: false },
+                    { from: 'gl2-eis', to: 'gl1-galois', theorem: 'Reducible representation', proved: true },
+                    { from: 'gln-auto', to: 'gln-galois', theorem: 'Langlands reciprocity (open)', proved: false }
+                ];
+
+                var selectedNode = null;
+
+                body.style.cursor = 'pointer';
+                body.addEventListener('click', function(e) {
+                    var rect = viz.canvas.getBoundingClientRect();
+                    var mx = e.clientX - rect.left;
+                    var my = e.clientY - rect.top;
+
                     selectedNode = null;
+                    var allNodes = nodes.auto.concat(nodes.galois);
+                    for (var i = 0; i < allNodes.length; i++) {
+                        var nd = allNodes[i];
+                        var dx = mx - nd.x, dy = my - nd.y;
+                        if (dx * dx + dy * dy < 900) {
+                            selectedNode = nd.id;
+                            break;
+                        }
+                    }
+                    draw();
+                });
+
+                function draw() {
+                    viz.clear();
+                    var ctx = viz.ctx;
+
+                    // Headers
+                    viz.screenText('Automorphic Side', 100, 30, viz.colors.blue, 14);
+                    viz.screenText('Galois Side', 460, 30, viz.colors.orange, 14);
+
+                    // Divider
+                    ctx.strokeStyle = viz.colors.grid;
+                    ctx.lineWidth = 1;
+                    ctx.setLineDash([4, 4]);
+                    ctx.beginPath();
+                    ctx.moveTo(280, 50);
+                    ctx.lineTo(280, 380);
+                    ctx.stroke();
+                    ctx.setLineDash([]);
+
+                    viz.screenText('\u2194', 280, 46, viz.colors.white, 16);
+                    viz.screenText('Langlands', 280, 395, viz.colors.text, 10);
+
+                    // Draw links
+                    for (var li = 0; li < links.length; li++) {
+                        var link = links[li];
+                        var fromNode = nodes.auto.concat(nodes.galois).find(function(n) { return n.id === link.from; });
+                        var toNode = nodes.auto.concat(nodes.galois).find(function(n) { return n.id === link.to; });
+                        if (!fromNode || !toNode) continue;
+
+                        var isActive = (selectedNode === link.from || selectedNode === link.to);
+                        var col = link.proved ? viz.colors.green : viz.colors.yellow;
+                        ctx.strokeStyle = isActive ? col : col + '44';
+                        ctx.lineWidth = isActive ? 2.5 : 1;
+                        if (!link.proved) ctx.setLineDash([6, 4]);
+
+                        ctx.beginPath();
+                        ctx.moveTo(fromNode.x + 30, fromNode.y);
+                        ctx.bezierCurveTo(280, fromNode.y, 280, toNode.y, toNode.x - 30, toNode.y);
+                        ctx.stroke();
+                        ctx.setLineDash([]);
+
+                        if (isActive) {
+                            var midY = (fromNode.y + toNode.y) / 2;
+                            viz.screenText(link.theorem, 280, midY - 10, col, 9);
+                            viz.screenText(link.proved ? '(proved)' : '(open/partial)', 280, midY + 4, col, 8);
+                        }
+                    }
+
+                    // Draw nodes
+                    function drawNode(nd, sideColor) {
+                        var isSelected = (selectedNode === nd.id);
+                        var r = 25;
+
+                        ctx.fillStyle = isSelected ? sideColor + '44' : sideColor + '18';
+                        ctx.beginPath();
+                        ctx.arc(nd.x, nd.y, r, 0, Math.PI * 2);
+                        ctx.fill();
+                        ctx.strokeStyle = isSelected ? sideColor : sideColor + '66';
+                        ctx.lineWidth = isSelected ? 2 : 1;
+                        ctx.stroke();
+
+                        viz.screenText(nd.label, nd.x, nd.y, isSelected ? viz.colors.white : sideColor, isSelected ? 10 : 9);
+
+                        if (isSelected) {
+                            viz.screenText(nd.desc, viz.width / 2, viz.height - 15, viz.colors.white, 11);
+                        }
+                    }
+
+                    for (var i = 0; i < nodes.auto.length; i++) {
+                        drawNode(nodes.auto[i], viz.colors.blue);
+                    }
+                    for (var j = 0; j < nodes.galois.length; j++) {
+                        drawNode(nodes.galois[j], viz.colors.orange);
+                    }
+
+                    // Legend
+                    ctx.fillStyle = viz.colors.green;
+                    ctx.fillRect(20, viz.height - 35, 10, 2);
+                    viz.screenText('proved', 55, viz.height - 34, viz.colors.green, 9);
+
+                    ctx.strokeStyle = viz.colors.yellow;
+                    ctx.lineWidth = 1;
+                    ctx.setLineDash([4, 3]);
+                    ctx.beginPath();
+                    ctx.moveTo(90, viz.height - 35);
+                    ctx.lineTo(110, viz.height - 35);
+                    ctx.stroke();
+                    ctx.setLineDash([]);
+                    viz.screenText('open', 130, viz.height - 34, viz.colors.yellow, 9);
+
+                    if (!selectedNode) {
+                        viz.screenText('Click a node to explore the correspondence', viz.width / 2, viz.height - 15, viz.colors.text, 11);
+                    }
                 }
                 draw();
-            });
-            canvas.addEventListener('mousemove', function(e) {
-                if (!draggingNode) return;
-                var r = canvas.getBoundingClientRect();
-                draggingNode.x = Math.max(40, Math.min(viz.width - 40, e.clientX - r.left - dragOffX));
-                draggingNode.y = Math.max(40, Math.min(viz.height - 30, e.clientY - r.top - dragOffY));
-                draw();
-            });
-            canvas.addEventListener('mouseup', function() { draggingNode = null; });
-            canvas.addEventListener('mouseleave', function() { draggingNode = null; });
-
-            // Touch
-            canvas.addEventListener('touchstart', function(e) {
-                var r = canvas.getBoundingClientRect();
-                var mx = e.touches[0].clientX - r.left, my = e.touches[0].clientY - r.top;
-                var nd = findNodeAt(mx, my);
-                if (nd) { selectedNode = nd; draggingNode = nd; dragOffX = mx - nd.x; dragOffY = my - nd.y; }
-                else selectedNode = null;
-                draw(); e.preventDefault();
-            }, { passive: false });
-            canvas.addEventListener('touchmove', function(e) {
-                if (!draggingNode) return;
-                var r = canvas.getBoundingClientRect();
-                draggingNode.x = Math.max(40, Math.min(viz.width - 40, e.touches[0].clientX - r.left - dragOffX));
-                draggingNode.y = Math.max(40, Math.min(viz.height - 30, e.touches[0].clientY - r.top - dragOffY));
-                draw(); e.preventDefault();
-            }, { passive: false });
-            canvas.addEventListener('touchend', function() { draggingNode = null; });
-
-            // Reset button
-            VizEngine.createButton(controls, 'Reset layout', function() {
-                var defaults = [
-                    { id: 'gl1-auto', x: 100, y: 100 }, { id: 'gl2-holo', x: 100, y: 215 },
-                    { id: 'gl2-maass', x: 100, y: 330 }, { id: 'gal-1', x: 480, y: 100 },
-                    { id: 'gal-2', x: 480, y: 215 }, { id: 'elliptic', x: 290, y: 330 },
-                    { id: 'gln-auto', x: 290, y: 100 }, { id: 'mot', x: 480, y: 330 }
-                ];
-                defaults.forEach(function(d) {
-                    var nd = nodes.find(function(n) { return n.id === d.id; });
-                    if (nd) { nd.x = d.x; nd.y = d.y; }
-                });
-                selectedNode = null;
-                draw();
-            });
-
-            return viz;
+                return viz;
+            }
         }
-    }
-
+    ]
 };
