@@ -1,1275 +1,1325 @@
-// === Chapter 0: The Drama of the Primes ===
-// Analytic Number Theory — Interactive Course
-// 6 sections, 6 visualizations, 8 exercises
-
-(function() {
-    'use strict';
-
-    // ----------------------------------------------------------------
-    // Helper functions (shared across visualizations in this chapter)
-    // ----------------------------------------------------------------
-
-    function sievePrimes(max) {
-        var sieve = new Uint8Array(max + 1);
-        var primes = [];
-        for (var i = 2; i <= max; i++) {
-            if (!sieve[i]) {
-                primes.push(i);
-                for (var j = i * i; j <= max; j += i) sieve[j] = 1;
-            }
-        }
-        return primes;
-    }
-
-    function primeCount(x, primes) {
-        var count = 0;
-        for (var i = 0; i < primes.length; i++) {
-            if (primes[i] <= x) count++;
-            else break;
-        }
-        return count;
-    }
-
-    // Logarithmic integral Li(x) via numerical integration (Gauss-Legendre approximation)
-    function Li(x) {
-        if (x <= 1) return 0;
-        // Integrate 1/ln(t) from 2 to x using composite Simpson's rule
-        var n = 200;
-        var a = 2, b = x;
-        var h = (b - a) / n;
-        var sum = 1 / Math.log(a) + 1 / Math.log(b);
-        for (var i = 1; i < n; i++) {
-            var t = a + i * h;
-            sum += (i % 2 === 0 ? 2 : 4) / Math.log(t);
-        }
-        return (h / 3) * sum;
-    }
-
-    // Precomputed primes up to 10000
-    var PRIMES_10K = sievePrimes(10000);
-
-    // ----------------------------------------------------------------
-    window.CHAPTERS = window.CHAPTERS || [];
-    window.CHAPTERS.push({
-        id: 'ch00',
-        number: 0,
-        title: 'The Drama of the Primes',
-        subtitle: 'From Euclid to Riemann: the greatest story in mathematics',
-        sections: [
-
-            // ============================================================
-            // SECTION 1: Why Primes?
-            // ============================================================
-            {
-                id: 'sec-why-primes',
-                title: 'Why Primes?',
-                content: `
+window.CHAPTERS = window.CHAPTERS || [];
+window.CHAPTERS.push({
+    id: 'ch00',
+    number: 0,
+    title: 'The Drama of the Primes',
+    subtitle: 'From Euclid to Riemann: the greatest story in mathematics',
+    sections: [
+        // ================================================================
+        // SECTION 1: Why Primes?
+        // ================================================================
+        {
+            id: 'sec-why-primes',
+            title: 'Why Primes?',
+            content: `
 <h2>Why Primes?</h2>
 
 <div class="env-block intuition">
-    <div class="env-title">An Opening Puzzle</div>
+    <div class="env-title">The Atoms of Arithmetic</div>
     <div class="env-body">
-        <p>Pick any two large primes, say \\(p = 104{,}729\\) and \\(q = 224{,}737\\). Their product \\(n = pq = 23{,}531{,}897{,}273\\) takes a modern computer a fraction of a second to compute. But given only \\(n\\), finding \\(p\\) and \\(q\\) takes vastly longer — this asymmetry between multiplication and factoring is the foundation of RSA encryption, protecting trillions of dollars of internet traffic daily.</p>
-        <p>The humble prime number sits at the intersection of pure mathematics, computational complexity, and cryptography. Why do primes have this power?</p>
+        <p>Every material object is built from atoms. Every integer greater than 1 is built from primes. This is not a loose analogy; it is a theorem, and one of the oldest in all of mathematics. Understanding primes is understanding the very fabric of the integers.</p>
     </div>
 </div>
 
-<p>An integer \\(p \\geq 2\\) is <strong>prime</strong> if its only divisors are \\(1\\) and \\(p\\) itself. The sequence begins:</p>
+<p>A <em>prime number</em> is an integer \\(p \\geq 2\\) whose only positive divisors are 1 and \\(p\\) itself. The first few primes are</p>
+
 \\[
 2, 3, 5, 7, 11, 13, 17, 19, 23, 29, 31, 37, 41, 43, 47, \\ldots
 \\]
-<p>and continues without end. Their fundamental importance rests on a single theorem.</p>
+
+<p>Every other integer \\(n \\geq 2\\) can be written as a product of primes. This is the content of the most fundamental result in number theory:</p>
 
 <div class="env-block theorem">
-    <div class="env-title">Theorem (Fundamental Theorem of Arithmetic)</div>
+    <div class="env-title">Fundamental Theorem of Arithmetic</div>
     <div class="env-body">
-        <p>Every integer \\(n \\geq 2\\) can be written as a product of primes in exactly one way (up to ordering):</p>
-        \\[
-        n = p_1^{a_1} p_2^{a_2} \\cdots p_k^{a_k}, \\quad p_1 < p_2 < \\cdots < p_k \\text{ prime}, \\; a_i \\geq 1.
-        \\]
-        <p>This representation is called the <em>prime factorization</em> of \\(n\\).</p>
+        <p>Every integer \\(n \\geq 2\\) can be expressed as a product of prime numbers, and this factorization is unique up to the order of the factors.</p>
     </div>
 </div>
 
-<p>Primes are the <em>atoms</em> of multiplicative arithmetic: every positive integer is built from them, and the building is unique. This uniqueness is not obvious — it requires proof, relying on Euclid's lemma: if \\(p \\mid ab\\) and \\(p\\) is prime, then \\(p \\mid a\\) or \\(p \\mid b\\).</p>
+<p>For example, \\(60 = 2^2 \\cdot 3 \\cdot 5\\), and no other collection of primes multiplies to give 60. The uniqueness is what makes primes truly atomic: they are the irreducible building blocks, and the decomposition into building blocks is unambiguous.</p>
 
 <div class="env-block proof">
-    <div class="env-title">Proof sketch (Euclid's Theorem: infinitely many primes)</div>
+    <div class="env-title">Proof sketch (existence)</div>
     <div class="env-body">
-        <p>Suppose for contradiction that there are finitely many primes \\(p_1, p_2, \\ldots, p_k\\). Form</p>
-        \\[
-        N = p_1 p_2 \\cdots p_k + 1.
-        \\]
-        <p>Then \\(N > 1\\), so \\(N\\) has a prime factor \\(q\\). But \\(q\\) cannot be any \\(p_i\\), since dividing \\(N\\) by any \\(p_i\\) leaves remainder \\(1\\). Contradiction. \\(\\square\\)</p>
+        <p>By strong induction. If \\(n\\) is prime, we are done. Otherwise \\(n = ab\\) with \\(1 < a, b < n\\). By induction both \\(a\\) and \\(b\\) have prime factorizations, so \\(n\\) does too. \\(\\square\\)</p>
     </div>
 </div>
 
-<p>Euclid proved this around 300 BCE. It remains one of the most elegant arguments in all of mathematics. But knowing primes are infinite is only the beginning. The real question — one that would not be answered for another two millennia — is: <em>how many primes are there up to a given bound?</em></p>
+<p>The uniqueness half is more subtle and requires Euclid's lemma (if \\(p \\mid ab\\) then \\(p \\mid a\\) or \\(p \\mid b\\)). We will not dwell on it here; our concern is with the <em>distribution</em> of primes, not the mechanics of factorization.</p>
 
-<h3>Primes as the Multiplicative Basis</h3>
+<h3>How Many Primes Are There?</h3>
 
-<p>The multiplicative structure of \\(\\mathbb{Z}\\) is entirely encoded in the primes. Every arithmetic function of multiplicative type factors through the prime factorization. For instance, the number of divisors of \\(n = p_1^{a_1} \\cdots p_k^{a_k}\\) is:</p>
-\\[
-d(n) = (a_1 + 1)(a_2 + 1) \\cdots (a_k + 1).
-\\]
-<p>The Euler totient satisfies \\(\\phi(n) = n \\prod_{p \\mid n}(1 - 1/p)\\). Every such formula ultimately traces back to how \\(n\\) factors into primes.</p>
-
-<div class="env-block remark">
-    <div class="env-title">Why Analytic Methods?</div>
-    <div class="env-body">
-        <p>The primes are defined combinatorially (no nontrivial factors), yet their global distribution is governed by analysis. This is the central miracle of analytic number theory: tools from complex analysis — contour integrals, residues, the theory of entire functions — yield precise information about an intrinsically discrete, multiplicative object. The bridge is the Euler product and the Riemann zeta function, which we build toward in this chapter.</p>
-    </div>
-</div>
-`,
-                visualizations: [],
-                exercises: [
-                    {
-                        question: 'Write out the prime factorizations of \\(360\\), \\(1001\\), and \\(2^{10} - 1 = 1023\\). For each, compute the number of positive divisors \\(d(n) = \\prod (a_i + 1)\\).',
-                        hint: 'For 1001, try dividing by small primes: 7, 11, 13. For 1023, note it equals \\(3 \\times 341\\).',
-                        solution: '\\(360 = 2^3 \\cdot 3^2 \\cdot 5\\), so \\(d(360) = 4 \\cdot 3 \\cdot 2 = 24\\). \\(1001 = 7 \\cdot 11 \\cdot 13\\), so \\(d(1001) = 2 \\cdot 2 \\cdot 2 = 8\\). \\(1023 = 3 \\cdot 341 = 3 \\cdot 11 \\cdot 31\\), so \\(d(1023) = 2 \\cdot 2 \\cdot 2 = 8\\).'
-                    },
-                    {
-                        question: 'Modify Euclid\'s proof: instead of forming \\(N = p_1 \\cdots p_k + 1\\), form \\(N = p_1 \\cdots p_k - 1\\). Does the argument still work? Why or why not?',
-                        hint: 'The key property used is that \\(N \\equiv 1 \\pmod{p_i}\\) for all \\(i\\). Does \\(N = p_1 \\cdots p_k - 1\\) satisfy this?',
-                        solution: 'Yes: \\(N = p_1 \\cdots p_k - 1 \\equiv -1 \\pmod{p_i}\\) for all \\(i\\), so no \\(p_i\\) divides \\(N\\). Any prime factor of \\(N\\) must be a new prime not in our list. The argument works equally well. (Caution: \\(N\\) could equal \\(1\\) if \\(k = 0\\), but since we assumed at least one prime, \\(N \\geq 1\\).)'
-                    }
-                ]
-            },
-
-            // ============================================================
-            // SECTION 2: The Irregular Staircase
-            // ============================================================
-            {
-                id: 'sec-irregularity',
-                title: 'The Irregular Staircase',
-                content: `
-<h2>The Irregular Staircase</h2>
-
-<div class="env-block intuition">
-    <div class="env-title">Order Hidden in Chaos</div>
-    <div class="env-body">
-        <p>Plot \\(\\pi(x)\\) — the number of primes up to \\(x\\) — and you see a staircase climbing erratically, jumping by 1 at each prime and staying flat between them. No formula predicts exactly where the next step falls. Yet zoom out, and a smooth, regular curve emerges from the chaos. This tension between local unpredictability and global regularity is the central mystery of prime number theory.</p>
-    </div>
-</div>
-
-<div class="env-block definition">
-    <div class="env-title">Definition (Prime Counting Function)</div>
-    <div class="env-body">
-        <p>For \\(x > 0\\), define</p>
-        \\[
-        \\pi(x) = \\#\\{p \\leq x : p \\text{ prime}\\} = \\sum_{\\substack{p \\leq x \\\\ p \\text{ prime}}} 1.
-        \\]
-        <p>Some values: \\(\\pi(10) = 4\\), \\(\\pi(100) = 25\\), \\(\\pi(1000) = 168\\), \\(\\pi(10^6) = 78{,}498\\), \\(\\pi(10^9) = 50{,}847{,}534\\).</p>
-    </div>
-</div>
-
-<p>The gaps between consecutive primes \\(g_n = p_{n+1} - p_n\\) are notoriously irregular. We have \\(g_1 = 1\\) (the only even prime is 2), but thereafter all gaps are even. Gaps can be arbitrarily large: for any \\(k\\), the \\(k\\) consecutive integers \\((k+1)! + 2, (k+1)! + 3, \\ldots, (k+1)! + (k+1)\\) are all composite. Yet we also have:</p>
+<p>If primes are the atoms of the integers, the first question is whether we ever run out of atoms. Euclid settled this around 300 BCE:</p>
 
 <div class="env-block theorem">
-    <div class="env-title">Theorem (Bertrand's Postulate, 1845)</div>
+    <div class="env-title">Euclid's Theorem (c. 300 BCE)</div>
     <div class="env-body">
-        <p>For every integer \\(n \\geq 1\\), there is at least one prime \\(p\\) with \\(n < p \\leq 2n\\).</p>
-        <p>Equivalently, \\(g_n = p_{n+1} - p_n < p_n\\) for all \\(n\\), so no prime gap exceeds the prime itself.</p>
-    </div>
-</div>
-
-<p>Bertrand's postulate was proved by Chebyshev (1852) using elementary estimates. Much finer results are known: unconditionally, \\(g_n = O(p_n^{0.525})\\) (Baker–Harman–Pintz 2001); under RH, \\(g_n = O(\\sqrt{p_n} \\log p_n)\\). The <em>twin prime conjecture</em> asserts \\(g_n = 2\\) infinitely often — still open after millennia. Zhang (2013) proved \\(g_n < 7 \\times 10^7\\) infinitely often, and subsequent work (Maynard, Tao, Polymath8) reduced this to 246.</p>
-
-<h3>The Ulam Spiral</h3>
-
-<p>Arrange the positive integers in a square spiral. Color the primes. The result — the Ulam spiral — shows unexpected diagonal streaks. These correspond to quadratic polynomials \\(4n^2 + bn + c\\) that produce unusually many primes. This visual regularity is still not fully understood theoretically.</p>
-
-<div class="viz-placeholder" data-viz="viz-prime-staircase"></div>
-<div class="viz-placeholder" data-viz="viz-prime-gaps"></div>
-<div class="viz-placeholder" data-viz="viz-ulam-spiral"></div>
-`,
-                visualizations: [
-                    {
-                        id: 'viz-prime-staircase',
-                        title: '\\(\\pi(x)\\) vs. Smooth Approximations',
-                        description: 'The prime counting function \\(\\pi(x)\\) as a blue staircase, compared to \\(x/\\ln x\\) (teal) and \\(\\mathrm{Li}(x)\\) (orange). Drag the slider to zoom in or out.',
-                        setup: function(body, controls) {
-                            var viz = new VizEngine(body, { width: 620, height: 380, originX: 60, originY: 340, scale: 1 });
-                            var xMax = 500;
-
-                            VizEngine.createSlider(controls, 'x max', 100, 10000, xMax, 100, function(v) {
-                                xMax = Math.round(v);
-                                draw();
-                            });
-
-                            function draw() {
-                                viz.clear();
-                                var ctx = viz.ctx;
-                                var W = viz.width, H = viz.height;
-                                var padL = 60, padR = 20, padT = 30, padB = 40;
-                                var plotW = W - padL - padR;
-                                var plotH = H - padT - padB;
-
-                                var primes = PRIMES_10K.filter(function(p) { return p <= xMax; });
-                                var piMax = primes.length;
-
-                                function sx(x) { return padL + (x / xMax) * plotW; }
-                                function sy(y) { return padT + plotH - (y / (piMax * 1.1)) * plotH; }
-
-                                // Grid lines
-                                ctx.strokeStyle = '#1a1a40';
-                                ctx.lineWidth = 0.5;
-                                for (var g = 0; g <= 5; g++) {
-                                    var yv = (g / 5) * piMax * 1.1;
-                                    var yp = sy(yv);
-                                    ctx.beginPath(); ctx.moveTo(padL, yp); ctx.lineTo(W - padR, yp); ctx.stroke();
-                                    ctx.fillStyle = '#4a4a7a';
-                                    ctx.font = '10px -apple-system,sans-serif';
-                                    ctx.textAlign = 'right';
-                                    ctx.fillText(Math.round(yv), padL - 4, yp + 3);
-                                }
-                                for (var g2 = 0; g2 <= 4; g2++) {
-                                    var xv = (g2 / 4) * xMax;
-                                    var xp = sx(xv);
-                                    ctx.beginPath(); ctx.moveTo(xp, padT); ctx.lineTo(xp, H - padB); ctx.stroke();
-                                    ctx.fillStyle = '#4a4a7a';
-                                    ctx.font = '10px -apple-system,sans-serif';
-                                    ctx.textAlign = 'center';
-                                    ctx.fillText(Math.round(xv), xp, H - padB + 14);
-                                }
-
-                                // x/ln(x) curve
-                                ctx.strokeStyle = '#3fb9a0';
-                                ctx.lineWidth = 2;
-                                ctx.beginPath();
-                                var started = false;
-                                for (var xi = 3; xi <= xMax; xi += Math.max(1, xMax / 400)) {
-                                    var y1 = xi / Math.log(xi);
-                                    var px2 = sx(xi), py2 = sy(y1);
-                                    if (!started) { ctx.moveTo(px2, py2); started = true; }
-                                    else ctx.lineTo(px2, py2);
-                                }
-                                ctx.stroke();
-
-                                // Li(x) curve
-                                ctx.strokeStyle = '#f0883e';
-                                ctx.lineWidth = 2;
-                                ctx.beginPath();
-                                started = false;
-                                for (var xi2 = 3; xi2 <= xMax; xi2 += Math.max(1, xMax / 400)) {
-                                    var y2 = Li(xi2);
-                                    var px3 = sx(xi2), py3 = sy(y2);
-                                    if (!started) { ctx.moveTo(px3, py3); started = true; }
-                                    else ctx.lineTo(px3, py3);
-                                }
-                                ctx.stroke();
-
-                                // pi(x) staircase
-                                ctx.strokeStyle = '#58a6ff';
-                                ctx.lineWidth = 2.5;
-                                ctx.beginPath();
-                                ctx.moveTo(sx(2), sy(0));
-                                var cnt = 0;
-                                for (var pi2 = 0; pi2 < primes.length; pi2++) {
-                                    var p = primes[pi2];
-                                    var pNext = pi2 + 1 < primes.length ? primes[pi2 + 1] : xMax;
-                                    // horizontal segment before prime
-                                    ctx.lineTo(sx(p), sy(cnt));
-                                    cnt++;
-                                    // vertical jump at prime
-                                    ctx.lineTo(sx(p), sy(cnt));
-                                    // horizontal after prime
-                                    ctx.lineTo(sx(Math.min(pNext, xMax)), sy(cnt));
-                                }
-                                ctx.stroke();
-
-                                // Legend
-                                var legY = padT + 10;
-                                ctx.font = '11px -apple-system,sans-serif';
-                                ctx.textAlign = 'left';
-                                [[viz.colors ? '#58a6ff' : '#58a6ff', '\u03c0(x)'],
-                                 ['#3fb9a0', 'x/ln(x)'],
-                                 ['#f0883e', 'Li(x)']].forEach(function(item, idx) {
-                                    ctx.fillStyle = item[0];
-                                    ctx.fillRect(W - padR - 120, legY + idx * 18, 20, 3);
-                                    ctx.fillStyle = '#c9d1d9';
-                                    ctx.fillText(item[1], W - padR - 94, legY + idx * 18 + 4);
-                                });
-
-                                // Title
-                                ctx.fillStyle = '#8b949e';
-                                ctx.font = '12px -apple-system,sans-serif';
-                                ctx.textAlign = 'center';
-                                ctx.fillText('\u03c0(' + xMax + ') = ' + piMax, W / 2, padT - 10);
-                            }
-
-                            draw();
-                            return viz;
-                        }
-                    },
-                    {
-                        id: 'viz-prime-gaps',
-                        title: 'Prime Gaps \\(g_n = p_{n+1} - p_n\\)',
-                        description: 'Scatter plot of prime gaps. Each dot represents the gap after the \\(n\\)-th prime. Dots are colored by gap size: small gaps blue, large gaps red.',
-                        setup: function(body, controls) {
-                            var viz = new VizEngine(body, { width: 620, height: 340, originX: 60, originY: 300, scale: 1 });
-                            var nMax = 200;
-
-                            VizEngine.createSlider(controls, 'primes shown', 50, 500, nMax, 10, function(v) {
-                                nMax = Math.round(v);
-                                draw();
-                            });
-
-                            function draw() {
-                                viz.clear();
-                                var ctx = viz.ctx;
-                                var W = viz.width, H = viz.height;
-                                var padL = 55, padR = 20, padT = 30, padB = 40;
-                                var plotW = W - padL - padR;
-                                var plotH = H - padT - padB;
-
-                                var n = Math.min(nMax, PRIMES_10K.length - 1);
-                                var gaps = [];
-                                var maxGap = 0;
-                                for (var i = 0; i < n; i++) {
-                                    var g = PRIMES_10K[i + 1] - PRIMES_10K[i];
-                                    gaps.push(g);
-                                    if (g > maxGap) maxGap = g;
-                                }
-
-                                function sx(i) { return padL + (i / n) * plotW; }
-                                function sy(g) { return padT + plotH - (g / (maxGap + 4)) * plotH; }
-
-                                // Grid
-                                ctx.strokeStyle = '#1a1a40';
-                                ctx.lineWidth = 0.5;
-                                var gapTicks = [2, 6, 12, 18, 24, 30, 36];
-                                gapTicks.forEach(function(gt) {
-                                    if (gt > maxGap + 4) return;
-                                    var yp = sy(gt);
-                                    ctx.beginPath(); ctx.moveTo(padL, yp); ctx.lineTo(W - padR, yp); ctx.stroke();
-                                    ctx.fillStyle = '#4a4a7a';
-                                    ctx.font = '10px -apple-system,sans-serif';
-                                    ctx.textAlign = 'right';
-                                    ctx.fillText(gt, padL - 4, yp + 3);
-                                });
-
-                                // Axes
-                                ctx.strokeStyle = '#4a4a7a';
-                                ctx.lineWidth = 1;
-                                ctx.beginPath();
-                                ctx.moveTo(padL, padT); ctx.lineTo(padL, H - padB);
-                                ctx.moveTo(padL, H - padB); ctx.lineTo(W - padR, H - padB);
-                                ctx.stroke();
-
-                                // x-axis labels
-                                ctx.fillStyle = '#4a4a7a';
-                                ctx.font = '10px -apple-system,sans-serif';
-                                ctx.textAlign = 'center';
-                                for (var ti = 0; ti <= 4; ti++) {
-                                    var idx = Math.round((ti / 4) * n);
-                                    ctx.fillText(idx, sx(idx), H - padB + 14);
-                                }
-
-                                // Dots
-                                for (var i2 = 0; i2 < gaps.length; i2++) {
-                                    var g2 = gaps[i2];
-                                    var t = g2 / (maxGap || 1);
-                                    // Color: small = blue, large = red
-                                    var r = Math.round(88 + 167 * t);
-                                    var gb2 = Math.round(166 - 130 * t);
-                                    var b2 = Math.round(255 - 187 * t);
-                                    ctx.fillStyle = 'rgb(' + r + ',' + gb2 + ',' + b2 + ')';
-                                    ctx.beginPath();
-                                    ctx.arc(sx(i2 + 1), sy(g2), 3, 0, Math.PI * 2);
-                                    ctx.fill();
-                                }
-
-                                // Labels
-                                ctx.fillStyle = '#8b949e';
-                                ctx.font = '12px -apple-system,sans-serif';
-                                ctx.textAlign = 'center';
-                                ctx.fillText('n (prime index)', W / 2, H - 5);
-                                ctx.save();
-                                ctx.translate(12, H / 2);
-                                ctx.rotate(-Math.PI / 2);
-                                ctx.fillText('gap size', 0, 0);
-                                ctx.restore();
-
-                                // Annotate max gap
-                                var maxIdx = gaps.indexOf(maxGap);
-                                ctx.fillStyle = '#f85149';
-                                ctx.font = '10px -apple-system,sans-serif';
-                                ctx.textAlign = 'left';
-                                ctx.fillText('max=' + maxGap + ' after p=' + PRIMES_10K[maxIdx], sx(maxIdx + 1) + 5, sy(maxGap) - 5);
-                            }
-
-                            draw();
-                            return viz;
-                        }
-                    },
-                    {
-                        id: 'viz-ulam-spiral',
-                        title: 'Ulam Spiral',
-                        description: 'Integers arranged in a square spiral; primes colored blue. Diagonal streaks correspond to prime-rich quadratic polynomials.',
-                        setup: function(body, controls) {
-                            var viz = new VizEngine(body, { width: 500, height: 500, originX: 250, originY: 250, scale: 1 });
-                            var N = 2500;
-
-                            VizEngine.createSlider(controls, 'N', 100, 10000, N, 100, function(v) {
-                                N = Math.round(v);
-                                draw();
-                            });
-
-                            function draw() {
-                                viz.clear();
-                                var ctx = viz.ctx;
-                                var W = viz.width, H = viz.height;
-                                var side = Math.ceil(Math.sqrt(N));
-                                var cellSize = Math.max(1, Math.floor(Math.min(W, H) / (side + 2)));
-                                var ox = Math.floor(W / 2);
-                                var oy = Math.floor(H / 2);
-
-                                // Sieve for N
-                                var localPrimes = sievePrimes(N + 10);
-                                var isPrime = new Uint8Array(N + 10);
-                                for (var i = 0; i < localPrimes.length; i++) isPrime[localPrimes[i]] = 1;
-
-                                // Spiral walk: right, up, left, down...
-                                var x = 0, y = 0;
-                                var dx = 1, dy = 0;
-                                var steps = 1, stepCount = 0, turns = 0;
-
-                                for (var n = 1; n <= N; n++) {
-                                    var px = ox + x * cellSize;
-                                    var py = oy - y * cellSize;
-
-                                    if (isPrime[n]) {
-                                        ctx.fillStyle = '#58a6ff';
-                                        ctx.fillRect(px - Math.floor(cellSize / 2), py - Math.floor(cellSize / 2), cellSize, cellSize);
-                                    } else if (cellSize >= 3) {
-                                        ctx.fillStyle = '#1a1a40';
-                                        ctx.fillRect(px - Math.floor(cellSize / 2), py - Math.floor(cellSize / 2), cellSize, cellSize);
-                                    }
-
-                                    // Move
-                                    x += dx; y += dy;
-                                    stepCount++;
-                                    if (stepCount === steps) {
-                                        stepCount = 0;
-                                        // Turn left (dx,dy) -> (-dy,dx)
-                                        var tmp = dx; dx = -dy; dy = tmp;
-                                        turns++;
-                                        if (turns % 2 === 0) steps++;
-                                    }
-                                }
-
-                                ctx.fillStyle = '#8b949e';
-                                ctx.font = '12px -apple-system,sans-serif';
-                                ctx.textAlign = 'center';
-                                ctx.fillText('N = ' + N + '  (' + localPrimes.filter(function(p) { return p <= N; }).length + ' primes)', W / 2, H - 8);
-                            }
-
-                            draw();
-                            return viz;
-                        }
-                    }
-                ],
-                exercises: [
-                    {
-                        question: 'Compute \\(\\pi(100)\\) by hand (or by systematic elimination). List all primes up to 100.',
-                        hint: 'Use the Sieve of Eratosthenes: eliminate multiples of 2, 3, 5, 7 up to 100. You only need to check primes up to \\(\\sqrt{100} = 10\\).',
-                        solution: 'There are \\(\\pi(100) = 25\\) primes up to 100: 2, 3, 5, 7, 11, 13, 17, 19, 23, 29, 31, 37, 41, 43, 47, 53, 59, 61, 67, 71, 73, 79, 83, 89, 97.'
-                    },
-                    {
-                        question: 'Verify Bertrand\'s Postulate for \\(n \\leq 50\\): for each \\(n\\), find a prime \\(p\\) with \\(n < p \\leq 2n\\).',
-                        hint: 'Use the prime list from the previous exercise plus primes in \\((50, 100]\\).',
-                        solution: 'For example: \\(n=1\\): \\(p=2\\); \\(n=2\\): \\(p=3\\); \\(n=10\\): \\(p=11\\); \\(n=20\\): \\(p=23\\); \\(n=50\\): \\(p=53\\). In each case, a prime exists in the interval \\((n, 2n]\\), confirming Bertrand\'s Postulate. The nearest prime to \\(n\\) from above never exceeds \\(2n\\) for \\(n \\leq 50\\).'
-                    }
-                ]
-            },
-
-            // ============================================================
-            // SECTION 3: Euler's Bridge to Analysis
-            // ============================================================
-            {
-                id: 'sec-euler-connection',
-                title: "Euler's Bridge to Analysis",
-                content: `
-<h2>Euler's Bridge to Analysis</h2>
-
-<div class="env-block intuition">
-    <div class="env-title">From Discrete to Continuous</div>
-    <div class="env-body">
-        <p>Primes are among the most discrete objects in mathematics — individual integers with a combinatorial definition. Yet Euler discovered that the sum of their reciprocals \\(\\sum 1/p\\) diverges, and the mechanism of the proof runs through a beautiful product formula that connects the discrete world of integers to the continuous world of convergent series. This is the first hint that analysis has something to say about primes.</p>
-    </div>
-</div>
-
-<p>In 1737, Euler proved a spectacular identity relating a sum over all positive integers to a product over primes:</p>
-
-<div class="env-block theorem">
-    <div class="env-title">Theorem (Euler Product Formula)</div>
-    <div class="env-body">
-        <p>For real \\(s > 1\\),</p>
-        \\[
-        \\sum_{n=1}^{\\infty} \\frac{1}{n^s} = \\prod_{p \\text{ prime}} \\frac{1}{1 - p^{-s}}.
-        \\]
-        <p>The left side is the Riemann zeta function \\(\\zeta(s)\\); the right is the Euler product.</p>
+        <p>There are infinitely many prime numbers.</p>
     </div>
 </div>
 
 <div class="env-block proof">
     <div class="env-title">Proof</div>
     <div class="env-body">
-        <p>Expand each factor on the right as a geometric series (valid for \\(p^{-s} < 1\\), i.e., \\(s > 0\\)):</p>
+        <p>Suppose for contradiction that there are only finitely many primes \\(p_1, p_2, \\ldots, p_k\\). Consider the number</p>
         \\[
-        \\frac{1}{1 - p^{-s}} = 1 + p^{-s} + p^{-2s} + p^{-3s} + \\cdots = \\sum_{a=0}^{\\infty} p^{-as}.
+        N = p_1 p_2 \\cdots p_k + 1.
         \\]
-        <p>The product over all primes therefore equals</p>
-        \\[
-        \\prod_p \\sum_{a=0}^{\\infty} p^{-as} = \\sum_{n} n^{-s},
-        \\]
-        <p>where the last sum runs over all positive integers, each occurring exactly once by the Fundamental Theorem of Arithmetic (unique factorization). For \\(s > 1\\), both the sum and product converge absolutely, justifying the rearrangement. \\(\\square\\)</p>
+        <p>Since \\(N > 1\\), it has a prime factor \\(q\\). But \\(q\\) cannot be any of \\(p_1, \\ldots, p_k\\), because dividing \\(N\\) by any \\(p_i\\) leaves remainder 1. So \\(q\\) is a prime not in our list, contradicting the assumption. \\(\\square\\)</p>
     </div>
 </div>
 
-<h3>Divergence of \\(\\sum 1/p\\)</h3>
+<div class="env-block remark">
+    <div class="env-title">A common misconception</div>
+    <div class="env-body">
+        <p>Euclid's proof does <em>not</em> claim that \\(N = p_1 \\cdots p_k + 1\\) is itself prime. For example, \\(2 \\cdot 3 \\cdot 5 \\cdot 7 \\cdot 11 \\cdot 13 + 1 = 30031 = 59 \\cdot 509\\). The point is that \\(N\\) has a prime factor not already on the list.</p>
+    </div>
+</div>
 
-<p>The Euler product immediately yields a new proof of the infinitude of primes, and much more:</p>
+<p>So there are infinitely many primes. But <em>how</em> are they distributed among the integers? Are they roughly evenly spaced, or do they thin out? Do they follow a pattern, or are they fundamentally irregular? These questions drive the entire subject of analytic number theory.</p>
+`,
+            visualizations: [],
+            exercises: [
+                {
+                    question: 'Compute \\(\\pi(100)\\), the number of primes up to 100, by listing all primes up to 100.',
+                    hint: 'Systematically check each number, or use the sieve of Eratosthenes: cross out multiples of 2, then 3, then 5, then 7. Since \\(\\sqrt{100} = 10\\), you only need to sieve up to 7.',
+                    solution: 'The primes up to 100 are: 2, 3, 5, 7, 11, 13, 17, 19, 23, 29, 31, 37, 41, 43, 47, 53, 59, 61, 67, 71, 73, 79, 83, 89, 97. So \\(\\pi(100) = 25\\).'
+                },
+                {
+                    question: 'In Euclid\'s proof, we form \\(N = p_1 p_2 \\cdots p_k + 1\\). Compute \\(N\\) when the list is \\(\\{2, 3, 5\\}\\) and when the list is \\(\\{2, 3, 5, 7, 11, 13\\}\\). Is \\(N\\) prime in each case?',
+                    hint: 'Compute the products and add 1, then try to factor the results.',
+                    solution: 'For \\(\\{2,3,5\\}\\): \\(N = 30 + 1 = 31\\), which is prime. For \\(\\{2,3,5,7,11,13\\}\\): \\(N = 30030 + 1 = 30031 = 59 \\times 509\\), which is composite. Euclid\'s proof guarantees a new prime factor, not that \\(N\\) itself is prime.'
+                }
+            ]
+        },
+
+        // ================================================================
+        // SECTION 2: The Irregular Staircase
+        // ================================================================
+        {
+            id: 'sec-irregularity',
+            title: 'The Irregular Staircase',
+            content: `
+<h2>The Irregular Staircase</h2>
+
+<div class="env-block intuition">
+    <div class="env-title">A Staircase with No Blueprint</div>
+    <div class="env-body">
+        <p>Define \\(\\pi(x)\\) to be the number of primes \\(p \\leq x\\). This function climbs like a staircase, gaining one step each time \\(x\\) passes a prime. If you plot it, the staircase looks deceptively regular from afar, but up close every step is a surprise. There is no simple formula for the step locations.</p>
+    </div>
+</div>
+
+<p>The <em>prime counting function</em> \\(\\pi(x)\\) is the central object of study in analytic number theory. Some values:</p>
+
+<table style="margin:0 auto;border-collapse:collapse;">
+<tr style="border-bottom:2px solid #30363d;"><th style="padding:4px 16px;">\\(x\\)</th><th style="padding:4px 16px;">\\(\\pi(x)\\)</th><th style="padding:4px 16px;">Fraction prime</th></tr>
+<tr><td style="padding:4px 16px;text-align:center;">10</td><td style="padding:4px 16px;text-align:center;">4</td><td style="padding:4px 16px;text-align:center;">40%</td></tr>
+<tr><td style="padding:4px 16px;text-align:center;">100</td><td style="padding:4px 16px;text-align:center;">25</td><td style="padding:4px 16px;text-align:center;">25%</td></tr>
+<tr><td style="padding:4px 16px;text-align:center;">1,000</td><td style="padding:4px 16px;text-align:center;">168</td><td style="padding:4px 16px;text-align:center;">16.8%</td></tr>
+<tr><td style="padding:4px 16px;text-align:center;">10,000</td><td style="padding:4px 16px;text-align:center;">1,229</td><td style="padding:4px 16px;text-align:center;">12.3%</td></tr>
+<tr><td style="padding:4px 16px;text-align:center;">100,000</td><td style="padding:4px 16px;text-align:center;">9,592</td><td style="padding:4px 16px;text-align:center;">9.6%</td></tr>
+<tr><td style="padding:4px 16px;text-align:center;">1,000,000</td><td style="padding:4px 16px;text-align:center;">78,498</td><td style="padding:4px 16px;text-align:center;">7.8%</td></tr>
+</table>
+
+<p>Primes thin out, but they never stop. The fraction of integers up to \\(x\\) that are prime decreases, yet \\(\\pi(x)\\) itself grows without bound.</p>
+
+<h3>Prime Gaps</h3>
+
+<p>Define the \\(n\\)-th prime gap as \\(g_n = p_{n+1} - p_n\\). The first few gaps are</p>
+
+\\[
+1, 2, 2, 4, 2, 4, 2, 4, 6, 2, 6, 4, 2, 4, 6, 6, 2, 6, \\ldots
+\\]
+
+<p>The gaps are erratic. Sometimes primes cluster tightly (twin primes like 11, 13 have gap 2), sometimes they spread apart. The question of whether infinitely many gaps of size 2 exist, the <strong>Twin Prime Conjecture</strong>, remains open.</p>
+
+<div class="viz-placeholder" data-viz="viz-prime-staircase"></div>
+
+<div class="viz-placeholder" data-viz="viz-prime-gaps"></div>
+
+<p>Despite the local chaos, a remarkable regularity emerges at large scales. This tension between local irregularity and global order is the central drama of prime number theory.</p>
+
+<h3>Bertrand's Postulate</h3>
+
+<p>While the gaps between primes are unpredictable in detail, they cannot grow too fast:</p>
 
 <div class="env-block theorem">
-    <div class="env-title">Theorem (Euler, 1737)</div>
+    <div class="env-title">Bertrand's Postulate (Chebyshev, 1852)</div>
     <div class="env-body">
-        <p>The series \\(\\sum_{p} 1/p\\) (over all primes) diverges.</p>
+        <p>For every integer \\(n \\geq 1\\), there exists a prime \\(p\\) with \\(n < p \\leq 2n\\).</p>
+    </div>
+</div>
+
+<p>Equivalently, \\(p_{n+1} < 2p_n\\) for all \\(n\\). Prime gaps grow, but not faster than the primes themselves. Bertrand conjectured this in 1845 after checking it up to \\(n = 3{,}000{,}000\\); Chebyshev proved it in 1852 using elementary (but ingenious) bounds on \\(\\pi(x)\\).</p>
+`,
+            visualizations: [
+                // VIZ 1: Prime staircase vs x/ln(x) vs Li(x)
+                {
+                    id: 'viz-prime-staircase',
+                    title: 'The Prime Staircase',
+                    description: 'The staircase function pi(x) compared to its two main approximations: x/ln(x) and Li(x). Drag the slider to change the range.',
+                    setup: function(body, controls) {
+                        var viz = new VizEngine(body, {
+                            width: 560, height: 380,
+                            originX: 60, originY: 340, scale: 1
+                        });
+
+                        // Helper: sieve primes up to max
+                        function sievePrimes(max) {
+                            var sieve = new Uint8Array(max + 1);
+                            var primes = [];
+                            for (var i = 2; i <= max; i++) {
+                                if (!sieve[i]) {
+                                    primes.push(i);
+                                    for (var j = i * i; j <= max; j += i) sieve[j] = 1;
+                                }
+                            }
+                            return primes;
+                        }
+
+                        // Helper: count primes <= x
+                        function primeCount(x, primes) {
+                            var count = 0;
+                            for (var i = 0; i < primes.length; i++) {
+                                if (primes[i] <= x) count++;
+                                else break;
+                            }
+                            return count;
+                        }
+
+                        // Helper: Li(x) via trapezoidal integration
+                        function Li(x) {
+                            if (x <= 2) return 0;
+                            var sum = 0;
+                            var steps = 500;
+                            var a = 2, b = x;
+                            var h = (b - a) / steps;
+                            for (var i = 0; i < steps; i++) {
+                                var t0 = a + i * h;
+                                var t1 = t0 + h;
+                                sum += (1 / Math.log(t0) + 1 / Math.log(t1)) * h / 2;
+                            }
+                            return sum;
+                        }
+
+                        var allPrimes = sievePrimes(12000);
+                        var xMax = 500;
+
+                        var slider = VizEngine.createSlider(controls, 'x max', 100, 10000, xMax, 100, function(v) {
+                            xMax = Math.round(v);
+                            draw();
+                        });
+
+                        function draw() {
+                            viz.clear();
+                            var ctx = viz.ctx;
+
+                            var plotLeft = 60;
+                            var plotRight = viz.width - 20;
+                            var plotTop = 40;
+                            var plotBottom = 320;
+                            var plotW = plotRight - plotLeft;
+                            var plotH = plotBottom - plotTop;
+
+                            var piMax = primeCount(xMax, allPrimes);
+                            var yMax = Math.max(piMax * 1.1, 10);
+
+                            function toSx(x) { return plotLeft + (x / xMax) * plotW; }
+                            function toSy(y) { return plotBottom - (y / yMax) * plotH; }
+
+                            // Grid lines
+                            ctx.strokeStyle = viz.colors.grid; ctx.lineWidth = 0.5;
+                            var yStep = Math.pow(10, Math.floor(Math.log10(yMax / 4)));
+                            if (yMax / yStep > 8) yStep *= 2;
+                            for (var gy = yStep; gy < yMax; gy += yStep) {
+                                var sy = toSy(gy);
+                                ctx.beginPath(); ctx.moveTo(plotLeft, sy); ctx.lineTo(plotRight, sy); ctx.stroke();
+                                ctx.fillStyle = viz.colors.text; ctx.font = '10px -apple-system,sans-serif';
+                                ctx.textAlign = 'right'; ctx.textBaseline = 'middle';
+                                ctx.fillText(gy.toLocaleString(), plotLeft - 6, sy);
+                            }
+
+                            // x axis labels
+                            var xStep = Math.pow(10, Math.floor(Math.log10(xMax / 4)));
+                            if (xMax / xStep > 8) xStep *= 2;
+                            ctx.textAlign = 'center'; ctx.textBaseline = 'top';
+                            for (var gx = xStep; gx < xMax; gx += xStep) {
+                                var sx = toSx(gx);
+                                ctx.beginPath(); ctx.moveTo(sx, plotTop); ctx.lineTo(sx, plotBottom); ctx.stroke();
+                                ctx.fillStyle = viz.colors.text;
+                                ctx.fillText(gx.toLocaleString(), sx, plotBottom + 4);
+                            }
+
+                            // Axes
+                            ctx.strokeStyle = viz.colors.axis; ctx.lineWidth = 1.5;
+                            ctx.beginPath(); ctx.moveTo(plotLeft, plotBottom); ctx.lineTo(plotRight, plotBottom); ctx.stroke();
+                            ctx.beginPath(); ctx.moveTo(plotLeft, plotBottom); ctx.lineTo(plotLeft, plotTop); ctx.stroke();
+
+                            // pi(x) staircase (blue)
+                            ctx.strokeStyle = viz.colors.blue; ctx.lineWidth = 2;
+                            ctx.beginPath();
+                            var started = false;
+                            var count = 0;
+                            var prevX = 2;
+                            for (var pi = 0; pi < allPrimes.length && allPrimes[pi] <= xMax; pi++) {
+                                var p = allPrimes[pi];
+                                if (!started) {
+                                    ctx.moveTo(toSx(2), toSy(0));
+                                    started = true;
+                                }
+                                // Horizontal line from previous prime to this prime at current count
+                                ctx.lineTo(toSx(p), toSy(count));
+                                // Step up
+                                count++;
+                                ctx.lineTo(toSx(p), toSy(count));
+                            }
+                            // Extend to xMax
+                            ctx.lineTo(toSx(xMax), toSy(count));
+                            ctx.stroke();
+
+                            // x/ln(x) curve (teal)
+                            ctx.strokeStyle = viz.colors.teal; ctx.lineWidth = 2;
+                            ctx.beginPath();
+                            var started2 = false;
+                            var numSteps = 300;
+                            for (var si = 0; si <= numSteps; si++) {
+                                var x = 2 + (xMax - 2) * si / numSteps;
+                                var y = x / Math.log(x);
+                                if (!started2) { ctx.moveTo(toSx(x), toSy(y)); started2 = true; }
+                                else ctx.lineTo(toSx(x), toSy(y));
+                            }
+                            ctx.stroke();
+
+                            // Li(x) curve (orange)
+                            ctx.strokeStyle = viz.colors.orange; ctx.lineWidth = 2;
+                            ctx.beginPath();
+                            var started3 = false;
+                            for (var si2 = 0; si2 <= numSteps; si2++) {
+                                var x2 = 2 + (xMax - 2) * si2 / numSteps;
+                                var y2 = Li(x2);
+                                if (!started3) { ctx.moveTo(toSx(x2), toSy(y2)); started3 = true; }
+                                else ctx.lineTo(toSx(x2), toSy(y2));
+                            }
+                            ctx.stroke();
+
+                            // Title
+                            viz.screenText('The Prime Staircase: \u03C0(x) vs approximations', viz.width / 2, 18, viz.colors.white, 14);
+
+                            // Legend
+                            var legY = plotBottom + 28;
+                            ctx.font = '11px -apple-system,sans-serif';
+                            ctx.textAlign = 'left';
+                            ctx.fillStyle = viz.colors.blue;
+                            ctx.fillRect(plotLeft + 20, legY, 14, 3);
+                            ctx.fillText('\u03C0(x)', plotLeft + 38, legY + 5);
+
+                            ctx.fillStyle = viz.colors.teal;
+                            ctx.fillRect(plotLeft + 100, legY, 14, 3);
+                            ctx.fillText('x/ln(x)', plotLeft + 118, legY + 5);
+
+                            ctx.fillStyle = viz.colors.orange;
+                            ctx.fillRect(plotLeft + 200, legY, 14, 3);
+                            ctx.fillText('Li(x)', plotLeft + 218, legY + 5);
+
+                            // Numerical info
+                            var piVal = primeCount(xMax, allPrimes);
+                            var approxVal = Math.round(xMax / Math.log(xMax));
+                            var liVal = Math.round(Li(xMax));
+                            viz.screenText(
+                                '\u03C0(' + xMax + ') = ' + piVal + '    x/ln(x) \u2248 ' + approxVal + '    Li(x) \u2248 ' + liVal,
+                                viz.width / 2, legY + 22, viz.colors.white, 11
+                            );
+                        }
+                        draw();
+                        return viz;
+                    }
+                },
+
+                // VIZ 2: Prime gaps scatter plot
+                {
+                    id: 'viz-prime-gaps',
+                    title: 'Prime Gaps',
+                    description: 'The gap between consecutive primes p_{n+1} - p_n. Each dot is one gap. Color intensity reflects gap size.',
+                    setup: function(body, controls) {
+                        var viz = new VizEngine(body, {
+                            width: 560, height: 340,
+                            originX: 60, originY: 300, scale: 1
+                        });
+
+                        function sievePrimes(max) {
+                            var sieve = new Uint8Array(max + 1);
+                            var primes = [];
+                            for (var i = 2; i <= max; i++) {
+                                if (!sieve[i]) {
+                                    primes.push(i);
+                                    for (var j = i * i; j <= max; j += i) sieve[j] = 1;
+                                }
+                            }
+                            return primes;
+                        }
+
+                        var allPrimes = sievePrimes(4000);
+                        var nMax = 200;
+
+                        var slider = VizEngine.createSlider(controls, 'n (primes)', 20, 500, nMax, 10, function(v) {
+                            nMax = Math.round(v);
+                            draw();
+                        });
+
+                        function draw() {
+                            viz.clear();
+                            var ctx = viz.ctx;
+
+                            var plotLeft = 60;
+                            var plotRight = viz.width - 20;
+                            var plotTop = 40;
+                            var plotBottom = 280;
+                            var plotW = plotRight - plotLeft;
+                            var plotH = plotBottom - plotTop;
+
+                            var n = Math.min(nMax, allPrimes.length - 1);
+
+                            // Compute gaps
+                            var gaps = [];
+                            var maxGap = 0;
+                            for (var i = 0; i < n; i++) {
+                                var g = allPrimes[i + 1] - allPrimes[i];
+                                gaps.push(g);
+                                if (g > maxGap) maxGap = g;
+                            }
+                            maxGap = Math.max(maxGap, 2);
+
+                            function toSx(i) { return plotLeft + (i / n) * plotW; }
+                            function toSy(g) { return plotBottom - (g / (maxGap * 1.1)) * plotH; }
+
+                            // Grid
+                            ctx.strokeStyle = viz.colors.grid; ctx.lineWidth = 0.5;
+                            for (var gy = 2; gy <= maxGap; gy += 2) {
+                                var sy = toSy(gy);
+                                ctx.beginPath(); ctx.moveTo(plotLeft, sy); ctx.lineTo(plotRight, sy); ctx.stroke();
+                                ctx.fillStyle = viz.colors.text; ctx.font = '10px -apple-system,sans-serif';
+                                ctx.textAlign = 'right'; ctx.textBaseline = 'middle';
+                                ctx.fillText(gy, plotLeft - 6, sy);
+                            }
+
+                            // Axes
+                            ctx.strokeStyle = viz.colors.axis; ctx.lineWidth = 1.5;
+                            ctx.beginPath(); ctx.moveTo(plotLeft, plotBottom); ctx.lineTo(plotRight, plotBottom); ctx.stroke();
+                            ctx.beginPath(); ctx.moveTo(plotLeft, plotBottom); ctx.lineTo(plotLeft, plotTop); ctx.stroke();
+
+                            // Points colored by gap size
+                            for (var j = 0; j < gaps.length; j++) {
+                                var g2 = gaps[j];
+                                var t = g2 / maxGap;
+                                // Interpolate blue -> orange -> red
+                                var r, gn, b;
+                                if (t < 0.5) {
+                                    r = Math.round(88 + (240 - 88) * t * 2);
+                                    gn = Math.round(166 + (136 - 166) * t * 2);
+                                    b = Math.round(255 + (62 - 255) * t * 2);
+                                } else {
+                                    r = Math.round(240 + (248 - 240) * (t - 0.5) * 2);
+                                    gn = Math.round(136 + (81 - 136) * (t - 0.5) * 2);
+                                    b = Math.round(62 + (73 - 62) * (t - 0.5) * 2);
+                                }
+                                var color = 'rgb(' + r + ',' + gn + ',' + b + ')';
+                                var sx = toSx(j);
+                                var syp = toSy(g2);
+                                ctx.fillStyle = color;
+                                ctx.beginPath();
+                                ctx.arc(sx, syp, 2.5, 0, Math.PI * 2);
+                                ctx.fill();
+                            }
+
+                            // Title
+                            viz.screenText('Prime Gaps: g_n = p_{n+1} \u2212 p_n', viz.width / 2, 18, viz.colors.white, 14);
+
+                            // Labels
+                            ctx.fillStyle = viz.colors.text; ctx.font = '11px -apple-system,sans-serif';
+                            ctx.textAlign = 'center'; ctx.textBaseline = 'top';
+                            ctx.fillText('n (prime index)', viz.width / 2, plotBottom + 8);
+                            ctx.save(); ctx.translate(16, (plotTop + plotBottom) / 2);
+                            ctx.rotate(-Math.PI / 2);
+                            ctx.fillText('gap size', 0, 0);
+                            ctx.restore();
+
+                            // Stats
+                            var avgGap = gaps.reduce(function(a, b) { return a + b; }, 0) / gaps.length;
+                            viz.screenText(
+                                'n = ' + n + '  |  max gap = ' + maxGap + '  |  avg gap = ' + avgGap.toFixed(2),
+                                viz.width / 2, plotBottom + 26, viz.colors.white, 11
+                            );
+                        }
+                        draw();
+                        return viz;
+                    }
+                }
+            ],
+            exercises: [
+                {
+                    question: 'Verify Bertrand\'s postulate for \\(n = 25\\): find a prime \\(p\\) with \\(25 < p \\leq 50\\).',
+                    hint: 'Check the primes between 25 and 50.',
+                    solution: '\\(29\\) is prime and \\(25 < 29 \\leq 50\\). In fact, the primes in this range are 29, 31, 37, 41, 43, 47, so there are many such primes.'
+                }
+            ]
+        },
+
+        // ================================================================
+        // SECTION 3: Euler's Bridge to Analysis
+        // ================================================================
+        {
+            id: 'sec-euler-connection',
+            title: 'Euler\'s Bridge to Analysis',
+            content: `
+<h2>Euler's Bridge to Analysis</h2>
+
+<div class="env-block intuition">
+    <div class="env-title">When Algebra Meets Analysis</div>
+    <div class="env-body">
+        <p>Euclid proved that primes are infinite using a clever algebraic argument. Euler, in the 1730s, found a completely different proof that opened a door Euclid could never have imagined: primes are not just infinite, they are infinite in a <em>quantitative</em> sense that can be measured by the tools of calculus.</p>
+    </div>
+</div>
+
+<p>Euler's starting point is a remarkable identity connecting an infinite sum over all positive integers to an infinite product over all primes:</p>
+
+<div class="env-block theorem">
+    <div class="env-title">Euler Product Formula</div>
+    <div class="env-body">
+        <p>For all real \\(s > 1\\),</p>
+        \\[
+        \\sum_{n=1}^{\\infty} \\frac{1}{n^s} = \\prod_{p \\text{ prime}} \\frac{1}{1 - p^{-s}}.
+        \\]
     </div>
 </div>
 
 <div class="env-block proof">
     <div class="env-title">Proof sketch</div>
     <div class="env-body">
-        <p>Take logarithms of the Euler product at \\(s = 1\\):</p>
-        \\[
-        \\log \\zeta(s) = -\\sum_p \\log(1 - p^{-s}) = \\sum_p \\left(p^{-s} + \\frac{1}{2}p^{-2s} + \\frac{1}{3}p^{-3s} + \\cdots \\right).
-        \\]
-        <p>The tail \\(\\sum_p \\sum_{k \\geq 2} \\frac{1}{k} p^{-ks}\\) is bounded by \\(\\sum_n n^{-2s}/(1 - n^{-s})\\), which is bounded as \\(s \\to 1^+\\). So</p>
-        \\[
-        \\sum_p p^{-s} = \\log \\zeta(s) + O(1) \\to +\\infty \\quad \\text{as } s \\to 1^+,
-        \\]
-        <p>since \\(\\zeta(s) \\to +\\infty\\) as \\(s \\to 1^+\\). Thus \\(\\sum_p 1/p = +\\infty\\). \\(\\square\\)</p>
+        <p>Expand each factor \\(\\frac{1}{1-p^{-s}} = 1 + p^{-s} + p^{-2s} + \\cdots\\) as a geometric series. Multiplying these series over all primes, each term in the product corresponds to choosing an exponent for each prime, producing \\(\\frac{1}{(p_1^{a_1} p_2^{a_2} \\cdots)^s}\\). By the fundamental theorem of arithmetic, every positive integer appears exactly once. \\(\\square\\)</p>
     </div>
 </div>
 
-<p>This is stronger than the infinitude of primes: the primes are not just infinite but "large" in the sense that their reciprocals do not form a convergent series. For comparison, the sum over prime squares \\(\\sum_p 1/p^2\\) converges (it is approximately 0.4522). Mertens' theorem (1874) gives the precise asymptotic:</p>
-\\[
-\\sum_{p \\leq x} \\frac{1}{p} = \\log \\log x + M + o(1),
-\\]
-<p>where \\(M \\approx 0.2615\\) is the <em>Meissel–Mertens constant</em>.</p>
+<p>The left side is what we will later call \\(\\zeta(s)\\), the Riemann zeta function. For now, the key insight is this: the Euler product translates information about primes (the right side) into information about the integers (the left side), and vice versa.</p>
 
 <div class="viz-placeholder" data-viz="viz-euler-product"></div>
 
-<div class="env-block remark">
-    <div class="env-title">The Product as an Encoding</div>
-    <div class="env-body">
-        <p>The Euler product \\(\\zeta(s) = \\prod_p (1 - p^{-s})^{-1}\\) encodes all multiplicative arithmetic in a single formula. Taking the logarithmic derivative yields \\(-\\zeta'(s)/\\zeta(s) = \\sum_n \\Lambda(n) n^{-s}\\), where \\(\\Lambda\\) is the von Mangoldt function. This connects the zeros and poles of \\(\\zeta\\) to the distribution of primes — the key insight behind Riemann's 1859 paper.</p>
-    </div>
-</div>
-`,
-                visualizations: [
-                    {
-                        id: 'viz-euler-product',
-                        title: "Euler Product: Partial Products vs. \\(\\zeta(s)\\)",
-                        description: 'Build the Euler product \\(\\prod_{p \\leq P} (1-p^{-s})^{-1}\\) one prime at a time for real \\(s > 1\\). The bar chart shows each factor; the running product converges to \\(\\zeta(s)\\).',
-                        setup: function(body, controls) {
-                            var viz = new VizEngine(body, { width: 620, height: 360, originX: 60, originY: 320, scale: 1 });
-                            var sVal = 2.0;
-                            var numPrimes = 12;
+<h3>Euler's Second Proof of Infinitude</h3>
 
-                            VizEngine.createSlider(controls, 's', 1.1, 4.0, sVal, 0.1, function(v) {
-                                sVal = v;
-                                draw();
-                            });
-                            VizEngine.createSlider(controls, 'primes used', 2, 20, numPrimes, 1, function(v) {
-                                numPrimes = Math.round(v);
-                                draw();
-                            });
-
-                            function zetaApprox(s) {
-                                // Use many terms for reference
-                                var sum = 0;
-                                for (var n = 1; n <= 50000; n++) sum += Math.pow(n, -s);
-                                return sum;
-                            }
-
-                            function draw() {
-                                viz.clear();
-                                var ctx = viz.ctx;
-                                var W = viz.width, H = viz.height;
-                                var padL = 55, padR = 20, padT = 40, padB = 50;
-                                var plotW = W - padL - padR;
-                                var plotH = H - padT - padB;
-
-                                var primes = PRIMES_10K.slice(0, numPrimes);
-                                var factors = primes.map(function(p) { return 1 / (1 - Math.pow(p, -sVal)); });
-
-                                // Running product
-                                var running = [];
-                                var prod = 1;
-                                for (var i = 0; i < factors.length; i++) {
-                                    prod *= factors[i];
-                                    running.push(prod);
-                                }
-
-                                var zeta = zetaApprox(sVal);
-                                var maxVal = Math.max(zeta * 1.1, running[running.length - 1] * 1.1, 1.5);
-
-                                var barW = Math.min(24, (plotW / numPrimes) * 0.5);
-
-                                function sy(v) { return padT + plotH - (v / maxVal) * plotH; }
-                                function sx(i) { return padL + (i + 0.5) * (plotW / numPrimes); }
-
-                                // Reference line: zeta(s)
-                                ctx.strokeStyle = '#f0883e';
-                                ctx.lineWidth = 1.5;
-                                ctx.setLineDash([6, 4]);
-                                ctx.beginPath();
-                                ctx.moveTo(padL, sy(zeta));
-                                ctx.lineTo(W - padR, sy(zeta));
-                                ctx.stroke();
-                                ctx.setLineDash([]);
-                                ctx.fillStyle = '#f0883e';
-                                ctx.font = '11px -apple-system,sans-serif';
-                                ctx.textAlign = 'left';
-                                ctx.fillText('\u03b6(' + sVal.toFixed(1) + ') \u2248 ' + zeta.toFixed(4), W - padR - 110, sy(zeta) - 6);
-
-                                // Bars for individual factors (1-p^-s)^-1
-                                for (var i2 = 0; i2 < primes.length; i2++) {
-                                    var x = sx(i2);
-                                    var fac = factors[i2];
-
-                                    ctx.fillStyle = '#58a6ff66';
-                                    ctx.fillRect(x - barW / 2, sy(fac), barW, plotH - (sy(fac) - padT - plotH + plotH));
-                                    ctx.fillRect(x - barW / 2, sy(fac), barW, sy(0) - sy(fac));
-                                    ctx.fillStyle = '#58a6ff';
-                                    ctx.fillRect(x - barW / 2, sy(fac), barW, sy(0) - sy(fac));
-
-                                    // Prime label
-                                    ctx.fillStyle = '#8b949e';
-                                    ctx.font = '10px -apple-system,sans-serif';
-                                    ctx.textAlign = 'center';
-                                    ctx.fillText('p=' + primes[i2], x, padT + plotH + 16);
-                                    ctx.fillText(fac.toFixed(3), x, sy(fac) - 6);
-                                }
-
-                                // Running product line
-                                ctx.strokeStyle = '#3fb950';
-                                ctx.lineWidth = 2;
-                                ctx.beginPath();
-                                for (var i3 = 0; i3 < running.length; i3++) {
-                                    var x3 = sx(i3);
-                                    var y3 = sy(running[i3]);
-                                    if (i3 === 0) ctx.moveTo(x3, y3);
-                                    else ctx.lineTo(x3, y3);
-                                    ctx.arc(x3, y3, 3, 0, Math.PI * 2);
-                                }
-                                ctx.stroke();
-
-                                // Y-axis ticks
-                                ctx.fillStyle = '#4a4a7a';
-                                ctx.font = '10px -apple-system,sans-serif';
-                                ctx.textAlign = 'right';
-                                for (var t = 0; t <= 4; t++) {
-                                    var yv = (t / 4) * maxVal;
-                                    ctx.fillText(yv.toFixed(1), padL - 4, sy(yv) + 3);
-                                    ctx.strokeStyle = '#1a1a40';
-                                    ctx.lineWidth = 0.5;
-                                    ctx.beginPath();
-                                    ctx.moveTo(padL, sy(yv));
-                                    ctx.lineTo(W - padR, sy(yv));
-                                    ctx.stroke();
-                                }
-
-                                // Legend
-                                var legX = padL + 10;
-                                var legY = padT + 10;
-                                ctx.font = '11px -apple-system,sans-serif';
-                                ctx.textAlign = 'left';
-                                ctx.fillStyle = '#58a6ff';
-                                ctx.fillRect(legX, legY, 14, 10);
-                                ctx.fillStyle = '#c9d1d9';
-                                ctx.fillText('(1 - p\u207b\u02e2)\u207b\u00b9  per prime', legX + 18, legY + 9);
-                                ctx.strokeStyle = '#3fb950';
-                                ctx.lineWidth = 2;
-                                ctx.beginPath();
-                                ctx.moveTo(legX, legY + 24); ctx.lineTo(legX + 14, legY + 24);
-                                ctx.stroke();
-                                ctx.fillStyle = '#c9d1d9';
-                                ctx.fillText('running product', legX + 18, legY + 27);
-
-                                // Title info
-                                ctx.fillStyle = '#8b949e';
-                                ctx.font = '12px -apple-system,sans-serif';
-                                ctx.textAlign = 'center';
-                                ctx.fillText('s = ' + sVal.toFixed(2) + '   product over ' + numPrimes + ' primes = ' + running[running.length - 1].toFixed(5), W / 2, padT - 16);
-                            }
-
-                            draw();
-                            return viz;
-                        }
-                    }
-                ],
-                exercises: [
-                    {
-                        question: 'Compute the Euler product \\(\\prod_{p \\leq 13} (1 - p^{-2})^{-1}\\) using \\(p = 2, 3, 5, 7, 11, 13\\). Compare to \\(\\zeta(2) = \\pi^2/6 \\approx 1.6449\\).',
-                        hint: 'Each factor is \\(1/(1 - 1/p^2)\\). For \\(p=2\\): \\(1/(1-1/4) = 4/3\\). Multiply the six factors together.',
-                        solution: '\\(\\frac{4}{3} \\cdot \\frac{9}{8} \\cdot \\frac{25}{24} \\cdot \\frac{49}{48} \\cdot \\frac{121}{120} \\cdot \\frac{169}{168} \\approx 1.5696 / 0.9705 \\approx 1.6170\\). This is already within 1.7% of \\(\\pi^2/6 \\approx 1.6449\\), showing rapid convergence.'
-                    }
-                ]
-            },
-
-            // ============================================================
-            // SECTION 4: The Gauss–Legendre Conjecture
-            // ============================================================
-            {
-                id: 'sec-gauss-conjecture',
-                title: 'The Gauss–Legendre Conjecture',
-                content: `
-<h2>The Gauss–Legendre Conjecture</h2>
-
-<div class="env-block intuition">
-    <div class="env-title">The First Asymptotic</div>
-    <div class="env-body">
-        <p>By 1792, Gauss had computed tables of primes by hand and noticed an empirical pattern: the density of primes near \\(x\\) is approximately \\(1/\\ln x\\). A prime near \\(10^6\\) has roughly a 1-in-14 chance of being prime; near \\(10^9\\), about 1-in-21. Integrating this density gives a far more accurate estimate than \\(x/\\ln x\\) — the logarithmic integral \\(\\mathrm{Li}(x)\\).</p>
-    </div>
-</div>
+<p>Euler used his product to give a quantitative proof that primes are infinite:</p>
 
 <div class="env-block theorem">
-    <div class="env-title">Theorem (Prime Number Theorem, proved 1896)</div>
+    <div class="env-title">Divergence of the prime reciprocal series (Euler, ~1737)</div>
     <div class="env-body">
-        <p>As \\(x \\to \\infty\\),</p>
+        <p>The sum of the reciprocals of the primes diverges:</p>
         \\[
-        \\pi(x) \\sim \\frac{x}{\\ln x},
+        \\sum_{p \\text{ prime}} \\frac{1}{p} = \\frac{1}{2} + \\frac{1}{3} + \\frac{1}{5} + \\frac{1}{7} + \\frac{1}{11} + \\cdots = +\\infty.
         \\]
-        <p>meaning \\(\\pi(x) / (x / \\ln x) \\to 1\\). Equivalently, the \\(n\\)-th prime satisfies \\(p_n \\sim n \\ln n\\).</p>
     </div>
 </div>
 
-<p>Gauss and Legendre conjectured this independently around 1796–1798. A proof eluded mathematicians for a century. Chebyshev (1852) proved \\(0.92 < \\pi(x)/(x/\\ln x) < 1.11\\) for large \\(x\\) — the right order, but not the limit. The full theorem was proved simultaneously by Hadamard and de la Vallée Poussin in 1896, using the theory of the Riemann zeta function.</p>
+<p>This is a far stronger statement than Euclid's theorem. Not only are there infinitely many primes, but they are "dense enough" among the integers that their reciprocals sum to infinity (contrast this with the squares, \\(\\sum 1/n^2 = \\pi^2/6 < \\infty\\), which also form an infinite set but a sparser one).</p>
 
-<h3>Li(x) is Better</h3>
+<div class="env-block remark">
+    <div class="env-title">The speed of divergence</div>
+    <div class="env-body">
+        <p>Mertens (1874) refined this to show:</p>
+        \\[
+        \\sum_{p \\leq x} \\frac{1}{p} = \\ln \\ln x + M + O\\!\\left(\\frac{1}{\\ln x}\\right),
+        \\]
+        <p>where \\(M \\approx 0.2615\\) is Mertens' constant. This is <em>very</em> slow divergence: reaching sum 4 requires primes up to about \\(e^{e^{3.74}} \\approx 10^{18}\\). Yet diverge it does.</p>
+    </div>
+</div>
 
-<p>Gauss actually used the <em>logarithmic integral</em></p>
+<p>Euler's bridge from number theory to analysis was the founding act of analytic number theory. Every subsequent development, from Dirichlet's theorem on primes in arithmetic progressions to the Riemann hypothesis, builds on this idea: encode prime structure in an analytic object, then study the analytic object.</p>
+`,
+            visualizations: [
+                // VIZ 3: Euler product built one prime at a time
+                {
+                    id: 'viz-euler-product',
+                    title: 'Building the Euler Product',
+                    description: 'Watch the Euler product converge to zeta(s) one prime factor at a time. Each bar shows the cumulative product after including that prime.',
+                    setup: function(body, controls) {
+                        var viz = new VizEngine(body, {
+                            width: 560, height: 380,
+                            originX: 60, originY: 340, scale: 1
+                        });
+
+                        var smallPrimes = [2, 3, 5, 7, 11, 13, 17, 19, 23, 29, 31, 37, 41, 43, 47];
+                        var sVal = 2;
+
+                        var slider = VizEngine.createSlider(controls, 's', 1.1, 4, sVal, 0.1, function(v) {
+                            sVal = v;
+                            draw();
+                        });
+
+                        function draw() {
+                            viz.clear();
+                            var ctx = viz.ctx;
+
+                            var plotLeft = 70;
+                            var plotRight = viz.width - 20;
+                            var plotTop = 50;
+                            var plotBottom = 300;
+                            var plotW = plotRight - plotLeft;
+                            var plotH = plotBottom - plotTop;
+
+                            // Compute partial products
+                            var products = [];
+                            var prod = 1;
+                            for (var i = 0; i < smallPrimes.length; i++) {
+                                var p = smallPrimes[i];
+                                prod *= 1 / (1 - Math.pow(p, -sVal));
+                                products.push({ prime: p, value: prod });
+                            }
+
+                            // Compute exact zeta(s) approximately (sum 1/n^s up to 10000)
+                            var zetaApprox = 0;
+                            for (var n = 1; n <= 10000; n++) {
+                                zetaApprox += Math.pow(n, -sVal);
+                            }
+
+                            var maxVal = Math.max(zetaApprox * 1.15, products[products.length - 1].value * 1.1);
+
+                            function toSy(v) { return plotBottom - (v / maxVal) * plotH; }
+
+                            // Grid
+                            ctx.strokeStyle = viz.colors.grid; ctx.lineWidth = 0.5;
+                            var yStep2 = maxVal > 5 ? 1 : maxVal > 2 ? 0.5 : 0.2;
+                            ctx.fillStyle = viz.colors.text; ctx.font = '10px -apple-system,sans-serif';
+                            ctx.textAlign = 'right'; ctx.textBaseline = 'middle';
+                            for (var gy = yStep2; gy < maxVal; gy += yStep2) {
+                                var sy = toSy(gy);
+                                ctx.beginPath(); ctx.moveTo(plotLeft, sy); ctx.lineTo(plotRight, sy); ctx.stroke();
+                                ctx.fillStyle = viz.colors.text;
+                                ctx.fillText(gy.toFixed(1), plotLeft - 6, sy);
+                            }
+
+                            // Axes
+                            ctx.strokeStyle = viz.colors.axis; ctx.lineWidth = 1.5;
+                            ctx.beginPath(); ctx.moveTo(plotLeft, plotBottom); ctx.lineTo(plotRight, plotBottom); ctx.stroke();
+                            ctx.beginPath(); ctx.moveTo(plotLeft, plotBottom); ctx.lineTo(plotLeft, plotTop); ctx.stroke();
+
+                            // Zeta target line (dashed)
+                            ctx.strokeStyle = viz.colors.green; ctx.lineWidth = 1.5;
+                            ctx.setLineDash([6, 4]);
+                            var zetaSy = toSy(zetaApprox);
+                            ctx.beginPath(); ctx.moveTo(plotLeft, zetaSy); ctx.lineTo(plotRight, zetaSy); ctx.stroke();
+                            ctx.setLineDash([]);
+                            ctx.fillStyle = viz.colors.green; ctx.font = '11px -apple-system,sans-serif';
+                            ctx.textAlign = 'left';
+                            ctx.fillText('\u03B6(' + sVal.toFixed(1) + ') \u2248 ' + zetaApprox.toFixed(4), plotRight - 120, zetaSy - 8);
+
+                            // Bars
+                            var barWidth = Math.min(28, plotW / products.length - 4);
+                            for (var bi = 0; bi < products.length; bi++) {
+                                var bx = plotLeft + (bi + 0.5) * (plotW / products.length);
+                                var bh = plotBottom - toSy(products[bi].value);
+                                // Color: fade from blue to teal as we add more primes
+                                var t2 = bi / (products.length - 1);
+                                var cr = Math.round(88 * (1 - t2) + 63 * t2);
+                                var cg = Math.round(166 * (1 - t2) + 185 * t2);
+                                var cb = Math.round(255 * (1 - t2) + 160 * t2);
+                                ctx.fillStyle = 'rgb(' + cr + ',' + cg + ',' + cb + ')';
+                                ctx.fillRect(bx - barWidth / 2, plotBottom - bh, barWidth, bh);
+
+                                // Prime label
+                                ctx.fillStyle = viz.colors.text; ctx.font = '9px -apple-system,sans-serif';
+                                ctx.textAlign = 'center'; ctx.textBaseline = 'top';
+                                ctx.fillText(products[bi].prime, bx, plotBottom + 4);
+                            }
+
+                            // Title
+                            viz.screenText(
+                                'Euler Product: \u220F (1 \u2212 p^{-s})^{-1} for s = ' + sVal.toFixed(1),
+                                viz.width / 2, 20, viz.colors.white, 14
+                            );
+
+                            // Info
+                            var lastProd = products[products.length - 1].value;
+                            viz.screenText(
+                                'After p=' + smallPrimes[smallPrimes.length - 1] + ': product = ' + lastProd.toFixed(4) +
+                                '  |  \u03B6(' + sVal.toFixed(1) + ') = ' + zetaApprox.toFixed(4) +
+                                '  |  error: ' + Math.abs(zetaApprox - lastProd).toFixed(4),
+                                viz.width / 2, plotBottom + 34, viz.colors.white, 11
+                            );
+                        }
+                        draw();
+                        return viz;
+                    }
+                }
+            ],
+            exercises: [
+                {
+                    question: 'Compute the Euler product \\(\\prod_{p \\leq 7} \\frac{1}{1 - p^{-2}}\\) for \\(s = 2\\), using only the primes \\(p = 2, 3, 5, 7\\). Compare with \\(\\pi^2/6\\).',
+                    hint: 'Compute each factor: \\(\\frac{1}{1 - 1/4} = \\frac{4}{3}\\), etc., then multiply.',
+                    solution: 'The factors are \\(\\frac{4}{3}, \\frac{9}{8}, \\frac{25}{24}, \\frac{49}{48}\\). Their product is \\(\\frac{4 \\cdot 9 \\cdot 25 \\cdot 49}{3 \\cdot 8 \\cdot 24 \\cdot 48} = \\frac{44100}{27648} \\approx 1.5952\\). The true value \\(\\zeta(2) = \\pi^2/6 \\approx 1.6449\\). Already close with just four primes!'
+                },
+                {
+                    question: 'Explain why the divergence of \\(\\sum 1/p\\) implies that there are infinitely many primes, using the Euler product.',
+                    hint: 'If there were only finitely many primes, what would the product be?',
+                    solution: 'If there were finitely many primes, the Euler product \\(\\prod_p (1 - p^{-1})^{-1}\\) would be a finite product of finite terms, hence finite. But taking \\(s \\to 1^+\\), the left side \\(\\sum 1/n^s \\to +\\infty\\) (the harmonic series diverges). So there must be infinitely many prime factors. The divergence of \\(\\sum 1/p\\) sharpens this: taking logarithms of the product gives \\(\\sum_p \\ln(1-p^{-1})^{-1} \\approx \\sum 1/p\\), and this must diverge to match the harmonic series.'
+                },
+                {
+                    question: 'Mertens\' theorem says \\(\\sum_{p \\leq x} 1/p \\approx \\ln \\ln x + M\\). Estimate this sum for \\(x = 100\\) and \\(x = 10^6\\).',
+                    hint: 'Use \\(M \\approx 0.2615\\). Compute \\(\\ln \\ln x\\) using natural logarithms.',
+                    solution: 'For \\(x = 100\\): \\(\\ln \\ln 100 = \\ln(4.605) \\approx 1.527\\), so the sum \\(\\approx 1.527 + 0.262 = 1.789\\). The exact sum \\(1/2 + 1/3 + 1/5 + 1/7 + \\cdots + 1/97 \\approx 1.803\\). For \\(x = 10^6\\): \\(\\ln \\ln 10^6 = \\ln(13.816) \\approx 2.626\\), so the sum \\(\\approx 2.626 + 0.262 = 2.888\\).'
+                }
+            ]
+        },
+
+        // ================================================================
+        // SECTION 4: The Gauss-Legendre Conjecture
+        // ================================================================
+        {
+            id: 'sec-gauss-conjecture',
+            title: 'The Gauss-Legendre Conjecture',
+            content: `
+<h2>The Gauss-Legendre Conjecture</h2>
+
+<div class="env-block intuition">
+    <div class="env-title">The Teenager's Insight</div>
+    <div class="env-body">
+        <p>In 1792 or 1793, the fifteen-year-old Carl Friedrich Gauss received a table of prime numbers as a gift. He began to study it obsessively, counting primes and looking for patterns. What he found, reportedly from staring at tables and computing, was one of the most profound empirical observations in mathematics.</p>
+    </div>
+</div>
+
+<p>Gauss observed that the "density" of primes near a large number \\(x\\) is approximately \\(1/\\ln x\\). That is, among the integers near \\(x\\), roughly one in every \\(\\ln x\\) is prime. This leads to the approximation</p>
+
 \\[
-\\mathrm{Li}(x) = \\int_2^x \\frac{dt}{\\ln t},
+\\pi(x) \\approx \\frac{x}{\\ln x}.
 \\]
-<p>which is a far more accurate approximation. Numerically:</p>
 
-<table style="border-collapse:collapse;width:100%;font-size:0.9rem;margin:1em 0;">
-    <thead>
-        <tr style="border-bottom:1px solid #30363d;color:#8b949e;">
-            <th style="padding:6px 12px;text-align:left;">x</th>
-            <th style="padding:6px 12px;text-align:right;">\\(\\pi(x)\\)</th>
-            <th style="padding:6px 12px;text-align:right;">\\(x/\\ln x\\)</th>
-            <th style="padding:6px 12px;text-align:right;">\\(\\mathrm{Li}(x)\\)</th>
-            <th style="padding:6px 12px;text-align:right;">\\(|\\pi - \\mathrm{Li}|\\)</th>
-        </tr>
-    </thead>
-    <tbody style="color:#c9d1d9;">
-        <tr><td style="padding:4px 12px;">\\(10^3\\)</td><td style="padding:4px 12px;text-align:right;">168</td><td style="padding:4px 12px;text-align:right;">145</td><td style="padding:4px 12px;text-align:right;">178</td><td style="padding:4px 12px;text-align:right;">10</td></tr>
-        <tr><td style="padding:4px 12px;">\\(10^4\\)</td><td style="padding:4px 12px;text-align:right;">1,229</td><td style="padding:4px 12px;text-align:right;">1,086</td><td style="padding:4px 12px;text-align:right;">1,246</td><td style="padding:4px 12px;text-align:right;">17</td></tr>
-        <tr><td style="padding:4px 12px;">\\(10^6\\)</td><td style="padding:4px 12px;text-align:right;">78,498</td><td style="padding:4px 12px;text-align:right;">72,382</td><td style="padding:4px 12px;text-align:right;">78,628</td><td style="padding:4px 12px;text-align:right;">130</td></tr>
-        <tr><td style="padding:4px 12px;">\\(10^9\\)</td><td style="padding:4px 12px;text-align:right;">50,847,534</td><td style="padding:4px 12px;text-align:right;">48,254,942</td><td style="padding:4px 12px;text-align:right;">50,849,235</td><td style="padding:4px 12px;text-align:right;">1,701</td></tr>
-    </tbody>
+<p>Independently, Legendre proposed the similar formula \\(\\pi(x) \\approx x / (\\ln x - 1.08366)\\) in 1798. But Gauss went further: recognizing that the density \\(1/\\ln t\\) varies with \\(t\\), the total count of primes up to \\(x\\) should be obtained by integrating:</p>
+
+<div class="env-block definition">
+    <div class="env-title">The Logarithmic Integral</div>
+    <div class="env-body">
+        \\[
+        \\operatorname{Li}(x) = \\int_2^x \\frac{dt}{\\ln t}.
+        \\]
+    </div>
+</div>
+
+<p>This gives a significantly better approximation than \\(x/\\ln x\\). The comparison is striking:</p>
+
+<table style="margin:0 auto;border-collapse:collapse;">
+<tr style="border-bottom:2px solid #30363d;"><th style="padding:4px 12px;">\\(x\\)</th><th style="padding:4px 12px;">\\(\\pi(x)\\)</th><th style="padding:4px 12px;">\\(x/\\ln x\\)</th><th style="padding:4px 12px;">\\(\\operatorname{Li}(x)\\)</th><th style="padding:4px 12px;">Error of \\(x/\\ln x\\)%</th><th style="padding:4px 12px;">Error of \\(\\operatorname{Li}\\)%</th></tr>
+<tr><td style="padding:4px 12px;text-align:center;">\\(10^3\\)</td><td style="padding:4px 12px;text-align:center;">168</td><td style="padding:4px 12px;text-align:center;">145</td><td style="padding:4px 12px;text-align:center;">177</td><td style="padding:4px 12px;text-align:center;">13.7%</td><td style="padding:4px 12px;text-align:center;">5.4%</td></tr>
+<tr><td style="padding:4px 12px;text-align:center;">\\(10^6\\)</td><td style="padding:4px 12px;text-align:center;">78,498</td><td style="padding:4px 12px;text-align:center;">72,382</td><td style="padding:4px 12px;text-align:center;">78,628</td><td style="padding:4px 12px;text-align:center;">7.8%</td><td style="padding:4px 12px;text-align:center;">0.17%</td></tr>
+<tr><td style="padding:4px 12px;text-align:center;">\\(10^9\\)</td><td style="padding:4px 12px;text-align:center;">50,847,534</td><td style="padding:4px 12px;text-align:center;">48,254,942</td><td style="padding:4px 12px;text-align:center;">50,849,235</td><td style="padding:4px 12px;text-align:center;">5.1%</td><td style="padding:4px 12px;text-align:center;">0.003%</td></tr>
 </table>
-
-<p>In each row, \\(\\mathrm{Li}(x)\\) is dramatically closer to \\(\\pi(x)\\) than \\(x/\\ln x\\). The error in \\(\\mathrm{Li}(x)\\) is related to the zeros of \\(\\zeta(s)\\) via the explicit formula:</p>
-\\[
-\\pi(x) = \\mathrm{Li}(x) - \\sum_{\\rho} \\mathrm{Li}(x^\\rho) + \\text{smaller terms},
-\\]
-<p>where the sum runs over the nontrivial zeros \\(\\rho\\) of \\(\\zeta(s)\\). Each zero contributes an oscillatory correction; if \\(\\mathrm{Re}(\\rho) = 1/2\\) for all \\(\\rho\\) (the Riemann Hypothesis), the error satisfies \\(|\\pi(x) - \\mathrm{Li}(x)| = O(\\sqrt{x} \\log x)\\).</p>
 
 <div class="viz-placeholder" data-viz="viz-pi-vs-approx"></div>
 
-<div class="env-block remark">
-    <div class="env-title">Skewes' Number</div>
+<p>The conjecture that \\(\\pi(x) \\sim x/\\ln x\\) (meaning \\(\\pi(x)/(x/\\ln x) \\to 1\\) as \\(x \\to \\infty\\)) became known as the <strong>Prime Number Theorem</strong>. It was proved independently by Hadamard and de la Vall\u00e9e-Poussin in 1896, over a century after Gauss's empirical observation. The proof required exactly the analytic machinery that Euler's product formula had inaugurated.</p>
+
+<div class="env-block theorem">
+    <div class="env-title">Prime Number Theorem (Hadamard, de la Vall\u00e9e-Poussin, 1896)</div>
     <div class="env-body">
-        <p>It appears from all computed data that \\(\\pi(x) < \\mathrm{Li}(x)\\) always. But Littlewood (1914) proved that the difference \\(\\pi(x) - \\mathrm{Li}(x)\\) changes sign infinitely often. The first crossing was long known only to occur before \\(e^{e^{e^{79}}}\\) (Skewes, 1933 — the "Skewes number"), one of the largest numbers ever to appear in a mathematical proof at the time. Current estimates place the first crossover near \\(x \\approx 1.40 \\times 10^{316}\\).</p>
+        \\[
+        \\pi(x) \\sim \\frac{x}{\\ln x} \\qquad \\text{as } x \\to \\infty.
+        \\]
+        <p>Equivalently, \\(\\pi(x) \\sim \\operatorname{Li}(x)\\).</p>
     </div>
 </div>
 `,
-                visualizations: [
-                    {
-                        id: 'viz-pi-vs-approx',
-                        title: '\\(\\pi(x)\\), \\(x/\\ln x\\), and \\(\\mathrm{Li}(x)\\): Relative Errors',
-                        description: 'Top panel: all three functions. Bottom panel: relative error \\((f(x) - \\pi(x))/\\pi(x)\\) for each approximation. Li(x) is far more accurate.',
-                        setup: function(body, controls) {
-                            var viz = new VizEngine(body, { width: 620, height: 440, originX: 60, originY: 220, scale: 1 });
-                            var xMax = 1000;
+            visualizations: [
+                // VIZ 4: pi(x) vs x/ln(x) vs Li(x) with relative errors
+                {
+                    id: 'viz-pi-vs-approx',
+                    title: 'Approximation Quality',
+                    description: 'Compare pi(x) with x/ln(x) and Li(x). The bottom panel shows relative errors. Li(x) is dramatically more accurate.',
+                    setup: function(body, controls) {
+                        var viz = new VizEngine(body, {
+                            width: 560, height: 420,
+                            originX: 60, originY: 380, scale: 1
+                        });
 
-                            VizEngine.createSlider(controls, 'x max', 200, 5000, xMax, 100, function(v) {
-                                xMax = Math.round(v);
-                                draw();
-                            });
-
-                            function draw() {
-                                viz.clear();
-                                var ctx = viz.ctx;
-                                var W = viz.width, H = viz.height;
-                                var padL = 60, padR = 20, padT = 20, padMid = 20;
-                                var topH = Math.floor(H * 0.55);
-                                var botH = H - topH - padMid - 30;
-
-                                var primes = PRIMES_10K.filter(function(p) { return p <= xMax; });
-                                var piXMax = primes.length;
-
-                                // Precompute pi at sample points
-                                var steps = 200;
-                                var xs = [], piVals = [], liVals = [], xlnxVals = [];
-                                for (var i = 1; i <= steps; i++) {
-                                    var xi = 2 + (xMax - 2) * i / steps;
-                                    xs.push(xi);
-                                    piVals.push(primeCount(xi, primes));
-                                    liVals.push(Li(xi));
-                                    xlnxVals.push(xi / Math.log(xi));
+                        function sievePrimes(max) {
+                            var sieve = new Uint8Array(max + 1);
+                            var primes = [];
+                            for (var i = 2; i <= max; i++) {
+                                if (!sieve[i]) {
+                                    primes.push(i);
+                                    for (var j = i * i; j <= max; j += i) sieve[j] = 1;
                                 }
+                            }
+                            return primes;
+                        }
 
-                                // === TOP PANEL: functions ===
-                                function sxT(x) { return padL + (x / xMax) * (W - padL - padR); }
-                                function syT(y) { return padT + topH - (y / (piXMax * 1.15)) * topH; }
+                        function primeCount(x, primes) {
+                            var count = 0;
+                            for (var i = 0; i < primes.length; i++) {
+                                if (primes[i] <= x) count++; else break;
+                            }
+                            return count;
+                        }
 
-                                // Grid
-                                ctx.strokeStyle = '#1a1a40'; ctx.lineWidth = 0.5;
-                                for (var g = 0; g <= 4; g++) {
-                                    var yv = (g / 4) * piXMax * 1.15;
-                                    ctx.beginPath(); ctx.moveTo(padL, syT(yv)); ctx.lineTo(W - padR, syT(yv)); ctx.stroke();
-                                    ctx.fillStyle = '#4a4a7a'; ctx.font = '9px -apple-system,sans-serif'; ctx.textAlign = 'right';
-                                    ctx.fillText(Math.round(yv), padL - 3, syT(yv) + 3);
-                                }
+                        function Li(x) {
+                            if (x <= 2) return 0;
+                            var sum = 0; var steps = 500;
+                            var h = (x - 2) / steps;
+                            for (var i = 0; i < steps; i++) {
+                                var t0 = 2 + i * h;
+                                var t1 = t0 + h;
+                                sum += (1 / Math.log(t0) + 1 / Math.log(t1)) * h / 2;
+                            }
+                            return sum;
+                        }
 
-                                // pi(x) staircase
-                                ctx.strokeStyle = '#58a6ff'; ctx.lineWidth = 2;
-                                ctx.beginPath();
-                                var prev = 0;
-                                for (var i2 = 0; i2 < primes.length; i2++) {
-                                    var p = primes[i2];
-                                    var pNext = i2 + 1 < primes.length ? primes[i2 + 1] : xMax;
-                                    ctx.lineTo(sxT(p), syT(prev));
-                                    prev++;
-                                    ctx.lineTo(sxT(p), syT(prev));
-                                    ctx.lineTo(sxT(Math.min(pNext, xMax)), syT(prev));
-                                }
-                                ctx.stroke();
+                        var allPrimes = sievePrimes(12000);
+                        var xMax = 1000;
 
-                                // x/ln(x)
-                                ctx.strokeStyle = '#3fb9a0'; ctx.lineWidth = 1.5;
-                                ctx.beginPath();
-                                for (var i3 = 0; i3 < xs.length; i3++) {
-                                    var px = sxT(xs[i3]), py = syT(xlnxVals[i3]);
-                                    i3 === 0 ? ctx.moveTo(px, py) : ctx.lineTo(px, py);
-                                }
-                                ctx.stroke();
+                        var slider = VizEngine.createSlider(controls, 'x max', 200, 10000, xMax, 200, function(v) {
+                            xMax = Math.round(v);
+                            draw();
+                        });
 
-                                // Li(x)
-                                ctx.strokeStyle = '#f0883e'; ctx.lineWidth = 1.5;
-                                ctx.beginPath();
-                                for (var i4 = 0; i4 < xs.length; i4++) {
-                                    var px4 = sxT(xs[i4]), py4 = syT(liVals[i4]);
-                                    i4 === 0 ? ctx.moveTo(px4, py4) : ctx.lineTo(px4, py4);
-                                }
-                                ctx.stroke();
+                        function draw() {
+                            viz.clear();
+                            var ctx = viz.ctx;
 
-                                // Top panel legend
-                                var legY = padT + 8;
-                                [['#58a6ff', '\u03c0(x)'], ['#3fb9a0', 'x/ln(x)'], ['#f0883e', 'Li(x)']].forEach(function(item, idx) {
-                                    ctx.fillStyle = item[0];
-                                    ctx.fillRect(W - padR - 150 + idx * 52, legY, 14, 3);
-                                    ctx.fillStyle = '#c9d1d9';
-                                    ctx.font = '10px -apple-system,sans-serif';
-                                    ctx.textAlign = 'left';
-                                    ctx.fillText(item[1], W - padR - 134 + idx * 52, legY + 6);
-                                });
+                            // Top panel: the three functions
+                            var topLeft = 70, topRight = viz.width - 20;
+                            var topTop = 35, topBottom = 230;
+                            var topW = topRight - topLeft, topH = topBottom - topTop;
 
-                                // === BOTTOM PANEL: relative errors ===
-                                var botTop = padT + topH + padMid;
-                                var maxErr = 0;
-                                var errLi = [], errXlnx = [];
-                                for (var i5 = 0; i5 < xs.length; i5++) {
-                                    var pi5 = piVals[i5];
-                                    if (pi5 > 0) {
-                                        var e1 = (liVals[i5] - pi5) / pi5;
-                                        var e2 = (xlnxVals[i5] - pi5) / pi5;
-                                        errLi.push(e1);
-                                        errXlnx.push(e2);
-                                        maxErr = Math.max(maxErr, Math.abs(e1), Math.abs(e2));
-                                    } else {
-                                        errLi.push(0); errXlnx.push(0);
-                                    }
-                                }
-                                if (maxErr < 0.01) maxErr = 0.3;
+                            // Bottom panel: relative errors
+                            var botTop = 260, botBottom = 390;
+                            var botH = botBottom - botTop;
 
-                                function sxB(x) { return padL + (x / xMax) * (W - padL - padR); }
-                                function syB(e) { return botTop + botH / 2 - (e / maxErr) * (botH / 2); }
+                            var piMax = primeCount(xMax, allPrimes);
+                            var yTopMax = Math.max(piMax * 1.15, 10);
 
-                                // Zero line
-                                ctx.strokeStyle = '#4a4a7a'; ctx.lineWidth = 1;
-                                ctx.beginPath();
-                                ctx.moveTo(padL, syB(0)); ctx.lineTo(W - padR, syB(0));
-                                ctx.stroke();
+                            function toSxTop(x) { return topLeft + (x / xMax) * topW; }
+                            function toSyTop(y) { return topBottom - (y / yTopMax) * topH; }
 
-                                // Error grid
-                                ctx.strokeStyle = '#1a1a40'; ctx.lineWidth = 0.5;
-                                [-maxErr, -maxErr / 2, maxErr / 2, maxErr].forEach(function(ev) {
-                                    ctx.beginPath(); ctx.moveTo(padL, syB(ev)); ctx.lineTo(W - padR, syB(ev)); ctx.stroke();
-                                    ctx.fillStyle = '#4a4a7a'; ctx.font = '9px -apple-system,sans-serif'; ctx.textAlign = 'right';
-                                    ctx.fillText((ev * 100).toFixed(1) + '%', padL - 3, syB(ev) + 3);
-                                });
+                            // Top axes
+                            ctx.strokeStyle = viz.colors.axis; ctx.lineWidth = 1;
+                            ctx.beginPath(); ctx.moveTo(topLeft, topBottom); ctx.lineTo(topRight, topBottom); ctx.stroke();
+                            ctx.beginPath(); ctx.moveTo(topLeft, topBottom); ctx.lineTo(topLeft, topTop); ctx.stroke();
 
-                                // Error curves
-                                ctx.strokeStyle = '#f0883e'; ctx.lineWidth = 1.5;
-                                ctx.beginPath();
-                                for (var i6 = 0; i6 < xs.length; i6++) {
-                                    var px6 = sxB(xs[i6]), py6 = syB(errLi[i6]);
-                                    i6 === 0 ? ctx.moveTo(px6, py6) : ctx.lineTo(px6, py6);
-                                }
-                                ctx.stroke();
-
-                                ctx.strokeStyle = '#3fb9a0'; ctx.lineWidth = 1.5;
-                                ctx.beginPath();
-                                for (var i7 = 0; i7 < xs.length; i7++) {
-                                    var px7 = sxB(xs[i7]), py7 = syB(errXlnx[i7]);
-                                    i7 === 0 ? ctx.moveTo(px7, py7) : ctx.lineTo(px7, py7);
-                                }
-                                ctx.stroke();
-
-                                // x-axis label
-                                ctx.fillStyle = '#8b949e'; ctx.font = '11px -apple-system,sans-serif'; ctx.textAlign = 'center';
-                                ctx.fillText('x', W / 2, H - 8);
-                                ctx.fillText('Relative error (bottom panel)', W / 2, botTop + botH + 18);
-
-                                // Panel divider label
-                                ctx.fillStyle = '#4a4a7a'; ctx.font = '10px -apple-system,sans-serif'; ctx.textAlign = 'left';
-                                ctx.fillText('Relative error:', padL, botTop + 12);
+                            // Top grid
+                            ctx.strokeStyle = viz.colors.grid; ctx.lineWidth = 0.5;
+                            var yStep = Math.pow(10, Math.floor(Math.log10(yTopMax / 4)));
+                            if (yTopMax / yStep > 8) yStep *= 2;
+                            ctx.fillStyle = viz.colors.text; ctx.font = '9px -apple-system,sans-serif';
+                            ctx.textAlign = 'right'; ctx.textBaseline = 'middle';
+                            for (var gy = yStep; gy < yTopMax; gy += yStep) {
+                                var sgy = toSyTop(gy);
+                                ctx.beginPath(); ctx.moveTo(topLeft, sgy); ctx.lineTo(topRight, sgy); ctx.stroke();
+                                ctx.fillStyle = viz.colors.text;
+                                ctx.fillText(Math.round(gy).toLocaleString(), topLeft - 4, sgy);
                             }
 
-                            draw();
-                            return viz;
-                        }
-                    }
-                ],
-                exercises: [
-                    {
-                        question: 'Show that \\(x/\\ln x \\sim \\mathrm{Li}(x)\\) as \\(x \\to \\infty\\) (i.e., their ratio tends to 1), even though \\(\\mathrm{Li}(x) - x/\\ln x \\to +\\infty\\). Why does the table above show \\(\\mathrm{Li}(x)\\) is much more accurate than \\(x/\\ln x\\)?',
-                        hint: 'Integrate \\(\\mathrm{Li}(x) = \\int_2^x dt/\\ln t\\) by parts. The leading term is \\(x/\\ln x\\); the next term is \\(x/(\\ln x)^2\\).',
-                        solution: 'Integration by parts: \\(\\mathrm{Li}(x) = x/\\ln x + \\int_2^x dt/(\\ln t)^2 = x/\\ln x + x/(\\ln x)^2 + O(x/(\\ln x)^3)\\). Both are asymptotically \\(x/\\ln x\\), but Li(x) includes the correction \\(+x/(\\ln x)^2\\), which is positive and large (for \\(x = 10^6\\), it is \\(\\approx 5220\\)), explaining why Li(x) is much closer to \\(\\pi(x)\\).'
-                    }
-                ]
-            },
+                            // Sampling points for curves
+                            var nSamples = 200;
+                            var sampDx = Math.max(1, Math.floor(xMax / nSamples));
 
-            // ============================================================
-            // SECTION 5: Riemann's Revolution
-            // ============================================================
-            {
-                id: 'sec-riemann-revolution',
-                title: "Riemann's Revolution",
-                content: `
+                            // pi(x) staircase
+                            ctx.strokeStyle = viz.colors.blue; ctx.lineWidth = 2;
+                            ctx.beginPath();
+                            var piStarted = false;
+                            var cnt = 0;
+                            for (var pi2 = 0; pi2 < allPrimes.length && allPrimes[pi2] <= xMax; pi2++) {
+                                var pp = allPrimes[pi2];
+                                if (!piStarted) { ctx.moveTo(toSxTop(2), toSyTop(0)); piStarted = true; }
+                                ctx.lineTo(toSxTop(pp), toSyTop(cnt));
+                                cnt++;
+                                ctx.lineTo(toSxTop(pp), toSyTop(cnt));
+                            }
+                            ctx.lineTo(toSxTop(xMax), toSyTop(cnt));
+                            ctx.stroke();
+
+                            // x/ln(x)
+                            ctx.strokeStyle = viz.colors.teal; ctx.lineWidth = 2;
+                            ctx.beginPath();
+                            for (var si = 0; si <= nSamples; si++) {
+                                var x = 3 + (xMax - 3) * si / nSamples;
+                                var y = x / Math.log(x);
+                                si === 0 ? ctx.moveTo(toSxTop(x), toSyTop(y)) : ctx.lineTo(toSxTop(x), toSyTop(y));
+                            }
+                            ctx.stroke();
+
+                            // Li(x)
+                            ctx.strokeStyle = viz.colors.orange; ctx.lineWidth = 2;
+                            ctx.beginPath();
+                            for (var si2 = 0; si2 <= nSamples; si2++) {
+                                var x2 = 3 + (xMax - 3) * si2 / nSamples;
+                                var y2 = Li(x2);
+                                si2 === 0 ? ctx.moveTo(toSxTop(x2), toSyTop(y2)) : ctx.lineTo(toSxTop(x2), toSyTop(y2));
+                            }
+                            ctx.stroke();
+
+                            // Bottom panel: relative errors
+                            ctx.strokeStyle = viz.colors.axis; ctx.lineWidth = 1;
+                            ctx.beginPath(); ctx.moveTo(topLeft, botBottom); ctx.lineTo(topRight, botBottom); ctx.stroke();
+                            ctx.beginPath(); ctx.moveTo(topLeft, botBottom); ctx.lineTo(topLeft, botTop); ctx.stroke();
+
+                            // Compute errors at sample points
+                            var errSamples = [];
+                            for (var ei = 1; ei <= 80; ei++) {
+                                var ex = 10 + (xMax - 10) * ei / 80;
+                                var epi = primeCount(ex, allPrimes);
+                                if (epi === 0) continue;
+                                var errXln = (ex / Math.log(ex) - epi) / epi * 100;
+                                var errLi = (Li(ex) - epi) / epi * 100;
+                                errSamples.push({ x: ex, errXln: errXln, errLi: errLi });
+                            }
+
+                            // Find error range
+                            var minErr = 0, maxErr = 0;
+                            for (var es = 0; es < errSamples.length; es++) {
+                                minErr = Math.min(minErr, errSamples[es].errXln, errSamples[es].errLi);
+                                maxErr = Math.max(maxErr, errSamples[es].errXln, errSamples[es].errLi);
+                            }
+                            var errRange = Math.max(Math.abs(minErr), Math.abs(maxErr), 5) * 1.2;
+
+                            function toSyBot(e) { return (botTop + botBottom) / 2 - (e / errRange) * (botH / 2); }
+
+                            // Zero line
+                            ctx.strokeStyle = viz.colors.axis; ctx.lineWidth = 0.5;
+                            ctx.setLineDash([4, 4]);
+                            var zeroY = toSyBot(0);
+                            ctx.beginPath(); ctx.moveTo(topLeft, zeroY); ctx.lineTo(topRight, zeroY); ctx.stroke();
+                            ctx.setLineDash([]);
+
+                            // Error labels
+                            ctx.fillStyle = viz.colors.text; ctx.font = '9px -apple-system,sans-serif';
+                            ctx.textAlign = 'right'; ctx.textBaseline = 'middle';
+                            var errStep = errRange > 20 ? 10 : errRange > 10 ? 5 : 2;
+                            for (var ge = -Math.floor(errRange); ge <= Math.floor(errRange); ge += errStep) {
+                                if (ge === 0) continue;
+                                var sey = toSyBot(ge);
+                                if (sey < botTop || sey > botBottom) continue;
+                                ctx.strokeStyle = viz.colors.grid; ctx.lineWidth = 0.5;
+                                ctx.beginPath(); ctx.moveTo(topLeft, sey); ctx.lineTo(topRight, sey); ctx.stroke();
+                                ctx.fillStyle = viz.colors.text;
+                                ctx.fillText(ge + '%', topLeft - 4, sey);
+                            }
+
+                            // x/ln(x) error curve
+                            ctx.strokeStyle = viz.colors.teal; ctx.lineWidth = 1.5;
+                            ctx.beginPath();
+                            for (var ej = 0; ej < errSamples.length; ej++) {
+                                var esx = toSxTop(errSamples[ej].x);
+                                var esy = toSyBot(errSamples[ej].errXln);
+                                ej === 0 ? ctx.moveTo(esx, esy) : ctx.lineTo(esx, esy);
+                            }
+                            ctx.stroke();
+
+                            // Li(x) error curve
+                            ctx.strokeStyle = viz.colors.orange; ctx.lineWidth = 1.5;
+                            ctx.beginPath();
+                            for (var ek = 0; ek < errSamples.length; ek++) {
+                                var esx2 = toSxTop(errSamples[ek].x);
+                                var esy2 = toSyBot(errSamples[ek].errLi);
+                                ek === 0 ? ctx.moveTo(esx2, esy2) : ctx.lineTo(esx2, esy2);
+                            }
+                            ctx.stroke();
+
+                            // Title
+                            viz.screenText('\u03C0(x) vs Approximations', viz.width / 2, 14, viz.colors.white, 14);
+
+                            // Legend
+                            ctx.font = '10px -apple-system,sans-serif'; ctx.textAlign = 'left';
+                            ctx.fillStyle = viz.colors.blue;
+                            ctx.fillRect(topRight - 160, topTop + 4, 12, 3);
+                            ctx.fillText('\u03C0(x)', topRight - 144, topTop + 10);
+                            ctx.fillStyle = viz.colors.teal;
+                            ctx.fillRect(topRight - 160, topTop + 18, 12, 3);
+                            ctx.fillText('x/ln(x)', topRight - 144, topTop + 24);
+                            ctx.fillStyle = viz.colors.orange;
+                            ctx.fillRect(topRight - 160, topTop + 32, 12, 3);
+                            ctx.fillText('Li(x)', topRight - 144, topTop + 38);
+
+                            // Panel label
+                            viz.screenText('Relative Error (%)', topLeft + 60, botTop - 6, viz.colors.text, 10);
+                        }
+                        draw();
+                        return viz;
+                    }
+                }
+            ],
+            exercises: [
+                {
+                    question: 'For \\(x = 1000\\), compute the relative errors of \\(x/\\ln x\\) and \\(\\operatorname{Li}(x)\\) as approximations to \\(\\pi(x) = 168\\).',
+                    hint: 'Use \\(\\ln 1000 \\approx 6.908\\) and \\(\\operatorname{Li}(1000) \\approx 177.6\\).',
+                    solution: '\\(x/\\ln x = 1000/6.908 \\approx 144.8\\). Relative error: \\((168 - 144.8)/168 \\approx 13.8\\%\\). \\(\\operatorname{Li}(1000) \\approx 177.6\\). Relative error: \\((177.6 - 168)/168 \\approx 5.7\\%\\). Li(x) overshoots slightly but is far more accurate.'
+                }
+            ]
+        },
+
+        // ================================================================
+        // SECTION 5: Riemann's Revolution
+        // ================================================================
+        {
+            id: 'sec-riemann-revolution',
+            title: 'Riemann\'s Revolution',
+            content: `
 <h2>Riemann's Revolution</h2>
 
 <div class="env-block intuition">
-    <div class="env-title">The 1859 Paper</div>
+    <div class="env-title">Eight Pages That Changed Mathematics</div>
     <div class="env-body">
-        <p>In 1859, Bernhard Riemann submitted a 9-page paper to the Berlin Academy: <em>"On the Number of Primes Less Than a Given Magnitude."</em> It is the most consequential single paper in the history of analytic number theory. In it, Riemann extended Euler's zeta function to the entire complex plane, revealed its deep symmetry (the functional equation), and announced (but did not prove) the Prime Number Theorem — along with a conjecture about the zeros of \\(\\zeta(s)\\) that remains unproved 165 years later.</p>
+        <p>In 1859, Bernhard Riemann published a single 8-page paper, "Ueber die Anzahl der Primzahlen unter einer gegebenen Gr\u00f6sse" ("On the Number of Primes Less Than a Given Magnitude"). This paper, submitted as part of his election to the Berlin Academy, is one of the most consequential documents in the history of mathematics. In it, Riemann introduced the ideas that transformed prime number theory from a collection of empirical observations and isolated results into a coherent analytic theory.</p>
     </div>
 </div>
 
-<h3>The Riemann Zeta Function</h3>
+<h3>The Zeta Function Goes Complex</h3>
 
-<p>Euler's sum \\(\\zeta(s) = \\sum_{n=1}^\\infty n^{-s}\\) converges for real \\(s > 1\\). Riemann allowed \\(s = \\sigma + it\\) to be complex, with \\(\\sigma = \\mathrm{Re}(s) > 1\\). The series still converges absolutely, and \\(\\zeta(s)\\) is a holomorphic function in this half-plane.</p>
+<p>Euler's product formula defined \\(\\zeta(s) = \\sum n^{-s}\\) for real \\(s > 1\\). Riemann's crucial step was to extend \\(\\zeta\\) to all complex numbers \\(s = \\sigma + it\\) (except \\(s = 1\\), where it has a simple pole). This analytic continuation revealed hidden structure:</p>
 
-<div class="env-block theorem">
-    <div class="env-title">Theorem (Riemann, 1859)</div>
+<div class="env-block definition">
+    <div class="env-title">The Riemann Zeta Function</div>
     <div class="env-body">
-        <p>\\(\\zeta(s)\\) extends to a meromorphic function on all of \\(\\mathbb{C}\\), holomorphic except for a simple pole at \\(s = 1\\) with residue 1. It satisfies the <em>functional equation</em>:</p>
-        \\[
-        \\xi(s) := \\frac{1}{2} s(s-1) \\pi^{-s/2} \\Gamma\\!\\left(\\frac{s}{2}\\right) \\zeta(s) = \\xi(1-s),
-        \\]
-        <p>i.e., the completed zeta function \\(\\xi(s)\\) is entire and symmetric about \\(s = 1/2\\).</p>
+        <p>The function \\(\\zeta(s)\\), initially defined by \\(\\sum_{n=1}^{\\infty} n^{-s}\\) for \\(\\operatorname{Re}(s) > 1\\), extends to a meromorphic function on all of \\(\\mathbb{C}\\) with a single simple pole at \\(s = 1\\).</p>
     </div>
 </div>
 
-<p>The zeros of \\(\\zeta(s)\\) come in two types:</p>
-<ul>
-    <li><strong>Trivial zeros</strong>: at \\(s = -2, -4, -6, \\ldots\\) (from the \\(\\Gamma\\) function poles)</li>
-    <li><strong>Nontrivial zeros</strong>: in the <em>critical strip</em> \\(0 < \\mathrm{Re}(s) < 1\\). The functional equation implies they are symmetric about \\(\\mathrm{Re}(s) = 1/2\\).</li>
-</ul>
+<p>Riemann showed that \\(\\zeta\\) satisfies a remarkable functional equation linking its values at \\(s\\) and \\(1-s\\):</p>
 
-<p>The first few nontrivial zeros are at approximately:</p>
 \\[
-\\rho_1 \\approx \\frac{1}{2} + 14.135i, \\quad \\rho_2 \\approx \\frac{1}{2} + 21.022i, \\quad \\rho_3 \\approx \\frac{1}{2} + 25.011i, \\ldots
+\\zeta(s) = 2^s \\pi^{s-1} \\sin\\!\\left(\\frac{\\pi s}{2}\\right) \\Gamma(1-s)\\, \\zeta(1-s).
 \\]
+
+<p>This equation implies that \\(\\zeta(s) = 0\\) at the negative even integers \\(s = -2, -4, -6, \\ldots\\) (the "trivial zeros"). All other zeros, the non-trivial ones, must lie in the <strong>critical strip</strong> \\(0 \\leq \\operatorname{Re}(s) \\leq 1\\).</p>
+
+<h3>Zeros Control Primes</h3>
+
+<p>Riemann's deepest insight was that the distribution of prime numbers is governed by the locations of the zeros of \\(\\zeta(s)\\) in the critical strip. He wrote down an explicit formula expressing \\(\\pi(x)\\) as a sum over the zeros:</p>
+
+\\[
+\\pi(x) = \\operatorname{Li}(x) - \\sum_{\\rho} \\operatorname{Li}(x^{\\rho}) - \\ln 2 + \\int_x^{\\infty} \\frac{dt}{t(t^2-1)\\ln t},
+\\]
+
+<p>where the sum runs over all non-trivial zeros \\(\\rho\\) of \\(\\zeta\\). Each zero contributes a "correction term" \\(\\operatorname{Li}(x^{\\rho})\\), and these corrections oscillate like waves. The primes, viewed from this perspective, are the superposition of these waves, one for each zero.</p>
+
+<div class="env-block remark">
+    <div class="env-title">A musical analogy</div>
+    <div class="env-body">
+        <p>If \\(\\operatorname{Li}(x)\\) is the "fundamental frequency" of the primes, then each zero \\(\\rho\\) contributes a harmonic. The distribution of primes is the chord that results from playing all these harmonics together. The closer the zeros are to the critical line, the more orderly the music.</p>
+    </div>
+</div>
 
 <h3>The Riemann Hypothesis</h3>
 
+<p>Riemann computed the first few zeros and observed that they all lie on the line \\(\\operatorname{Re}(s) = 1/2\\). He wrote:</p>
+
+<blockquote style="border-left:3px solid #58a6ff;padding-left:16px;color:#8b949e;font-style:italic;">
+"One would of course like to have a rigorous proof of this; I have for the time being, after some fleeting vain attempts, put aside the search for such a proof."
+</blockquote>
+
 <div class="env-block theorem">
-    <div class="env-title">Riemann Hypothesis (1859, unproved)</div>
+    <div class="env-title">The Riemann Hypothesis (1859)</div>
     <div class="env-body">
-        <p>All nontrivial zeros of \\(\\zeta(s)\\) lie on the <em>critical line</em> \\(\\mathrm{Re}(s) = 1/2\\).</p>
-        <p>Equivalently: every zero \\(\\rho\\) satisfies \\(\\rho = 1/2 + it\\) for some real \\(t\\).</p>
+        <p>All non-trivial zeros of \\(\\zeta(s)\\) have real part equal to \\(1/2\\).</p>
     </div>
 </div>
 
-<p>Why do zeros control primes? Riemann's <em>explicit formula</em> makes this precise:</p>
-\\[
-\\psi(x) = x - \\sum_\\rho \\frac{x^\\rho}{\\rho} - \\log(2\\pi) - \\frac{1}{2}\\log(1 - x^{-2}),
-\\]
-<p>where \\(\\psi(x) = \\sum_{p^k \\leq x} \\log p\\) (the Chebyshev function), and the sum is over nontrivial zeros \\(\\rho\\). Each zero contributes an oscillation of amplitude \\(x^{\\mathrm{Re}(\\rho)}\\). If RH holds, all oscillations have amplitude \\(\\sqrt{x}\\), giving \\(\\psi(x) = x + O(\\sqrt{x} \\log^2 x)\\) and hence \\(\\pi(x) = \\mathrm{Li}(x) + O(\\sqrt{x} \\log x)\\).</p>
+<p>This is the most famous open problem in mathematics. If true, it implies the strongest possible form of the Prime Number Theorem: \\(\\pi(x) = \\operatorname{Li}(x) + O(\\sqrt{x} \\ln x)\\). The error in the prime counting function would be as small as it could possibly be. Over 10 trillion zeros have been computed, and all lie on the critical line. Yet the conjecture remains unproved.</p>
+
+<div class="viz-placeholder" data-viz="viz-ulam-spiral"></div>
 
 <div class="viz-placeholder" data-viz="viz-prime-race"></div>
-
-<div class="env-block remark">
-    <div class="env-title">What Has Been Proved</div>
-    <div class="env-body">
-        <p>The functional equation, analytic continuation, and the prime number theorem are all proved. The Riemann Hypothesis remains open. As of 2024, the first \\(10^{13}\\) nontrivial zeros have been verified to lie on the critical line (Platt–Trudgian 2021). The Clay Mathematics Institute lists RH as one of the Millennium Prize Problems, with a $1,000,000 prize.</p>
-    </div>
-</div>
 `,
-                visualizations: [
-                    {
-                        id: 'viz-prime-race',
-                        title: 'The Prime Race: \\(\\pi(x; 4, 1)\\) vs. \\(\\pi(x; 4, 3)\\)',
-                        description: 'Count primes \\(\\equiv 1 \\pmod 4\\) (teal) and \\(\\equiv 3 \\pmod 4\\) (orange). By Dirichlet\'s theorem both grow like \\(\\frac{1}{2}\\mathrm{Li}(x)\\), but 3 mod 4 leads almost always — a "Chebyshev bias."',
-                        setup: function(body, controls) {
-                            var viz = new VizEngine(body, { width: 620, height: 360, originX: 60, originY: 320, scale: 1 });
-                            var xMax = 500;
-                            var animating = false;
-                            var animX = 10;
-                            var animId = null;
+            visualizations: [
+                // VIZ 5: Ulam spiral
+                {
+                    id: 'viz-ulam-spiral',
+                    title: 'The Ulam Spiral',
+                    description: 'Arrange integers in a spiral. Primes (blue dots) cluster along diagonal lines, hinting at deep structure. Drag the slider to increase N.',
+                    setup: function(body, controls) {
+                        var viz = new VizEngine(body, {
+                            width: 560, height: 500,
+                            originX: 280, originY: 250, scale: 1
+                        });
 
-                            VizEngine.createSlider(controls, 'x max', 100, 5000, xMax, 100, function(v) {
-                                xMax = Math.round(v);
-                                if (!animating) draw(xMax);
-                            });
-
-                            var playBtn = VizEngine.createButton(controls, 'Play', function() {
-                                if (animating) {
-                                    animating = false;
-                                    playBtn.textContent = 'Play';
-                                    if (animId) cancelAnimationFrame(animId);
-                                } else {
-                                    animating = true;
-                                    animX = 10;
-                                    playBtn.textContent = 'Pause';
-                                    step();
+                        function sievePrimes(max) {
+                            var sieve = new Uint8Array(max + 1);
+                            var primes = [];
+                            for (var i = 2; i <= max; i++) {
+                                if (!sieve[i]) {
+                                    primes.push(i);
+                                    for (var j = i * i; j <= max; j += i) sieve[j] = 1;
                                 }
-                            });
-
-                            function step() {
-                                if (!animating) return;
-                                animX += Math.max(1, xMax / 300);
-                                if (animX >= xMax) { animX = xMax; animating = false; playBtn.textContent = 'Play'; }
-                                draw(Math.floor(animX));
-                                if (animating) animId = requestAnimationFrame(step);
                             }
-
-                            function draw(curX) {
-                                viz.clear();
-                                var ctx = viz.ctx;
-                                var W = viz.width, H = viz.height;
-                                var padL = 55, padR = 20, padT = 30, padB = 40;
-                                var plotW = W - padL - padR;
-                                var plotH = H - padT - padB;
-
-                                var primes = PRIMES_10K.filter(function(p) { return p <= curX && p > 2; });
-                                var cnt1 = [], cnt3 = [];
-                                var c1 = 0, c3 = 0;
-                                var xs = [];
-
-                                for (var i = 0; i < primes.length; i++) {
-                                    var p = primes[i];
-                                    if (p % 4 === 1) c1++;
-                                    if (p % 4 === 3) c3++;
-                                    cnt1.push(c1);
-                                    cnt3.push(c3);
-                                    xs.push(p);
-                                }
-
-                                var maxCount = Math.max(c1, c3, 1);
-
-                                function sxP(x) { return padL + (x / curX) * plotW; }
-                                function syP(y) { return padT + plotH - (y / (maxCount * 1.1)) * plotH; }
-
-                                // Grid
-                                ctx.strokeStyle = '#1a1a40'; ctx.lineWidth = 0.5;
-                                for (var g = 0; g <= 4; g++) {
-                                    var yv = (g / 4) * maxCount * 1.1;
-                                    ctx.beginPath(); ctx.moveTo(padL, syP(yv)); ctx.lineTo(W - padR, syP(yv)); ctx.stroke();
-                                    ctx.fillStyle = '#4a4a7a'; ctx.font = '9px -apple-system,sans-serif'; ctx.textAlign = 'right';
-                                    ctx.fillText(Math.round(yv), padL - 3, syP(yv) + 3);
-                                }
-
-                                // 1/2 Li(x) reference
-                                ctx.strokeStyle = '#4a4a7a'; ctx.lineWidth = 1; ctx.setLineDash([4, 4]);
-                                ctx.beginPath();
-                                var refStarted = false;
-                                for (var xi = 5; xi <= curX; xi += Math.max(1, curX / 200)) {
-                                    var y = Li(xi) / 2;
-                                    var px = sxP(xi), py = syP(y);
-                                    if (!refStarted) { ctx.moveTo(px, py); refStarted = true; }
-                                    else ctx.lineTo(px, py);
-                                }
-                                ctx.stroke();
-                                ctx.setLineDash([]);
-
-                                // pi(x;4,1)
-                                ctx.strokeStyle = '#3fb9a0'; ctx.lineWidth = 2;
-                                ctx.beginPath();
-                                for (var i2 = 0; i2 < xs.length; i2++) {
-                                    var px2 = sxP(xs[i2]), py2 = syP(cnt1[i2]);
-                                    i2 === 0 ? ctx.moveTo(px2, py2) : ctx.lineTo(px2, py2);
-                                }
-                                ctx.stroke();
-
-                                // pi(x;4,3)
-                                ctx.strokeStyle = '#f0883e'; ctx.lineWidth = 2;
-                                ctx.beginPath();
-                                for (var i3 = 0; i3 < xs.length; i3++) {
-                                    var px3 = sxP(xs[i3]), py3 = syP(cnt3[i3]);
-                                    i3 === 0 ? ctx.moveTo(px3, py3) : ctx.lineTo(px3, py3);
-                                }
-                                ctx.stroke();
-
-                                // Shaded region where 3 leads
-                                ctx.fillStyle = '#f0883e11';
-                                ctx.beginPath();
-                                for (var i4 = 0; i4 < xs.length; i4++) {
-                                    if (cnt3[i4] > cnt1[i4]) {
-                                        var px4a = sxP(xs[i4]);
-                                        ctx.fillRect(px4a, syP(cnt3[i4]), Math.max(1, sxP(i4 + 1 < xs.length ? xs[i4 + 1] : curX) - px4a), syP(cnt1[i4]) - syP(cnt3[i4]));
-                                    }
-                                }
-
-                                // Labels
-                                ctx.fillStyle = '#8b949e'; ctx.font = '11px -apple-system,sans-serif'; ctx.textAlign = 'center';
-                                ctx.fillText('x', W / 2, H - 5);
-
-                                var legY = padT + 10;
-                                [['#3fb9a0', '\u03c0(x; 4, 1)  \u2261 1 (mod 4)'],
-                                 ['#f0883e', '\u03c0(x; 4, 3)  \u2261 3 (mod 4)'],
-                                 ['#4a4a7a', '\u00bdLi(x)']].forEach(function(item, idx) {
-                                    ctx.strokeStyle = item[0]; ctx.lineWidth = 2;
-                                    ctx.beginPath(); ctx.moveTo(W - padR - 200, legY + idx * 18); ctx.lineTo(W - padR - 186, legY + idx * 18); ctx.stroke();
-                                    ctx.fillStyle = '#c9d1d9'; ctx.font = '10px -apple-system,sans-serif'; ctx.textAlign = 'left';
-                                    ctx.fillText(item[1], W - padR - 182, legY + idx * 18 + 4);
-                                });
-
-                                // Current counts
-                                ctx.fillStyle = '#8b949e'; ctx.font = '11px -apple-system,sans-serif'; ctx.textAlign = 'center';
-                                ctx.fillText('At x = ' + curX + ':  \u22611: ' + c1 + '  \u22613: ' + c3 + '  lead: ' + (c3 > c1 ? '3 mod 4' : c1 > c3 ? '1 mod 4' : 'tie'), W / 2, padT - 12);
-                            }
-
-                            draw(xMax);
-                            return viz;
+                            return primes;
                         }
-                    }
-                ],
-                exercises: [
-                    {
-                        question: 'The functional equation \\(\\xi(s) = \\xi(1-s)\\) implies that if \\(\\rho\\) is a nontrivial zero of \\(\\zeta\\), so are \\(1-\\rho\\), \\(\\bar{\\rho}\\), and \\(1-\\bar{\\rho}\\). Draw these four zeros in the complex plane for \\(\\rho = 1/3 + 5i\\) (a hypothetical off-line zero). Why does the Riemann Hypothesis collapse this quadruple to a pair?',
-                        hint: 'If \\(\\mathrm{Re}(\\rho) = 1/2\\), then \\(1 - \\rho = 1/2 - it = \\bar{\\rho}\\).',
-                        solution: 'For \\(\\rho = 1/3 + 5i\\): the four zeros are \\(1/3 + 5i\\), \\(2/3 - 5i\\), \\(1/3 - 5i\\), \\(2/3 + 5i\\) — a rectangle in the critical strip. If \\(\\mathrm{Re}(\\rho) = 1/2\\), then \\(1-\\rho = 1/2 - it\\) and \\(\\bar{\\rho} = 1/2 - it\\), so \\(1-\\rho = \\bar{\\rho}\\): the four collapse to two (conjugate pairs on the critical line). Under RH, there are no "off-critical-line" rectangles.'
-                    }
-                ]
-            },
 
-            // ============================================================
-            // SECTION 6: What Lies Ahead
-            // ============================================================
-            {
-                id: 'sec-roadmap',
-                title: 'What Lies Ahead',
-                content: `
+                        var N = 2000;
+                        var slider = VizEngine.createSlider(controls, 'N', 100, 10000, N, 100, function(v) {
+                            N = Math.round(v);
+                            draw();
+                        });
+
+                        function draw() {
+                            viz.clear();
+                            var ctx = viz.ctx;
+
+                            var primeSet = new Set(sievePrimes(N + 1));
+
+                            // Generate spiral coordinates
+                            // Direction: right, up, left, down
+                            var dx = [1, 0, -1, 0];
+                            var dy = [0, 1, 0, -1];
+                            var x = 0, y = 0;
+                            var dir = 0;
+                            var stepSize = 1;
+                            var stepCount = 0;
+                            var turnCount = 0;
+
+                            // Determine pixel size based on N
+                            var sideLen = Math.ceil(Math.sqrt(N));
+                            var pixSize = Math.max(1, Math.min(6, Math.floor(Math.min(viz.width, viz.height) / (sideLen + 4))));
+                            var cx = Math.floor(viz.width / 2);
+                            var cy = Math.floor(viz.height / 2);
+
+                            for (var n = 1; n <= N; n++) {
+                                if (primeSet.has(n)) {
+                                    var px = cx + x * pixSize;
+                                    var py = cy - y * pixSize;
+                                    ctx.fillStyle = viz.colors.blue;
+                                    ctx.fillRect(px, py, Math.max(pixSize - 1, 1), Math.max(pixSize - 1, 1));
+                                }
+
+                                // Move in current direction
+                                x += dx[dir];
+                                y += dy[dir];
+                                stepCount++;
+
+                                if (stepCount === stepSize) {
+                                    stepCount = 0;
+                                    dir = (dir + 1) % 4;
+                                    turnCount++;
+                                    if (turnCount % 2 === 0) stepSize++;
+                                }
+                            }
+
+                            // Title
+                            viz.screenText('Ulam Spiral (N = ' + N + ')', viz.width / 2, 16, viz.colors.white, 14);
+                            viz.screenText('Blue = prime', viz.width / 2, viz.height - 12, viz.colors.text, 10);
+                        }
+                        draw();
+                        return viz;
+                    }
+                },
+
+                // VIZ 6: Prime Race pi(x;4,1) vs pi(x;4,3)
+                {
+                    id: 'viz-prime-race',
+                    title: 'Prime Race: Primes mod 4',
+                    description: 'Count primes congruent to 1 mod 4 vs 3 mod 4. Primes \u2261 3 (mod 4) tend to lead, but the race is tight.',
+                    setup: function(body, controls) {
+                        var viz = new VizEngine(body, {
+                            width: 560, height: 380,
+                            originX: 60, originY: 340, scale: 1
+                        });
+
+                        function sievePrimes(max) {
+                            var sieve = new Uint8Array(max + 1);
+                            var primes = [];
+                            for (var i = 2; i <= max; i++) {
+                                if (!sieve[i]) {
+                                    primes.push(i);
+                                    for (var j = i * i; j <= max; j += i) sieve[j] = 1;
+                                }
+                            }
+                            return primes;
+                        }
+
+                        var allPrimes = sievePrimes(12000);
+                        var xMax = 1000;
+                        var animating = false;
+                        var animX = 10;
+                        var animId = null;
+
+                        var slider = VizEngine.createSlider(controls, 'x max', 100, 10000, xMax, 100, function(v) {
+                            xMax = Math.round(v);
+                            if (!animating) draw(xMax);
+                        });
+
+                        var playBtn = VizEngine.createButton(controls, 'Play', function() {
+                            if (animating) {
+                                animating = false;
+                                if (animId) { cancelAnimationFrame(animId); animId = null; }
+                                playBtn.textContent = 'Play';
+                            } else {
+                                animating = true;
+                                animX = 10;
+                                playBtn.textContent = 'Pause';
+                                animate();
+                            }
+                        });
+
+                        function animate() {
+                            if (!animating) return;
+                            animX = Math.min(animX + Math.max(1, Math.floor(xMax / 300)), xMax);
+                            draw(animX);
+                            if (animX >= xMax) {
+                                animating = false;
+                                playBtn.textContent = 'Play';
+                                return;
+                            }
+                            animId = requestAnimationFrame(animate);
+                        }
+
+                        function draw(upTo) {
+                            viz.clear();
+                            var ctx = viz.ctx;
+
+                            var plotLeft = 70;
+                            var plotRight = viz.width - 20;
+                            var plotTop = 40;
+                            var plotBottom = 320;
+                            var plotW = plotRight - plotLeft;
+                            var plotH = plotBottom - plotTop;
+
+                            // Count primes mod 4
+                            var count1 = 0, count3 = 0;
+                            var data1 = [], data3 = [];
+                            for (var i = 0; i < allPrimes.length && allPrimes[i] <= upTo; i++) {
+                                var p = allPrimes[i];
+                                if (p === 2) continue;
+                                if (p % 4 === 1) {
+                                    count1++;
+                                    data1.push({ x: p, y: count1 });
+                                } else if (p % 4 === 3) {
+                                    count3++;
+                                    data3.push({ x: p, y: count3 });
+                                }
+                            }
+
+                            var yMax = Math.max(count1, count3, 5) * 1.1;
+
+                            function toSx(x) { return plotLeft + (x / xMax) * plotW; }
+                            function toSy(y) { return plotBottom - (y / yMax) * plotH; }
+
+                            // Grid
+                            ctx.strokeStyle = viz.colors.grid; ctx.lineWidth = 0.5;
+                            var yStep = Math.pow(10, Math.floor(Math.log10(yMax / 4)));
+                            if (yMax / yStep > 8) yStep *= 2;
+                            ctx.fillStyle = viz.colors.text; ctx.font = '9px -apple-system,sans-serif';
+                            ctx.textAlign = 'right'; ctx.textBaseline = 'middle';
+                            for (var gy = yStep; gy < yMax; gy += yStep) {
+                                var sy = toSy(gy);
+                                ctx.beginPath(); ctx.moveTo(plotLeft, sy); ctx.lineTo(plotRight, sy); ctx.stroke();
+                                ctx.fillStyle = viz.colors.text;
+                                ctx.fillText(Math.round(gy), plotLeft - 4, sy);
+                            }
+
+                            // Axes
+                            ctx.strokeStyle = viz.colors.axis; ctx.lineWidth = 1.5;
+                            ctx.beginPath(); ctx.moveTo(plotLeft, plotBottom); ctx.lineTo(plotRight, plotBottom); ctx.stroke();
+                            ctx.beginPath(); ctx.moveTo(plotLeft, plotBottom); ctx.lineTo(plotLeft, plotTop); ctx.stroke();
+
+                            // pi(x;4,3) - orange
+                            ctx.strokeStyle = viz.colors.orange; ctx.lineWidth = 2;
+                            ctx.beginPath();
+                            if (data3.length > 0) {
+                                ctx.moveTo(toSx(data3[0].x), toSy(data3[0].y));
+                                for (var d3 = 1; d3 < data3.length; d3++) {
+                                    ctx.lineTo(toSx(data3[d3].x), toSy(data3[d3].y));
+                                }
+                            }
+                            ctx.stroke();
+
+                            // pi(x;4,1) - teal
+                            ctx.strokeStyle = viz.colors.teal; ctx.lineWidth = 2;
+                            ctx.beginPath();
+                            if (data1.length > 0) {
+                                ctx.moveTo(toSx(data1[0].x), toSy(data1[0].y));
+                                for (var d1 = 1; d1 < data1.length; d1++) {
+                                    ctx.lineTo(toSx(data1[d1].x), toSy(data1[d1].y));
+                                }
+                            }
+                            ctx.stroke();
+
+                            // Title
+                            viz.screenText('Prime Race: \u03C0(x; 4, 1) vs \u03C0(x; 4, 3)', viz.width / 2, 18, viz.colors.white, 14);
+
+                            // Legend
+                            var legY = plotBottom + 16;
+                            ctx.font = '11px -apple-system,sans-serif'; ctx.textAlign = 'left';
+                            ctx.fillStyle = viz.colors.teal;
+                            ctx.fillRect(plotLeft + 40, legY, 14, 3);
+                            ctx.fillText('\u03C0(x; 4, 1) = ' + count1, plotLeft + 58, legY + 5);
+                            ctx.fillStyle = viz.colors.orange;
+                            ctx.fillRect(plotLeft + 200, legY, 14, 3);
+                            ctx.fillText('\u03C0(x; 4, 3) = ' + count3, plotLeft + 218, legY + 5);
+
+                            var leader = count3 > count1 ? '3 mod 4 leads by ' + (count3 - count1) :
+                                         count1 > count3 ? '1 mod 4 leads by ' + (count1 - count3) : 'Tied!';
+                            viz.screenText(leader, viz.width / 2, legY + 26, viz.colors.white, 11);
+                        }
+                        draw(xMax);
+                        return viz;
+                    }
+                }
+            ],
+            exercises: [
+                {
+                    question: 'The first few non-trivial zeros of \\(\\zeta(s)\\) on the critical line have imaginary parts approximately \\(14.13, 21.02, 25.01, 30.42, 32.94\\). Compute the average spacing between these zeros.',
+                    hint: 'Compute the differences between consecutive values and average them.',
+                    solution: 'Spacings: \\(21.02 - 14.13 = 6.89\\), \\(25.01 - 21.02 = 3.99\\), \\(30.42 - 25.01 = 5.41\\), \\(32.94 - 30.42 = 2.52\\). Average: \\((6.89 + 3.99 + 5.41 + 2.52)/4 = 4.70\\). The zeros are irregularly spaced, with average gap about 4.7.'
+                },
+                {
+                    question: 'Count the primes that are \\(\\equiv 1 \\pmod{4}\\) and \\(\\equiv 3 \\pmod{4}\\) up to \\(x = 100\\). Which class is ahead?',
+                    hint: 'List primes up to 100 and check each modulo 4. Remember that \\(p=2\\) is neither 1 nor 3 mod 4.',
+                    solution: 'Primes \\(\\equiv 1\\pmod{4}\\): 5, 13, 17, 29, 37, 41, 53, 61, 73, 89, 97 (11 primes). Primes \\(\\equiv 3\\pmod{4}\\): 3, 7, 11, 19, 23, 31, 43, 47, 59, 67, 71, 79, 83 (13 primes). The 3 mod 4 class leads by 2. This phenomenon (Chebyshev\'s bias) persists: primes \\(\\equiv 3\\pmod{4}\\) tend to outnumber those \\(\\equiv 1\\pmod{4}\\), though the lead changes infinitely often.'
+                }
+            ]
+        },
+
+        // ================================================================
+        // SECTION 6: What Lies Ahead
+        // ================================================================
+        {
+            id: 'sec-roadmap',
+            title: 'What Lies Ahead',
+            content: `
 <h2>What Lies Ahead</h2>
 
 <div class="env-block intuition">
-    <div class="env-title">The Course in One Paragraph</div>
+    <div class="env-title">A Map of the Territory</div>
     <div class="env-body">
-        <p>We have just glimpsed the landscape. Primes are infinite (Euclid), their reciprocals diverge (Euler), they thin out like \\(1/\\ln x\\) (Gauss–Legendre), and their exact distribution is governed by the zeros of an analytic function in the complex plane (Riemann). Each of these insights required new tools. Building those tools systematically — and rigorously — is what this course does.</p>
+        <p>We have traced the arc from Euclid's finitary proof to Riemann's analytic revolution. The rest of this course fills in the details, building the machinery piece by piece until we can prove the Prime Number Theorem and understand the Riemann Hypothesis.</p>
     </div>
 </div>
 
-<h3>The Roadmap</h3>
+<p>Here is the road ahead:</p>
 
-<p>The course is organized in four parts:</p>
-
-<div class="env-block definition">
-    <div class="env-title">Part A: Foundations (Chapters 1–2)</div>
-    <div class="env-body">
-        <p><strong>Chapter 1 — Arithmetic Functions.</strong> We study functions \\(f: \\mathbb{Z}_{>0} \\to \\mathbb{C}\\) systematically: multiplicativity, the Dirichlet convolution \\((f * g)(n) = \\sum_{d \\mid n} f(d)g(n/d)\\), Möbius inversion, and key examples (\\(\\mu\\), \\(\\phi\\), \\(\\sigma_k\\), \\(\\Lambda\\)).</p>
-        <p><strong>Chapter 2 — Averages of Arithmetic Functions.</strong> Partial summation, the hyperbola method, and precise estimates for \\(\\sum_{n \\leq x} d(n)\\), \\(\\sum_{n \\leq x} \\phi(n)\\), and \\(\\sum_{n \\leq x} \\mu(n)\\). These averages are the empirical footprint of arithmetic functions.</p>
-    </div>
-</div>
-
-<div class="env-block definition">
-    <div class="env-title">Part B: Dirichlet Series and the Zeta Function (Chapters 3–5)</div>
-    <div class="env-body">
-        <p><strong>Chapter 3 — Dirichlet Series.</strong> The formal and analytic theory of \\(F(s) = \\sum a_n n^{-s}\\): abscissa of convergence, Euler products for multiplicative functions, the Dirichlet series zoo.</p>
-        <p><strong>Chapter 4 — The Riemann Zeta Function.</strong> Analytic continuation, the functional equation via \\(\\theta\\)-functions, the critical strip, the zero-free region, and the connection to \\(\\psi(x)\\).</p>
-        <p><strong>Chapter 5 — Analytic Continuation and the Functional Equation.</strong> The completed zeta function \\(\\xi(s)\\), the Hadamard product over zeros, and the explicit formula \\(\\psi(x) = x - \\sum_\\rho x^\\rho/\\rho - \\cdots\\)</p>
-    </div>
-</div>
-
-<div class="env-block definition">
-    <div class="env-title">Part C: The Prime Number Theorem (Chapters 6–9)</div>
-    <div class="env-body">
-        <p><strong>Chapters 6–9</strong> prove the PNT: the zero-free region \\(\\zeta(1+it) \\neq 0\\), Perron's formula, the contour integral approach, and error estimates. Chapter 9 covers the explicit formula in detail.</p>
-    </div>
-</div>
-
-<div class="env-block definition">
-    <div class="env-title">Part D: Dirichlet Characters, Sieves, and Beyond (Chapters 10–21)</div>
-    <div class="env-body">
-        <p>Dirichlet characters and \\(L\\)-functions, Dirichlet's theorem on primes in arithmetic progressions, the large sieve, the Bombieri–Vinogradov theorem, exponential sums, the circle method, automorphic forms, and the breakthrough results of Zhang, Maynard, and Tao on bounded gaps between primes.</p>
-    </div>
-</div>
-
-<h3>Prerequisites and Philosophy</h3>
-
-<p>This course assumes real analysis (at the level of Rudin's <em>Principles</em>) and complex analysis (Cauchy's theorem, residues, contour integration). Abstract algebra through group theory is used from Chapter 10 onward. The philosophy is: <em>every result should be motivated before it is stated, and every proof should be understood, not just verified</em>.</p>
-
-<h3>Notation and Conventions</h3>
-
-<ul>
-    <li>\\(p\\) always denotes a prime; \\(\\sum_p\\) and \\(\\prod_p\\) run over primes.</li>
-    <li>\\(f(x) = O(g(x))\\): \\(|f(x)| \\leq Cg(x)\\) for large \\(x\\) and some constant \\(C > 0\\).</li>
-    <li>\\(f(x) = o(g(x))\\): \\(f(x)/g(x) \\to 0\\).</li>
-    <li>\\(f(x) \\sim g(x)\\): \\(f(x)/g(x) \\to 1\\).</li>
-    <li>\\(f(x) \\asymp g(x)\\): \\(f = O(g)\\) and \\(g = O(f)\\) (same order of magnitude).</li>
-    <li>\\(\\log\\) means natural logarithm throughout.</li>
-</ul>
+<ol>
+    <li><strong>Chapter 1: Arithmetic Functions</strong> — The Euler totient \\(\\varphi(n)\\), the M\u00f6bius function \\(\\mu(n)\\), divisor sums, and Dirichlet convolution. These are the algebraic building blocks of analytic number theory.</li>
+    <li><strong>Chapter 2: Summation Techniques</strong> — Abel summation, partial summation, and the Euler-Maclaurin formula. How to convert sums into integrals and vice versa.</li>
+    <li><strong>Chapter 3: The Zeta Function</strong> — Definition, analytic continuation, functional equation, and the connection to primes via the Euler product.</li>
+    <li><strong>Chapter 4: Dirichlet Series and Characters</strong> — L-functions, Dirichlet's theorem on primes in arithmetic progressions, and the beginning of the modern theory.</li>
+    <li><strong>Chapter 5: The Prime Number Theorem</strong> — The full proof, from Chebyshev's bounds through the Wiener-Ikehara approach.</li>
+    <li><strong>Chapter 6: The Riemann Hypothesis and Beyond</strong> — The zero-free region, the explicit formula, and what RH would imply about the distribution of primes.</li>
+</ol>
 
 <div class="env-block remark">
-    <div class="env-title">A Note on Rigor</div>
+    <div class="env-title">Prerequisites</div>
     <div class="env-body">
-        <p>Analytic number theory has a justified reputation for subtle error terms and deceptively clean-looking formulas that conceal intricate analysis. We will be careful about interchange of sums and integrals, uniform convergence, and the placement of error terms. When a step requires justification beyond what is immediate, we will supply it.</p>
+        <p>This course assumes familiarity with real analysis (limits, series, continuity, differentiation, integration) and some exposure to complex analysis (analytic functions, contour integration). Linear algebra and basic group theory will occasionally appear. No prior number theory is required beyond comfort with divisibility and modular arithmetic.</p>
     </div>
 </div>
 
-<div class="env-block intuition">
-    <div class="env-title">Bridge to Chapter 1</div>
-    <div class="env-body">
-        <p>The prime-counting function \\(\\pi(x)\\) involves all primes at once — it is a global object. To study it rigorously, we need tools that decompose multiplicative structure. The central tool is the <em>arithmetic function</em>: a function on the positive integers encoding some property of \\(n\\). The key examples — the Möbius function \\(\\mu\\), the von Mangoldt function \\(\\Lambda\\), the Euler totient \\(\\phi\\) — all live in a rich algebraic structure called the <em>Dirichlet ring</em>, governed by the convolution product. To count primes, we need to understand arithmetic functions and their averages.</p>
-    </div>
-</div>
+<p>The story of the primes is one of the great intellectual adventures in human history. Euclid knew they were infinite. Euler showed they were analytically significant. Gauss guessed their density. Riemann revealed that their deepest secrets are encoded in the zeros of an analytic function. We are about to learn how to read that encoding.</p>
 `,
-                visualizations: [],
-                exercises: [
-                    {
-                        question: 'Look up (or derive) the exact value \\(\\zeta(2) = \\pi^2/6\\). Using the Euler product, express \\(\\prod_p (1 - p^{-2})\\) in closed form.',
-                        hint: '\\(\\zeta(2) = \\prod_p (1 - p^{-2})^{-1}\\), so \\(\\prod_p (1 - p^{-2}) = 1/\\zeta(2)\\).',
-                        solution: '\\(\\prod_p (1 - p^{-2}) = 1/\\zeta(2) = 6/\\pi^2 \\approx 0.6079\\). This has the probabilistic interpretation: a "random" integer is squarefree with probability \\(6/\\pi^2\\).'
-                    },
-                    {
-                        question: 'The \\(n\\)-th prime \\(p_n\\) satisfies \\(p_n \\sim n \\ln n\\) (from PNT). Estimate \\(p_{1000}\\) and \\(p_{10^6}\\). Check against known values \\(p_{1000} = 7919\\) and \\(p_{10^6} = 15{,}485{,}863\\).',
-                        hint: '\\(p_n \\approx n \\ln n\\). For \\(n = 1000\\): \\(1000 \\ln 1000 \\approx 1000 \\times 6.908 = 6908\\). Compare to 7919.',
-                        solution: '\\(p_{1000} \\approx 1000 \\ln 1000 = 6908\\) vs. actual 7919: error \\(\\approx 14\\%\\). A better estimate uses \\(p_n \\approx n(\\ln n + \\ln \\ln n - 1)\\), giving \\(1000(6.908 + 1.933 - 1) = 7841\\), error \\(< 1\\%\\). For \\(p_{10^6}\\): \\(10^6 \\times (\\ln 10^6 + \\ln \\ln 10^6 - 1) \\approx 10^6 \\times (13.816 + 2.626 - 1) \\approx 15{,}442{,}000\\), vs. actual \\(15{,}485{,}863\\): error \\(< 0.3\\%\\).'
-                    }
-                ]
-            }
-
-        ] // end sections
-    }); // end CHAPTERS.push
-
-})(); // end IIFE
+            visualizations: [],
+            exercises: [
+                {
+                    question: 'The harmonic series \\(\\sum_{n=1}^{N} 1/n\\) and the prime reciprocal sum \\(\\sum_{p \\leq N} 1/p\\) both diverge. For \\(N = 100\\), compute (approximately) both sums and compare their sizes.',
+                    hint: 'The harmonic series up to 100 is \\(\\approx \\ln 100 + \\gamma \\approx 5.187\\). For the prime sum, add \\(1/p\\) for each prime up to 100.',
+                    solution: 'Harmonic: \\(H_{100} \\approx 5.187\\). Prime reciprocals: \\(1/2 + 1/3 + 1/5 + 1/7 + \\cdots + 1/97 \\approx 1.803\\). The prime sum is about a third of the harmonic sum. By Mertens\' theorem, \\(\\sum_{p \\leq N} 1/p \\approx \\ln\\ln N\\), which grows much more slowly than \\(\\ln N\\).'
+                },
+                {
+                    question: 'If the Riemann Hypothesis is true, the error \\(|\\pi(x) - \\operatorname{Li}(x)|\\) is bounded by \\(C\\sqrt{x}\\ln x\\). For \\(x = 10^{10}\\), roughly how large could this error be (taking \\(C = 1/(8\\pi)\\) as a reasonable constant)?',
+                    hint: 'Compute \\(\\sqrt{10^{10}} = 10^5\\) and \\(\\ln(10^{10}) = 10 \\ln 10 \\approx 23.03\\).',
+                    solution: '\\(C\\sqrt{x}\\ln x = \\frac{1}{8\\pi} \\cdot 10^5 \\cdot 23.03 \\approx \\frac{2{,}303{,}000}{25.13} \\approx 91{,}600\\). The actual \\(\\pi(10^{10}) = 455{,}052{,}511\\), so the RH-implied error bound is about 0.02% of the true count. The actual error \\(|\\pi(10^{10}) - \\operatorname{Li}(10^{10})| \\approx 3{,}104\\) is well within this bound.'
+                }
+            ]
+        }
+    ]
+});
