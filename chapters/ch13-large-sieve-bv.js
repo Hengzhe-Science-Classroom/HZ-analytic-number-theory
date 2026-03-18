@@ -5,182 +5,211 @@ window.CHAPTERS.push({
     title: 'The Large Sieve & Bombieri-Vinogradov',
     subtitle: 'GRH on average, for free',
     sections: [
-
         // ================================================================
-        // SECTION 1: GRH on Average
+        // SECTION 1: Motivation
         // ================================================================
         {
             id: 'sec-motivation',
-            title: 'GRH on Average',
+            title: 'Motivation',
             content: `
-<h2>GRH on Average</h2>
+<h2>Why the Large Sieve?</h2>
 
 <div class="env-block intuition">
-    <div class="env-title">The Impossibility Bypass</div>
+    <div class="env-title">The Central Tension</div>
     <div class="env-body">
-        <p>The Generalized Riemann Hypothesis (GRH) is one of the deepest open problems in mathematics. It would give us
-        precise control over how primes are distributed in arithmetic progressions. Without it, our error terms are
-        far weaker. Yet there is a remarkable saving grace: <strong>for most moduli simultaneously</strong>, we
-        can achieve GRH-quality estimates unconditionally. This is the Bombieri-Vinogradov theorem.</p>
+        <p>We proved Dirichlet's theorem: there are infinitely many primes in every arithmetic progression \\(a \\bmod q\\) with \\(\\gcd(a,q) = 1\\). But to apply sieve methods effectively, we need <em>quantitative</em> information: not just that primes exist in progressions, but that they are <strong>well-distributed</strong> across progressions, uniformly for many moduli \\(q\\) at once.</p>
+        <p>The Generalized Riemann Hypothesis (GRH) would give exactly this. But GRH remains unproven. The large sieve inequality and the Bombieri-Vinogradov theorem provide a remarkable substitute: they show that GRH-quality estimates hold <strong>on average</strong> over moduli, which is often all that sieve methods require.</p>
     </div>
 </div>
 
-<p>Recall from Chapter 10 that the Prime Number Theorem in arithmetic progressions states</p>
+<h3>What We Need and Why</h3>
+
+<p>Recall the prime-counting function in arithmetic progressions:</p>
 \\[
-\\pi(x; q, a) = \\frac{\\mathrm{li}(x)}{\\phi(q)} + E(x, q, a),
+\\pi(x; q, a) = \\#\\{p \\le x : p \\equiv a \\pmod{q}\\}.
 \\]
-<p>where \\(\\pi(x; q, a)\\) counts primes \\(p \\le x\\) with \\(p \\equiv a \\pmod{q}\\), \\(\\phi(q)\\) is Euler's totient,
-and \\(E(x, q, a)\\) is the error. On GRH, the error satisfies \\(|E(x, q, a)| \\ll x^{1/2} \\log^2 x\\) for all
-\\(q \\le x\\) and \\((a, q) = 1\\).</p>
+<p>The prime number theorem for progressions says that for fixed \\(q\\) with \\(\\gcd(a,q) = 1\\),</p>
+\\[
+\\pi(x; q, a) \\sim \\frac{\\operatorname{li}(x)}{\\varphi(q)}
+\\]
+<p>as \\(x \\to \\infty\\). But "fixed \\(q\\)" is too restrictive. Sieve methods (Brun, Selberg, and the methods from Chapters 11-12) often require uniform estimates as \\(q\\) ranges over an interval \\([1, Q]\\), where \\(Q\\) can grow with \\(x\\).</p>
 
-<p>The Bombieri-Vinogradov theorem (1965) achieves this <em>on average over \\(q\\)</em>:</p>
-
-<div class="env-block theorem">
-    <div class="env-title">Theorem 13.1 (Bombieri-Vinogradov)</div>
+<div class="env-block definition">
+    <div class="env-title">Definition 13.1 (Error in Arithmetic Progressions)</div>
     <div class="env-body">
-        <p>For any fixed \\(A > 0\\), there exists \\(B = B(A) > 0\\) such that</p>
+        <p>Define the error term</p>
         \\[
-        \\sum_{q \\le Q} \\max_{(a,q)=1} \\left| \\psi(x; q, a) - \\frac{x}{\\phi(q)} \\right| \\ll \\frac{x}{(\\log x)^A},
+        E(x; q, a) = \\psi(x; q, a) - \\frac{x}{\\varphi(q)},
         \\]
-        <p>where \\(Q = x^{1/2} (\\log x)^{-B}\\) and \\(\\psi(x; q, a) = \\sum_{n \\le x,\\, n \\equiv a \\pmod q} \\Lambda(n)\\).</p>
+        <p>where \\(\\psi(x; q, a) = \\sum_{\\substack{n \\le x \\\\ n \\equiv a \\pmod{q}}} \\Lambda(n)\\) is the Chebyshev function restricted to the progression \\(a \\bmod q\\).</p>
     </div>
 </div>
 
-<p>The crucial point is the range \\(Q \\approx x^{1/2}\\): GRH would give the same bound for all individual \\(q \\le x^{1/2}\\),
-and Bombieri-Vinogradov achieves it as a sum over all \\(q\\) up to \\(x^{1/2}\\) (nearly). This suffices for most
-applications.</p>
-
-<h3>Why Does This Matter?</h3>
-
-<p>Many sieve problems require an estimate of the form</p>
+<p>Under GRH, one has \\(|E(x; q, a)| \\ll x^{1/2} \\log^2 x\\) for every \\(q \\le x\\). The Bombieri-Vinogradov theorem instead gives</p>
 \\[
-\\sum_{q \\le Q} \\left| \\sum_{n \\le x} \\Lambda(n) e(n\\alpha_r) \\right| \\ll x (\\log x)^{-A}
+\\sum_{q \\le Q} \\max_{\\gcd(a,q)=1} |E(x; q, a)| \\ll \\frac{x}{(\\log x)^A}
 \\]
-<p>with \\(Q\\) as large as possible. The engine behind Bombieri-Vinogradov is the <strong>Large Sieve inequality</strong>,
-which we develop next.</p>
+<p>for any \\(A > 0\\), provided \\(Q \\le x^{1/2}(\\log x)^{-B}\\) for some \\(B = B(A)\\). Individual errors can be large, but they <em>average out</em>. This is exactly what sieve methods consume.</p>
+
+<h3>Historical Arc</h3>
+
+<p>The large sieve was introduced by Linnik (1941) to study the least quadratic non-residue. The name refers to "sieving" a set by removing it from many residue classes simultaneously. Bombieri (1965) and A. I. Vinogradov (1965) independently used large sieve ideas to prove the eponymous theorem. Montgomery and Vaughan (1973) gave the sharp form of the analytic large sieve inequality.</p>
 
 <div class="env-block remark">
-    <div class="env-title">Historical Context</div>
+    <div class="env-title">The Power of "On Average"</div>
     <div class="env-body">
-        <p>Linnik (1941) introduced the large sieve heuristically. Renyi (1950) gave the first application to primes in
-        progressions. The sharp form of the large sieve inequality was established independently by Bombieri (1965)
-        and A.I. Vinogradov (1965). The current clean proof via duality is due to Montgomery and Vaughan (1973).</p>
+        <p>The phrase "GRH on average" is apt: for <em>most</em> moduli \\(q \\le Q\\), the primes in progressions mod \\(q\\) behave as well as GRH predicts. The few exceptional moduli where the error is large make a negligible total contribution. This is a recurring motif in analytic number theory: what cannot be proved for all can often be proved for almost all.</p>
     </div>
 </div>
+
+<div class="viz-placeholder" data-viz="viz-bv-histogram"></div>
 `,
             visualizations: [
                 {
-                    id: 'viz-bv-vs-grh',
-                    title: 'BV vs GRH: Error Term Comparison',
-                    description: 'Compare what GRH would give for individual q against what Bombieri-Vinogradov proves on average. The BV bound is the sum over all q up to Q.',
+                    id: 'viz-bv-histogram',
+                    title: 'Errors in Arithmetic Progressions',
+                    description: 'For each modulus q, the bars show the maximum error |E(x; q, a)| over reduced residues a. While individual errors fluctuate, most moduli have small errors. The Bombieri-Vinogradov theorem controls their sum.',
                     setup: function(body, controls) {
-                        var viz = new VizEngine(body, { width: 580, height: 360, originX: 70, originY: 300, scale: 1 });
-
-                        var logX = 8;
-                        VizEngine.createSlider(controls, 'log\u2082(x)', 4, 16, logX, 0.5, function(v) {
-                            logX = v; draw();
+                        var viz = new VizEngine(body, {
+                            width: 560, height: 380,
+                            originX: 60, originY: 340, scale: 1
                         });
+
+                        var xVal = 500;
+                        VizEngine.createSlider(controls, 'x', 200, 2000, xVal, 100, function(v) {
+                            xVal = Math.round(v);
+                            draw();
+                        });
+
+                        // Simple prime sieve
+                        function sieveTo(n) {
+                            var s = new Uint8Array(n + 1);
+                            var primes = [];
+                            for (var i = 2; i <= n; i++) {
+                                if (!s[i]) { primes.push(i); for (var j = i * i; j <= n; j += i) s[j] = 1; }
+                            }
+                            return primes;
+                        }
+
+                        function eulerPhi(n) {
+                            var result = n;
+                            for (var p = 2; p * p <= n; p++) {
+                                if (n % p === 0) {
+                                    while (n % p === 0) n /= p;
+                                    result -= result / p;
+                                }
+                            }
+                            if (n > 1) result -= result / n;
+                            return Math.round(result);
+                        }
+
+                        function gcd(a, b) { while (b) { var t = b; b = a % b; a = t; } return a; }
 
                         function draw() {
                             viz.clear();
                             var ctx = viz.ctx;
-                            var x = Math.pow(2, logX);
-                            var sqrtX = Math.sqrt(x);
-                            var logXval = Math.log(x);
+                            var primes = sieveTo(xVal);
+                            var maxQ = Math.min(40, Math.floor(Math.sqrt(xVal)));
 
-                            // Draw bars for individual q and sum
-                            var W = viz.width - 90;
-                            var H = 260;
-                            var barW = 18;
-                            var numQ = Math.min(20, Math.floor(sqrtX / logXval));
-                            if (numQ < 2) numQ = 2;
-
-                            var grh = sqrtX * logXval * logXval;
-                            var bvSum = 0;
-                            var grh_sum = 0;
-                            var qList = [];
-                            for (var qi = 1; qi <= numQ; qi++) {
-                                var q = qi;
-                                var err_grh = sqrtX * logXval * logXval;
-                                var err_est = sqrtX * logXval;
-                                bvSum += err_est;
-                                grh_sum += err_grh;
-                                qList.push({ q: q, grh: err_grh, est: err_est });
+                            // For each q, compute max |psi(x;q,a) - x/phi(q)| over gcd(a,q)=1
+                            var errors = [];
+                            for (var q = 2; q <= maxQ; q++) {
+                                var phi = eulerPhi(q);
+                                if (phi === 0) continue;
+                                var expected = xVal / phi;
+                                var maxErr = 0;
+                                for (var a = 1; a < q; a++) {
+                                    if (gcd(a, q) !== 1) continue;
+                                    // Count Lambda(n) for n <= x, n = a mod q
+                                    var count = 0;
+                                    for (var pi = 0; pi < primes.length; pi++) {
+                                        var p = primes[pi];
+                                        if (p > xVal) break;
+                                        if (p % q === a) count += Math.log(p);
+                                    }
+                                    var err = Math.abs(count - expected);
+                                    if (err > maxErr) maxErr = err;
+                                }
+                                errors.push({ q: q, err: maxErr, phi: phi });
                             }
-                            var bvBound = x / (logXval * logXval);
 
-                            var maxVal = Math.max(grh_sum, bvSum, bvBound);
-                            var scale = H / maxVal;
+                            if (errors.length === 0) return;
 
-                            // Background
-                            viz.screenText('Individual GRH bound vs BV average', viz.width / 2, 18, viz.colors.white, 14);
+                            // Draw bars
+                            var maxErr = 0;
+                            for (var i = 0; i < errors.length; i++) {
+                                if (errors[i].err > maxErr) maxErr = errors[i].err;
+                            }
+                            if (maxErr < 1) maxErr = 1;
 
-                            // Draw BV theoretical bound line
-                            var bvY = viz.originY - bvBound * scale;
-                            ctx.strokeStyle = viz.colors.green;
+                            var barW = Math.min(18, (viz.width - 100) / errors.length - 2);
+                            var chartH = 270;
+                            var chartBottom = 320;
+                            var chartLeft = 60;
+
+                            // Y axis
+                            ctx.strokeStyle = viz.colors.axis;
+                            ctx.lineWidth = 1;
+                            ctx.beginPath();
+                            ctx.moveTo(chartLeft, chartBottom);
+                            ctx.lineTo(chartLeft, chartBottom - chartH);
+                            ctx.stroke();
+
+                            // X axis
+                            ctx.beginPath();
+                            ctx.moveTo(chartLeft, chartBottom);
+                            ctx.lineTo(viz.width - 20, chartBottom);
+                            ctx.stroke();
+
+                            viz.screenText('max |E(x; q, a)|', 30, chartBottom - chartH / 2, viz.colors.text, 10, 'center');
+                            viz.screenText('Errors in Arithmetic Progressions (x = ' + xVal + ')', viz.width / 2, 18, viz.colors.white, 14);
+
+                            // Compute BV average level
+                            var sumErr = 0;
+                            for (var i = 0; i < errors.length; i++) sumErr += errors[i].err;
+                            var avgErr = sumErr / errors.length;
+
+                            for (var i = 0; i < errors.length; i++) {
+                                var e = errors[i];
+                                var h = (e.err / maxErr) * chartH;
+                                var bx = chartLeft + 10 + i * (barW + 2);
+
+                                // Color: small errors blue, large errors red
+                                var t = e.err / maxErr;
+                                var col = t < 0.5 ? viz.colors.blue : (t < 0.8 ? viz.colors.orange : viz.colors.red);
+                                ctx.fillStyle = col + 'cc';
+                                ctx.fillRect(bx, chartBottom - h, barW, h);
+
+                                // q label every few bars
+                                if (i % Math.max(1, Math.floor(errors.length / 10)) === 0 || i === errors.length - 1) {
+                                    ctx.fillStyle = viz.colors.text;
+                                    ctx.font = '9px -apple-system,sans-serif';
+                                    ctx.textAlign = 'center';
+                                    ctx.textBaseline = 'top';
+                                    ctx.fillText('q=' + e.q, bx + barW / 2, chartBottom + 3);
+                                }
+                            }
+
+                            // Draw average line
+                            var avgH = (avgErr / maxErr) * chartH;
+                            ctx.strokeStyle = viz.colors.teal;
                             ctx.lineWidth = 2;
                             ctx.setLineDash([6, 4]);
                             ctx.beginPath();
-                            ctx.moveTo(50, bvY);
-                            ctx.lineTo(viz.width - 20, bvY);
+                            ctx.moveTo(chartLeft, chartBottom - avgH);
+                            ctx.lineTo(viz.width - 20, chartBottom - avgH);
                             ctx.stroke();
                             ctx.setLineDash([]);
-                            viz.screenText('BV bound x/(log x)^A', viz.width - 22, bvY - 8, viz.colors.green, 10, 'right');
+                            viz.screenText('average', viz.width - 50, chartBottom - avgH - 10, viz.colors.teal, 10);
 
-                            var spacing = Math.max(barW + 4, Math.floor(W / (numQ + 1)));
-                            for (var i = 0; i < qList.length; i++) {
-                                var item = qList[i];
-                                var xPos = 60 + i * spacing;
-
-                                // GRH individual bar
-                                var hGRH = item.grh * scale;
-                                ctx.fillStyle = viz.colors.blue + '99';
-                                ctx.fillRect(xPos, viz.originY - hGRH, barW * 0.9, hGRH);
-
-                                // Estimated error bar
-                                var hEst = item.est * scale;
-                                ctx.fillStyle = viz.colors.orange + 'bb';
-                                ctx.fillRect(xPos + barW * 0.45, viz.originY - hEst, barW * 0.45, hEst);
-
-                                // q label
-                                ctx.fillStyle = viz.colors.text;
-                                ctx.font = '9px -apple-system,sans-serif';
-                                ctx.textAlign = 'center';
-                                ctx.fillText('q=' + item.q, xPos + barW / 2, viz.originY + 12);
-                            }
-
-                            // Axis
-                            ctx.strokeStyle = viz.colors.axis;
-                            ctx.lineWidth = 1.5;
-                            ctx.beginPath();
-                            ctx.moveTo(50, viz.originY);
-                            ctx.lineTo(viz.width - 10, viz.originY);
-                            ctx.stroke();
-
-                            // Legend
-                            var lx = viz.width - 200, ly = 40;
-                            ctx.fillStyle = viz.colors.blue + '99';
-                            ctx.fillRect(lx, ly, 14, 12);
-                            ctx.fillStyle = viz.colors.white; ctx.font = '10px -apple-system,sans-serif'; ctx.textAlign = 'left';
-                            ctx.fillText('GRH: individual bound', lx + 18, ly + 10);
-                            ctx.fillStyle = viz.colors.orange + 'bb';
-                            ctx.fillRect(lx, ly + 18, 14, 12);
-                            ctx.fillText('Est error for q', lx + 18, ly + 28);
-
-                            viz.screenText('x = 2^' + logX.toFixed(1) + ',  Q \u2248 ' + Math.round(sqrtX / logXval), viz.width / 2, viz.originY + 28, viz.colors.text, 11);
+                            viz.screenText('Most moduli have small errors; the sum is controlled by BV', viz.width / 2, viz.height - 10, viz.colors.text, 10);
                         }
                         draw();
                         return viz;
                     }
                 }
             ],
-            exercises: [
-                {
-                    question: 'State precisely what GRH would give for \\(\\psi(x;q,a)\\) and compare with the Bombieri-Vinogradov bound. For which values of \\(q\\) is BV non-trivial?',
-                    hint: 'GRH implies \\(|\\psi(x;q,a) - x/\\phi(q)| \\ll x^{1/2} \\log^2 x\\) for each individual \\(q\\). BV sums over \\(q \\le x^{1/2}/(\\log x)^B\\).',
-                    solution: 'GRH gives \\(|E(x,q,a)| \\ll x^{1/2}\\log^2 x\\) for each \\(q \\le x\\) individually. BV proves that \\(\\sum_{q \\le x^{1/2}/(\\log x)^B} \\max_a |E(x,q,a)| \\ll x/(\\log x)^A\\). The bound is non-trivial for \\(q \\le x^{1/2}/(\\log x)^B\\), which is nearly the full GRH range \\(q \\le x^{1/2}\\).'
-                }
-            ]
+            exercises: []
         },
 
         // ================================================================
@@ -190,380 +219,336 @@ which we develop next.</p>
             id: 'sec-large-sieve',
             title: 'The Large Sieve Inequality',
             content: `
-<h2>The Large Sieve Inequality</h2>
+<h2>The Additive Large Sieve</h2>
 
 <div class="env-block intuition">
-    <div class="env-title">The Core Idea</div>
+    <div class="env-title">What Does the Large Sieve Measure?</div>
     <div class="env-body">
-        <p>If we evaluate a trigonometric polynomial \\(S(\\alpha) = \\sum_{n=M+1}^{M+N} a_n e(n\\alpha)\\) at many
-        well-spaced points \\(\\alpha_1, \\dots, \\alpha_R\\), then <em>on average</em> the values cannot all be large.
-        Energy must spread out. This intuition becomes a precise inequality that controls the sum of \\(|S(\\alpha_r)|^2\\).</p>
+        <p>Consider a finite sequence of complex numbers \\((a_n)_{M < n \\le M+N}\\). Think of this as a "signal." The large sieve inequality bounds how much "energy" this signal can concentrate near a collection of well-spaced points on the unit circle. The key insight: if the points are well-separated, the energy cannot pile up.</p>
     </div>
 </div>
 
-<h3>Setup and Statement</h3>
-
-<p>Let \\(e(\\alpha) = e^{2\\pi i \\alpha}\\). Given complex numbers \\(a_M, \\dots, a_{M+N}\\), define the
-<em>exponential sum</em></p>
-\\[
-S(\\alpha) = \\sum_{n=M+1}^{M+N} a_n e(n\\alpha).
-\\]
-<p>Let \\(\\alpha_1, \\dots, \\alpha_R \\in [0,1)\\) be real numbers that are <strong>\\(\\delta\\)-spaced</strong>: any two
-satisfy \\(\\|\\alpha_r - \\alpha_s\\| \\ge \\delta\\) (distance on the circle \\(\\mathbb{R}/\\mathbb{Z}\\)).</p>
+<h3>The Analytic (Additive) Form</h3>
 
 <div class="env-block theorem">
-    <div class="env-title">Theorem 13.2 (Large Sieve Inequality)</div>
+    <div class="env-title">Theorem 13.1 (Large Sieve Inequality, Montgomery-Vaughan 1973)</div>
     <div class="env-body">
-        <p>With the above notation,</p>
+        <p>Let \\(a_{M+1}, \\ldots, a_{M+N}\\) be complex numbers and let \\(\\alpha_1, \\ldots, \\alpha_R\\) be real numbers satisfying</p>
         \\[
-        \\sum_{r=1}^{R} |S(\\alpha_r)|^2 \\le \\left(N + \\delta^{-1}\\right) \\sum_{n=M+1}^{M+N} |a_n|^2.
+        \\|\\alpha_r - \\alpha_s\\| \\ge \\delta > 0 \\quad \\text{for all } r \\ne s,
+        \\]
+        <p>where \\(\\|\\cdot\\|\\) denotes the distance to the nearest integer. Then</p>
+        \\[
+        \\sum_{r=1}^{R} \\left| \\sum_{n=M+1}^{M+N} a_n \\, e(n\\alpha_r) \\right|^2 \\le (N - 1 + \\delta^{-1}) \\sum_{n=M+1}^{M+N} |a_n|^2,
+        \\]
+        <p>where \\(e(\\theta) = e^{2\\pi i \\theta}\\).</p>
+    </div>
+</div>
+
+<p>The constant \\(N - 1 + \\delta^{-1}\\) is best possible, as shown by Montgomery and Vaughan. The inequality says: the total "energy" of the exponential sums at the sample points is bounded by the \\(\\ell^2\\)-norm of the coefficients, multiplied by a factor that accounts for both the length \\(N\\) and the spacing \\(\\delta\\).</p>
+
+<div class="env-block proof">
+    <div class="env-title">Proof Sketch (Duality Approach)</div>
+    <div class="env-body">
+        <p>The key idea is to view the inequality through the lens of operator theory. Define the operator \\(T\\) that maps the sequence \\((a_n)\\) to the values \\((S(\\alpha_r))\\) where \\(S(\\alpha) = \\sum a_n e(n\\alpha)\\). Then:</p>
+        <ol>
+            <li>The large sieve inequality asserts \\(\\|T\\|^2 \\le N - 1 + \\delta^{-1}\\).</li>
+            <li>By duality (\\(\\|T\\| = \\|T^*\\|\\)), this is equivalent to bounding \\(T^*T\\), which involves the kernel \\(\\sum_r e((m - n)\\alpha_r)\\).</li>
+            <li>The well-spacing condition \\(\\|\\alpha_r - \\alpha_s\\| \\ge \\delta\\) controls the off-diagonal terms through the Beurling-Selberg function, yielding the sharp constant.</li>
+        </ol>
+    </div>
+    <div class="qed">&marker;</div>
+</div>
+
+<h3>Duality Principle</h3>
+
+<p>A powerful feature of the large sieve is its <em>self-duality</em>. The same inequality has an equivalent "dual" formulation:</p>
+
+<div class="env-block theorem">
+    <div class="env-title">Theorem 13.2 (Dual Large Sieve)</div>
+    <div class="env-body">
+        <p>Under the same conditions, for any complex numbers \\(b_1, \\ldots, b_R\\),</p>
+        \\[
+        \\sum_{n=M+1}^{M+N} \\left| \\sum_{r=1}^{R} b_r \\, e(n\\alpha_r) \\right|^2 \\le (N - 1 + \\delta^{-1}) \\sum_{r=1}^{R} |b_r|^2.
         \\]
     </div>
 </div>
 
-<p>The bound \\((N + \\delta^{-1})\\) is sharp: if \\(\\delta = 1/N\\) (minimum spacing for \\(N\\) points) we get
-\\(2N\\), roughly double the trivial bound \\(N\\). The inequality says that <em>the energy \\(\\sum |S(\\alpha_r)|^2\\)
-is controlled by the energy in the coefficients \\(\\sum |a_n|^2\\), amplified by the number of points we can
-fit with spacing \\(\\delta\\)</em>.</p>
+<p>The primal form says: a signal's energy at well-spaced frequencies is bounded. The dual says: a superposition of well-spaced exponentials has bounded energy over any interval. These are the same statement via the Hilbert space adjoint.</p>
 
-<h3>Proof Sketch via Duality</h3>
-
-<p>The elegant proof by Montgomery-Vaughan uses the following duality principle:</p>
-
-<div class="env-block theorem">
-    <div class="env-title">Lemma 13.3 (Duality / Transposition)</div>
+<div class="env-block remark">
+    <div class="env-title">Why "Well-Spaced" Matters</div>
     <div class="env-body">
-        <p>The inequality \\(\\sum_r |S(\\alpha_r)|^2 \\le \\Delta \\sum_n |a_n|^2\\) is equivalent to
-        \\(\\sum_n |T_n|^2 \\le \\Delta \\sum_r |b_r|^2\\) where \\(T_n = \\sum_r b_r e(n\\alpha_r)\\).</p>
+        <p>If the points \\(\\alpha_r\\) cluster together, the exponential sums \\(S(\\alpha_r)\\) become nearly identical, and the left side can be as large as \\(R \\cdot N^2 \\sup |a_n|^2\\). The spacing condition \\(\\delta > 0\\) ensures that the evaluation points "see different parts" of the signal. The Farey fractions \\(a/q\\) with \\(q \\le Q\\) are a natural example of well-spaced points, with \\(\\delta = 1/Q^2\\).</p>
     </div>
 </div>
 
-<p>So it suffices to prove the "dual" direction. The key input is an estimate for the kernel</p>
-\\[
-K(\\alpha) = \\sum_{r \\ne s} \\frac{1}{\\|\\alpha_r - \\alpha_s\\|}
-\\]
-<p>which is controlled by the well-spacing condition: \\(K \\ll R \\delta^{-1}\\).</p>
+<div class="viz-placeholder" data-viz="viz-well-spacing"></div>
 
-<p>The full proof proceeds by expanding \\(\\sum_r |S(\\alpha_r)|^2\\) and estimating the cross terms using the
-<strong>Hilbert inequality</strong>:</p>
-\\[
-\\left| \\sum_{m \\ne n} \\frac{a_m \\bar{a}_n}{m - n} \\right| \\le \\pi \\sum_n |a_n|^2.
-\\]
-
-<h3>Additive vs Multiplicative Form</h3>
-
-<p>The additive large sieve controls sums over arbitrary real \\(\\alpha_r\\). The multiplicative version
-(next section) specializes to the Farey fractions \\(\\alpha_r = a/q\\) with \\((a,q)=1\\) and \\(q \\le Q\\).
-These are \\(\\delta = Q^{-2}\\)-spaced (Farey spacing), giving the key estimate used in BV.</p>
+<div class="viz-placeholder" data-viz="viz-large-sieve-energy"></div>
 `,
             visualizations: [
                 {
-                    id: 'viz-large-sieve-energy',
-                    title: 'Large Sieve: Energy Distribution',
-                    description: 'Visualize |S(alpha_r)|^2 at well-spaced points alpha_r. The bars show energy at each evaluation point. The horizontal line is the large sieve bound. Adjust N and spacing.',
+                    id: 'viz-well-spacing',
+                    title: 'Well-Spacing of Farey Fractions',
+                    description: 'Farey fractions a/q with q <= Q on the unit interval. Adjacent fractions satisfy |a/q - a\'/q\'| >= 1/(qQ), ensuring the well-spacing condition. Increase Q to see more fractions fill the interval while maintaining minimum separation.',
                     setup: function(body, controls) {
-                        var viz = new VizEngine(body, { width: 580, height: 360, originX: 60, originY: 310, scale: 1 });
+                        var viz = new VizEngine(body, {
+                            width: 560, height: 300,
+                            originX: 40, originY: 150, scale: 460
+                        });
 
-                        var N = 12;
-                        var R = 8;
-                        var animT = 0;
-                        var animId = null;
+                        var Q = 6;
+                        VizEngine.createSlider(controls, 'Q', 2, 20, Q, 1, function(v) {
+                            Q = Math.round(v);
+                            draw();
+                        });
 
-                        VizEngine.createSlider(controls, 'N (terms)', 4, 30, N, 1, function(v) { N = Math.round(v); });
-                        VizEngine.createSlider(controls, 'R (points)', 2, 16, R, 1, function(v) { R = Math.round(v); });
-
-                        function computeEnergy() {
-                            var alphas = [];
-                            var delta = 1 / (R + 1);
-                            for (var r = 0; r < R; r++) {
-                                alphas.push((r + 0.5) * delta + 0.05 * Math.sin(r * 1.7 + animT));
-                            }
-
-                            // Random-ish coefficients seeded by N
-                            var an = [];
-                            for (var n = 0; n < N; n++) {
-                                var seed = n * 0.7391 + N * 0.3183;
-                                an.push([Math.cos(seed * 6.28), Math.sin(seed * 4.71)]);
-                            }
-                            var coefEnergy = an.reduce(function(s, c) { return s + c[0]*c[0] + c[1]*c[1]; }, 0);
-
-                            var energies = [];
-                            for (var ri = 0; ri < R; ri++) {
-                                var re = 0, im = 0;
-                                for (var ni = 0; ni < N; ni++) {
-                                    var phase = 2 * Math.PI * (ni + 1) * alphas[ri];
-                                    re += an[ni][0] * Math.cos(phase) - an[ni][1] * Math.sin(phase);
-                                    im += an[ni][0] * Math.sin(phase) + an[ni][1] * Math.cos(phase);
-                                }
-                                energies.push(re * re + im * im);
-                            }
-
-                            return { alphas: alphas, energies: energies, coefEnergy: coefEnergy, delta: delta };
-                        }
+                        function gcd(a, b) { while (b) { var t = b; b = a % b; a = t; } return a; }
 
                         function draw() {
                             viz.clear();
                             var ctx = viz.ctx;
-                            animT += 0.008;
 
-                            var res = computeEnergy();
-                            var bound = (N + 1 / res.delta) * res.coefEnergy;
-                            var totalE = res.energies.reduce(function(a, b) { return a + b; }, 0);
-                            var maxE = Math.max(bound, totalE, 1);
+                            viz.screenText('Farey Fractions F_' + Q + ' on [0, 1]', viz.width / 2, 20, viz.colors.white, 14);
 
-                            var chartH = 260;
-                            var barW = Math.min(36, Math.floor(480 / R));
-                            var gap = 4;
-                            var startX = 60;
-
-                            // Bound line
-                            var boundY = viz.originY - (bound / maxE) * chartH;
-                            ctx.strokeStyle = viz.colors.green;
-                            ctx.lineWidth = 2;
-                            ctx.setLineDash([6, 4]);
-                            ctx.beginPath();
-                            ctx.moveTo(40, boundY);
-                            ctx.lineTo(viz.width - 10, boundY);
-                            ctx.stroke();
-                            ctx.setLineDash([]);
-                            viz.screenText('LS bound', viz.width - 12, boundY - 8, viz.colors.green, 10, 'right');
-
-                            // Total energy
-                            var totalY = viz.originY - (totalE / maxE) * chartH;
-                            ctx.strokeStyle = viz.colors.blue;
-                            ctx.lineWidth = 2;
-                            ctx.beginPath();
-                            ctx.moveTo(40, totalY);
-                            ctx.lineTo(viz.width - 10, totalY);
-                            ctx.stroke();
-                            viz.screenText('\u03a3|S(\u03b1r)|^2', viz.width - 12, totalY - 8, viz.colors.blue, 10, 'right');
-
-                            // Energy bars
-                            for (var r = 0; r < R; r++) {
-                                var e = res.energies[r];
-                                var h = (e / maxE) * chartH;
-                                var xPos = startX + r * (barW + gap);
-                                var t = e / maxE;
-                                var r1 = Math.round(88 + 167 * t), g1 = Math.round(166 - 100 * t), b1 = Math.round(255 - 200 * t);
-                                ctx.fillStyle = 'rgba(' + r1 + ',' + g1 + ',' + b1 + ',0.85)';
-                                ctx.fillRect(xPos, viz.originY - h, barW, h);
-                                ctx.fillStyle = viz.colors.text;
-                                ctx.font = '9px -apple-system,sans-serif';
-                                ctx.textAlign = 'center';
-                                ctx.fillText('\u03b1' + (r+1), xPos + barW / 2, viz.originY + 12);
-                            }
-
-                            // Axis
-                            ctx.strokeStyle = viz.colors.axis;
-                            ctx.lineWidth = 1.5;
-                            ctx.beginPath();
-                            ctx.moveTo(40, viz.originY);
-                            ctx.lineTo(viz.width - 10, viz.originY);
-                            ctx.stroke();
-
-                            viz.screenText('N=' + N + '  R=' + R + '  \u03b4\u22481/' + (R+1), viz.width / 2, 18, viz.colors.white, 13);
-                            viz.screenText('Sum energy: ' + totalE.toFixed(1) + '  Bound: ' + bound.toFixed(1), viz.width / 2, viz.originY + 28, viz.colors.text, 11);
-
-                            animId = requestAnimationFrame(draw);
-                        }
-
-                        draw();
-                        return {
-                            canvas: viz.canvas,
-                            stopAnimation: function() { if (animId) cancelAnimationFrame(animId); }
-                        };
-                    }
-                }
-            ],
-            exercises: [
-                {
-                    question: 'Show that the large sieve bound \\((N + \\delta^{-1})\\sum|a_n|^2\\) is tight for \\(R = 1\\) and a suitable choice of \\(a_n\\) and \\(\\alpha_1\\).',
-                    hint: 'Take \\(\\alpha_1 = 0\\) and all \\(a_n = 1/\\sqrt{N}\\). Compute \\(|S(0)|^2\\) and compare with the bound.',
-                    solution: 'With \\(\\alpha_1 = 0\\), \\(S(0) = \\sum_n a_n\\). Taking \\(a_n = 1/\\sqrt{N}\\) gives \\(|S(0)|^2 = N\\) and \\(\\sum |a_n|^2 = 1\\). The bound is \\((N + \\delta^{-1}) \\cdot 1 \\ge N\\), achieved with equality when \\(\\delta = 1/N\\). For a single point, \\(\\delta\\) is unconstrained, so we may take \\(\\delta = 1/N\\) to get \\(2N \\ge N\\).'
-                }
-            ]
-        },
-
-        // ================================================================
-        // SECTION 3: Multiplicative Large Sieve
-        // ================================================================
-        {
-            id: 'sec-multiplicative-ls',
-            title: 'Multiplicative Large Sieve',
-            content: `
-<h2>Multiplicative Large Sieve</h2>
-
-<p>The additive large sieve becomes most powerful when the evaluation points are the <em>Farey fractions</em>:
-rational numbers \\(a/q\\) with \\((a,q) = 1\\) and \\(q \\le Q\\). These are the natural points for
-connecting additive exponential sums to multiplicative characters.</p>
-
-<h3>Farey Points and Their Spacing</h3>
-
-<p>The Farey sequence \\(\\mathcal{F}_Q\\) consists of all fractions \\(a/q\\) with \\(0 \\le a/q \\le 1\\),
-\\((a,q)=1\\), \\(q \\le Q\\), arranged in increasing order. Key fact: consecutive Farey fractions \\(a/q\\) and \\(a'/q'\\)
-satisfy \\(|a/q - a'/q'| = 1/(qq')\\).</p>
-
-<p>Thus any two distinct Farey fractions \\(a/q \\ne a'/q'\\) with \\(q, q' \\le Q\\) satisfy</p>
-\\[
-\\left\\| \\frac{a}{q} - \\frac{a'}{q'} \\right\\| \\ge \\frac{1}{q q'} \\ge \\frac{1}{Q^2}.
-\\]
-<p>So the \\(\\sum_{q \\le Q} \\phi(q)\\) Farey fractions are \\(\\delta = Q^{-2}\\)-spaced.</p>
-
-<h3>The Multiplicative Large Sieve</h3>
-
-<p>Applying Theorem 13.2 with these points and \\(\\delta = 1/Q^2\\) gives:</p>
-
-<div class="env-block theorem">
-    <div class="env-title">Theorem 13.4 (Multiplicative Large Sieve)</div>
-    <div class="env-body">
-        <p>For any complex numbers \\(a_n\\) with \\(M < n \\le M + N\\),</p>
-        \\[
-        \\sum_{q \\le Q} \\sum_{\\substack{a=1 \\\\ (a,q)=1}}^{q}
-        \\left| \\sum_{n=M+1}^{M+N} a_n e\\!\\left(\\frac{an}{q}\\right) \\right|^2 \\le (N + Q^2) \\sum_{n=M+1}^{M+N} |a_n|^2.
-        \\]
-    </div>
-</div>
-
-<h3>Character Sum Formulation</h3>
-
-<p>By orthogonality of Dirichlet characters, the exponential sums \\(\\sum_n a_n e(an/q)\\) are essentially
-Fourier coefficients of \\(a_n\\) over the group \\((\\mathbb{Z}/q\\mathbb{Z})^*\\). Specifically, for
-\\(a_n = \\Lambda(n)\\) (the von Mangoldt function), the sum \\(\\sum_{n \\le N} \\Lambda(n) e(an/q)\\)
-decomposes as</p>
-\\[
-\\sum_{n \\le N} \\Lambda(n) e\\!\\left(\\frac{an}{q}\\right) = \\frac{1}{\\phi(q)} \\sum_{\\chi \\bmod q} \\bar{\\chi}(a) \\sum_{n \\le N} \\Lambda(n) \\chi(n).
-\\]
-
-<p>This connects to \\(\\psi(N, \\chi) = \\sum_{n \\le N} \\Lambda(n)\\chi(n)\\), whose size is controlled by the
-zeros of \\(L(s, \\chi)\\). The large sieve gives an <em>averaged</em> bound over all \\(\\chi\\) of conductor
-\\(\\le Q\\):</p>
-
-<div class="env-block theorem">
-    <div class="env-title">Corollary 13.5 (Large Sieve for Characters)</div>
-    <div class="env-body">
-        \\[
-        \\sum_{q \\le Q} \\frac{q}{\\phi(q)} \\sum_{\\chi \\bmod q}^{*} |\\psi(N,\\chi)|^2 \\ll (N + Q^2) N,
-        \\]
-        <p>where \\(\\sum^*\\) denotes a sum over primitive characters.</p>
-    </div>
-</div>
-
-<div class="env-block remark">
-    <div class="env-title">The \\(N + Q^2\\) Threshold</div>
-    <div class="env-body">
-        <p>The factor \\(N + Q^2\\) shows a phase transition. When \\(Q \\ll N^{1/2}\\), the bound is \\(\\ll N^2\\),
-        which is what we want. When \\(Q \\gg N^{1/2}\\), the \\(Q^2\\) dominates and the bound deteriorates.
-        This is why the BV theorem is limited to \\(Q \\le x^{1/2}\\): it is a fundamental barrier of the method.</p>
-    </div>
-</div>
-`,
-            visualizations: [
-                {
-                    id: 'viz-farey-circle',
-                    title: 'Farey Fractions on the Unit Circle',
-                    description: 'Farey fractions a/q with q <= Q mapped as angles 2*pi*a/q on the unit circle. Animate Q to watch the circle fill up. Well-spacing is visible as gaps between adjacent fractions.',
-                    setup: function(body, controls) {
-                        var viz = new VizEngine(body, { width: 520, height: 400, originX: 260, originY: 200, scale: 90 });
-
-                        var Q = 4;
-                        var animating = false;
-                        var animQ = 1;
-                        var animId = null;
-
-                        VizEngine.createSlider(controls, 'Q', 1, 20, Q, 1, function(v) { Q = Math.round(v); draw(); });
-                        VizEngine.createButton(controls, 'Animate Q', function() {
-                            if (animating) { animating = false; if (animId) cancelAnimationFrame(animId); return; }
-                            animating = true; animQ = 1;
-                            function step() {
-                                if (!animating) return;
-                                Q = animQ;
-                                draw();
-                                animQ = animQ >= 20 ? 1 : animQ + 1;
-                                animId = setTimeout(function() { requestAnimationFrame(step); }, 400);
-                            }
-                            step();
-                        });
-
-                        function getFareyFractions(Qval) {
+                            // Collect Farey fractions
                             var fracs = [];
-                            for (var q = 1; q <= Qval; q++) {
-                                for (var a = 0; a < q; a++) {
-                                    if (gcd(a, q) === 1 || a === 0 && q === 1) {
+                            for (var q = 1; q <= Q; q++) {
+                                for (var a = 0; a <= q; a++) {
+                                    if (gcd(a, q) === 1) {
                                         fracs.push({ a: a, q: q, val: a / q });
                                     }
                                 }
                             }
                             fracs.sort(function(x, y) { return x.val - y.val; });
-                            return fracs;
+
+                            // Remove duplicates (0/1 = 0, 1/1 = 1 etc)
+                            var unique = [fracs[0]];
+                            for (var i = 1; i < fracs.length; i++) {
+                                if (Math.abs(fracs[i].val - unique[unique.length - 1].val) > 1e-10) {
+                                    unique.push(fracs[i]);
+                                }
+                            }
+                            fracs = unique;
+
+                            // Draw number line
+                            var lineY = 150;
+                            var lineLeft = 40;
+                            var lineRight = 520;
+                            var lineW = lineRight - lineLeft;
+
+                            ctx.strokeStyle = viz.colors.axis;
+                            ctx.lineWidth = 2;
+                            ctx.beginPath();
+                            ctx.moveTo(lineLeft, lineY);
+                            ctx.lineTo(lineRight, lineY);
+                            ctx.stroke();
+
+                            // Draw fractions
+                            var minGap = Infinity;
+                            var minPair = [0, 0];
+                            for (var i = 0; i < fracs.length; i++) {
+                                var f = fracs[i];
+                                var sx = lineLeft + f.val * lineW;
+
+                                // Color by denominator
+                                var colors = [viz.colors.white, viz.colors.blue, viz.colors.teal, viz.colors.orange, viz.colors.purple, viz.colors.green, viz.colors.red, viz.colors.yellow, viz.colors.pink];
+                                var col = colors[f.q % colors.length] || viz.colors.white;
+
+                                // Tick mark
+                                var tickH = 20 - Math.min(12, f.q);
+                                ctx.strokeStyle = col;
+                                ctx.lineWidth = 1.5;
+                                ctx.beginPath();
+                                ctx.moveTo(sx, lineY - tickH);
+                                ctx.lineTo(sx, lineY + tickH);
+                                ctx.stroke();
+
+                                // Label (only if not too crowded)
+                                if (fracs.length <= 30 || f.q <= 4) {
+                                    ctx.fillStyle = col;
+                                    ctx.font = (fracs.length > 20 ? '8' : '10') + 'px -apple-system,sans-serif';
+                                    ctx.textAlign = 'center';
+                                    ctx.textBaseline = 'top';
+                                    var labelY = lineY + tickH + 4 + (i % 2) * 12;
+                                    ctx.fillText(f.a + '/' + f.q, sx, labelY);
+                                }
+
+                                // Track minimum gap
+                                if (i > 0) {
+                                    var gap = fracs[i].val - fracs[i - 1].val;
+                                    if (gap < minGap) {
+                                        minGap = gap;
+                                        minPair = [i - 1, i];
+                                    }
+                                }
+                            }
+
+                            // Highlight minimum gap
+                            if (fracs.length > 1) {
+                                var sx1 = lineLeft + fracs[minPair[0]].val * lineW;
+                                var sx2 = lineLeft + fracs[minPair[1]].val * lineW;
+                                ctx.fillStyle = viz.colors.red + '33';
+                                ctx.fillRect(sx1, lineY - 25, sx2 - sx1, 50);
+                            }
+
+                            var delta = 1 / (Q * Q);
+                            viz.screenText('|F_' + Q + '| = ' + fracs.length + ' fractions', viz.width / 2, 50, viz.colors.teal, 12);
+                            viz.screenText('min spacing >= 1/Q\u00B2 = 1/' + (Q * Q) + ' \u2248 ' + delta.toFixed(4), viz.width / 2, 70, viz.colors.text, 11);
+                            if (fracs.length > 1) {
+                                viz.screenText('actual min gap = ' + minGap.toFixed(5), viz.width / 2, 88, viz.colors.orange, 11);
+                            }
+                            viz.screenText('Colors indicate denominator q', viz.width / 2, viz.height - 15, viz.colors.text, 10);
                         }
+                        draw();
+                        return viz;
+                    }
+                },
+                {
+                    id: 'viz-large-sieve-energy',
+                    title: 'Large Sieve Energy Distribution',
+                    description: 'The large sieve bounds the total energy sum |S(alpha_r)|^2 at well-spaced points. Here we visualize |S(alpha)|^2 for a random sequence (a_n), showing peaks at rationals a/q and verifying the inequality.',
+                    setup: function(body, controls) {
+                        var viz = new VizEngine(body, {
+                            width: 560, height: 380,
+                            originX: 60, originY: 340, scale: 1
+                        });
 
-                        function gcd(a, b) { return b === 0 ? a : gcd(b, a % b); }
+                        var N = 20;
+                        var coeffs = [];
+                        function randomize() {
+                            coeffs = [];
+                            for (var i = 0; i < N; i++) {
+                                coeffs.push({ re: 2 * Math.random() - 1, im: 2 * Math.random() - 1 });
+                            }
+                        }
+                        randomize();
 
-                        var palette = ['#58a6ff','#3fb9a0','#f0883e','#bc8cff','#f778ba','#3fb950','#d29922','#f85149'];
+                        VizEngine.createSlider(controls, 'N', 5, 50, N, 5, function(v) {
+                            N = Math.round(v);
+                            randomize();
+                            draw();
+                        });
+
+                        VizEngine.createButton(controls, 'Randomize', function() {
+                            randomize();
+                            draw();
+                        });
 
                         function draw() {
                             viz.clear();
                             var ctx = viz.ctx;
 
-                            // Unit circle
+                            viz.screenText('|S(\u03B1)|\u00B2 for N = ' + N + ' random coefficients', viz.width / 2, 18, viz.colors.white, 14);
+
+                            // Compute |S(alpha)|^2 for alpha in [0,1]
+                            var steps = 400;
+                            var vals = [];
+                            var maxVal = 0;
+                            for (var i = 0; i <= steps; i++) {
+                                var alpha = i / steps;
+                                var re = 0, im = 0;
+                                for (var n = 0; n < coeffs.length; n++) {
+                                    var angle = 2 * Math.PI * (n + 1) * alpha;
+                                    re += coeffs[n].re * Math.cos(angle) - coeffs[n].im * Math.sin(angle);
+                                    im += coeffs[n].re * Math.sin(angle) + coeffs[n].im * Math.cos(angle);
+                                }
+                                var v = re * re + im * im;
+                                vals.push(v);
+                                if (v > maxVal) maxVal = v;
+                            }
+
+                            // Compute ||a||^2
+                            var normSq = 0;
+                            for (var n = 0; n < coeffs.length; n++) {
+                                normSq += coeffs[n].re * coeffs[n].re + coeffs[n].im * coeffs[n].im;
+                            }
+
+                            // Draw the function
+                            var chartLeft = 60, chartRight = 530;
+                            var chartBottom = 330, chartTop = 50;
+                            var chartW = chartRight - chartLeft;
+                            var chartH = chartBottom - chartTop;
+
+                            // Axes
                             ctx.strokeStyle = viz.colors.axis;
                             ctx.lineWidth = 1;
                             ctx.beginPath();
-                            ctx.arc(viz.originX, viz.originY, 90, 0, Math.PI * 2);
+                            ctx.moveTo(chartLeft, chartBottom);
+                            ctx.lineTo(chartRight, chartBottom);
+                            ctx.stroke();
+                            ctx.beginPath();
+                            ctx.moveTo(chartLeft, chartBottom);
+                            ctx.lineTo(chartLeft, chartTop);
                             ctx.stroke();
 
-                            var fracs = getFareyFractions(Q);
-
-                            fracs.forEach(function(f) {
-                                if (f.a === 0 && f.q === 1) {
-                                    // skip origin fraction for clarity
-                                }
-                                var angle = 2 * Math.PI * f.val - Math.PI / 2;
-                                var r = 90;
-                                var px = viz.originX + r * Math.cos(angle);
-                                var py = viz.originY + r * Math.sin(angle);
-
-                                var color = palette[(f.q - 1) % palette.length];
-                                ctx.fillStyle = color;
-                                ctx.beginPath();
-                                ctx.arc(px, py, Math.max(2, 6 - f.q * 0.2), 0, Math.PI * 2);
-                                ctx.fill();
-
-                                if (Q <= 8 && f.q <= 5) {
-                                    var lx = viz.originX + (r + 18) * Math.cos(angle);
-                                    var ly = viz.originY + (r + 18) * Math.sin(angle);
-                                    ctx.fillStyle = color;
-                                    ctx.font = '9px -apple-system,sans-serif';
-                                    ctx.textAlign = 'center';
-                                    ctx.textBaseline = 'middle';
-                                    ctx.fillText(f.a + '/' + f.q, lx, ly);
-                                }
-                            });
-
-                            // Min spacing indicator
-                            var minSpacing = fracs.length > 1 ? Infinity : 0;
-                            for (var i = 1; i < fracs.length; i++) {
-                                var d = fracs[i].val - fracs[i-1].val;
-                                if (d < minSpacing) minSpacing = d;
+                            // X labels
+                            ctx.fillStyle = viz.colors.text;
+                            ctx.font = '10px -apple-system,sans-serif';
+                            ctx.textAlign = 'center';
+                            ctx.textBaseline = 'top';
+                            for (var x = 0; x <= 10; x++) {
+                                var sx = chartLeft + (x / 10) * chartW;
+                                ctx.fillText((x / 10).toFixed(1), sx, chartBottom + 4);
                             }
+                            viz.screenText('\u03B1', chartRight + 15, chartBottom, viz.colors.text, 12);
 
-                            viz.screenText('Q = ' + Q, viz.width / 2, 20, viz.colors.white, 16, 'center');
-                            viz.screenText('|F_Q| = ' + fracs.length + ' fractions', viz.width / 2, 370, viz.colors.text, 12, 'center');
-                            viz.screenText('\u03b4 \u2265 1/Q\u00b2 = 1/' + (Q*Q), viz.width / 2, 385, viz.colors.teal, 11, 'center');
+                            // Plot |S(alpha)|^2
+                            if (maxVal > 0) {
+                                ctx.strokeStyle = viz.colors.blue;
+                                ctx.lineWidth = 1.5;
+                                ctx.beginPath();
+                                for (var i = 0; i <= steps; i++) {
+                                    var sx = chartLeft + (i / steps) * chartW;
+                                    var sy = chartBottom - (vals[i] / maxVal) * chartH;
+                                    if (i === 0) ctx.moveTo(sx, sy); else ctx.lineTo(sx, sy);
+                                }
+                                ctx.stroke();
 
-                            // Color legend for small Q
-                            if (Q <= 10) {
-                                for (var q = 1; q <= Math.min(Q, 6); q++) {
-                                    ctx.fillStyle = palette[(q-1) % palette.length];
-                                    ctx.font = '10px -apple-system,sans-serif';
-                                    ctx.textAlign = 'left';
-                                    ctx.textBaseline = 'middle';
-                                    ctx.fillRect(8, 30 + (q-1) * 16, 10, 10);
-                                    ctx.fillText('q=' + q, 22, 35 + (q-1) * 16);
+                                // Draw the large sieve bound level (N * ||a||^2) / R * delta^{-1}
+                                // For Q=5 Farey: R ~ 3Q^2/pi^2, delta = 1/Q^2
+                                // Bound per point: (N-1+Q^2)*||a||^2 / R
+                                var Qfar = 5;
+                                var fareyCount = 0;
+                                var totalEnergy = 0;
+                                for (var q = 1; q <= Qfar; q++) {
+                                    for (var a = 0; a <= q; a++) {
+                                        if (gcd(a, q) === 1) {
+                                            fareyCount++;
+                                            var alpha = a / q;
+                                            var idx = Math.round(alpha * steps);
+                                            if (idx >= 0 && idx <= steps) totalEnergy += vals[idx];
+                                        }
+                                    }
+                                }
+                                function gcd(a, b) { while (b) { var t = b; b = a % b; a = t; } return a; }
+
+                                var bound = (N - 1 + Qfar * Qfar) * normSq;
+
+                                // Display verification
+                                viz.screenText('\u2211|S(\u03B1_r)|\u00B2 at F_5 = ' + totalEnergy.toFixed(1), viz.width / 2 - 100, viz.height - 25, viz.colors.orange, 11, 'left');
+                                viz.screenText('Bound: (N-1+Q\u00B2)||\u2009a\u2009||\u00B2 = ' + bound.toFixed(1), viz.width / 2 - 100, viz.height - 10, viz.colors.teal, 11, 'left');
+
+                                // Mark Farey points on the plot
+                                for (var q = 1; q <= Qfar; q++) {
+                                    for (var a = 0; a <= q; a++) {
+                                        if (gcd(a, q) === 1) {
+                                            var alpha = a / q;
+                                            var idx = Math.round(alpha * steps);
+                                            if (idx >= 0 && idx <= steps) {
+                                                var sx = chartLeft + alpha * chartW;
+                                                var sy = chartBottom - (vals[idx] / maxVal) * chartH;
+                                                ctx.fillStyle = viz.colors.orange;
+                                                ctx.beginPath();
+                                                ctx.arc(sx, sy, 3, 0, Math.PI * 2);
+                                                ctx.fill();
+                                            }
+                                        }
+                                    }
                                 }
                             }
                         }
-
                         draw();
                         return viz;
                     }
@@ -571,160 +556,163 @@ zeros of \\(L(s, \\chi)\\). The large sieve gives an <em>averaged</em> bound ove
             ],
             exercises: [
                 {
-                    question: 'Verify that any two distinct Farey fractions \\(a/q\\) and \\(a\'/q\'\\) with \\(q, q\' \\le Q\\) satisfy \\(\\|a/q - a\'/q\'\\| \\ge 1/(qq\') \\ge 1/Q^2\\).',
-                    hint: 'For distinct fractions, \\(|aq\' - a\'q| \\ge 1\\). Divide by \\(qq\'\\).',
-                    solution: 'Since \\(a/q \\ne a\'/q\'\\), we have \\(aq\' - a\'q \\ne 0\\), so \\(|aq\' - a\'q| \\ge 1\\). Therefore \\(|a/q - a\'/q\'| = |aq\' - a\'q|/(qq\') \\ge 1/(qq\') \\ge 1/Q^2\\). The circle distance \\(\\|\\cdot\\|\\) only makes this larger.'
+                    question: 'Show that the Farey fractions of order \\(Q\\), i.e., \\(\\{a/q : 1 \\le q \\le Q,\\, 0 \\le a \\le q,\\, \\gcd(a,q) = 1\\}\\), satisfy the well-spacing condition \\(\\|a/q - a\'/q\'\\| \\ge 1/(qQ) \\ge 1/Q^2\\) for distinct fractions \\(a/q \\ne a\'/q\'\\).',
+                    hint: 'Use the mediant property of Farey sequences: consecutive Farey fractions \\(a/q\\) and \\(a\'/q\'\\) satisfy \\(|aq\' - a\'q| = 1\\), so \\(|a/q - a\'/q\'| = 1/(qq\')\\). Since \\(q\' \\le Q\\), this gives \\(1/(qQ)\\).',
+                    solution: 'For consecutive Farey fractions \\(a/q < a\'/q\'\\) in \\(\\mathcal{F}_Q\\), the mediant property gives \\(a\'q - aq\' = 1\\), so \\(a\'/q\' - a/q = 1/(qq\') \\ge 1/(qQ) \\ge 1/Q^2\\). Since the minimum distance occurs between consecutive fractions, any two distinct Farey fractions are at least \\(1/Q^2\\) apart. Applying this with \\(\\delta = 1/Q^2\\) in the large sieve gives the useful form with \\(N + Q^2\\) on the right side (since \\(N - 1 + Q^2 \\le N + Q^2\\)).'
                 },
+                {
+                    question: 'Let \\(a_n = 1\\) for \\(1 \\le n \\le N\\) and \\(\\alpha = 0\\). Compute \\(|S(0)|^2\\) and compare it with the large sieve bound when \\(R = 1\\).',
+                    hint: 'With \\(\\alpha = 0\\), we have \\(S(0) = \\sum_{n=1}^N 1 = N\\). The bound with \\(R=1\\) and any \\(\\delta\\) gives \\((N-1+\\delta^{-1})N\\).',
+                    solution: '\\(S(0) = N\\), so \\(|S(0)|^2 = N^2\\). The bound is \\((N - 1 + \\delta^{-1}) \\cdot N\\). For this to be tight, we need \\(N^2 \\le (N-1+\\delta^{-1})N\\), i.e., \\(N \\le N - 1 + \\delta^{-1}\\), i.e., \\(\\delta^{-1} \\ge 1\\). This shows the bound is not tight for a single point (off by a factor \\(\\sim \\delta^{-1}/N\\) for small \\(\\delta\\)), but it becomes meaningful when we sum over many well-spaced points.'
+                }
             ]
         },
 
         // ================================================================
-        // SECTION 4: Bombieri-Vinogradov Theorem
+        // SECTION 3: The Multiplicative Large Sieve
         // ================================================================
         {
-            id: 'sec-bv-theorem',
-            title: 'Bombieri-Vinogradov Theorem',
+            id: 'sec-multiplicative-ls',
+            title: 'The Multiplicative Large Sieve',
             content: `
-<h2>Bombieri-Vinogradov Theorem</h2>
+<h2>From Additive to Multiplicative</h2>
 
-<h3>The Route from Large Sieve to BV</h3>
+<div class="env-block intuition">
+    <div class="env-title">Characters as Frequencies</div>
+    <div class="env-body">
+        <p>The additive large sieve bounds exponential sums \\(\\sum a_n e(n\\alpha)\\) at well-spaced \\(\\alpha\\). For number-theoretic applications, we need to bound <em>character sums</em> \\(\\sum a_n \\chi(n)\\) over many characters \\(\\chi \\bmod q\\) and many moduli \\(q\\). The passage from exponentials to characters is natural: a character \\(\\chi \\bmod q\\) is built from additive characters via the discrete Fourier transform on \\((\\mathbb{Z}/q\\mathbb{Z})^\\times\\).</p>
+    </div>
+</div>
 
-<p>We now show how the multiplicative large sieve implies Bombieri-Vinogradov. The argument has three steps:</p>
-
-<ol>
-<li><strong>Character sum decomposition.</strong> Express the error \\(E(x,q,a) = \\psi(x;q,a) - x/\\phi(q)\\)
-in terms of character sums \\(\\psi(x,\\chi)\\) via the orthogonality of Dirichlet characters.</li>
-<li><strong>Zero-detecting sum.</strong> Bound \\(|\\psi(x,\\chi)|\\) using the explicit formula for \\(L(s,\\chi)\\),
-reducing to a sum over zeros \\(\\rho\\) of \\(L(s,\\chi)\\).</li>
-<li><strong>Large sieve averaging.</strong> Sum over \\(q \\le Q\\) and all characters \\(\\chi \\bmod q\\); the
-large sieve bounds the total.</li>
-</ol>
-
-<h3>Step 1: Character Decomposition</h3>
-
-<p>By orthogonality,</p>
-\\[
-\\psi(x; q, a) = \\frac{1}{\\phi(q)} \\sum_{\\chi \\bmod q} \\bar{\\chi}(a) \\psi(x, \\chi),
-\\]
-<p>where \\(\\psi(x, \\chi) = \\sum_{n \\le x} \\Lambda(n) \\chi(n)\\). For the principal character \\(\\chi_0\\),
-\\(\\psi(x, \\chi_0) = \\psi(x) + O(\\log x)\\), so the main term \\(x/\\phi(q)\\) cancels. Thus</p>
-\\[
-E(x, q, a) = \\frac{1}{\\phi(q)} \\sum_{\\chi \\ne \\chi_0} \\bar{\\chi}(a) \\psi(x, \\chi) + O(\\log x).
-\\]
-
-<h3>Step 2: Zero-Detecting Bound</h3>
-
-<p>From the explicit formula (Chapter 8), for \\(T = x^{1/2}\\):</p>
-\\[
-\\psi(x, \\chi) = -\\sum_{|\\mathrm{Im}(\\rho)| \\le T} \\frac{x^\\rho}{\\rho} + O\\!\\left(\\frac{x \\log^2(qx)}{T}\\right).
-\\]
-
-<p>The key bound is: for any \\(\\epsilon > 0\\) and \\(\\chi\\) primitive mod \\(q\\),</p>
-\\[
-|\\psi(x, \\chi)| \\ll x^{1/2} \\log^2(qx) \\cdot N(\\sigma_0, T, \\chi)^{1/2} + \\cdots
-\\]
-<p>where \\(N(\\sigma, T, \\chi)\\) counts zeros with real part \\(> \\sigma\\) and imaginary part \\(\\le T\\).
-The <strong>zero-density estimates</strong> (bounding \\(N\\) for \\(\\sigma > 1/2\\)) then feed into the sum.</p>
-
-<h3>Step 3: The Siegel-Walfisz Supplement</h3>
-
-<p>For small \\(q\\) (\\(q \\le (\\log x)^{2B}\\)), one uses the Siegel-Walfisz theorem: for any \\(A\\),</p>
-\\[
-\\psi(x; q, a) = \\frac{x}{\\phi(q)} + O_A\\left(\\frac{x}{(\\log x)^A}\\right) \\quad \\text{uniformly in } q \\le (\\log x)^A.
-\\]
-
-<p>For large \\(q\\) (\\((\\log x)^{2B} < q \\le Q\\)), the large sieve handles the sum. Combining:</p>
+<h3>The Multiplicative Form</h3>
 
 <div class="env-block theorem">
-    <div class="env-title">Theorem 13.1 (Bombieri-Vinogradov, Restated)</div>
+    <div class="env-title">Theorem 13.3 (Multiplicative Large Sieve Inequality)</div>
     <div class="env-body">
-        <p>For any \\(A > 0\\), with \\(Q = x^{1/2}(\\log x)^{-B}\\) (\\(B = B(A)\\) sufficiently large),</p>
+        <p>Let \\(a_{M+1}, \\ldots, a_{M+N}\\) be complex numbers. Then</p>
         \\[
-        \\sum_{q \\le Q} \\max_{y \\le x} \\max_{(a,q)=1} \\left| \\psi(y; q, a) - \\frac{y}{\\phi(q)} \\right| \\ll_A \\frac{x}{(\\log x)^A}.
+        \\sum_{q \\le Q} \\frac{q}{\\varphi(q)} \\sum_{\\substack{\\chi \\bmod q \\\\ \\chi \\text{ primitive}}} \\left| \\sum_{n=M+1}^{M+N} a_n \\chi(n) \\right|^2 \\le (N - 1 + Q^2) \\sum_{n=M+1}^{M+N} |a_n|^2.
         \\]
     </div>
 </div>
 
-<h3>The Elliott-Halberstam Conjecture</h3>
+<p>The proof reduces the multiplicative form to the additive one. Each primitive character \\(\\chi \\bmod q\\) can be expressed via Gauss sums as a linear combination of additive characters \\(e(an/q)\\). Since the Farey fractions \\(a/q\\) with \\(q \\le Q\\) are \\(\\delta\\)-spaced with \\(\\delta = 1/Q^2\\), the additive large sieve applies directly.</p>
 
-<p>Can we push \\(Q\\) beyond \\(x^{1/2}\\)? The Elliott-Halberstam conjecture (1968) asserts that the BV conclusion holds for all \\(Q = x^{1-\\epsilon}\\). This is completely open. The \\(x^{1/2}\\) barrier of BV is a genuine obstacle of current methods, not an artifact.</p>
+<div class="env-block proof">
+    <div class="env-title">Proof Sketch</div>
+    <div class="env-body">
+        <p>For a primitive character \\(\\chi \\bmod q\\), the Gauss sum gives</p>
+        \\[
+        \\chi(n) = \\frac{1}{\\tau(\\bar{\\chi})} \\sum_{a=1}^{q} \\bar{\\chi}(a)\\, e\\!\\left(\\frac{an}{q}\\right),
+        \\]
+        <p>where \\(|\\tau(\\chi)|^2 = q\\). Substituting and using \\(|\\tau(\\bar{\\chi})|^2 = q\\):</p>
+        \\[
+        \\left|\\sum_n a_n \\chi(n)\\right|^2 = \\frac{1}{q} \\left|\\sum_{a=1}^{q} \\bar{\\chi}(a) \\sum_n a_n e(an/q)\\right|^2.
+        \\]
+        <p>Summing over primitive \\(\\chi \\bmod q\\) and applying the orthogonality of characters, then summing over \\(q \\le Q\\), the problem reduces to bounding \\(\\sum |S(a/q)|^2\\) over Farey fractions, which is exactly the additive large sieve with \\(\\delta = 1/Q^2\\).</p>
+    </div>
+    <div class="qed">&marker;</div>
+</div>
 
-<p>Goldston-Pintz-Yildirim (2005) and Zhang (2013) showed that even a small improvement \\(Q = x^{1/2+\\delta}\\) for tiny \\(\\delta > 0\\) would yield strong results on prime gaps. Zhang proved bounded gaps using a modified BV-type estimate with additional structure (Cauchy-Schwarz over smooth moduli).</p>
+<h3>Application: Bounding Character Sums on Average</h3>
+
+<div class="env-block example">
+    <div class="env-title">Example: Primes and Characters</div>
+    <div class="env-body">
+        <p>Taking \\(a_n = \\Lambda(n)\\) (the von Mangoldt function) for \\(n \\le x\\), the multiplicative large sieve gives</p>
+        \\[
+        \\sum_{q \\le Q} \\sum_{\\substack{\\chi \\bmod q \\\\ \\chi \\text{ primitive}}} \\left| \\sum_{n \\le x} \\Lambda(n) \\chi(n) \\right|^2 \\ll (x + Q^2) \\cdot x.
+        \\]
+        <p>For \\(Q \\le \\sqrt{x}\\), this gives \\(O(x^2)\\), consistent with the expectation that character sums \\(\\sum \\Lambda(n)\\chi(n)\\) are \\(O(\\sqrt{x}\\log x)\\) "on average" (which is the GRH prediction for each individual character).</p>
+    </div>
+</div>
+
+<div class="env-block remark">
+    <div class="env-title">The Role of Primitivity</div>
+    <div class="env-body">
+        <p>The restriction to <em>primitive</em> characters is natural: every Dirichlet character is induced from a unique primitive character. The factor \\(q/\\varphi(q)\\) on the left handles the translation between primitive and all characters modulo \\(q\\). When only primitive characters appear, there is no double-counting from characters of smaller conductor.</p>
+    </div>
+</div>
+
+<div class="viz-placeholder" data-viz="viz-farey-circle"></div>
 `,
             visualizations: [
                 {
-                    id: 'viz-bv-histogram',
-                    title: 'BV Error Terms: Histogram by Modulus',
-                    description: 'For each modulus q, display max_a |psi(x;q,a) - x/phi(q)| (estimated). The BV theorem says the sum of these bars is small. Watch the distribution shift as x grows.',
+                    id: 'viz-farey-circle',
+                    title: 'Farey Fractions on the Unit Circle',
+                    description: 'Farey fractions a/q mapped to the unit circle via e(a/q). Colored by denominator q. The additive-to-multiplicative connection: characters mod q correspond to harmonics at these points.',
                     setup: function(body, controls) {
-                        var viz = new VizEngine(body, { width: 580, height: 360, originX: 60, originY: 310, scale: 1 });
+                        var viz = new VizEngine(body, {
+                            width: 400, height: 400,
+                            originX: 200, originY: 200, scale: 150
+                        });
 
-                        var logX = 10;
-                        VizEngine.createSlider(controls, 'log\u2082(x)', 6, 18, logX, 0.5, function(v) { logX = v; draw(); });
+                        var Q = 6;
+                        VizEngine.createSlider(controls, 'Q', 2, 15, Q, 1, function(v) {
+                            Q = Math.round(v);
+                            draw();
+                        });
 
-                        function pseudoError(q, x) {
-                            // Heuristic: error ~ sqrt(x)/phi(q) * log(x) * (random-ish factor from q)
-                            var seed = (q * 0.6180339 + Math.floor(logX)) % 1;
-                            var randf = 0.5 + 0.5 * Math.abs(Math.sin(seed * 37.1 + q * 1.3));
-                            return Math.sqrt(x) * Math.log(Math.log(x) + 1) * randf / Math.sqrt(q);
-                        }
+                        function gcd(a, b) { while (b) { var t = b; b = a % b; a = t; } return a; }
 
                         function draw() {
                             viz.clear();
                             var ctx = viz.ctx;
-                            var x = Math.pow(2, logX);
-                            var sqrtX = Math.sqrt(x);
-                            var logXv = Math.log(x);
-                            var Q = Math.max(4, Math.floor(sqrtX / (logXv * logXv)));
-                            Q = Math.min(Q, 40);
 
-                            var errors = [];
-                            var maxErr = 0;
-                            var totalErr = 0;
+                            viz.screenText('e(a/q) for q \u2264 ' + Q, viz.width / 2, 18, viz.colors.white, 14);
+
+                            // Draw unit circle
+                            viz.drawCircle(0, 0, 1, null, viz.colors.axis + '66', 1);
+
+                            // Collect and draw Farey fractions
+                            var colors = [viz.colors.white, viz.colors.blue, viz.colors.teal, viz.colors.orange, viz.colors.purple, viz.colors.green, viz.colors.red, viz.colors.yellow, viz.colors.pink];
+                            var count = 0;
+
                             for (var q = 1; q <= Q; q++) {
-                                var e = pseudoError(q, x);
-                                errors.push(e);
-                                if (e > maxErr) maxErr = e;
-                                totalErr += e;
-                            }
-                            var bvBound = x / (logXv * logXv);
+                                var col = colors[q % colors.length] || viz.colors.white;
+                                for (var a = 0; a < q; a++) {
+                                    if (gcd(a, q) !== 1 && a !== 0) continue;
+                                    if (a === 0 && q !== 1) continue;
 
-                            var chartH = 260;
-                            var barW = Math.max(6, Math.floor(480 / Q));
-                            var startX = 65;
+                                    var angle = 2 * Math.PI * a / q;
+                                    var x = Math.cos(angle);
+                                    var y = Math.sin(angle);
+                                    count++;
 
-                            // BV bound line (total)
-                            // Draw as proportion of total
-                            var totalMaxScale = Math.max(totalErr, bvBound, 1);
+                                    // Draw point
+                                    var r = Math.max(3, 7 - q);
+                                    viz.drawPoint(x, y, col, null, r);
 
-                            // Individual bars
-                            for (var i = 0; i < Q; i++) {
-                                var h = (errors[i] / maxErr) * chartH * 0.85;
-                                var xPos = startX + i * (barW + 2);
-                                var frac = errors[i] / maxErr;
-                                var rr = Math.round(88 + 100 * frac), gg = Math.round(166 - 100 * frac), bb = Math.round(255 - 200 * frac);
-                                ctx.fillStyle = 'rgba(' + rr + ',' + gg + ',' + bb + ',0.85)';
-                                ctx.fillRect(xPos, viz.originY - h, barW, h);
-                                if (Q <= 20) {
-                                    ctx.fillStyle = viz.colors.text;
-                                    ctx.font = '8px -apple-system,sans-serif';
-                                    ctx.textAlign = 'center';
-                                    ctx.fillText(i + 1, xPos + barW / 2, viz.originY + 10);
+                                    // Label
+                                    var lx = 1.18 * Math.cos(angle);
+                                    var ly = 1.18 * Math.sin(angle);
+                                    if (Q <= 10) {
+                                        viz.drawText(a + '/' + q, lx, ly, col, 9);
+                                    }
                                 }
                             }
 
-                            // Axis
-                            ctx.strokeStyle = viz.colors.axis;
-                            ctx.lineWidth = 1.5;
-                            ctx.beginPath();
-                            ctx.moveTo(50, viz.originY);
-                            ctx.lineTo(viz.width - 10, viz.originY);
-                            ctx.stroke();
+                            // Draw lines connecting fractions with same q (showing q-th roots structure)
+                            for (var q = 2; q <= Math.min(Q, 8); q++) {
+                                var col = colors[q % colors.length] + '33';
+                                var points = [];
+                                for (var a = 0; a < q; a++) {
+                                    if (gcd(a, q) === 1) {
+                                        points.push(a / q);
+                                    }
+                                }
+                                if (points.length > 1) {
+                                    for (var i = 0; i < points.length; i++) {
+                                        for (var j = i + 1; j < points.length; j++) {
+                                            var a1 = 2 * Math.PI * points[i];
+                                            var a2 = 2 * Math.PI * points[j];
+                                            viz.drawSegment(Math.cos(a1), Math.sin(a1), Math.cos(a2), Math.sin(a2), col, 0.5);
+                                        }
+                                    }
+                                }
+                            }
 
-                            // Label
-                            viz.screenText('Max\u2090 |\u03c8(x;q,a) - x/\u03d5(q)|  for q = 1 to ' + Q, viz.width / 2, 20, viz.colors.white, 13);
-                            viz.screenText('x = 2^' + logX.toFixed(1) + '   Q \u2248 x^{1/2}/(log x)^2 = ' + Q, viz.width / 2, viz.originY + 25, viz.colors.text, 11);
-                            viz.screenText('Sum of bars \u226a x/(log x)^A  (BV)', viz.width / 2, viz.originY + 40, viz.colors.green, 11);
+                            viz.screenText(count + ' points from ' + Q + ' denominators', viz.width / 2, viz.height - 15, viz.colors.text, 10);
                         }
                         draw();
                         return viz;
@@ -733,10 +721,247 @@ The <strong>zero-density estimates</strong> (bounding \\(N\\) for \\(\\sigma > 1
             ],
             exercises: [
                 {
-                    question: 'What is the Elliott-Halberstam conjecture (EH), and why would EH with exponent \\(\\theta > 1/2\\) be useful for primes in progressions?',
-                    hint: 'EH conjectures the BV bound holds for \\(Q = x^\\theta\\) for any \\(\\theta < 1\\).',
-                    solution: 'EH(\\(\\theta\\)): \\(\\sum_{q \\le x^\\theta} \\max_{(a,q)=1}|\\psi(x;q,a) - x/\\phi(q)| \\ll_A x/(\\log x)^A\\). For \\(\\theta > 1/2\\), this would extend BV into a range inaccessible by current methods. Goldston-Pintz-Yildirim showed that EH(\\(1/2 + \\epsilon\\)) implies infinitely many prime pairs differing by at most a bounded constant. Zhang\'s 2013 breakthrough proved a weak substitute (BV over smooth moduli) to get the first explicit bounded gap of \\(70{,}000{,}000\\).'
+                    question: 'Deduce from the multiplicative large sieve that for \\(Q \\le \\sqrt{N}\\), the average value of \\(\\left|\\sum_{n \\le N} a_n \\chi(n)\\right|^2\\) over primitive characters \\(\\chi\\) with conductor \\(q \\le Q\\) is at most \\(O(N \\sum |a_n|^2 / Q^2)\\).',
+                    hint: 'The number of primitive characters with conductor \\(q \\le Q\\) is \\(\\sum_{q \\le Q} \\varphi(q) \\sim 3Q^2/\\pi^2\\). Divide both sides of the multiplicative large sieve by this count.',
+                    solution: 'The multiplicative large sieve gives the total sum \\(\\le (N - 1 + Q^2) \\sum |a_n|^2 \\le 2N \\sum |a_n|^2\\) (for \\(Q \\le \\sqrt{N}\\)). The number of primitive characters is \\(\\sum_{q \\le Q} \\varphi(q) \\asymp Q^2\\). Therefore the average is \\(\\le 2N\\sum|a_n|^2 / Q^2 \\asymp N\\sum|a_n|^2/Q^2\\). For \\(a_n = 1\\), this gives an average of \\(O(N^2/Q^2)\\), consistent with square-root cancellation \\(|\\sum \\chi(n)|^2 \\approx N\\) expected from GRH.'
                 },
+                {
+                    question: 'Show that the additive large sieve with \\(\\alpha_r = r/N\\) (\\(r = 0, 1, \\ldots, N-1\\)) and \\(\\delta = 1/N\\) recovers Parseval\'s identity (up to the factor \\(N-1+N = 2N-1\\)).',
+                    hint: 'The points \\(r/N\\) are the \\(N\\)-th roots of unity. The sums \\(\\sum a_n e(nr/N)\\) are (up to normalization) the DFT of the sequence. Compare the bound with exact Parseval \\(\\sum |\\hat{a}_r|^2 = N \\sum |a_n|^2\\).',
+                    solution: 'With \\(\\alpha_r = r/N\\) for \\(r = 0, \\ldots, N-1\\), the spacing is \\(\\delta = 1/N\\). The large sieve gives \\(\\sum_{r=0}^{N-1} |\\hat{a}(r/N)|^2 \\le (N - 1 + N) \\sum |a_n|^2 = (2N-1)\\sum|a_n|^2\\). The exact Parseval identity gives equality with coefficient \\(N\\) (not \\(2N-1\\)), so the large sieve loses a factor of roughly 2. This is the price of generality: the large sieve works for <em>any</em> well-spaced points, not just the special equally-spaced case where Fourier analysis gives exact orthogonality.'
+                }
+            ]
+        },
+
+        // ================================================================
+        // SECTION 4: The Bombieri-Vinogradov Theorem
+        // ================================================================
+        {
+            id: 'sec-bv-theorem',
+            title: 'The Bombieri-Vinogradov Theorem',
+            content: `
+<h2>The Bombieri-Vinogradov Theorem</h2>
+
+<div class="env-block intuition">
+    <div class="env-title">GRH for Free (On Average)</div>
+    <div class="env-body">
+        <p>GRH implies \\(\\psi(x; q, a) = x/\\varphi(q) + O(x^{1/2}\\log^2 x)\\) for every \\(q\\) and every \\(\\gcd(a,q)=1\\). We cannot prove this for individual \\(q\\), but the Bombieri-Vinogradov theorem gives something almost as good: the average error over all \\(q \\le Q\\) is as small as GRH would predict, as long as \\(Q\\) does not exceed \\(\\sqrt{x}\\) (up to logarithmic factors).</p>
+    </div>
+</div>
+
+<div class="env-block theorem">
+    <div class="env-title">Theorem 13.4 (Bombieri-Vinogradov)</div>
+    <div class="env-body">
+        <p>For any \\(A > 0\\), there exists \\(B = B(A) > 0\\) such that</p>
+        \\[
+        \\sum_{q \\le Q} \\max_{\\gcd(a,q) = 1} \\left| \\psi(x; q, a) - \\frac{x}{\\varphi(q)} \\right| \\ll_A \\frac{x}{(\\log x)^A}
+        \\]
+        <p>for \\(Q = x^{1/2} (\\log x)^{-B}\\).</p>
+    </div>
+</div>
+
+<p>The theorem is sometimes stated with \\(\\max_{y \\le x}\\) on the left, giving a uniform version. The key point: the level of distribution \\(Q \\sim x^{1/2}\\) matches the "square root barrier" of the Riemann Hypothesis.</p>
+
+<h3>Proof Strategy</h3>
+
+<p>The proof combines three ingredients:</p>
+
+<div class="env-block remark">
+    <div class="env-title">The Three Pillars</div>
+    <div class="env-body">
+        <ol>
+            <li><strong>Vaughan's identity</strong> (or the Heath-Brown identity): decomposes \\(\\Lambda(n)\\) into convolutions involving shorter sums, reducing the problem to bilinear forms \\(\\sum_{m \\sim M} \\sum_{n \\sim N} a_m b_n\\) with \\(MN \\sim x\\).</li>
+            <li><strong>The multiplicative large sieve</strong>: handles the "Type II" sums where both \\(M\\) and \\(N\\) are in an intermediate range.</li>
+            <li><strong>The Siegel-Walfisz theorem</strong>: handles the "Type I" sums where one variable is very short (\\(M \\le x^\\epsilon\\)), using individual zero-free regions for \\(L\\)-functions.</li>
+        </ol>
+    </div>
+</div>
+
+<p>The classification into "Type I" and "Type II" sums goes back to Vinogradov. Type I sums have the form \\(\\sum_{m \\le M} a_m \\sum_{n \\le x/m} 1_{n \\equiv a(q)}\\) where \\(M\\) is small, and the inner sum is essentially \\(x/(mq)\\) with a small error. Type II sums \\(\\sum_m a_m \\sum_n b_n 1_{mn \\equiv a(q)}\\) require the large sieve because both sums contribute non-trivially.</p>
+
+<h3>The Level of Distribution</h3>
+
+<div class="env-block definition">
+    <div name="env-title">Definition 13.2 (Level of Distribution)</div>
+    <div class="env-body">
+        <p>We say the primes have <strong>level of distribution</strong> \\(\\theta\\) if for every \\(A > 0\\),</p>
+        \\[
+        \\sum_{q \\le x^\\theta / (\\log x)^B} \\max_{\\gcd(a,q) = 1} |E(x; q, a)| \\ll_A \\frac{x}{(\\log x)^A}
+        \\]
+        <p>for some \\(B = B(A)\\).</p>
+    </div>
+</div>
+
+<p>Bombieri-Vinogradov gives \\(\\theta = 1/2\\). GRH would give \\(\\theta = 1 - \\epsilon\\) for any \\(\\epsilon > 0\\). The Elliott-Halberstam conjecture asserts \\(\\theta = 1 - \\epsilon\\). Any improvement beyond \\(\\theta = 1/2\\), even to \\(\\theta = 1/2 + \\delta\\) for some small \\(\\delta > 0\\), would have dramatic consequences for prime gaps.</p>
+
+<div class="env-block theorem">
+    <div class="env-title">Theorem 13.5 (Consequences of Level of Distribution)</div>
+    <div class="env-body">
+        <p>If the primes have level of distribution \\(\\theta\\):</p>
+        <ul>
+            <li>\\(\\theta > 1/2\\): bounded prime gaps (Goldston-Pintz-Y\\u0131ld\\u0131r\\u0131m, 2005, conditional; Maynard-Tao, 2013, needs \\(\\theta > 1/2\\) which BV gives marginally).</li>
+            <li>\\(\\theta \\ge 1/2\\): Chen's theorem on \\(p + 2\\) being a product of at most 2 primes.</li>
+            <li>\\(\\theta = 1 - \\epsilon\\) (Elliott-Halberstam): bounded gaps of size \\(\\le 6\\) (Maynard).</li>
+        </ul>
+    </div>
+</div>
+
+<div class="viz-placeholder" data-viz="viz-bv-vs-grh"></div>
+`,
+            visualizations: [
+                {
+                    id: 'viz-bv-vs-grh',
+                    title: 'Bombieri-Vinogradov vs GRH',
+                    description: 'Compare the cumulative error sum(q <= Q) max_a |E(x;q,a)| with the BV bound x/(log x)^A and the GRH prediction. BV matches GRH quality up to Q ~ sqrt(x).',
+                    setup: function(body, controls) {
+                        var viz = new VizEngine(body, {
+                            width: 560, height: 380,
+                            originX: 60, originY: 340, scale: 1
+                        });
+
+                        var xVal = 1000;
+                        VizEngine.createSlider(controls, 'x', 200, 5000, xVal, 200, function(v) {
+                            xVal = Math.round(v);
+                            draw();
+                        });
+
+                        function sieveTo(n) {
+                            var s = new Uint8Array(n + 1);
+                            var primes = [];
+                            for (var i = 2; i <= n; i++) {
+                                if (!s[i]) { primes.push(i); for (var j = i * i; j <= n; j += i) s[j] = 1; }
+                            }
+                            return primes;
+                        }
+
+                        function eulerPhi(n) {
+                            var result = n, m = n;
+                            for (var p = 2; p * p <= m; p++) {
+                                if (m % p === 0) {
+                                    while (m % p === 0) m /= p;
+                                    result -= result / p;
+                                }
+                            }
+                            if (m > 1) result -= result / m;
+                            return Math.round(result);
+                        }
+
+                        function gcd(a, b) { while (b) { var t = b; b = a % b; a = t; } return a; }
+
+                        function draw() {
+                            viz.clear();
+                            var ctx = viz.ctx;
+                            var primes = sieveTo(xVal);
+
+                            var sqrtX = Math.sqrt(xVal);
+                            var maxQ = Math.min(50, Math.floor(sqrtX * 1.5));
+
+                            // Compute cumulative sum of max errors
+                            var cumErrors = [];
+                            var cumSum = 0;
+                            for (var q = 2; q <= maxQ; q++) {
+                                var phi = eulerPhi(q);
+                                if (phi === 0) continue;
+                                var expected = xVal / phi;
+                                var maxErr = 0;
+                                for (var a = 1; a < q; a++) {
+                                    if (gcd(a, q) !== 1) continue;
+                                    var count = 0;
+                                    for (var pi = 0; pi < primes.length; pi++) {
+                                        var p = primes[pi];
+                                        if (p > xVal) break;
+                                        if (p % q === a) count += Math.log(p);
+                                    }
+                                    var err = Math.abs(count - expected);
+                                    if (err > maxErr) maxErr = err;
+                                }
+                                cumSum += maxErr;
+                                cumErrors.push({ q: q, cumErr: cumSum });
+                            }
+
+                            if (cumErrors.length === 0) return;
+
+                            var chartLeft = 60, chartRight = 520;
+                            var chartBottom = 320, chartTop = 50;
+                            var chartW = chartRight - chartLeft;
+                            var chartH = chartBottom - chartTop;
+
+                            viz.screenText('Cumulative Error vs BV Bound (x = ' + xVal + ')', viz.width / 2, 18, viz.colors.white, 14);
+
+                            // Y scale
+                            var maxCum = cumErrors[cumErrors.length - 1].cumErr;
+                            var bvBound = xVal / Math.log(xVal);
+                            var yMax = Math.max(maxCum, bvBound) * 1.2;
+
+                            // Axes
+                            ctx.strokeStyle = viz.colors.axis;
+                            ctx.lineWidth = 1;
+                            ctx.beginPath(); ctx.moveTo(chartLeft, chartBottom); ctx.lineTo(chartRight, chartBottom); ctx.stroke();
+                            ctx.beginPath(); ctx.moveTo(chartLeft, chartBottom); ctx.lineTo(chartLeft, chartTop); ctx.stroke();
+
+                            // X label
+                            viz.screenText('Q', chartRight + 10, chartBottom, viz.colors.text, 12);
+
+                            // Mark sqrt(x)
+                            var sqrtPos = chartLeft + (sqrtX / maxQ) * chartW;
+                            if (sqrtPos < chartRight) {
+                                ctx.strokeStyle = viz.colors.yellow + '88';
+                                ctx.lineWidth = 1;
+                                ctx.setLineDash([4, 4]);
+                                ctx.beginPath(); ctx.moveTo(sqrtPos, chartTop); ctx.lineTo(sqrtPos, chartBottom); ctx.stroke();
+                                ctx.setLineDash([]);
+                                viz.screenText('\u221Ax', sqrtPos, chartTop - 10, viz.colors.yellow, 10);
+                            }
+
+                            // Plot cumulative error
+                            ctx.strokeStyle = viz.colors.blue;
+                            ctx.lineWidth = 2;
+                            ctx.beginPath();
+                            for (var i = 0; i < cumErrors.length; i++) {
+                                var sx = chartLeft + ((cumErrors[i].q - 2) / (maxQ - 2)) * chartW;
+                                var sy = chartBottom - (cumErrors[i].cumErr / yMax) * chartH;
+                                if (i === 0) ctx.moveTo(sx, sy); else ctx.lineTo(sx, sy);
+                            }
+                            ctx.stroke();
+
+                            // Plot BV bound (x/(log x)^A, A=1 for display)
+                            ctx.strokeStyle = viz.colors.teal;
+                            ctx.lineWidth = 2;
+                            ctx.setLineDash([6, 4]);
+                            var bvY = chartBottom - (bvBound / yMax) * chartH;
+                            ctx.beginPath(); ctx.moveTo(chartLeft, bvY); ctx.lineTo(chartRight, bvY); ctx.stroke();
+                            ctx.setLineDash([]);
+
+                            // Legend
+                            var legY = chartBottom + 20;
+                            ctx.fillStyle = viz.colors.blue;
+                            ctx.fillRect(chartLeft + 30, legY, 15, 3);
+                            viz.screenText('\u2211 max|E(x;q,a)|', chartLeft + 110, legY + 2, viz.colors.blue, 10);
+
+                            ctx.strokeStyle = viz.colors.teal;
+                            ctx.setLineDash([6, 4]);
+                            ctx.beginPath(); ctx.moveTo(chartLeft + 200, legY + 1); ctx.lineTo(chartLeft + 215, legY + 1); ctx.stroke();
+                            ctx.setLineDash([]);
+                            viz.screenText('x/(log x)', chartLeft + 275, legY + 2, viz.colors.teal, 10);
+
+                            viz.screenText('BV: cumulative error stays below bound for Q \u2264 \u221Ax', viz.width / 2, viz.height - 10, viz.colors.text, 10);
+                        }
+                        draw();
+                        return viz;
+                    }
+                }
+            ],
+            exercises: [
+                {
+                    question: 'Explain why Bombieri-Vinogradov cannot replace GRH in all applications. Give a specific example where one needs an <em>individual</em> bound on \\(E(x; q, a)\\) rather than an average bound.',
+                    hint: 'Think about problems where a single specific modulus \\(q\\) is important, not a range of moduli.',
+                    solution: 'The least prime in an arithmetic progression \\(a \\bmod q\\) requires an individual bound: GRH gives \\(p_{q,a} \\ll q^{2+\\epsilon}\\), while BV says nothing about any single modulus. Similarly, the Vinogradov ternary Goldbach theorem uses individual zero-free regions (or GRH) for specific \\(L(s,\\chi)\\). BV controls the <em>aggregate</em> error but permits individual errors to be as large as \\(x/\\varphi(q)\\) (the main term), which would make the asymptotic formula vacuous for that particular \\(q\\).'
+                },
+                {
+                    question: 'The Bombieri-Vinogradov theorem gives level of distribution \\(\\theta = 1/2\\). What would level \\(\\theta = 1/2 + 1/584\\) (as established by Zhang 2014 for a restricted version) imply for bounded prime gaps?',
+                    hint: 'Zhang\'s breakthrough showed bounded gaps between primes. The key input was a BV-type estimate (with restrictions on the moduli) at level slightly above \\(1/2\\).',
+                    solution: 'Zhang (2014) proved that there are infinitely many pairs of primes with gap \\(\\le 7 \\times 10^7\\), using a BV-type estimate with \\(\\theta = 1/2 + 1/584\\) restricted to smooth (or "dense-divisor") moduli. This was sufficient for the GPY sieve method to produce bounded gaps. The restriction to smooth moduli is important: full BV at level \\(\\theta > 1/2\\) (the Elliott-Halberstam conjecture) is much stronger and would give smaller gap bounds. Maynard and Tao subsequently proved bounded gaps using only \\(\\theta = 1/2\\) (standard BV), with bound 600, by a different multidimensional sieve.'
+                }
             ]
         },
 
@@ -747,154 +972,193 @@ The <strong>zero-density estimates</strong> (bounding \\(N\\) for \\(\\sigma > 1
             id: 'sec-applications',
             title: 'Applications',
             content: `
-<h2>Applications</h2>
+<h2>Applications: Chen's Theorem and Beyond</h2>
 
-<p>The Bombieri-Vinogradov theorem is a workhorse of analytic number theory. Here we illustrate two
-landmark applications: the Brun-Titchmarsh theorem improvement and the setup for Chen's theorem.</p>
-
-<h3>Application 1: Primes in Short Arithmetic Progressions</h3>
-
-<p>From BV, we can immediately derive: for almost all \\(q \\le x^{1/2}\\) and all \\((a,q) = 1\\),</p>
-\\[
-\\pi(x; q, a) \\sim \\frac{\\pi(x)}{\\phi(q)}.
-\\]
-
-<p>More precisely, BV implies that for any \\(A > 0\\), the set of "bad" moduli \\(q \\le Q\\) (where the
-error \\(|E(x,q,a)|\\) exceeds \\(x^{1/2} (\\log x)^{-A}\\)) has total count at most \\((\\log x)^{B}\\). This
-is far stronger than what an individual L-function zero-free region gives.</p>
-
-<h3>Application 2: The Titchmarsh Divisor Problem</h3>
-
-<p>The Titchmarsh divisor problem asks for the average of \\(d(n+1)\\) (number of divisors) over primes \\(n \\le x\\).
-BV gives:</p>
-\\[
-\\sum_{p \\le x} d(p+1) \\sim C x \\quad (x \\to \\infty)
-\\]
-<p>with an explicit constant \\(C\\). This requires controlling \\(\\pi(x; q, a)\\) for many progressions
-simultaneously, exactly what BV provides.</p>
-
-<h3>Application 3: Chen's Theorem Setup</h3>
-
-<p>Chen Jingrun (1973) proved that every sufficiently large even number is the sum of a prime and a
-<em>semiprime</em> (product of at most two primes). This is the best result towards Goldbach's conjecture
-(every even number = sum of two primes).</p>
-
-<p>Chen's theorem requires estimating</p>
-\\[
-S(\\mathcal{A}, z) = \\sum_{\\substack{p \\le x \\\\ p + 2 = P_2}} 1,
-\\]
-<p>where \\(P_2\\) denotes an integer with at most 2 prime factors. The sieve (Chapter 12) reduces this to
-understanding \\(\\sum_{q \\le Q} |\\pi(x; q, a) - \\pi(x)/\\phi(q)|\\) for progressions that arise in the
-sieve remainder. BV with \\(Q = x^{1/2}(\\log x)^{-B}\\) makes the remainder negligible.</p>
-
-<div class="env-block theorem">
-    <div class="env-title">Theorem 13.6 (Chen 1973)</div>
+<div class="env-block intuition">
+    <div class="env-title">What BV Buys Us</div>
     <div class="env-body">
-        <p>Every sufficiently large even integer \\(N\\) can be written as \\(N = p + m\\) where \\(p\\) is prime
-        and \\(m\\) has at most two prime factors.</p>
+        <p>The Bombieri-Vinogradov theorem is the engine behind many of the deepest results in prime number theory obtained without assuming GRH. Wherever sieve methods need primes to be well-distributed in arithmetic progressions for <em>many</em> moduli simultaneously, BV provides exactly what is needed.</p>
     </div>
 </div>
 
-<p>The key ideas in the proof are:</p>
-<ul>
-    <li>Selberg's sieve (Chapter 12) to count the main term.</li>
-    <li>BV to control the remainder terms \\(R_d\\) in the sieve.</li>
-    <li>Buchstab's identity to shift between "\\(P_2\\)" and "almost prime."</li>
-    <li>A switching principle to handle the bilinear structure.</li>
-</ul>
+<h3>Chen's Theorem (1966/1973)</h3>
 
-<h3>Goldbach-Type Applications</h3>
+<div class="env-block theorem">
+    <div class="env-title">Theorem 13.6 (Chen Jingrun)</div>
+    <div class="env-body">
+        <p>Every sufficiently large even integer \\(N\\) can be written as</p>
+        \\[
+        N = p + P_2,
+        \\]
+        <p>where \\(p\\) is prime and \\(P_2\\) has at most 2 prime factors (counted with multiplicity). Equivalently, every sufficiently large even number is the sum of a prime and a number with at most 2 prime factors.</p>
+    </div>
+</div>
 
-<p>BV also underpins the proof that almost all even integers are Goldbach sums (Vinogradov's three-prime
-theorem covers odd numbers; BV handles the averaged version for even numbers up to \\(x\\)). Specifically,
-the number of even integers \\(\\le x\\) that are <em>not</em> expressible as \\(p_1 + p_2\\) is \\(o(x)\\).</p>
+<p>Chen's theorem is the closest approach to the Goldbach conjecture achieved to date. The proof uses a weighted sieve (a refinement of the Selberg sieve from Chapter 12) combined with a "switching principle," and the Bombieri-Vinogradov theorem is the critical input that makes the sieve estimates sharp enough.</p>
+
+<div class="env-block proof">
+    <div class="env-title">Proof Outline</div>
+    <div class="env-body">
+        <p>Let \\(N\\) be a large even number. Consider the set</p>
+        \\[
+        \\mathcal{A} = \\{N - p : p \\le N,\\, p \\text{ prime}\\}.
+        \\]
+        <p>We want to show that \\(\\mathcal{A}\\) contains elements with at most 2 prime factors. The sieve method proceeds in three steps:</p>
+        <ol>
+            <li><strong>Lower bound sieve:</strong> Use a lower-bound sieve (Rosser-Iwaniec type) to show that \\(\\mathcal{A}\\) contains many elements not divisible by any prime \\(p \\le N^{1/3}\\).</li>
+            <li><strong>Switching principle:</strong> Elements of \\(\\mathcal{A}\\) that avoid primes up to \\(N^{1/3}\\) are either prime, a product of two primes, or a product of three primes \\(> N^{1/3}\\).</li>
+            <li><strong>Upper bound sieve:</strong> Use the Selberg upper bound sieve to bound the count of elements that are products of three primes. This upper bound is smaller than the lower bound from step 1, leaving room for primes and semiprimes.</li>
+        </ol>
+        <p>Each step requires estimates for \\(\\pi(x; q, a)\\) uniformly over \\(q \\le \\sqrt{N}/\\log^B N\\), which is exactly what Bombieri-Vinogradov provides.</p>
+    </div>
+    <div class="qed">&marker;</div>
+</div>
+
+<h3>Other Applications</h3>
+
+<div class="env-block example">
+    <div class="env-title">Titchmarsh Divisor Problem</div>
+    <div class="env-body">
+        <p>For primes \\(p \\le x\\), one has</p>
+        \\[
+        \\sum_{p \\le x} d(p - 1) \\sim C \\cdot \\frac{x}{\\log x} \\cdot \\log x = Cx,
+        \\]
+        <p>where \\(C = \\prod_p (1 - 1/(p(p-1)))\\). The proof uses BV to handle the distribution of primes \\(p \\equiv 1 \\pmod{d}\\) for many moduli \\(d\\) simultaneously.</p>
+    </div>
+</div>
+
+<div class="env-block example">
+    <div class="env-title">Primes Represented by Polynomials</div>
+    <div class="env-body">
+        <p>Iwaniec (1978) used the large sieve and BV-type estimates to prove that there are infinitely many \\(n\\) such that \\(n^2 + 1\\) has at most 2 prime factors. The key: reducing the problem to counting primes in arithmetic progressions modulo \\(d\\) for many values of \\(d\\).</p>
+    </div>
+</div>
+
+<div class="viz-placeholder" data-viz="viz-chen-setup"></div>
 `,
             visualizations: [
                 {
                     id: 'viz-chen-setup',
-                    title: "Chen's Theorem: Sieve + BV Interaction",
-                    description: "Illustrate the sieve levels in Chen's theorem. Level 0: all integers near N. Level 1: after removing multiples of small primes (sieve). Level 2: remainder controlled by BV. Adjust N.",
+                    title: 'Chen\'s Theorem: Goldbach Representations',
+                    description: 'For even N, show representations N = p + m where m has few prime factors. Blue dots: m is prime (Goldbach). Orange: m has 2 prime factors (Chen). Gray: m has 3+ factors. Chen proved the blue+orange count is always positive for large N.',
                     setup: function(body, controls) {
-                        var viz = new VizEngine(body, { width: 580, height: 380, originX: 40, originY: 60, scale: 1 });
+                        var viz = new VizEngine(body, {
+                            width: 560, height: 380,
+                            originX: 0, originY: 0, scale: 1
+                        });
 
                         var N = 100;
-                        VizEngine.createSlider(controls, 'N (even)', 20, 200, N, 2, function(v) { N = Math.round(v / 2) * 2; draw(); });
+                        VizEngine.createSlider(controls, 'N (even)', 20, 200, N, 2, function(v) {
+                            N = Math.round(v);
+                            if (N % 2 !== 0) N++;
+                            draw();
+                        });
 
-                        function isPrime(n) {
-                            if (n < 2) return false;
-                            for (var i = 2; i <= Math.sqrt(n); i++) if (n % i === 0) return false;
-                            return true;
+                        function sieveTo(n) {
+                            var s = new Uint8Array(n + 1);
+                            var primes = [];
+                            for (var i = 2; i <= n; i++) {
+                                if (!s[i]) { primes.push(i); for (var j = i * i; j <= n; j += i) s[j] = 1; }
+                            }
+                            return primes;
                         }
-                        function primeFactorCount(n) {
+
+                        function countPrimeFactors(n) {
+                            if (n <= 1) return 0;
                             var count = 0;
-                            var d = 2;
-                            while (d * d <= n) {
-                                while (n % d === 0) { count++; n /= d; }
-                                d++;
+                            for (var p = 2; p * p <= n; p++) {
+                                while (n % p === 0) { count++; n /= p; }
                             }
                             if (n > 1) count++;
                             return count;
                         }
 
+                        function isPrime(n) {
+                            if (n < 2) return false;
+                            if (n < 4) return true;
+                            if (n % 2 === 0 || n % 3 === 0) return false;
+                            for (var i = 5; i * i <= n; i += 6) {
+                                if (n % i === 0 || n % (i + 2) === 0) return false;
+                            }
+                            return true;
+                        }
+
                         function draw() {
                             viz.clear();
                             var ctx = viz.ctx;
 
-                            var pairs = [];
-                            for (var p = 2; p < N; p++) {
-                                if (isPrime(p)) {
-                                    var m = N - p;
-                                    if (m >= 2) {
-                                        pairs.push({ p: p, m: m, omega: primeFactorCount(m) });
-                                    }
-                                }
+                            viz.screenText('Representations ' + N + ' = p + m', viz.width / 2, 20, viz.colors.white, 14);
+
+                            // Find all representations
+                            var reps = [];
+                            var primes = sieveTo(N);
+                            for (var i = 0; i < primes.length; i++) {
+                                var p = primes[i];
+                                if (p >= N) break;
+                                var m = N - p;
+                                if (m < 2) continue;
+                                var omega = countPrimeFactors(m);
+                                reps.push({ p: p, m: m, omega: omega });
                             }
 
-                            var goldbach = pairs.filter(function(x) { return x.omega === 1; });
-                            var chen = pairs.filter(function(x) { return x.omega <= 2; });
-                            var rest = pairs.filter(function(x) { return x.omega >= 3; });
+                            if (reps.length === 0) {
+                                viz.screenText('No representations found', viz.width / 2, viz.height / 2, viz.colors.text, 14);
+                                return;
+                            }
 
-                            // Header
-                            viz.screenText('N = ' + N + ' = p + m', viz.width / 2, 20, viz.colors.white, 15, 'center');
-                            viz.screenText('Representations N = p + m for prime p', viz.width / 2, 38, viz.colors.text, 11, 'center');
+                            // Layout as grid
+                            var cols = Math.min(Math.ceil(Math.sqrt(reps.length * 2)), 15);
+                            var rows = Math.ceil(reps.length / cols);
+                            var cellW = Math.min(35, (viz.width - 40) / cols);
+                            var cellH = Math.min(30, (viz.height - 120) / rows);
+                            var startX = (viz.width - cols * cellW) / 2;
+                            var startY = 50;
 
-                            var dotR = 5;
-                            var cols = Math.floor((viz.width - 60) / (dotR * 2 + 4));
-                            var allPairs = goldbach.concat(chen.filter(function(x) { return x.omega === 2; })).concat(rest);
+                            var goldbach = 0, chen = 0, other = 0;
 
-                            allPairs.forEach(function(pair, i) {
-                                var col = i % cols;
+                            for (var i = 0; i < reps.length; i++) {
+                                var r = reps[i];
                                 var row = Math.floor(i / cols);
-                                var px = 40 + col * (dotR * 2 + 4) + dotR;
-                                var py = 70 + row * (dotR * 2 + 6) + dotR;
+                                var col = i % cols;
+                                var px = startX + col * cellW + cellW / 2;
+                                var py = startY + row * cellH + cellH / 2;
 
                                 var color;
-                                if (pair.omega === 1) color = viz.colors.green;
-                                else if (pair.omega === 2) color = viz.colors.blue;
-                                else color = viz.colors.red + '88';
+                                if (r.omega === 1) { color = viz.colors.blue; goldbach++; }
+                                else if (r.omega === 2) { color = viz.colors.orange; chen++; }
+                                else { color = viz.colors.text + '44'; other++; }
 
+                                // Draw dot
                                 ctx.fillStyle = color;
                                 ctx.beginPath();
-                                ctx.arc(px, py, dotR, 0, Math.PI * 2);
+                                ctx.arc(px, py, Math.min(10, cellW / 2 - 2), 0, Math.PI * 2);
                                 ctx.fill();
-                            });
 
-                            // Legend
-                            var ly = viz.height - 60;
-                            ctx.fillStyle = viz.colors.green;
-                            ctx.beginPath(); ctx.arc(50, ly, 6, 0, Math.PI * 2); ctx.fill();
-                            ctx.fillStyle = viz.colors.white; ctx.font = '11px -apple-system,sans-serif'; ctx.textAlign = 'left';
-                            ctx.fillText('m prime (Goldbach): ' + goldbach.length, 62, ly + 4);
+                                // Label p inside
+                                ctx.fillStyle = r.omega <= 2 ? '#000' : viz.colors.text;
+                                ctx.font = (cellW < 20 ? '7' : '8') + 'px -apple-system,sans-serif';
+                                ctx.textAlign = 'center';
+                                ctx.textBaseline = 'middle';
+                                ctx.fillText(r.p.toString(), px, py);
+                            }
+
+                            // Summary
+                            var sumY = Math.min(startY + rows * cellH + 20, viz.height - 60);
 
                             ctx.fillStyle = viz.colors.blue;
-                            ctx.beginPath(); ctx.arc(50, ly + 20, 6, 0, Math.PI * 2); ctx.fill();
-                            ctx.fillText('m = p1*p2 (Chen P2): ' + chen.filter(function(x){return x.omega===2;}).length, 62, ly + 24);
+                            ctx.beginPath(); ctx.arc(100, sumY, 6, 0, Math.PI * 2); ctx.fill();
+                            viz.screenText('p + prime: ' + goldbach, 170, sumY, viz.colors.blue, 12, 'left');
 
-                            ctx.fillStyle = viz.colors.red + '88';
-                            ctx.beginPath(); ctx.arc(50, ly + 40, 6, 0, Math.PI * 2); ctx.fill();
-                            ctx.fillText('\u03a9(m) \u2265 3 (sieved out): ' + rest.length, 62, ly + 44);
+                            ctx.fillStyle = viz.colors.orange;
+                            ctx.beginPath(); ctx.arc(250, sumY, 6, 0, Math.PI * 2); ctx.fill();
+                            viz.screenText('p + P\u2082: ' + chen, 320, sumY, viz.colors.orange, 12, 'left');
+
+                            ctx.fillStyle = viz.colors.text + '44';
+                            ctx.beginPath(); ctx.arc(380, sumY, 6, 0, Math.PI * 2); ctx.fill();
+                            viz.screenText('p + P\u2083\u208A: ' + other, 440, sumY, viz.colors.text, 12, 'left');
+
+                            viz.screenText('Chen: blue + orange > 0 for all large even N', viz.width / 2, viz.height - 15, viz.colors.teal, 11);
                         }
-
                         draw();
                         return viz;
                     }
@@ -902,233 +1166,118 @@ the number of even integers \\(\\le x\\) that are <em>not</em> expressible as \\
             ],
             exercises: [
                 {
-                    question: "State Chen's theorem precisely and explain why it is stronger than Goldbach's conjecture but weaker than a full proof.",
-                    hint: 'Goldbach says p + q = N with both prime. Chen allows one factor to be semiprime.',
-                    solution: "Chen's theorem: every sufficiently large even integer N = p + P_2 where p is prime and P_2 has at most 2 prime factors (P_2 is either prime or a product of two primes). This is one step from Goldbach (N = p + q, two primes), but in Chen's result P_2 may be composite. The key advance is that sieve methods can control the count of P_2's using BV, whereas proving P_2 is always prime would require controlling the sieve remainder far more precisely than current methods allow."
+                    question: 'Why does Chen\'s sieve need the level of distribution to be at least \\(1/2\\)? Sketch the sieve dimension argument.',
+                    hint: 'The sieve of dimension \\(\\kappa\\) can prove results about \\(P_{r}\\) (numbers with at most \\(r\\) prime factors) when \\(r > \\kappa\\). For the Goldbach problem, \\(\\kappa = 1\\) (linear sieve), so one can reach \\(P_2\\). But the sieve needs remainder terms to be controlled up to level \\(D \\sim x^{1/2}\\).',
+                    solution: 'Chen\'s proof uses a weighted linear sieve (\\(\\kappa = 1\\)) on the set \\(\\mathcal{A} = \\{N - p : p \\le N\\}\\). The sieve parameter \\(D\\) must satisfy \\(D^2 \\lesssim N\\) for the linear sieve to work, giving \\(D \\sim N^{1/2}\\). The remainder terms in the sieve involve \\(\\sum_{d \\le D} |r_d|\\) where \\(r_d\\) encodes the error in counting primes \\(p \\equiv N \\pmod{d}\\). This is exactly the sum that BV controls at level \\(Q \\sim N^{1/2}\\). If we only had level \\(\\theta < 1/2\\), the sieve could only take \\(D \\sim N^{\\theta}\\), which is too small for the sieve to produce \\(P_2\\) results.'
                 },
                 {
-                    question: "What is Vinogradov's three-prime theorem, and how does it relate to BV?",
-                    hint: 'Vinogradov proved every large odd number is a sum of three primes, using the circle method.',
-                    solution: "Vinogradov (1937): every sufficiently large odd integer N = p1 + p2 + p3. The proof uses Hardy-Littlewood's circle method (Chapter 15). The major arcs near Farey fractions a/q contribute the main term; the minor arcs are estimated by exponential sum bounds. The large sieve enters when bounding contributions from characters of small conductor. Unlike Chen's theorem, Vinogradov's theorem does not need BV directly, but the structure is parallel: major arc = arithmetic progression main term, minor arc = sieve remainder."
+                    question: 'Use the Bombieri-Vinogradov theorem to show that \\(\\sum_{q \\le \\sqrt{x}/\\log^B x} \\left|\\pi(x; q, 1) - \\frac{\\mathrm{li}(x)}{\\varphi(q)}\\right| \\ll \\frac{x}{(\\log x)^A}\\).',
+                    hint: 'The passage from \\(\\psi(x; q, a)\\) to \\(\\pi(x; q, a)\\) uses partial summation: \\(\\pi(x; q, a) = \\psi(x; q, a)/\\log x + O(\\sqrt{x}/\\log x)\\). The error from prime powers is negligible.',
+                    solution: 'By partial summation, \\(\\pi(x; q, a) = \\int_2^x \\frac{d\\psi(t;q,a)}{\\log t}\\). Using \\(\\psi(x;q,a) = x/\\varphi(q) + E(x;q,a)\\), we get \\(\\pi(x;q,a) = \\mathrm{li}(x)/\\varphi(q) + \\int_2^x dE(t;q,a)/\\log t\\). Integration by parts gives \\(|\\pi(x;q,a) - \\mathrm{li}(x)/\\varphi(q)| \\ll |E(x;q,a)|/\\log x + \\int_2^x |E(t;q,a)|/(t\\log^2 t)\\,dt\\). Summing over \\(q \\le Q\\) and applying BV at each \\(t\\) gives the result. The key: BV with \\(\\psi\\) transfers cleanly to \\(\\pi\\) via partial summation.'
+                },
+                {
+                    question: 'Suppose the Elliott-Halberstam conjecture holds (\\(\\theta = 1 - \\epsilon\\)). Show that the GPY method gives bounded gaps between primes without any additional input.',
+                    hint: 'In the GPY framework, one needs \\(\\theta > 1/2\\) plus a specific constant. With full EH (\\(\\theta = 1\\)), the "narrow admissible tuple" can be taken with very few elements.',
+                    solution: 'The GPY (Goldston-Pintz-Y\\u0131ld\\u0131r\\u0131m) method shows that if the primes have level of distribution \\(\\theta\\), then \\(\\liminf (p_{n+1} - p_n) \\le C(\\theta)\\) for a constant depending on \\(\\theta\\). For \\(\\theta > 1/2\\), GPY proved \\(\\liminf (p_{n+1}-p_n)/\\log p_n = 0\\) (small gaps). Under full EH (\\(\\theta = 1-\\epsilon\\)), one can take admissible \\(k\\)-tuples in an interval of length \\(O(k \\log k)\\) with \\(k\\) chosen to satisfy the sieve conditions, obtaining gaps bounded by a fixed constant. Maynard showed that under EH, \\(\\liminf (p_{n+1} - p_n) \\le 6\\).'
                 }
             ]
         },
 
         // ================================================================
-        // SECTION 6: Bridge to Exponential Sums
+        // SECTION 6: Bridge to What Comes Next
         // ================================================================
         {
             id: 'sec-bridge',
-            title: 'Exponential Sums',
+            title: 'Bridge: Beyond the Square Root Barrier',
             content: `
-<h2>Exponential Sums: The Bridge</h2>
+<h2>Bridge: Beyond the Square Root Barrier</h2>
 
-<p>The large sieve is fundamentally an estimate about exponential sums \\(S(\\alpha) = \\sum_n a_n e(n\\alpha)\\).
-This section introduces the broader landscape of exponential sums and their role in analytic number theory,
-bridging to Chapter 14.</p>
+<div class="env-block intuition">
+    <div class="env-title">Where We Stand</div>
+    <div class="env-body">
+        <p>We have traversed the sieve landscape: from Eratosthenes' elementary idea (Chapter 11) through Selberg's optimization (Chapter 12) to the large sieve's analytic power (this chapter). The Bombieri-Vinogradov theorem, our crowning achievement, gives GRH-quality estimates on average, enabling results like Chen's theorem without assuming any unproven hypothesis.</p>
+    </div>
+</div>
 
-<h3>Why Exponential Sums?</h3>
+<h3>What We Achieved</h3>
 
-<p>Many problems in number theory reduce to estimating sums of the form</p>
-\\[
-S = \\sum_{n=1}^{N} f(n) e(g(n))
-\\]
-<p>where \\(f\\) is an arithmetic function and \\(g\\) is a real-valued function. The oscillation of \\(e(g(n))\\)
-causes cancellation, and the art is to quantify this cancellation.</p>
+<p>The journey through Part E (Sieve Methods) can be summarized as a progression of barriers overcome:</p>
 
-<p>Key examples:</p>
-<ul>
-<li><strong>Gauss sums:</strong> \\(\\tau(\\chi) = \\sum_{a \\bmod q} \\chi(a) e(a/q)\\). These are central
-to the functional equation of \\(L(s,\\chi)\\).</li>
-<li><strong>Kloosterman sums:</strong> \\(K(a,b;q) = \\sum_{n \\bmod q}^* e((an + b\\bar n)/q)\\). Weil proved
-\\(|K(a,b;q)| \\le 2\\sqrt{q}\\), a crucial bound for many applications.</li>
-<li><strong>Weyl sums:</strong> \\(W = \\sum_{n \\le N} e(\\alpha n^k)\\). Weyl's inequality bounds these,
-giving equidistribution of \\(\\{n^k \\alpha\\}\\).</li>
-</ul>
+<table style="width:100%; border-collapse: collapse; margin: 1em 0;">
+<thead>
+<tr style="border-bottom: 2px solid #30363d;">
+    <th style="text-align:left; padding: 6px;">Result</th>
+    <th style="text-align:left; padding: 6px;">Method</th>
+    <th style="text-align:left; padding: 6px;">Level of Distribution Used</th>
+</tr>
+</thead>
+<tbody>
+<tr style="border-bottom: 1px solid #21262d;">
+    <td style="padding: 6px;">\\(\\pi(x) \\ll x/\\log x\\) (upper bound)</td>
+    <td style="padding: 6px;">Brun's sieve (Ch 11)</td>
+    <td style="padding: 6px;">Not needed</td>
+</tr>
+<tr style="border-bottom: 1px solid #21262d;">
+    <td style="padding: 6px;">Twin prime \\(P_2\\) (upper bound)</td>
+    <td style="padding: 6px;">Selberg sieve (Ch 12)</td>
+    <td style="padding: 6px;">Not needed</td>
+</tr>
+<tr style="border-bottom: 1px solid #21262d;">
+    <td style="padding: 6px;">Chen's theorem: \\(N = p + P_2\\)</td>
+    <td style="padding: 6px;">Weighted sieve + BV (Ch 13)</td>
+    <td style="padding: 6px;">\\(\\theta = 1/2\\) (BV)</td>
+</tr>
+<tr style="border-bottom: 1px solid #21262d;">
+    <td style="padding: 6px;">Bounded prime gaps</td>
+    <td style="padding: 6px;">Maynard-Tao sieve + BV</td>
+    <td style="padding: 6px;">\\(\\theta = 1/2\\) (BV)</td>
+</tr>
+<tr>
+    <td style="padding: 6px;">Gap \\(\\le 6\\)?</td>
+    <td style="padding: 6px;">Would need EH</td>
+    <td style="padding: 6px;">\\(\\theta = 1 - \\epsilon\\)</td>
+</tr>
+</tbody>
+</table>
 
-<h3>The Weyl-van der Corput Method</h3>
+<h3>The \\(\\sqrt{x}\\) Barrier</h3>
 
-<p>For smooth functions \\(g\\), the key tool is the <strong>van der Corput method</strong>. The idea:
-if \\(g''\\) is bounded and bounded away from zero, then</p>
-\\[
-\\left| \\sum_{n=M+1}^{M+N} e(g(n)) \\right| \\ll N (g'')^{1/2} + (g'')^{-1/2}.
-\\]
+<p>The Bombieri-Vinogradov theorem works up to \\(Q \\sim \\sqrt{x}\\). This is not a limitation of the proof method; it reflects a fundamental connection to the Riemann Hypothesis. The large sieve naturally pairs with the square root: \\(\\delta^{-1} = Q^2\\), and the inequality \\(N + Q^2 \\sim x\\) is balanced when \\(Q \\sim \\sqrt{x}\\).</p>
 
-<p>More precisely, if \\(\\lambda_2 \\le g''(n) \\le C\\lambda_2\\) throughout \\([M, M+N]\\), then</p>
-\\[
-\\left| \\sum_{n=M+1}^{M+N} e(g(n)) \\right| \\ll N \\lambda_2^{1/2} + \\lambda_2^{-1/2}.
-\\]
+<p>Breaking this barrier, even slightly, has profound consequences. Zhang's 2014 result used a BV-type estimate at level \\(\\theta = 1/2 + 1/584\\) (restricted to smooth moduli) to prove bounded prime gaps for the first time.</p>
 
-<h3>Connection to the Large Sieve</h3>
+<h3>What Comes Next</h3>
 
-<p>The large sieve can be viewed as an \\(L^2\\) version of van der Corput. While van der Corput bounds
-a single exponential sum, the large sieve bounds a sum of \\(|\\cdot|^2\\) over many evaluation points
-simultaneously. The duality argument in the large sieve proof mirrors the Cauchy-Schwarz step in
-van der Corput.</p>
-
-<p>The two methods are complementary:</p>
+<p>Part F (Advanced Methods) develops the tools that complement and extend sieve methods:</p>
 
 <div class="env-block remark">
-    <div class="env-title">Large Sieve vs van der Corput</div>
+    <div class="env-title">The Road Ahead</div>
     <div class="env-body">
         <ul>
-        <li><strong>Large sieve:</strong> many points, averaged \\(L^2\\) bound, applies to arbitrary \\(a_n\\).</li>
-        <li><strong>van der Corput:</strong> single sum, pointwise bound, requires smoothness of \\(g\\).</li>
-        <li>For problems involving many moduli (BV, character sums), large sieve dominates.</li>
-        <li>For problems involving a single oscillatory sum (Gauss circle, divisor problem), van der Corput dominates.</li>
+            <li><strong>Chapter 14 (Exponential Sums):</strong> The methods of Weyl and Vinogradov for bounding \\(\\sum e(f(n))\\) provide the key estimates for Type I and Type II sums that appear in BV-type arguments. Deeper exponential sum estimates can push the level of distribution beyond \\(1/2\\) for restricted classes of moduli.</li>
+            <li><strong>Chapter 15 (The Circle Method):</strong> Hardy, Littlewood, and Ramanujan's approach to additive problems (Goldbach, Waring) uses exponential sums on major and minor arcs. The large sieve naturally complements the minor arc analysis.</li>
+            <li><strong>Chapter 16 (Zeros of L-Functions):</strong> The zero-density estimates \\(N(\\sigma, T; \\chi)\\) provide a more refined alternative to BV for some applications. The connection: BV can be deduced from Halasz-type mean value estimates for Dirichlet polynomials, which are closely related to zero-density theorems.</li>
         </ul>
     </div>
 </div>
 
-<h3>Exponential Pairs</h3>
+<p>The large sieve is not merely a technique; it is a <em>philosophy</em>. In analysis, we often cannot control individual terms, but we can control averages. The passage from individual to average, from pointwise to \\(L^2\\), is a theme that runs through all of modern analytic number theory.</p>
 
-<p>The van der Corput method has been systematized into the theory of <em>exponential pairs</em>: pairs
-\\((k,l)\\) such that \\(|\\sum_{n \\sim N} e(f(n))| \\ll N^l \\lambda^k\\) under suitable conditions on \\(f'\\).
-The classical pairs form a closed set under two operations (\\(A\\) and \\(B\\)), and the optimal pair (for
-the Dirichlet divisor problem) is sought along the boundary of this set. Huxley's 2003 result
-\\((k,l) = (131/416, 1/2 + 131/416)\\) currently gives the best bound for the divisor problem.</p>
-
-<p>Chapter 14 develops the full van der Corput theory, Weyl differencing, and applications to the
-Gauss circle problem and Riemann zeta function on the critical line.</p>
+<div class="viz-placeholder" data-viz="viz-bv-histogram-summary"></div>
 `,
-            visualizations: [
-                {
-                    id: 'viz-well-spacing',
-                    title: 'Well-Spacing and the Large Sieve Bound',
-                    description: 'Drag the evaluation points alpha_1,...,alpha_R on [0,1). The large sieve bound (N + 1/delta) updates live. Pack points together to see how the bound blows up. The minimum spacing delta is displayed.',
-                    setup: function(body, controls) {
-                        var viz = new VizEngine(body, { width: 580, height: 340, originX: 40, originY: 170, scale: 1 });
-
-                        var N = 10;
-                        VizEngine.createSlider(controls, 'N (coeff count)', 2, 30, N, 1, function(v) { N = Math.round(v); draw(); });
-
-                        // Points stored as fractions of [0,1]
-                        var pts = [0.1, 0.28, 0.47, 0.65, 0.83];
-
-                        var lineY = 130; // pixel y for the [0,1] line
-                        var lineX0 = 60, lineX1 = viz.width - 60;
-                        var ptRadius = 10;
-
-                        var dragging = -1;
-
-                        function toScreen(t) { return lineX0 + t * (lineX1 - lineX0); }
-                        function fromScreen(sx) { return Math.max(0.001, Math.min(0.999, (sx - lineX0) / (lineX1 - lineX0))); }
-
-                        function getMinSpacing() {
-                            var sorted = pts.slice().sort(function(a, b) { return a - b; });
-                            var min = Infinity;
-                            for (var i = 1; i < sorted.length; i++) {
-                                min = Math.min(min, sorted[i] - sorted[i-1]);
-                            }
-                            // Circle: also check wrap-around
-                            if (sorted.length > 1) {
-                                min = Math.min(min, 1 - sorted[sorted.length-1] + sorted[0]);
-                            }
-                            return min;
-                        }
-
-                        function draw() {
-                            viz.clear();
-                            var ctx = viz.ctx;
-
-                            // Draw [0,1] line
-                            ctx.strokeStyle = viz.colors.axis;
-                            ctx.lineWidth = 2;
-                            ctx.beginPath();
-                            ctx.moveTo(lineX0, lineY);
-                            ctx.lineTo(lineX1, lineY);
-                            ctx.stroke();
-
-                            // Tick marks
-                            ctx.fillStyle = viz.colors.text;
-                            ctx.font = '10px -apple-system,sans-serif';
-                            ctx.textAlign = 'center';
-                            for (var t = 0; t <= 10; t++) {
-                                var tx = lineX0 + (t / 10) * (lineX1 - lineX0);
-                                ctx.strokeStyle = viz.colors.grid;
-                                ctx.lineWidth = 1;
-                                ctx.beginPath(); ctx.moveTo(tx, lineY - 5); ctx.lineTo(tx, lineY + 5); ctx.stroke();
-                                ctx.fillText((t / 10).toFixed(1), tx, lineY + 18);
-                            }
-
-                            // Spacing segments
-                            var sorted = pts.slice().sort(function(a, b) { return a - b; });
-                            var delta = getMinSpacing();
-                            for (var i = 1; i < sorted.length; i++) {
-                                var x1 = toScreen(sorted[i-1]), x2 = toScreen(sorted[i]);
-                                ctx.strokeStyle = viz.colors.grid;
-                                ctx.lineWidth = 1;
-                                ctx.setLineDash([3, 3]);
-                                ctx.beginPath(); ctx.moveTo(x1, lineY - 30); ctx.lineTo(x2, lineY - 30); ctx.stroke();
-                                ctx.setLineDash([]);
-                                if (sorted[i] - sorted[i-1] === delta) {
-                                    ctx.strokeStyle = viz.colors.red;
-                                    ctx.lineWidth = 2;
-                                    ctx.beginPath(); ctx.moveTo(x1, lineY - 30); ctx.lineTo(x2, lineY - 30); ctx.stroke();
-                                }
-                            }
-
-                            // Points
-                            var colors2 = [viz.colors.blue, viz.colors.teal, viz.colors.orange, viz.colors.purple, viz.colors.pink, viz.colors.green];
-                            pts.forEach(function(p, i) {
-                                var px = toScreen(p);
-                                ctx.fillStyle = colors2[i % colors2.length];
-                                ctx.beginPath(); ctx.arc(px, lineY, ptRadius, 0, Math.PI * 2); ctx.fill();
-                                ctx.fillStyle = viz.colors.white;
-                                ctx.font = 'bold 9px -apple-system,sans-serif';
-                                ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
-                                ctx.fillText('\u03b1' + (i+1), px, lineY);
-                            });
-
-                            // Large sieve bound
-                            var bound = N + 1 / delta;
-                            viz.screenText('N = ' + N + '   R = ' + pts.length + '   \u03b4 = ' + delta.toFixed(3), viz.width / 2, 20, viz.colors.white, 13, 'center');
-                            viz.screenText('LS bound: N + 1/\u03b4 = ' + N + ' + ' + (1/delta).toFixed(1) + ' = ' + bound.toFixed(1), viz.width / 2, 200, viz.colors.green, 14, 'center');
-                            viz.screenText('Min spacing \u03b4 (red segment)', viz.width / 2, 220, viz.colors.red, 11, 'center');
-                            viz.screenText('Drag points to see bound change', viz.width / 2, 240, viz.colors.text, 11, 'center');
-
-                            VizEngine.createButton;
-                        }
-
-                        // Mouse drag
-                        viz.canvas.addEventListener('mousedown', function(e) {
-                            var r = viz.canvas.getBoundingClientRect();
-                            var mx = e.clientX - r.left;
-                            var my = e.clientY - r.top;
-                            for (var i = 0; i < pts.length; i++) {
-                                var px = toScreen(pts[i]);
-                                if (Math.abs(mx - px) < ptRadius + 4 && Math.abs(my - lineY) < ptRadius + 4) {
-                                    dragging = i; break;
-                                }
-                            }
-                        });
-                        viz.canvas.addEventListener('mousemove', function(e) {
-                            if (dragging < 0) return;
-                            var r = viz.canvas.getBoundingClientRect();
-                            pts[dragging] = fromScreen(e.clientX - r.left);
-                            draw();
-                        });
-                        viz.canvas.addEventListener('mouseup', function() { dragging = -1; });
-                        viz.canvas.addEventListener('mouseleave', function() { dragging = -1; });
-
-                        draw();
-                        return viz;
-                    }
-                }
-            ],
+            visualizations: [],
             exercises: [
                 {
-                    question: 'State van der Corput\'s second derivative test. If \\(g(n) = \\alpha n^2 + \\beta n\\) on \\([M, M+N]\\) with \\(|\\alpha| \\approx \\lambda\\), what bound does it give?',
-                    hint: 'Second derivative: \\(g\'\'(n) = 2\\alpha\\), so \\(\\lambda_2 = 2|\\alpha|\\). Apply the formula \\(|S| \\ll N\\lambda_2^{1/2} + \\lambda_2^{-1/2}\\).',
-                    solution: 'Van der Corput second derivative test: if \\(\\lambda_2 \\le |g\'\'(n)| \\le C\\lambda_2\\) on \\([M, M+N]\\), then \\(|\\sum_{n} e(g(n))| \\ll N\\lambda_2^{1/2} + \\lambda_2^{-1/2}\\). For \\(g(n) = \\alpha n^2 + \\beta n\\), \\(g\'\'(n) = 2\\alpha\\), \\(\\lambda_2 = 2|\\alpha|\\). Bound: \\(\\ll N|\\alpha|^{1/2} + |\\alpha|^{-1/2}\\). Optimal balance at \\(N = |\\alpha|^{-1}\\) (i.e., \\(\\lambda N^2 \\approx 1\\)), giving \\(|S| \\ll N^{1/2}\\). This matches the Weyl bound for quadratic exponential sums.'
+                    question: 'Summarize the logical dependencies: which results from earlier chapters does the proof of Bombieri-Vinogradov require?',
+                    hint: 'Think about what tools the proof uses: Vaughan\'s identity (related to Chapter 2), the multiplicative large sieve (this chapter), Siegel-Walfisz (Chapter 10), and character sums (Chapter 9).',
+                    solution: 'The proof of BV requires: (1) <strong>Dirichlet characters and orthogonality</strong> (Chapter 9) for the reduction to character sums; (2) <strong>The Siegel-Walfisz theorem</strong> (Chapter 10) to handle Type I sums where one variable is short; (3) <strong>Vaughan\'s identity</strong> (variant of ideas from Chapter 2 on arithmetic functions) for the decomposition \\(\\Lambda = \\mu * \\log\\) and the resulting bilinear structure; (4) <strong>The multiplicative large sieve</strong> (this chapter, Section 3) for the Type II estimates. The zero-free region for \\(L(s,\\chi)\\) from Chapter 6 also enters via Siegel-Walfisz.'
                 },
                 {
-                    question: 'Compute the Gauss sum \\(\\tau(\\chi) = \\sum_{a=0}^{q-1} \\chi(a) e(a/q)\\) for \\(\\chi\\) the Legendre symbol mod \\(p\\) (prime), and verify \\(|\\tau(\\chi)|^2 = p\\).',
-                    hint: 'Compute \\(|\\tau|^2 = \\tau \\bar{\\tau}\\) by expanding and using the identity \\(\\sum_{a=1}^{p-1} e(na/p) = -1\\) for \\(p \\nmid n\\).',
-                    solution: '\\(|\\tau(\\chi)|^2 = \\sum_{a,b=1}^{p-1} \\chi(a)\\overline{\\chi(b)} e((a-b)/p) = \\sum_{a=1}^{p-1} \\sum_{b=1}^{p-1} \\chi(ab^{-1}) e((a-b)/p)\\). Substituting \\(a = cb\\): \\(= \\sum_{c=1}^{p-1} \\chi(c) \\sum_{b=1}^{p-1} e(b(c-1)/p)\\). For \\(c \\ne 1\\), the inner sum \\(= -1\\); for \\(c = 1\\), it is \\(p-1\\). So \\(|\\tau|^2 = (p-1)\\chi(1) + (-1)\\sum_{c \\ne 1} \\chi(c) = (p-1) - \\sum_{c=1}^{p-1}\\chi(c) + \\chi(1) = p - 0 = p\\), using \\(\\sum_{c=1}^{p-1}\\chi(c) = 0\\) for non-principal \\(\\chi\\).'
+                    question: 'Prove that the "dual" of Bombieri-Vinogradov, i.e., controlling \\(\\sum_{a \\le q} |E(x;q,a)|\\) for a fixed \\(q\\), is essentially the Barban-Davenport-Halberstam theorem: \\(\\sum_{q \\le Q} \\sum_{\\gcd(a,q)=1} |E(x;q,a)|^2 \\ll xQ \\log x\\). State this precisely and explain why the \\(L^2\\) version is easier than the \\(L^1\\) version (BV).',
+                    hint: 'Barban-Davenport-Halberstam follows almost directly from the large sieve and Parseval over characters. BV requires additionally Vaughan\'s identity and the Siegel-Walfisz theorem because it controls the \\(L^1\\)-norm (maximum over \\(a\\)), not just the \\(L^2\\)-norm.',
+                    solution: 'The Barban-Davenport-Halberstam theorem states: \\(\\sum_{q \\le Q} \\sum_{\\gcd(a,q)=1} |\\psi(x;q,a) - x/\\varphi(q)|^2 \\ll xQ\\log x\\) for \\(Q \\le x\\). This follows from the orthogonality relation \\(\\sum_a |E(x;q,a)|^2 = \\sum_{\\chi \\ne \\chi_0} |\\sum_{n \\le x} \\Lambda(n)\\chi(n)|^2 / \\varphi(q)^2\\) and the large sieve bound on character sums. The \\(L^2\\) norm is easier because: (a) orthogonality converts it to character sums directly; (b) the large sieve bounds \\(L^2\\) norms by design. BV controls the harder \\(L^1\\) norm (actually \\(\\max_a\\) then \\(\\ell^1\\) over \\(q\\)), requiring Cauchy-Schwarz plus additional combinatorial decomposition (Vaughan/Heath-Brown) to close the argument.'
                 }
             ]
         }
-
-    ] // end sections
-}); // end chapter
+    ]
+});
