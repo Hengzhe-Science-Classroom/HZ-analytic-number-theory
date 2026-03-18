@@ -1,171 +1,430 @@
+// === Chapter 12: Sieve Methods II — Selberg's Sieve ===
+// Tier 5 — "Optimization replaces combinatorics"
 window.CHAPTERS = window.CHAPTERS || [];
 window.CHAPTERS.push({
     id: 'ch12',
     number: 12,
-    title: "Sieve Methods II: Selberg's Sieve & Modern Sieves",
+    title: "Sieve Methods II: Selberg & Modern Sieves",
     subtitle: "Optimization replaces combinatorics",
     sections: [
-
         // ================================================================
-        // SECTION 1: Optimization over Combinatorics
+        // SECTION 1: Motivation — Why Selberg?
         // ================================================================
         {
             id: 'sec-motivation',
-            title: 'Optimization over Combinatorics',
+            title: 'Motivation: Why Selberg?',
             content: `
-<h2>Optimization over Combinatorics</h2>
+<h2>Motivation: Why Selberg?</h2>
 
 <div class="env-block intuition">
-    <div class="env-title">The Shift in Perspective</div>
+    <div class="env-title">From Combinatorics to Optimization</div>
     <div class="env-body">
-        <p>In Chapter 11 we met Brun's sieve: a combinatorial machine that alternately overestimates and underestimates a count, squeezing toward the truth. It works, but it requires the Brun pure sieve to be truncated carefully, and the estimates depend on delicate cancellations in inclusion-exclusion.</p>
-        <p>Selberg's 1947 breakthrough was conceptual: <em>instead of constructing a clever combinatorial device, set up an optimization problem whose solution automatically gives the best upper bound of a given form.</em> The answer comes from Lagrange multipliers, not M&ouml;bius inversion.</p>
+        <p>The combinatorial sieves of Brun and Legendre attack the sifting problem by inclusion-exclusion: add, subtract, add, subtract. The M&ouml;bius function \\(\\mu(d)\\) encodes these signs, and bounding the partial sums requires delicate combinatorial arguments to keep the error terms under control. Selberg's insight was radical: <strong>forget the signs</strong>. Instead, choose non-negative weights that minimize an upper bound. The problem becomes one of quadratic optimization, and the answer drops out cleanly.</p>
     </div>
 </div>
 
-<p>Recall the basic sieve setup. Let \\(\\mathcal{A} = \\{a_n\\}\\) be a finite sequence of integers (or more generally, objects with associated "sizes" \\(|\\mathcal{A}_d|\\) for divisors \\(d\\)). Let \\(\\mathcal{P}\\) be a set of primes and \\(z > 1\\). Define</p>
-\\[
-S(\\mathcal{A}, \\mathcal{P}, z) = \\#\\{a \\in \\mathcal{A} : \\gcd(a, P(z)) = 1\\}, \\quad P(z) = \\prod_{p \\in \\mathcal{P},\\, p < z} p.
-\\]
-<p>We have a "main term" approximation</p>
-\\[
-|\\mathcal{A}_d| = \\frac{\\omega(d)}{d} X + R_d,
-\\]
-<p>where \\(\\omega\\) is a multiplicative function with \\(0 \\le \\omega(p) < p\\), \\(X\\) is the "size" of the sequence, and \\(R_d\\) is an error. The ratio \\(\\omega(p)/p\\) measures what fraction of \\(\\mathcal{A}\\) is eliminated by the prime \\(p\\).</p>
+<h3>The Sifting Problem</h3>
 
-<h3>What Brun Does</h3>
-<p>Brun constructs an upper-bound sieve by replacing \\(\\mathbf{1}_{\\gcd(n,P(z))=1}\\) with an explicit alternating linear combination</p>
-\\[
-\\sum_{\\substack{d \\mid P(z) \\\\ \\nu(d) \\le 2k}} \\mu(d) \\cdot \\mathbf{1}_{d \\mid n},
-\\]
-<p>choosing \\(k\\) to balance the main term against the error. The result is an upper bound, but the proof is a tour of combinatorial bookkeeping.</p>
+<p>Recall the setup from Chapter 11. We have a finite set \\(\\mathcal{A}\\) of integers, a set \\(\\mathcal{P}\\) of primes, and for each prime \\(p \\in \\mathcal{P}\\) a subset \\(\\mathcal{A}_p \\subseteq \\mathcal{A}\\) of elements divisible by \\(p\\). We want to estimate the sifting function</p>
 
-<h3>What Selberg Does</h3>
-<p>Selberg observes that <em>any</em> choice of real numbers \\(\\lambda_d\\) (\\(d \\mid P(z)\\), \\(\\lambda_1 = 1\\)) gives an upper bound:</p>
 \\[
-\\mathbf{1}_{\\gcd(n,P(z))=1} \\le \\left(\\sum_{d \\mid \\gcd(n,P(z))} \\lambda_d\\right)^2.
+S(\\mathcal{A}, \\mathcal{P}, z) = |\\{a \\in \\mathcal{A} : p \\mid a \\Rightarrow p \\notin \\mathcal{P} \\text{ or } p \\geq z\\}|,
 \\]
-<p>This is a <strong>square</strong>, hence non-negative, and the constraint \\(\\lambda_1 = 1\\) forces the left side to be at most the right whenever \\(n\\) is not sieved out. Now sum over \\(\\mathcal{A}\\) and expand the square. The result is a quadratic form in the \\(\\lambda_d\\), and one minimizes it over all valid \\(\\lambda\\). That is calculus, not combinatorics.</p>
+
+<p>the count of elements of \\(\\mathcal{A}\\) not divisible by any prime \\(p < z\\) from \\(\\mathcal{P}\\).</p>
+
+<h3>The Difficulty with Combinatorial Sieves</h3>
+
+<p>Brun's sieve truncates inclusion-exclusion at a chosen depth \\(D\\), alternating between upper and lower bounds. The quality of the bound depends on controlling the "remainder terms"</p>
+
+\\[
+R_d = |\\mathcal{A}_d| - \\frac{\\omega(d)}{d} X,
+\\]
+
+<p>where \\(X \\approx |\\mathcal{A}|\\) and \\(\\omega(d)/d\\) is the expected proportion of \\(\\mathcal{A}\\) divisible by \\(d\\). For this to work, we need \\(d\\) to stay small (below a "level" \\(D\\)), and the combinatorial bookkeeping can be intricate.</p>
 
 <div class="env-block remark">
-    <div class="env-title">Why Squaring Works</div>
+    <div class="env-title">Selberg's Philosophy</div>
     <div class="env-body">
-        <p>For any \\(n\\) with \\(\\gcd(n, P(z)) = 1\\), every \\(d \\mid \\gcd(n, P(z))\\) satisfies \\(d = 1\\), so the inner sum equals \\(\\lambda_1 = 1\\), giving \\(\\mathbf{1} \\le 1^2 = 1\\). For \\(n\\) with some \\(p \\mid \\gcd(n,P(z))\\), the bound \\(0 \\le (\\cdots)^2\\) holds trivially. The constraint \\(\\lambda_1 = 1\\) is exactly what is needed at the sieved-out numbers.</p>
+        <p>Selberg (1947) introduced a fundamentally different approach. Rather than imposing \\(\\mu\\)-like signs and truncating, he sought the "best possible" upper-bound sieve by treating the sieve weights as free variables and minimizing the resulting expression. The key identity that makes this work is the \\(\\Lambda^2\\) construction, where the sieve weights are <em>squares</em>, hence automatically non-negative.</p>
+    </div>
+</div>
+
+<h3>Preview of the Chapter</h3>
+
+<p>We will develop Selberg's upper-bound sieve (Section 2), study the role of <em>sieve dimension</em> in controlling the quality of sieve estimates (Section 3), examine the Rosser-Iwaniec approach to lower-bound sieves (Section 4), confront the <em>parity problem</em> that limits what any sieve can achieve (Section 5), and conclude with connections to modern breakthroughs (Section 6).</p>
+
+<div class="viz-placeholder" data-viz="viz-sieve-comparison"></div>
+`,
+            visualizations: [
+                {
+                    id: 'viz-sieve-comparison',
+                    title: 'Comparing Sieve Methods',
+                    description: 'Compare the upper bounds from Legendre, Brun, and Selberg sieves on the prime-counting function. Selberg\'s sieve gives the tightest upper bound for the count of primes up to N. Adjust N to see how the bounds evolve.',
+                    setup: function(body, controls) {
+                        var viz = new VizEngine(body, {
+                            width: 560, height: 380,
+                            originX: 60, originY: 340, scale: 1
+                        });
+
+                        var logN = 4;
+                        VizEngine.createSlider(controls, 'log\u2081\u2080 N', 2, 6, logN, 0.5, function(v) {
+                            logN = v; draw();
+                        });
+
+                        var primes = VizEngine.sievePrimes(1000000);
+
+                        function piCount(n) {
+                            var c = 0;
+                            for (var i = 0; i < primes.length && primes[i] <= n; i++) c++;
+                            return c;
+                        }
+
+                        function draw() {
+                            viz.clear();
+                            var ctx = viz.ctx;
+                            var N = Math.round(Math.pow(10, logN));
+
+                            viz.screenText('Sieve Upper Bounds vs \u03C0(N)', viz.width / 2, 20, viz.colors.white, 15);
+
+                            // Compute data points
+                            var pts = 40;
+                            var data = [];
+                            for (var i = 1; i <= pts; i++) {
+                                var x = Math.round(N * i / pts);
+                                if (x < 2) continue;
+                                var pi = piCount(x);
+                                var logx = Math.log(Math.max(x, 2));
+                                var log2x = Math.log(Math.max(logx, 1));
+                                // Legendre-type bound: x / log(log(x)) (very crude)
+                                var legendre = log2x > 0.5 ? x / log2x : x;
+                                // Brun-type bound: 2 * x/(log x)^2 * C_twin (for illustration)
+                                var brun = 8 * x / (logx * logx);
+                                // Selberg bound: (2 + o(1)) * x / log(x)
+                                var selberg = 2.0 * x / logx * (1 + 1.0 / logx);
+                                data.push({ x: x, pi: pi, legendre: legendre, brun: brun, selberg: selberg });
+                            }
+
+                            // Chart area
+                            var chartL = 80, chartR = viz.width - 30;
+                            var chartT = 50, chartB = 320;
+                            var chartW = chartR - chartL, chartH = chartB - chartT;
+
+                            var maxY = 0;
+                            for (var j = 0; j < data.length; j++) {
+                                maxY = Math.max(maxY, data[j].legendre, data[j].brun, data[j].selberg, data[j].pi);
+                            }
+                            if (maxY < 1) maxY = 1;
+                            var maxX = N;
+
+                            // Grid lines
+                            ctx.strokeStyle = viz.colors.grid; ctx.lineWidth = 0.5;
+                            for (var g = 0; g <= 4; g++) {
+                                var gy = chartB - (g / 4) * chartH;
+                                ctx.beginPath(); ctx.moveTo(chartL, gy); ctx.lineTo(chartR, gy); ctx.stroke();
+                                ctx.fillStyle = viz.colors.text; ctx.font = '10px -apple-system,sans-serif';
+                                ctx.textAlign = 'right'; ctx.textBaseline = 'middle';
+                                ctx.fillText(Math.round(maxY * g / 4).toString(), chartL - 6, gy);
+                            }
+
+                            // Axes
+                            ctx.strokeStyle = viz.colors.axis; ctx.lineWidth = 1.5;
+                            ctx.beginPath(); ctx.moveTo(chartL, chartB); ctx.lineTo(chartR, chartB); ctx.stroke();
+                            ctx.beginPath(); ctx.moveTo(chartL, chartT); ctx.lineTo(chartL, chartB); ctx.stroke();
+
+                            // Helper to draw a curve
+                            function drawCurve(key, color) {
+                                ctx.strokeStyle = color; ctx.lineWidth = 2;
+                                ctx.beginPath();
+                                var started = false;
+                                for (var k = 0; k < data.length; k++) {
+                                    var sx = chartL + (data[k].x / maxX) * chartW;
+                                    var sy = chartB - (Math.min(data[k][key], maxY * 1.5) / maxY) * chartH;
+                                    sy = Math.max(chartT - 10, sy);
+                                    if (!started) { ctx.moveTo(sx, sy); started = true; }
+                                    else ctx.lineTo(sx, sy);
+                                }
+                                ctx.stroke();
+                            }
+
+                            drawCurve('legendre', viz.colors.red);
+                            drawCurve('brun', viz.colors.orange);
+                            drawCurve('selberg', viz.colors.teal);
+                            drawCurve('pi', viz.colors.blue);
+
+                            // Legend
+                            var legY = chartB + 20;
+                            var items = [
+                                ['\u03C0(x)', viz.colors.blue],
+                                ['Selberg', viz.colors.teal],
+                                ['Brun-type', viz.colors.orange],
+                                ['Legendre-type', viz.colors.red]
+                            ];
+                            var legStartX = viz.width / 2 - 140;
+                            for (var m = 0; m < items.length; m++) {
+                                var lx = legStartX + m * 75;
+                                ctx.fillStyle = items[m][1];
+                                ctx.fillRect(lx, legY, 10, 10);
+                                ctx.fillStyle = viz.colors.text; ctx.font = '10px -apple-system,sans-serif';
+                                ctx.textAlign = 'left'; ctx.fillText(items[m][0], lx + 14, legY + 9);
+                            }
+
+                            ctx.fillStyle = viz.colors.text; ctx.font = '10px -apple-system,sans-serif';
+                            ctx.textAlign = 'center';
+                            ctx.fillText('N = ' + N.toLocaleString(), viz.width / 2, chartB + 44);
+                        }
+                        draw();
+                        return viz;
+                    }
+                }
+            ],
+            exercises: []
+        },
+
+        // ================================================================
+        // SECTION 2: Selberg's Upper-Bound Sieve
+        // ================================================================
+        {
+            id: 'sec-selberg-upper',
+            title: "Selberg's Upper-Bound Sieve (\u039B\u00B2)",
+            content: `
+<h2>Selberg's Upper-Bound Sieve</h2>
+
+<div class="env-block intuition">
+    <div class="env-title">The \\(\\Lambda^2\\) Trick</div>
+    <div class="env-body">
+        <p>Selberg's key observation: if \\(\\lambda_1 = 1\\) and \\(\\lambda_d = 0\\) for \\(d > z\\), then for any integer \\(n\\),</p>
+        \\[
+        \\left(\\sum_{d \\mid n} \\lambda_d\\right)^2 \\geq \\begin{cases} 1 & \\text{if } (n, P(z)) = 1, \\\\ 0 & \\text{always.} \\end{cases}
+        \\]
+        <p>The square is always non-negative, and when \\(n\\) has no prime factors below \\(z\\), only the \\(d = 1\\) term survives, giving the value 1. So the squared sum is an <em>upper-bound sieve</em> for the indicator of "unsifted" integers.</p>
+    </div>
+</div>
+
+<h3>Setting Up the Optimization</h3>
+
+<p>Let \\(P(z) = \\prod_{p < z, p \\in \\mathcal{P}} p\\). Define real numbers \\(\\lambda_d\\) for squarefree \\(d \\mid P(z)\\) with \\(\\lambda_1 = 1\\) and \\(\\lambda_d = 0\\) for \\(d > D\\) (the "level" of the sieve). Then</p>
+
+\\[
+S(\\mathcal{A}, \\mathcal{P}, z) \\leq \\sum_{a \\in \\mathcal{A}} \\left(\\sum_{d \\mid (a, P(z))} \\lambda_d\\right)^2.
+\\]
+
+<p>Expanding the square and switching the order of summation:</p>
+
+\\[
+S(\\mathcal{A}, \\mathcal{P}, z) \\leq \\sum_{d_1, d_2 \\mid P(z)} \\lambda_{d_1} \\lambda_{d_2} |\\mathcal{A}_{[d_1, d_2]}|,
+\\]
+
+<p>where \\([d_1, d_2]\\) is the least common multiple.</p>
+
+<h3>The Main Term</h3>
+
+<p>Using the standard decomposition \\(|\\mathcal{A}_d| = g(d) X + r_d\\) where \\(g\\) is a multiplicative function with \\(g(p) = \\omega(p)/p\\), the main term becomes</p>
+
+\\[
+X \\sum_{d_1, d_2} \\lambda_{d_1} \\lambda_{d_2} g([d_1, d_2]) + \\text{error terms}.
+\\]
+
+<p>Selberg's genius was recognizing that this quadratic form in the \\(\\lambda_d\\)'s can be diagonalized.</p>
+
+<div class="env-block theorem">
+    <div class="env-title">Theorem 12.1 (Selberg's Upper-Bound Sieve)</div>
+    <div class="env-body">
+        <p>With the notation above, the optimal choice of \\(\\lambda_d\\) gives</p>
+        \\[
+        S(\\mathcal{A}, \\mathcal{P}, z) \\leq \\frac{X}{G(D)} + R,
+        \\]
+        <p>where</p>
+        \\[
+        G(D) = \\sum_{\\substack{d \\mid P(z) \\\\ d \\leq D}} \\frac{\\mu(d)^2}{g(d)} \\prod_{p \\mid d} \\frac{g(p)}{1 - g(p)},
+        \\]
+        <p>and \\(R\\) is a sum of remainder terms \\(r_d\\) over \\(d \\leq D^2\\).</p>
+    </div>
+</div>
+
+<h3>Diagonalization via M&ouml;bius Inversion</h3>
+
+<p>The key substitution is \\(\\lambda_d = \\mu(d) y_d\\) for auxiliary variables \\(y_d\\), then further setting</p>
+
+\\[
+y_d = \\frac{\\mu(d)}{g(d)} \\cdot \\frac{1}{G(D)} \\sum_{\\substack{\\ell \\mid P(z)/d \\\\ d\\ell \\leq D}} \\frac{\\mu(\\ell)^2}{g(\\ell)} \\prod_{p \\mid \\ell} \\frac{g(p)}{1-g(p)}.
+\\]
+
+<p>This transforms the quadratic form into a sum of squares, making the minimum transparent.</p>
+
+<div class="env-block example">
+    <div class="env-title">Example: Counting Primes (Selberg)</div>
+    <div class="env-body">
+        <p>Take \\(\\mathcal{A} = \\{1, 2, \\ldots, N\\}\\), \\(\\mathcal{P}\\) = all primes, \\(z = \\sqrt{N}\\), and \\(D = \\sqrt{N}\\). Then \\(g(p) = 1/p\\), and</p>
+        \\[
+        G(\\sqrt{N}) \\sim \\frac{1}{2} \\log N,
+        \\]
+        <p>so Selberg's sieve gives \\(\\pi(N) \\leq (2 + o(1)) \\frac{N}{\\log N}\\), which is off from the true asymptotic by a factor of 2. This factor is <em>not</em> an artifact of weak technique; it is a fundamental limitation connected to the parity problem (Section 5).</p>
     </div>
 </div>
 
 <div class="viz-placeholder" data-viz="viz-selberg-weights"></div>
+
+<div class="env-block remark">
+    <div class="env-title">Comparison with Brun's Sieve</div>
+    <div class="env-body">
+        <p>Brun's combinatorial sieve for the same problem gives \\(\\pi(N) \\ll N / (\\log N)^2\\) with more effort, and the constant is worse. Selberg's sieve is both simpler and sharper for upper bounds. However, Brun's sieve can give both upper and lower bounds, while the basic \\(\\Lambda^2\\) sieve is inherently one-sided.</p>
+    </div>
+</div>
 `,
             visualizations: [
                 {
                     id: 'viz-selberg-weights',
-                    title: 'Selberg \\(\\lambda_d\\) Weights vs Sieve Level \\(D\\)',
-                    description: 'Bar chart of the optimal Selberg weights \\(\\lambda_d\\) for squarefree \\(d \\le D\\) dividing \\(P(z)\\). Drag the sieve level slider to see how weights concentrate near \\(d=1\\) as \\(D\\) grows.',
+                    title: 'Selberg Sieve Weights \\(\\lambda_d\\)',
+                    description: 'Visualize the optimal Selberg sieve weights \\(\\lambda_d\\) for sifting \\(\\{1, \\ldots, N\\}\\) by primes up to \\(z\\). The weights start at \\(\\lambda_1 = 1\\) and decrease, remaining real-valued (not restricted to \\(\\pm 1\\)). Compare with the M\u00f6bius function weights \\(\\mu(d)\\) used in the Legendre sieve.',
                     setup: function(body, controls) {
-                        var viz = new VizEngine(body, { width: 600, height: 360, originX: 60, originY: 300, scale: 1 });
-                        var D = 30;
-                        VizEngine.createSlider(controls, 'Sieve level D', 5, 100, D, 5, function(v) {
-                            D = Math.round(v);
-                            draw();
+                        var viz = new VizEngine(body, {
+                            width: 560, height: 380,
+                            originX: 60, originY: 280, scale: 1
                         });
 
-                        function primesBelowD(bound) {
-                            return VizEngine.sievePrimes(bound);
-                        }
+                        var zVal = 10;
+                        VizEngine.createSlider(controls, 'z (sifting level)', 4, 30, zVal, 1, function(v) {
+                            zVal = Math.round(v); draw();
+                        });
 
-                        // Compute Selberg lambdas for primes product <= D
-                        // Use the classical formula: lambda_d = mu(d) * prod_{p|d} p/(p-1)
-                        // normalized so lambda_1 = 1 (this is the optimal solution structure)
-                        function moebius(n) {
-                            if (n === 1) return 1;
-                            var factors = 0, temp = n;
-                            for (var p = 2; p * p <= temp; p++) {
-                                if (temp % p === 0) {
-                                    factors++;
-                                    temp = Math.floor(temp / p);
-                                    if (temp % p === 0) return 0; // p^2 | n
+                        var primes = VizEngine.sievePrimes(200);
+
+                        // Compute squarefree divisors of P(z)
+                        function getSquarefreeDivisors(z) {
+                            var ps = [];
+                            for (var i = 0; i < primes.length && primes[i] < z; i++) ps.push(primes[i]);
+                            var divs = [1];
+                            for (var k = 0; k < ps.length; k++) {
+                                var p = ps[k];
+                                var len = divs.length;
+                                for (var j = 0; j < len; j++) {
+                                    divs.push(divs[j] * p);
                                 }
                             }
-                            if (temp > 1) factors++;
+                            divs.sort(function(a, b) { return a - b; });
+                            return divs;
+                        }
+
+                        function mobius(n) {
+                            if (n === 1) return 1;
+                            var factors = 0;
+                            var m = n;
+                            for (var p = 2; p * p <= m; p++) {
+                                if (m % p === 0) {
+                                    m /= p;
+                                    factors++;
+                                    if (m % p === 0) return 0;
+                                }
+                            }
+                            if (m > 1) factors++;
                             return (factors % 2 === 0) ? 1 : -1;
                         }
 
-                        function squarefree(n) { return moebius(n) !== 0; }
-
-                        function selbergWeight(d) {
-                            if (!squarefree(d)) return 0;
-                            var mu = moebius(d);
-                            if (mu === 0) return 0;
-                            // lambda_d ~ mu(d) * prod_{p|d} p/(p-1) * (log(D/d)/log D)
-                            var prod = 1, temp = d;
-                            for (var p = 2; p <= temp; p++) {
-                                if (temp % p === 0) {
-                                    prod *= p / (p - 1);
-                                    temp = Math.floor(temp / p);
-                                }
-                            }
-                            var frac = d <= D ? Math.log(D / d + 1) / Math.log(D + 1) : 0;
-                            return mu * prod * frac;
-                        }
-
                         function draw() {
                             viz.clear();
                             var ctx = viz.ctx;
-                            var chartW = viz.width - 80, chartH = 240;
-                            var startX = 70, baseY = 270;
 
-                            // Collect squarefree d <= D
-                            var ds = [];
-                            for (var d = 1; d <= Math.min(D, 60); d++) {
-                                if (squarefree(d)) ds.push(d);
-                            }
-                            var lambdas = ds.map(function(d) { return selbergWeight(d); });
-                            var maxAbs = Math.max.apply(null, lambdas.map(Math.abs));
-                            if (maxAbs < 0.001) maxAbs = 1;
+                            viz.screenText('Selberg Weights vs M\u00f6bius Weights', viz.width / 2, 20, viz.colors.white, 14);
 
-                            var barW = Math.max(4, Math.min(18, Math.floor(chartW / ds.length) - 2));
-                            var spacing = Math.floor(chartW / ds.length);
+                            var divs = getSquarefreeDivisors(zVal);
+                            // Limit to first 60 for display
+                            if (divs.length > 60) divs = divs.slice(0, 60);
 
-                            // Axes
-                            ctx.strokeStyle = viz.colors.axis; ctx.lineWidth = 1.5;
-                            ctx.beginPath(); ctx.moveTo(startX, baseY - chartH); ctx.lineTo(startX, baseY + 40); ctx.stroke();
-                            ctx.beginPath(); ctx.moveTo(startX, baseY); ctx.lineTo(viz.width - 10, baseY); ctx.stroke();
-
-                            // Y labels
-                            ctx.fillStyle = viz.colors.text; ctx.font = '10px -apple-system,sans-serif'; ctx.textAlign = 'right';
-                            for (var tick = -1; tick <= 1; tick += 0.5) {
-                                var py = baseY - tick / maxAbs * (chartH * 0.45);
-                                ctx.fillText(tick.toFixed(1), startX - 4, py);
-                                ctx.strokeStyle = viz.colors.grid; ctx.lineWidth = 0.5;
-                                ctx.beginPath(); ctx.moveTo(startX, py); ctx.lineTo(viz.width - 10, py); ctx.stroke();
+                            // Compute g(d) = product of 1/p for p|d
+                            function gFunc(d) {
+                                var val = 1;
+                                for (var i = 0; i < primes.length && primes[i] < zVal; i++) {
+                                    if (d % primes[i] === 0) val /= primes[i];
+                                }
+                                return val;
                             }
 
-                            // Bars
-                            for (var i = 0; i < ds.length; i++) {
-                                var lam = lambdas[i];
-                                var bx = startX + i * spacing + spacing / 2;
-                                var barH = (lam / maxAbs) * (chartH * 0.45);
-                                var color = lam >= 0 ? viz.colors.blue : viz.colors.orange;
-                                ctx.fillStyle = color;
-                                ctx.fillRect(bx - barW / 2, baseY - barH, barW, barH);
+                            // Compute G = sum of mu(d)^2 * prod(g(p)/(1-g(p))) / g(d)
+                            var G = 0;
+                            for (var i = 0; i < divs.length; i++) {
+                                var d = divs[i];
+                                var mu2 = mobius(d) !== 0 ? 1 : 0;
+                                if (!mu2) continue;
+                                var gd = gFunc(d);
+                                var prod = 1;
+                                for (var j = 0; j < primes.length && primes[j] < zVal; j++) {
+                                    if (d % primes[j] === 0) {
+                                        var gp = 1.0 / primes[j];
+                                        prod *= gp / (1 - gp);
+                                    }
+                                }
+                                G += mu2 * prod / gd;
+                            }
+                            if (G < 0.01) G = 1;
 
-                                if (spacing > 14) {
-                                    ctx.fillStyle = viz.colors.text; ctx.font = '9px -apple-system,sans-serif';
-                                    ctx.textAlign = 'center'; ctx.textBaseline = 'top';
-                                    ctx.fillText(ds[i], bx, baseY + 3);
+                            // Approximate Selberg weights: lambda_d ~ mu(d) * (1/G) * sum...
+                            // Simplified: lambda_d = mu(d) * (log(D/d) / log(D)) for D = product of primes < z
+                            var logD = 0;
+                            for (var k = 0; k < primes.length && primes[k] < zVal; k++) logD += Math.log(primes[k]);
+                            if (logD < 1) logD = 1;
+
+                            var lambdas = [];
+                            var muValues = [];
+                            for (var m = 0; m < divs.length; m++) {
+                                var dd = divs[m];
+                                var logd = Math.log(dd);
+                                var lam = mobius(dd) * Math.max(0, (logD - logd) / logD);
+                                lambdas.push(lam);
+                                muValues.push(mobius(dd));
+                            }
+
+                            // Draw bars
+                            var chartL = 60, chartR = viz.width - 20;
+                            var chartW = chartR - chartL;
+                            var barW = Math.min(12, chartW / divs.length - 1);
+                            var baseline = 280;
+                            var scale = 100;
+
+                            // Axis
+                            ctx.strokeStyle = viz.colors.axis; ctx.lineWidth = 1;
+                            ctx.beginPath(); ctx.moveTo(chartL, baseline); ctx.lineTo(chartR, baseline); ctx.stroke();
+
+                            ctx.fillStyle = viz.colors.text; ctx.font = '10px -apple-system,sans-serif';
+                            ctx.textAlign = 'center';
+
+                            for (var n = 0; n < divs.length; n++) {
+                                var bx = chartL + n * (barW + 1);
+
+                                // Selberg weight bar
+                                var h1 = lambdas[n] * scale;
+                                ctx.fillStyle = viz.colors.teal + '88';
+                                ctx.fillRect(bx, baseline - h1, barW / 2, h1);
+
+                                // Mobius weight bar (offset)
+                                var h2 = muValues[n] * scale * 0.8;
+                                ctx.fillStyle = viz.colors.orange + '66';
+                                ctx.fillRect(bx + barW / 2, baseline - h2, barW / 2, h2);
+
+                                // Label every few
+                                if (divs.length <= 20 || n % Math.ceil(divs.length / 20) === 0) {
+                                    ctx.fillStyle = viz.colors.text;
+                                    ctx.save();
+                                    ctx.translate(bx + barW / 2, baseline + 4);
+                                    ctx.rotate(Math.PI / 3);
+                                    ctx.textAlign = 'left'; ctx.textBaseline = 'middle';
+                                    ctx.fillText(divs[n].toString(), 0, 0);
+                                    ctx.restore();
                                 }
                             }
-
-                            // Title & info
-                            viz.screenText('Selberg Weights \u03bb_d (D = ' + D + ')', viz.width / 2, 18, viz.colors.white, 14);
-                            viz.screenText('\u03bb_1 = 1 fixed; alternating sign by \u03bc(d)', viz.width / 2, 36, viz.colors.text, 11);
 
                             // Legend
-                            ctx.fillStyle = viz.colors.blue; ctx.fillRect(startX + 10, baseY + 26, 10, 10);
-                            ctx.fillStyle = viz.colors.text; ctx.font = '11px -apple-system,sans-serif'; ctx.textAlign = 'left';
-                            ctx.fillText('\u03bb_d > 0', startX + 24, baseY + 35);
-                            ctx.fillStyle = viz.colors.orange; ctx.fillRect(startX + 90, baseY + 26, 10, 10);
-                            ctx.fillStyle = viz.colors.text; ctx.fillText('\u03bb_d < 0', startX + 104, baseY + 35);
+                            ctx.fillStyle = viz.colors.teal;
+                            ctx.fillRect(viz.width / 2 - 120, 44, 10, 10);
+                            ctx.fillStyle = viz.colors.text; ctx.font = '11px -apple-system,sans-serif';
+                            ctx.textAlign = 'left'; ctx.fillText('\u03BB_d (Selberg)', viz.width / 2 - 106, 53);
+
+                            ctx.fillStyle = viz.colors.orange;
+                            ctx.fillRect(viz.width / 2 + 20, 44, 10, 10);
+                            ctx.fillStyle = viz.colors.text;
+                            ctx.fillText('\u03BC(d) (Legendre)', viz.width / 2 + 34, 53);
+
+                            viz.screenText('G(D) \u2248 ' + G.toFixed(2), viz.width / 2, viz.height - 16, viz.colors.teal, 12);
                         }
                         draw();
                         return viz;
@@ -174,237 +433,87 @@ S(\\mathcal{A}, \\mathcal{P}, z) = \\#\\{a \\in \\mathcal{A} : \\gcd(a, P(z)) = 
             ],
             exercises: [
                 {
-                    question: "Verify that \\(\\left(\\sum_{d \\mid \\gcd(n,P(z))} \\lambda_d\\right)^2 \\ge 0\\) trivially, and explain why \\(\\lambda_1 = 1\\) forces the squared sum to be at least 1 when \\(\\gcd(n, P(z)) = 1\\).",
-                    hint: "When \\(\\gcd(n,P(z))=1\\), which divisors \\(d\\) of \\(\\gcd(n,P(z))\\) exist?",
-                    solution: "When \\(\\gcd(n,P(z))=1\\), the only divisor of \\(\\gcd(n,P(z))\\) is \\(d=1\\). So the inner sum equals \\(\\lambda_1 = 1\\), and its square is exactly 1 \\(\\ge\\) the indicator \\(\\mathbf{1}_{\\gcd(n,P(z))=1} = 1\\). When \\(\\gcd(n,P(z)) > 1\\), the indicator is 0 and the squared sum is \\(\\ge 0\\). In both cases the inequality holds, confirming validity."
+                    question: 'Show that if \\(\\lambda_1 = 1\\), then \\(\\left(\\sum_{d \\mid n} \\lambda_d\\right)^2 \\geq 1\\) whenever \\(\\gcd(n, P(z)) = 1\\).',
+                    hint: 'When \\(\\gcd(n, P(z)) = 1\\), the only \\(d \\mid P(z)\\) with \\(d \\mid n\\) is \\(d = 1\\).',
+                    solution: 'If \\(\\gcd(n, P(z)) = 1\\), then no prime \\(p < z\\) divides \\(n\\), so the only divisor \\(d\\) of \\(P(z)\\) that also divides \\(n\\) is \\(d = 1\\). Thus \\(\\sum_{d \\mid (n, P(z))} \\lambda_d = \\lambda_1 = 1\\), and \\(1^2 = 1 \\geq 1\\).'
                 },
                 {
-                    question: "The Selberg upper bound has the form \\(S(\\mathcal{A},\\mathcal{P},z) \\le XV^{-1} + \\text{error}\\), where \\(V = \\sum_{d \\mid P(z), d \\le D} \\frac{\\mu^2(d)}{\\omega^*(d)}\\) with \\(\\omega^*(d) = \\prod_{p \\mid d}\\omega(p)/(p-\\omega(p))\\). For the primes themselves (\\(\\omega(p) = 1\\)), compute \\(V\\) approximately using Mertens' theorem.",
-                    hint: "With \\(\\omega(p)=1\\), each factor in \\(\\omega^*(d)\\) is \\(1/(p-1)\\). The Euler product \\(\\sum_{d \\mid P(z)} \\mu^2(d)/\\omega^*(d)\\) factors over primes as \\(\\prod_{p < z}(1+1/(p-1))\\).",
-                    solution: "We have \\(\\prod_{p<z}(1+1/(p-1)) = \\prod_{p<z} p/(p-1)\\). By Mertens' third theorem, \\(\\prod_{p<z}(1-1/p)^{-1} \\sim e^{\\gamma}\\log z\\). Since \\(p/(p-1) = (1-1/p)^{-1}\\), we get \\(V \\sim e^{\\gamma}\\log z\\). This gives the main term \\(XV^{-1} \\sim Xe^{-\\gamma}/\\log z\\), matching Brun-Titchmarsh up to the leading constant."
+                    question: 'Verify that \\(G(D) \\sim \\frac{1}{2} \\log N\\) when \\(D = \\sqrt{N}\\), \\(g(p) = 1/p\\), and the sum runs over all squarefree \\(d \\leq D\\) composed of primes \\(p < \\sqrt{N}\\).',
+                    hint: 'Use the fact that \\(\\sum_{d \\leq D} \\mu(d)^2 \\prod_{p \\mid d} \\frac{1}{p-1} = \\sum_{d \\leq D} \\frac{\\mu(d)^2}{\\phi(d)} \\sim C \\log D\\) for a constant \\(C\\) related to \\(\\prod_p (1 - 1/p(p-1))^{-1}\\).',
+                    solution: 'We have \\(\\frac{\\mu(d)^2}{g(d)} \\prod_{p \\mid d} \\frac{g(p)}{1-g(p)} = \\mu(d)^2 \\prod_{p \\mid d} p \\cdot \\frac{1/p}{1-1/p} = \\mu(d)^2 \\prod_{p \\mid d} \\frac{1}{1-1/p} = \\frac{\\mu(d)^2 d}{\\phi(d)}\\). By Mertens\' theorem, \\(\\sum_{d \\leq D} \\frac{\\mu(d)^2}{\\phi(d)} \\sim \\frac{\\log D}{\\zeta(2)} \\cdot C\\), and with \\(D = \\sqrt{N}\\), the leading term is \\(\\sim \\frac{1}{2} \\log N\\) after accounting for the Euler product constant.'
                 }
             ]
         },
 
         // ================================================================
-        // SECTION 2: Selberg's Upper Bound Sieve
-        // ================================================================
-        {
-            id: 'sec-selberg-upper',
-            title: "Selberg's Upper Bound Sieve",
-            content: `
-<h2>Selberg's Upper Bound Sieve</h2>
-
-<p>We now carry out the optimization in detail. Fix \\(D \\ge 1\\) (the <em>sieve level</em>). We seek real numbers \\((\\lambda_d)_{d \\mid P(z),\\, d \\le D}\\) with \\(\\lambda_1 = 1\\) that minimize</p>
-\\[
-\\sum_{\\mathcal{A}} \\left(\\sum_{\\substack{d \\mid \\gcd(a, P(z)) \\\\ d \\le D}} \\lambda_d\\right)^2 \\approx X \\sum_{d_1, d_2 \\le D} \\lambda_{d_1} \\lambda_{d_2} \\frac{\\omega([d_1, d_2])}{[d_1, d_2]}.
-\\]
-
-<h3>The Quadratic Form</h3>
-<p>Substituting the approximation \\(|\\mathcal{A}_d| \\approx (\\omega(d)/d)X\\) and expanding:</p>
-\\[
-Q(\\lambda) = \\sum_{\\substack{d_1, d_2 \\le D \\\\ d_1, d_2 \\mid P(z)}} \\lambda_{d_1} \\lambda_{d_2} \\frac{\\omega([d_1,d_2])}{[d_1,d_2]}.
-\\]
-<p>Using the multiplicativity of \\(\\omega\\) and the identity</p>
-\\[
-\\frac{\\omega([d_1,d_2])}{[d_1,d_2]} = \\sum_{e \\mid \\gcd(d_1,d_2)} \\frac{g(e)}{e},
-\\]
-<p>where \\(g\\) encodes the local factors, one converts \\(Q\\) into a diagonal form after a change of variables \\(y_r = \\sum_{r \\mid d} \\lambda_d\\).</p>
-
-<div class="env-block theorem">
-    <div class="env-title">Theorem 12.1 (Selberg's Upper Bound)</div>
-    <div class="env-body">
-        <p>With the optimal Selberg weights,</p>
-        \\[
-        S(\\mathcal{A}, \\mathcal{P}, z) \\le \\frac{X}{V(z, D)} + \\sum_{\\substack{d_1, d_2 \\le D \\\\ d_1, d_2 \\mid P(z)}} |\\lambda_{d_1} \\lambda_{d_2}| \\cdot |R_{[d_1,d_2]}|,
-        \\]
-        <p>where</p>
-        \\[
-        V(z, D) = \\sum_{\\substack{d \\le D \\\\ d \\mid P(z)}} \\frac{\\mu^2(d)}{F(d)}, \\quad F(d) = \\prod_{p \\mid d} \\frac{\\omega(p)}{p - \\omega(p)}.
-        \\]
-    </div>
-</div>
-
-<h3>Optimal Weights via Lagrange Multipliers</h3>
-<p>Minimizing \\(Q(\\lambda)\\) subject to \\(\\lambda_1 = 1\\) via a Lagrange multiplier \\(\\eta\\):</p>
-\\[
-\\frac{\\partial Q}{\\partial \\lambda_d} = 2\\eta \\cdot [d = 1] \\quad \\Longrightarrow \\quad \\sum_{d_2 \\le D} \\lambda_{d_2} \\frac{\\omega([d,d_2])}{[d,d_2]} = \\frac{\\eta}{2} \\cdot \\mu(d=1).
-\\]
-<p>After the change of variables \\(y_r = \\sum_{r \\mid d \\le D} \\lambda_d / F(r)\\), the system diagonalizes, and the solution is</p>
-\\[
-\\lambda_d^* = \\frac{\\mu(d)}{F(d)} \\cdot \\frac{1}{V(z,D)} \\sum_{\\substack{r \\le D/d \\\\ r \\mid P(z)/d}} \\frac{\\mu^2(r)}{F(r)}.
-\\]
-<p>The key property is \\(|\\lambda_d^*| \\le 1\\) for all \\(d\\), which gives a clean error term.</p>
-
-<div class="env-block example">
-    <div class="env-title">Example: Counting Primes in \\([N+1, 2N]\\) (Brun-Titchmarsh)</div>
-    <div class="env-body">
-        <p>Take \\(\\mathcal{A} = \\{N+1, \\ldots, 2N\\}\\), \\(\\mathcal{P} = \\{\\text{all primes}\\}\\), \\(z = \\sqrt{N}\\), \\(D = \\sqrt{N}\\). With \\(\\omega(p) = 1\\) for all \\(p\\), Selberg gives</p>
-        \\[
-        \\pi(2N) - \\pi(N) \\le \\frac{2N}{\\log N}(1 + o(1)).
-        \\]
-        <p>This is the <strong>Brun-Titchmarsh inequality</strong>, with the correct leading constant 2. (The truth is \\(N/\\log N\\) by PNT, so Selberg is off by a factor of 2 &#x2014; reflecting the parity barrier.)</p>
-    </div>
-</div>
-
-<div class="env-block remark">
-    <div class="env-title">Comparison with Inclusion-Exclusion</div>
-    <div class="env-body">
-        <p>Brun's combinatorial sieve needs \\(D = z^{1/(\\kappa+1)}\\) to balance error, whereas Selberg can take \\(D = z\\) and still get useful bounds. The quadratic form approach automatically finds the "right" truncation without ad hoc parameter choices.</p>
-    </div>
-</div>
-
-<div class="viz-placeholder" data-viz="viz-optimization-landscape"></div>
-`,
-            visualizations: [
-                {
-                    id: 'viz-optimization-landscape',
-                    title: 'Quadratic Form Optimization Landscape (2D Projection)',
-                    description: 'Contour plot of the Selberg quadratic form \\(Q(\\lambda_1, \\lambda_p)\\) in the \\((\\lambda_p, \\lambda_{p^2})\\) plane for a single prime \\(p\\). The red dot marks the Lagrange-multiplier minimum subject to \\(\\lambda_1 = 1\\). Move the slider to vary \\(\\omega(p)/p\\).',
-                    setup: function(body, controls) {
-                        var viz = new VizEngine(body, { width: 580, height: 380, originX: 290, originY: 190, scale: 100 });
-                        var omegaOverP = 0.5;
-                        VizEngine.createSlider(controls, '\u03c9(p)/p', 0.1, 0.9, omegaOverP, 0.05, function(v) {
-                            omegaOverP = v;
-                            draw();
-                        });
-
-                        function draw() {
-                            viz.clear();
-                            var ctx = viz.ctx;
-                            var rho = omegaOverP; // omega(p)/p
-
-                            // Q(x,y) = coeff matrix for (lambda_p, lambda_p^2) with lambda_1=1 fixed
-                            // Simplified 2-variable quadratic form derived from Selberg setup
-                            // Q = A*x^2 + 2B*x*y + C*y^2 + D*x + E*y + F
-                            // With single prime p: expand the quadratic form for d in {1,p}
-                            // Q ~ (rho*x^2 + 2*rho^2*x*y + rho*y^2) + 2*rho*x + const
-                            var A = 1 + rho, B = rho, C = 1 + rho;
-                            var Dcoef = 2 * rho, Ecoef = 2 * rho * rho;
-
-                            // Draw heatmap of Q
-                            var pw = viz.canvas.width, ph = viz.canvas.height;
-                            ctx.save(); ctx.setTransform(1, 0, 0, 1, 0, 0);
-                            var imgData = ctx.createImageData(pw, ph);
-                            var data = imgData.data;
-                            var xRange = [-2, 2], yRange = [-2, 2];
-                            var vMin = Infinity, vMax = -Infinity;
-                            var values = new Float64Array(pw * ph);
-                            for (var py = 0; py < ph; py++) {
-                                for (var px2 = 0; px2 < pw; px2++) {
-                                    var x = xRange[0] + (xRange[1] - xRange[0]) * px2 / pw;
-                                    var y2 = yRange[1] - (yRange[1] - yRange[0]) * py / ph;
-                                    var val = A * x * x + 2 * B * x * y2 + C * y2 * y2 + Dcoef * x + Ecoef * y2 + 1;
-                                    values[py * pw + px2] = val;
-                                    if (isFinite(val)) { vMin = Math.min(vMin, val); vMax = Math.max(vMax, val); }
-                                }
-                            }
-                            var range = vMax - vMin || 1;
-                            for (var i2 = 0; i2 < pw * ph; i2++) {
-                                var t = Math.max(0, Math.min(1, (values[i2] - vMin) / range));
-                                var rgb = VizEngine.colormapSample(t, 'viridis');
-                                data[i2 * 4] = rgb[0]; data[i2 * 4 + 1] = rgb[1]; data[i2 * 4 + 2] = rgb[2]; data[i2 * 4 + 3] = 255;
-                            }
-                            ctx.putImageData(imgData, 0, 0);
-                            ctx.restore();
-
-                            // Draw axes
-                            viz.drawAxes();
-
-                            // Optimal point: dQ/dx = 2Ax + 2By + D = 0, dQ/dy = 2Bx + 2Cy + E = 0
-                            var det = A * C - B * B;
-                            var xOpt = det > 1e-10 ? (-Dcoef * C + Ecoef * B) / (2 * det) : 0;
-                            var yOpt = det > 1e-10 ? (-Ecoef * A + Dcoef * B) / (2 * det) : 0;
-
-                            // Draw optimal point
-                            viz.drawPoint(xOpt, yOpt, viz.colors.red, null, 7);
-                            viz.screenText('Minimum', viz.originX + xOpt * viz.scale + 12, viz.originY - yOpt * viz.scale - 8, viz.colors.red, 11, 'left');
-
-                            // Labels
-                            viz.screenText('\u03bb_p', viz.width - 20, viz.originY + 14, viz.colors.text, 12);
-                            viz.screenText('\u03bb_{p\u00b2}', viz.originX + 8, 16, viz.colors.text, 12);
-                            viz.screenText('Selberg Q(\u03bb) contours, \u03c9(p)/p = ' + omegaOverP.toFixed(2), viz.width / 2, 14, viz.colors.white, 12);
-                            viz.screenText('Optimal: \u03bb_p = ' + xOpt.toFixed(3) + ', \u03bb_{p\u00b2} = ' + yOpt.toFixed(3), viz.width / 2, viz.height - 12, viz.colors.yellow, 11);
-                        }
-                        draw();
-                        return viz;
-                    }
-                }
-            ],
-            exercises: [
-                {
-                    question: "Show that the quadratic form \\(Q(\\lambda) = \\sum_{d_1,d_2} \\lambda_{d_1}\\lambda_{d_2}\\omega([d_1,d_2])/[d_1,d_2]\\) is positive semi-definite. (Hint: it is a sum over \\(\\mathcal{A}\\) of squares.)",
-                    hint: "Write \\(Q = X^{-1}\\sum_a (\\sum_{d|a} \\lambda_d)^2\\) after substituting the main-term approximation.",
-                    solution: "After substituting \\(|\\mathcal{A}_d| \\approx (\\omega(d)/d)X\\) and rearranging, \\(Q\\) is a weighted sum of squares of \\(\\sum_{d|n}\\lambda_d\\) over integers \\(n\\) with positive weights \\(\\omega(n)/n\\). A sum of squares with non-negative coefficients is positive semi-definite. Formally, \\(Q = \\sum_n (\\omega(n)/n)(\\sum_{d|n}\\lambda_d)^2 \\ge 0\\) for all real \\(\\lambda\\)."
-                },
-                {
-                    question: "Suppose \\(\\omega(p) = 1\\) for all primes \\(p < z\\). Compute \\(V(z, D)\\) for \\(D = z\\) and show that \\(V \\sim e^\\gamma \\log z\\) as \\(z \\to \\infty\\) using Mertens' theorem.",
-                    hint: "With \\(\\omega(p)=1\\), \\(F(d) = \\prod_{p|d}1/(p-1)\\). The sum over squarefree \\(d\\) factors as an Euler product.",
-                    solution: "We have \\(F(d)^{-1} = \\prod_{p|d}(p-1)\\) for squarefree \\(d\\), so \\(V = \\sum_{d|P(z), d \\le z} \\mu^2(d)/F(d) = \\prod_{p<z}(1 + 1/(p-1)) = \\prod_{p<z}p/(p-1)\\). By Mertens' third theorem, \\(\\prod_{p<z}(1-1/p)^{-1} \\sim e^\\gamma \\log z\\), and \\(p/(p-1) = 1/(1-1/p)\\), so \\(V \\sim e^\\gamma \\log z\\)."
-                }
-            ]
-        },
-
-        // ================================================================
-        // SECTION 3: Sieve Dimension & Sieve Limit
+        // SECTION 3: Sieve Dimension
         // ================================================================
         {
             id: 'sec-sieve-dimension',
-            title: 'Sieve Dimension & Sieve Limit',
+            title: 'Sieve Dimension',
             content: `
-<h2>Sieve Dimension and the Sieve Limit</h2>
+<h2>Sieve Dimension</h2>
 
-<p>Not all sieves behave alike. The behavior of \\(S(\\mathcal{A}, \\mathcal{P}, z)\\) depends fundamentally on how many integers the primes in \\(\\mathcal{P}\\) eliminate. This is captured by the <em>sieve dimension</em> \\(\\kappa\\).</p>
+<div class="env-block intuition">
+    <div class="env-title">What Controls the Sieve?</div>
+    <div class="env-body">
+        <p>Different sifting problems have different "densities" of divisibility. Sifting for primes, each residue class mod \\(p\\) removes about \\(1/p\\) of the integers. Sifting for twin primes, each prime \\(p > 2\\) removes about \\(2/p\\) of the candidates. The <em>sieve dimension</em> \\(\\kappa\\) captures this density and determines the strength of sieve bounds.</p>
+    </div>
+</div>
+
+<h3>Definition and Examples</h3>
 
 <div class="env-block definition">
-    <div class="env-title">Definition 12.1 (Sieve Dimension)</div>
+    <div class="env-title">Definition (Sieve Dimension)</div>
     <div class="env-body">
-        <p>The <strong>sieve dimension</strong> (or <em>sieve density</em>) is the constant \\(\\kappa \\ge 0\\) such that</p>
+        <p>A sieve problem has <strong>dimension</strong> \\(\\kappa > 0\\) if the multiplicative function \\(g\\) in the density decomposition satisfies</p>
         \\[
-        \\prod_{w \\le p < z} \\left(1 - \\frac{\\omega(p)}{p}\\right)^{-1} \\sim \\left(\\frac{\\log z}{\\log w}\\right)^\\kappa \\quad \\text{as } z / w \\to \\infty.
+        \\sum_{p < z} g(p) \\log p = \\kappa \\log z + O(1) \\quad \\text{as } z \\to \\infty.
         \\]
-        <p>Equivalently, \\(\\sum_{p < z} \\omega(p)/p = \\kappa \\log\\log z + C + o(1)\\) for some constant \\(C\\).</p>
+        <p>Equivalently, \\(\\prod_{p < z} (1 - g(p))^{-1} \\asymp (\\log z)^\\kappa\\).</p>
     </div>
 </div>
 
-<h3>Standard Examples</h3>
-<ul>
-    <li><strong>\\(\\kappa = 1\\) (linear sieve):</strong> \\(\\omega(p) = 1\\) for all \\(p\\). This is the case of primes themselves, or integers in an arithmetic progression. The density is like the primes: each prime eliminates \\(1/p\\) of integers.</li>
-    <li><strong>\\(\\kappa = 1/2\\):</strong> \\(\\omega(p) = 1/2\\) for all odd \\(p\\). Arises in sieving squares or quadratic forms.</li>
-    <li><strong>\\(\\kappa = 2\\):</strong> \\(\\omega(p) = 2\\) for all odd \\(p\\). Arises in twin-prime-type problems: for each prime \\(p\\), both \\(n\\) and \\(n+2\\) being divisible by \\(p\\) eliminates 2 residue classes.</li>
-</ul>
+<div class="env-block example">
+    <div class="env-title">Sieve Dimensions of Classical Problems</div>
+    <div class="env-body">
+        <ul>
+            <li><strong>Primes</strong> (\\(g(p) = 1/p\\)): \\(\\sum_{p<z} \\frac{\\log p}{p} = \\log z + O(1)\\) by Mertens, so \\(\\kappa = 1\\).</li>
+            <li><strong>Twin primes</strong> (\\(g(p) = 2/p\\) for \\(p > 2\\)): \\(\\kappa = 2\\).</li>
+            <li><strong>Goldbach representations</strong> (\\(g(p) = 2/(p-1)\\) roughly): \\(\\kappa = 2\\).</li>
+            <li><strong>Primes in arithmetic progressions</strong> (\\(g(p) = 1/(p-1)\\) for \\(p \\nmid q\\)): \\(\\kappa = 1\\).</li>
+        </ul>
+    </div>
+</div>
 
-<h3>The Sieve Limit Theorem</h3>
-<p>In the Selberg and Rosser-Iwaniec sieves, the quality of the bound depends on the ratio</p>
-\\[
-s = \\frac{\\log D}{\\log z},
-\\]
-<p>where \\(D\\) is the sieve level. The main term is</p>
-\\[
-S(\\mathcal{A}, \\mathcal{P}, z) = \\frac{X}{V(z)} (F_\\kappa(s) + o(1)) + \\text{error},
-\\]
-<p>where \\(F_\\kappa(s)\\) and \\(f_\\kappa(s)\\) are the <em>sieve limit functions</em> for upper and lower bounds, satisfying the differential-delay equations:</p>
-\\[
-(sF_\\kappa(s))' = \\kappa f_\\kappa(s-1), \\quad (sf_\\kappa(s))' = \\kappa F_\\kappa(s-1), \\quad s > 1.
-\\]
+<h3>The Fundamental Lemma of Sieve Theory</h3>
 
 <div class="env-block theorem">
-    <div class="env-title">Theorem 12.2 (Sieve Limits)</div>
+    <div class="env-title">Theorem 12.2 (Fundamental Lemma)</div>
     <div class="env-body">
-        <p>For the linear sieve (\\(\\kappa = 1\\)):</p>
+        <p>For a sieve of dimension \\(\\kappa\\), with level \\(D = z^s\\), the Selberg upper-bound sieve gives</p>
         \\[
-        F_1(s) = \\frac{2e^\\gamma}{s} \\quad (s \\ge 2), \\qquad f_1(s) = \\frac{2e^\\gamma \\log(s-1)}{s} \\quad (s \\ge 3).
+        S(\\mathcal{A}, \\mathcal{P}, z) \\leq X \\cdot V(z) \\left(F_\\kappa(s) + o(1)\\right) + R,
         \\]
-        <p>For \\(1 \\le s \\le 2\\), \\(f_1(s) = 0\\) (no lower bound). For \\(s \\le 1\\), \\(F_1(s) = +\\infty\\) (sieve is too coarse).</p>
+        <p>where \\(V(z) = \\prod_{p < z} (1 - g(p))\\) and \\(F_\\kappa(s)\\) is a continuous function of \\(s\\) depending on the dimension \\(\\kappa\\). Similarly, lower-bound sieves give a factor \\(f_\\kappa(s)\\).</p>
     </div>
 </div>
 
-<p>The critical observation is that \\(f_\\kappa(s) = 0\\) for \\(s \\le \\beta_\\kappa\\), where \\(\\beta_\\kappa\\) is the <em>sieve limit</em>. For \\(\\kappa = 1\\), \\(\\beta_1 = 2\\): lower bounds require \\(s > 2\\), i.e., \\(D > z^2\\). This is far from the \\(D = z\\) typically available.</p>
+<p>The sieve limit functions \\(F_\\kappa(s)\\) and \\(f_\\kappa(s)\\) satisfy a system of differential-delay equations:</p>
+
+\\[
+\\begin{cases}
+(s^\\kappa F_\\kappa(s))' = -\\kappa s^{\\kappa - 1} f_\\kappa(s-1), & s > \\beta_\\kappa, \\\\
+(s^\\kappa f_\\kappa(s))' = -\\kappa s^{\\kappa - 1} F_\\kappa(s-1), & s > \\alpha_\\kappa,
+\\end{cases}
+\\]
+
+<p>with initial conditions \\(F_\\kappa(s) = 1/\\sigma_\\kappa(s)\\) for \\(1 < s \\leq \\beta_\\kappa\\) and \\(f_\\kappa(s) = 0\\) for \\(0 < s \\leq \\alpha_\\kappa\\), where \\(\\sigma_\\kappa\\) is related to the Buchstab function and \\(\\alpha_\\kappa, \\beta_\\kappa\\) are the critical values.</p>
 
 <div class="env-block remark">
-    <div class="env-title">Why Does the Sieve Limit Matter?</div>
+    <div class="env-title">Dimension 1: The Sieve of Eratosthenes</div>
     <div class="env-body">
-        <p>The sieve limit \\(\\beta_\\kappa\\) is the smallest \\(s\\) for which the sieve provides a non-trivial lower bound. If \\(D = z^s\\) and \\(s \\le \\beta_\\kappa\\), no lower bound is available from the sieve alone: you cannot prove a sequence has <em>any</em> elements with \\(\\gcd = 1\\) via sieve methods. For twin primes (\\(\\kappa=2\\), \\(\\beta_2 = 4\\)), you would need \\(D = z^4\\) &#x2014; but error terms only permit \\(D \\ll \\sqrt{N}\\), so \\(s = 1/2\\), which is far below \\(\\beta_2 = 4\\).</p>
+        <p>For \\(\\kappa = 1\\): \\(\\alpha_1 = 1, \\beta_1 = 2\\). When \\(s = 2\\) (i.e., \\(D = z^2\\)), we get \\(F_1(2) = 2\\) and \\(f_1(2) = 0\\). The upper-bound factor of 2 is exactly the Selberg result for primes. The lower bound is trivially zero at \\(s = 2\\), but for \\(s > 2\\) it becomes positive, and both \\(F_1(s) \\to 1\\) and \\(f_1(s) \\to 1\\) as \\(s \\to \\infty\\).</p>
     </div>
 </div>
 
@@ -414,80 +523,142 @@ S(\\mathcal{A}, \\mathcal{P}, z) = \\frac{X}{V(z)} (F_\\kappa(s) + o(1)) + \\tex
                 {
                     id: 'viz-sieve-limit',
                     title: 'Sieve Limit Functions \\(F_\\kappa(s)\\) and \\(f_\\kappa(s)\\)',
-                    description: 'Plot of upper and lower sieve limit functions for different sieve dimensions \\(\\kappa\\). Note how \\(f_\\kappa(s)=0\\) for \\(s \\le \\beta_\\kappa\\) and the sieve gap \\(F_\\kappa - f_\\kappa\\) narrows as \\(s \\to \\infty\\). Toggle dimension with the slider.',
+                    description: 'The upper-bound function \\(F_\\kappa(s)\\) starts above 1 and decreases toward 1. The lower-bound function \\(f_\\kappa(s)\\) starts at 0 and increases toward 1. They converge as the sieve level \\(D = z^s\\) grows. Adjust the dimension \\(\\kappa\\) to see how higher dimension makes sieving harder.',
                     setup: function(body, controls) {
-                        var viz = new VizEngine(body, { width: 600, height: 380, originX: 60, originY: 330, scale: 50 });
-                        var kappa = 1.0;
-                        VizEngine.createSlider(controls, '\u03ba (sieve dimension)', 0.5, 2.0, kappa, 0.5, function(v) {
-                            kappa = v;
-                            draw();
+                        var viz = new VizEngine(body, {
+                            width: 560, height: 380,
+                            originX: 70, originY: 320, scale: 50
                         });
 
-                        // Sieve limit functions: approximate closed-form for display
-                        function F_kappa(s, k) {
-                            if (s <= 0) return 5;
-                            if (k === 1) {
-                                if (s < 1) return 5;
-                                return Math.min(5, 2 * Math.exp(0.5772) / s); // 2e^gamma/s
-                            }
-                            if (k === 0.5) {
-                                return Math.min(5, Math.sqrt(Math.PI) * Math.exp(0.5772 * k) / Math.sqrt(s));
-                            }
-                            // General: F_kappa ~ C_kappa / s^kappa, C_kappa = e^(gamma*kappa)*2^kappa/Gamma(kappa+1)
-                            var gamma = 0.5772;
-                            var C = Math.pow(Math.E, gamma * k) * Math.pow(2, k) / (k === 2 ? 2 : (k === 1.5 ? 1.329 : 1));
-                            return Math.min(5, C / Math.pow(s, k));
+                        var kappa = 1;
+                        VizEngine.createSlider(controls, '\u03BA (dimension)', 1, 4, kappa, 0.5, function(v) {
+                            kappa = v; draw();
+                        });
+
+                        // Approximate sieve limit functions
+                        // For kappa=1: F(s) ~ 2/s for 1 < s <= 3, then approaches 1
+                        // For general kappa: F_kappa(s) ~ 1/(sigma(s)) near beta, approaches 1
+                        function upperF(s, k) {
+                            if (s <= 1) return 10;
+                            // Simplified model: F_k(s) = 1 + (2^k - 1) * exp(-(s - 1) * k / 2)
+                            var peak = Math.pow(2, k);
+                            return 1 + (peak - 1) * Math.exp(-(s - 1) * 0.8 * k);
                         }
 
-                        function f_kappa(s, k) {
-                            var beta;
-                            if (k === 0.5) beta = 1;
-                            else if (k === 1.0) beta = 2;
-                            else if (k === 1.5) beta = 3;
-                            else if (k === 2.0) beta = 4;
-                            else beta = Math.round(2 * k); // rough approximation
-                            if (s <= beta) return 0;
-                            var gamma = 0.5772;
-                            if (k === 1) return Math.min(5, 2 * Math.exp(gamma) * Math.log(s - 1) / s);
-                            // Approximate: f ~ F * (1 - exp(-kappa*(s - beta)))
-                            return F_kappa(s, k) * (1 - Math.exp(-k * (s - beta) * 0.7));
+                        function lowerF(s, k) {
+                            var alpha = 1 + (k - 1) * 0.5; // approximate critical point
+                            if (s <= alpha) return 0;
+                            // Increases from 0 toward 1
+                            return 1 - Math.exp(-(s - alpha) * 0.6 * k);
                         }
 
                         function draw() {
                             viz.clear();
-                            viz.drawGrid(1);
-                            viz.drawAxes();
-
-                            var sMin = 0.5, sMax = 9;
-
-                            // Shaded region between F and f
-                            viz.shadeBetween(
-                                function(s) { return f_kappa(s, kappa); },
-                                function(s) { return F_kappa(s, kappa); },
-                                sMin, sMax,
-                                viz.colors.blue + '22'
-                            );
-
-                            // Draw F_kappa (upper)
-                            viz.drawFunction(function(s) { return F_kappa(s, kappa); }, sMin, sMax, viz.colors.blue, 2.5);
-
-                            // Draw f_kappa (lower)
-                            viz.drawFunction(function(s) { return f_kappa(s, kappa); }, sMin, sMax, viz.colors.teal, 2.5);
-
-                            // Mark sieve limit beta
-                            var beta = Math.round(2 * kappa);
                             var ctx = viz.ctx;
-                            var [bsx, bsy] = viz.toScreen(beta, 0);
-                            ctx.strokeStyle = viz.colors.yellow; ctx.lineWidth = 1.5; ctx.setLineDash([5, 4]);
-                            ctx.beginPath(); ctx.moveTo(bsx, 0); ctx.lineTo(bsx, viz.height); ctx.stroke();
-                            ctx.setLineDash([]);
-                            viz.screenText('\u03b2_\u03ba = ' + beta, bsx + 4, viz.height - 60, viz.colors.yellow, 11, 'left');
 
-                            // Labels
-                            viz.screenText('F_\u03ba(s) upper bound', viz.width - 20, 30, viz.colors.blue, 12, 'right');
-                            viz.screenText('f_\u03ba(s) lower bound', viz.width - 20, 48, viz.colors.teal, 12, 'right');
-                            viz.screenText('Sieve dimension \u03ba = ' + kappa.toFixed(1), viz.width / 2, 14, viz.colors.white, 14);
-                            viz.drawText('s = log D / log z', sMax - 0.5, -0.25, viz.colors.text, 11);
+                            viz.screenText('Sieve Limit Functions for \u03BA = ' + kappa.toFixed(1), viz.width / 2, 20, viz.colors.white, 14);
+
+                            // Chart area
+                            var chartL = 70, chartR = viz.width - 30;
+                            var chartT = 50, chartB = 320;
+                            var chartW = chartR - chartL, chartH = chartB - chartT;
+
+                            var sMax = 8;
+                            var yMax = Math.min(Math.pow(2, kappa) + 0.5, 10);
+
+                            // Grid
+                            ctx.strokeStyle = viz.colors.grid; ctx.lineWidth = 0.5;
+                            for (var gy = 0; gy <= yMax; gy += 0.5) {
+                                var py = chartB - (gy / yMax) * chartH;
+                                ctx.beginPath(); ctx.moveTo(chartL, py); ctx.lineTo(chartR, py); ctx.stroke();
+                                if (gy === Math.round(gy)) {
+                                    ctx.fillStyle = viz.colors.text; ctx.font = '10px -apple-system,sans-serif';
+                                    ctx.textAlign = 'right'; ctx.textBaseline = 'middle';
+                                    ctx.fillText(gy.toString(), chartL - 6, py);
+                                }
+                            }
+
+                            // y = 1 line
+                            var y1 = chartB - (1 / yMax) * chartH;
+                            ctx.strokeStyle = viz.colors.white + '44'; ctx.lineWidth = 1;
+                            ctx.setLineDash([4, 4]);
+                            ctx.beginPath(); ctx.moveTo(chartL, y1); ctx.lineTo(chartR, y1); ctx.stroke();
+                            ctx.setLineDash([]);
+                            ctx.fillStyle = viz.colors.white; ctx.font = '11px -apple-system,sans-serif';
+                            ctx.textAlign = 'left'; ctx.fillText('target = 1', chartR - 60, y1 - 8);
+
+                            // Axes
+                            ctx.strokeStyle = viz.colors.axis; ctx.lineWidth = 1.5;
+                            ctx.beginPath(); ctx.moveTo(chartL, chartB); ctx.lineTo(chartR, chartB); ctx.stroke();
+                            ctx.beginPath(); ctx.moveTo(chartL, chartT); ctx.lineTo(chartL, chartB); ctx.stroke();
+
+                            // x-axis labels
+                            ctx.fillStyle = viz.colors.text; ctx.font = '10px -apple-system,sans-serif';
+                            ctx.textAlign = 'center'; ctx.textBaseline = 'top';
+                            for (var sx = 1; sx <= sMax; sx++) {
+                                var px = chartL + (sx / sMax) * chartW;
+                                ctx.fillText(sx.toString(), px, chartB + 4);
+                            }
+                            ctx.fillText('s = log D / log z', (chartL + chartR) / 2, chartB + 20);
+
+                            // Draw F_kappa(s)
+                            ctx.strokeStyle = viz.colors.teal; ctx.lineWidth = 2.5;
+                            ctx.beginPath();
+                            var started = false;
+                            for (var i = 0; i <= 200; i++) {
+                                var s = 0.05 + sMax * i / 200;
+                                var F = upperF(s, kappa);
+                                var px2 = chartL + (s / sMax) * chartW;
+                                var py2 = chartB - (Math.min(F, yMax) / yMax) * chartH;
+                                if (!started) { ctx.moveTo(px2, py2); started = true; }
+                                else ctx.lineTo(px2, py2);
+                            }
+                            ctx.stroke();
+
+                            // Draw f_kappa(s)
+                            ctx.strokeStyle = viz.colors.orange; ctx.lineWidth = 2.5;
+                            ctx.beginPath();
+                            started = false;
+                            for (var j = 0; j <= 200; j++) {
+                                var s2 = 0.05 + sMax * j / 200;
+                                var f = lowerF(s2, kappa);
+                                var px3 = chartL + (s2 / sMax) * chartW;
+                                var py3 = chartB - (Math.max(0, Math.min(f, yMax)) / yMax) * chartH;
+                                if (!started) { ctx.moveTo(px3, py3); started = true; }
+                                else ctx.lineTo(px3, py3);
+                            }
+                            ctx.stroke();
+
+                            // Shade between
+                            ctx.fillStyle = viz.colors.purple + '15';
+                            ctx.beginPath();
+                            for (var a = 0; a <= 200; a++) {
+                                var ss = 0.05 + sMax * a / 200;
+                                var Fv = Math.min(upperF(ss, kappa), yMax);
+                                var pxa = chartL + (ss / sMax) * chartW;
+                                var pya = chartB - (Fv / yMax) * chartH;
+                                if (a === 0) ctx.moveTo(pxa, pya);
+                                else ctx.lineTo(pxa, pya);
+                            }
+                            for (var b = 200; b >= 0; b--) {
+                                var ss2 = 0.05 + sMax * b / 200;
+                                var fv = Math.max(0, Math.min(lowerF(ss2, kappa), yMax));
+                                var pxb = chartL + (ss2 / sMax) * chartW;
+                                var pyb = chartB - (fv / yMax) * chartH;
+                                ctx.lineTo(pxb, pyb);
+                            }
+                            ctx.closePath(); ctx.fill();
+
+                            // Legend
+                            ctx.fillStyle = viz.colors.teal;
+                            ctx.fillRect(chartL + 10, chartT + 10, 12, 12);
+                            ctx.fillStyle = viz.colors.text; ctx.font = '11px -apple-system,sans-serif';
+                            ctx.textAlign = 'left'; ctx.fillText('F\u2096(s) upper bound', chartL + 26, chartT + 20);
+
+                            ctx.fillStyle = viz.colors.orange;
+                            ctx.fillRect(chartL + 10, chartT + 28, 12, 12);
+                            ctx.fillStyle = viz.colors.text;
+                            ctx.fillText('f\u2096(s) lower bound', chartL + 26, chartT + 38);
                         }
                         draw();
                         return viz;
@@ -496,141 +667,235 @@ S(\\mathcal{A}, \\mathcal{P}, z) = \\frac{X}{V(z)} (F_\\kappa(s) + o(1)) + \\tex
             ],
             exercises: [
                 {
-                    question: "For the Goldbach-type problem (sieve for \\(n(n+2)\\) having at most \\(k\\) prime factors combined), explain why \\(\\kappa = 2\\) and what constraint on \\(D\\) is needed for a lower bound.",
-                    hint: "Each prime \\(p \\ge 3\\) eliminates 2 residue classes from \\(n(n+2)\\). What is \\(\\sum_p 2/p\\)?",
-                    solution: "For twin-prime-type sequences, \\(\\omega(p) = 2\\) for odd primes, giving \\(\\sum_{p < z}\\omega(p)/p \\approx 2\\log\\log z\\), so \\(\\kappa = 2\\). The sieve limit is \\(\\beta_2 = 4\\), requiring \\(D \\ge z^4\\) for any lower bound. But to sieve an interval of length \\(N\\), errors require \\(D \\ll N^{1/2}\\) and \\(z \\approx N^{1/4}\\), giving \\(s = \\log D / \\log z \\approx 2\\). Since \\(2 < 4 = \\beta_2\\), no lower bound from the pure sieve exists for \\(\\kappa = 2\\)."
+                    question: 'Compute the sieve dimension \\(\\kappa\\) for the problem of counting integers \\(n \\leq N\\) such that both \\(n\\) and \\(n+2\\) have no prime factor below \\(z\\).',
+                    hint: 'For each prime \\(p > 2\\), we remove \\(n\\) if \\(p \\mid n\\) or \\(p \\mid n+2\\), so about \\(2/p\\) of residues mod \\(p\\) are removed. What is \\(g(p)\\)?',
+                    solution: 'For the twin prime sieve, \\(g(p) = 2/p\\) for \\(p > 2\\) (and \\(g(2) = 1/2\\)). Then \\(\\sum_{p < z} g(p) \\log p \\approx 2 \\sum_{p < z} \\frac{\\log p}{p} \\sim 2 \\log z\\). So \\(\\kappa = 2\\).'
                 },
                 {
-                    question: "The differential-delay system \\((sF)' = \\kappa f(s-1)\\) and \\((sf)' = \\kappa F(s-1)\\) with \\(F(s) = 2/s\\) for \\(1 \\le s \\le 2\\) and \\(f(s) = 0\\) for \\(s \\le 2\\) (\\(\\kappa=1\\)). Verify that \\(f_1(3) = 2e^\\gamma \\log 2 / 3\\).",
-                    hint: "Integrate \\((sf)' = F(s-1) = 2e^\\gamma/(s-1)\\) from 2 to 3.",
-                    solution: "For \\(2 < s \\le 3\\): \\((sf_1)' = F_1(s-1) = 2e^\\gamma/(s-1)\\). Integrating: \\(sf_1(s) = 2e^\\gamma \\int_2^s dt/(t-1) = 2e^\\gamma \\log(s-1)\\) (using \\(f_1(2) = 0\\)). At \\(s = 3\\): \\(3 f_1(3) = 2e^\\gamma \\log 2\\), giving \\(f_1(3) = 2e^\\gamma \\log 2 / 3\\). \\(\\checkmark\\)"
+                    question: 'Why does higher sieve dimension make the problem harder? Explain intuitively why the sieve limit functions converge to 1 more slowly when \\(\\kappa\\) is larger.',
+                    hint: 'Think about how many residue classes are being removed per prime.',
+                    solution: 'Higher \\(\\kappa\\) means each prime removes a larger fraction of the candidates. The sieve has to work harder because more overlap and "wasteful" sifting occurs. The product \\(V(z) = \\prod_{p<z}(1-g(p))\\) shrinks faster, so the sieve needs higher level \\(D = z^s\\) (larger \\(s\\)) before the sieve limit functions get close to 1. In dimension \\(\\kappa = 2\\), the lower-bound sieve needs \\(s > 2\\) to become positive at all, compared to \\(s > 1\\) for \\(\\kappa = 1\\).'
                 }
             ]
         },
 
         // ================================================================
-        // SECTION 4: Lower Bound Sieves
+        // SECTION 4: Lower-Bound Sieves (Rosser-Iwaniec / Beta Sieve)
         // ================================================================
         {
             id: 'sec-lower-bounds',
-            title: 'Lower Bound Sieves',
+            title: 'Lower-Bound Sieves',
             content: `
-<h2>Lower Bound Sieves: Rosser-Iwaniec and the Beta Sieve</h2>
+<h2>Lower-Bound Sieves: Rosser-Iwaniec and the Beta Sieve</h2>
 
-<p>Selberg's \\(\\lambda^2\\) trick gives upper bounds. For lower bounds, a different approach is needed. The difficulty is that a lower bound for a characteristic function cannot be a square.</p>
+<div class="env-block intuition">
+    <div class="env-title">The Challenge of Lower Bounds</div>
+    <div class="env-body">
+        <p>Selberg's \\(\\Lambda^2\\) method gives excellent upper bounds but cannot produce lower bounds: a sum of squares is always non-negative, so the method only shows \\(S \\leq \\text{something}\\). For lower bounds, we need a different approach. The Rosser-Iwaniec sieve achieves this by carefully managing the signs in a truncated M&ouml;bius inversion, combining the combinatorial insight of Brun with the optimization spirit of Selberg.</p>
+    </div>
+</div>
 
-<h3>The Basic Idea: Sign Alternation</h3>
-<p>A lower bound sieve seeks \\(\\beta_d \\in \\mathbb{R}\\) with \\(\\beta_1 = 1\\) such that</p>
-\\[
-\\sum_{d \\mid \\gcd(n,P(z))} \\beta_d \\le \\mathbf{1}_{\\gcd(n,P(z))=1}
-\\]
-<p>for all \\(n\\). Summing over \\(\\mathcal{A}\\) gives a lower bound. The \\(\\beta_d\\) must be chosen so the above holds pointwise &#x2014; much harder than the upper bound case.</p>
+<h3>The Need for Lower Bounds</h3>
 
-<h3>The Rosser-Iwaniec Sieve</h3>
-<p>Rosser's original construction (formalized by Iwaniec 1980) provides a <em>combinatorial</em> lower bound via a careful sign assignment:</p>
-\\[
-\\beta_d^+ = \\begin{cases} \\mu(d) & \\text{if } d = p_1 \\cdots p_r,\\, p_1 > \\cdots > p_r,\\, p_1 p_2 \\cdots p_{2k-1} \\le D \\\\ 0 & \\text{otherwise} \\end{cases}
-\\]
-<p>with a corresponding upper-bound weight \\(\\beta_d^-\\). The key theorem is:</p>
+<p>Many important theorems require showing that sifted sets are <em>non-empty</em>:</p>
+<ul>
+    <li><strong>Chen's theorem</strong>: every sufficiently large even number is \\(p + P_2\\) (prime plus product of at most 2 primes).</li>
+    <li><strong>Iwaniec's theorem</strong>: infinitely many \\(n\\) with \\(n^2 + 1\\) having at most 2 prime factors.</li>
+    <li><strong>Bounded gaps between primes</strong>: the GPY sieve and its extensions by Maynard and Tao.</li>
+</ul>
+
+<p>For all of these, upper bounds alone are insufficient; we need lower bounds on the sifting function \\(S\\).</p>
+
+<h3>Buchstab's Identity</h3>
 
 <div class="env-block theorem">
-    <div class="env-title">Theorem 12.3 (Rosser-Iwaniec Linear Sieve)</div>
+    <div class="env-title">Theorem 12.3 (Buchstab's Identity)</div>
     <div class="env-body">
-        <p>For the linear sieve (\\(\\kappa = 1\\)), with \\(D = z^s\\):</p>
+        <p>For \\(2 \\leq w < z\\),</p>
         \\[
-        S(\\mathcal{A}, \\mathcal{P}, z) \\ge \\frac{X}{V(z)} (f_1(s) - \\varepsilon) + O\\left(\\sum_{d \\le D^2} |R_d|\\right),
+        S(\\mathcal{A}, \\mathcal{P}, z) = S(\\mathcal{A}, \\mathcal{P}, w) - \\sum_{w \\leq p < z} S(\\mathcal{A}_p, \\mathcal{P}, p).
         \\]
-        <p>where \\(f_1(s) > 0\\) for \\(s > 2\\). This is optimal in the sense that \\(f_1\\) cannot be improved for general sequences.</p>
+        <p>This decomposes the sifting function by the smallest prime factor in the range \\([w, z)\\).</p>
     </div>
 </div>
 
-<h3>The Beta Sieve</h3>
-<p>For dimension \\(\\kappa\\) not equal to 1, the <strong>beta sieve</strong> (Jurkat-Richert, Motohashi) provides both upper and lower bounds. Define the "level function"</p>
-\\[
-\\beta_\\kappa = \\inf \\{ s > 0 : f_\\kappa(s) > 0 \\}.
-\\]
-<p>For \\(\\kappa \\in (0, 2)\\), one has \\(\\beta_\\kappa = 2/\\kappa\\). The key identity is</p>
-\\[
-f_\\kappa(s) F_\\kappa(s) = 4\\kappa e^{2\\gamma\\kappa} \\quad \\text{for } s \\gg 1.
-\\]
+<p>Buchstab's identity is the recursive engine behind modern lower-bound sieves. By iterating it, choosing to apply upper or lower bounds at each stage, one can build alternating estimates that give both-sided bounds.</p>
 
-<div class="env-block example">
-    <div class="env-title">Application: Chen's Theorem (Sketch)</div>
+<h3>The Rosser-Iwaniec Sieve</h3>
+
+<div class="env-block theorem">
+    <div class="env-title">Theorem 12.4 (Rosser-Iwaniec Linear Sieve)</div>
     <div class="env-body">
-        <p>Every sufficiently large even number \\(N\\) equals \\(p + m\\) where \\(p\\) is prime and \\(m\\) has at most 2 prime factors (\\(m \\in P_2\\)). The proof uses:</p>
-        <ol>
-            <li>A Selberg upper bound for primes near \\(N/2\\).</li>
-            <li>A Rosser-Iwaniec lower bound with a "switching principle" that converts an upper bound for \\(m \\in P_3\\) (three prime factors) into a lower bound for \\(p + P_2\\).</li>
-            <li>The weighted sieve to handle the transition between \\(P_2\\) and \\(P_3\\).</li>
-        </ol>
-        <p>The key inequality is: (lower bound for \\(p + P_2\\)) \\(\\ge\\) (lower for \\(p+P_{\\le 2}\\)) &#x2212; (upper for \\(p+P_3\\)).</p>
+        <p>For a sieve problem of dimension \\(\\kappa = 1\\), with level \\(D\\) and \\(s = \\log D / \\log z \\geq 1\\), there exist sieve weights giving</p>
+        \\[
+        f_1(s) \\cdot X V(z) + R^- \\leq S(\\mathcal{A}, \\mathcal{P}, z) \\leq F_1(s) \\cdot X V(z) + R^+,
+        \\]
+        <p>where \\(F_1\\) and \\(f_1\\) satisfy the differential-delay system:</p>
+        \\[
+        (s F_1(s))' = f_1(s-1), \\quad (s f_1(s))' = F_1(s-1),
+        \\]
+        <p>with \\(F_1(s) = 2e^\\gamma / s\\) for \\(1 < s \\leq 3\\) and \\(f_1(s) = 0\\) for \\(0 < s \\leq 2\\), and \\(\\gamma\\) is the Euler-Mascheroni constant.</p>
     </div>
 </div>
+
+<h3>The Beta Sieve (\\(\\kappa = 2\\))</h3>
+
+<p>For dimension \\(\\kappa = 2\\) (the "beta sieve"), relevant for twin primes and Goldbach, the critical values shift:</p>
+
+<ul>
+    <li>\\(f_2(s) = 0\\) for \\(s \\leq 2\\) and becomes positive for \\(s > 2\\).</li>
+    <li>\\(F_2(s) = 4 e^{2\\gamma} / s^2\\) for \\(1 < s \\leq \\beta_2 \\approx 3\\).</li>
+</ul>
+
+<p>The parity problem (next section) prevents \\(f_\\kappa(s)\\) from exceeding a certain threshold for dimension \\(\\kappa \\geq 1\\), no matter how large \\(s\\) is taken.</p>
 
 <div class="viz-placeholder" data-viz="viz-upper-lower-bounds"></div>
+
+<div class="env-block example">
+    <div class="env-title">Example: Chen's Theorem Setup</div>
+    <div class="env-body">
+        <p>To prove that \\(N = p + P_2\\), Chen uses a weighted sieve combining \\(S(\\mathcal{A}, z)\\) with \\(S(\\mathcal{A}_p, z)\\) terms. The dimension-2 lower-bound sieve provides \\(S \\geq c \\cdot N / (\\log N)^2\\) for the set of \\(n\\) with \\(N - n\\) having at most 2 prime factors. The key is that the lower-bound sieve, while weaker than the upper, still gives a positive result when \\(s\\) is large enough.</p>
+    </div>
+</div>
 `,
             visualizations: [
                 {
                     id: 'viz-upper-lower-bounds',
-                    title: 'Upper and Lower Sieve Bounds vs Sieve Level \\(s = \\log D/\\log z\\)',
-                    description: 'The gap between the Selberg upper bound (blue) and the Rosser-Iwaniec lower bound (teal) as a function of \\(s\\). Drag the sieve dimension slider. The lower bound activates only for \\(s > \\beta_\\kappa = 2/\\kappa\\).',
+                    title: 'Upper and Lower Sieve Bounds for Primes up to N',
+                    description: 'Compare the Selberg upper bound and Rosser-Iwaniec lower bound for \\(\\pi(N)\\) as the sieve level varies. The true \\(\\pi(N)\\) is sandwiched between them. The gap narrows as the level increases, but can never close completely due to the parity barrier.',
                     setup: function(body, controls) {
-                        var viz = new VizEngine(body, { width: 600, height: 360, originX: 70, originY: 310, scale: 40 });
-                        var kappa = 1.0;
-                        VizEngine.createSlider(controls, '\u03ba', 0.5, 2.0, kappa, 0.5, function(v) {
-                            kappa = v;
-                            draw();
+                        var viz = new VizEngine(body, {
+                            width: 560, height: 380,
+                            originX: 70, originY: 330, scale: 1
                         });
 
-                        function F(s, k) {
-                            if (s <= 0.01) return 8;
-                            var gamma = 0.5772;
-                            var C = Math.pow(Math.E, gamma * k) * Math.pow(2, k);
-                            return Math.min(8, C / Math.pow(s, k));
-                        }
-                        function f(s, k) {
-                            var beta = 2 / k;
-                            if (s <= beta) return 0;
-                            return Math.max(0, F(s, k) * (1 - Math.exp(-k * (s - beta))));
+                        var logN = 5;
+                        VizEngine.createSlider(controls, 'log\u2081\u2080 N', 3, 6, logN, 0.5, function(v) {
+                            logN = v; draw();
+                        });
+
+                        var primes = VizEngine.sievePrimes(1000000);
+
+                        function piCount(n) {
+                            var c = 0;
+                            for (var i = 0; i < primes.length && primes[i] <= n; i++) c++;
+                            return c;
                         }
 
                         function draw() {
                             viz.clear();
-                            viz.drawGrid(1);
-                            viz.drawAxes();
-
-                            var sMin = 0.2, sMax = 12;
-
-                            // Shade upper - lower gap
-                            viz.shadeBetween(
-                                function(s) { return f(s, kappa); },
-                                function(s) { return F(s, kappa); },
-                                sMin, sMax, viz.colors.purple + '22'
-                            );
-
-                            // Upper bound
-                            viz.drawFunction(function(s) { return F(s, kappa); }, sMin, sMax, viz.colors.blue, 2.5);
-
-                            // Lower bound
-                            viz.drawFunction(function(s) { return f(s, kappa); }, sMin, sMax, viz.colors.teal, 2.5);
-
-                            // Truth line (if PNT available, = 1/V asymptotically)
-                            viz.drawFunction(function() { return 1.0; }, sMin, sMax, viz.colors.green, 1.5, null, [6, 4]);
-
-                            // Beta marker
-                            var beta = 2 / kappa;
                             var ctx = viz.ctx;
-                            var [bsx] = viz.toScreen(beta, 0);
-                            ctx.strokeStyle = viz.colors.yellow; ctx.lineWidth = 1.5; ctx.setLineDash([5, 4]);
-                            ctx.beginPath(); ctx.moveTo(bsx, 0); ctx.lineTo(bsx, viz.height); ctx.stroke();
-                            ctx.setLineDash([]);
-                            viz.screenText('\u03b2_\u03ba = ' + beta.toFixed(1), bsx + 4, viz.height - 50, viz.colors.yellow, 11, 'left');
+                            var N = Math.round(Math.pow(10, logN));
 
-                            viz.screenText('F_\u03ba(s) — upper bound', viz.width - 20, 28, viz.colors.blue, 11, 'right');
-                            viz.screenText('f_\u03ba(s) — lower bound', viz.width - 20, 44, viz.colors.teal, 11, 'right');
-                            viz.screenText('True asymptotics (1)', viz.width - 20, 60, viz.colors.green, 11, 'right');
-                            viz.screenText('\u03ba = ' + kappa.toFixed(1) + ', \u03b2_\u03ba = ' + beta.toFixed(1), viz.width / 2, 14, viz.colors.white, 13);
-                            viz.drawText('s', sMax - 0.5, -0.15, viz.colors.text, 11);
+                            viz.screenText('Sieve Bounds vs \u03C0(N) as sieve level s varies', viz.width / 2, 20, viz.colors.white, 13);
+
+                            var pi = piCount(N);
+                            var logNN = Math.log(N);
+                            var Vz = 1;
+                            var zz = Math.sqrt(N);
+                            for (var i = 0; i < primes.length && primes[i] < zz; i++) {
+                                Vz *= (1 - 1.0 / primes[i]);
+                            }
+                            var XVz = N * Vz; // base sieve estimate
+
+                            // Chart area
+                            var chartL = 80, chartR = viz.width - 30;
+                            var chartT = 50, chartB = 310;
+                            var chartW = chartR - chartL, chartH = chartB - chartT;
+
+                            var sMax = 8;
+                            var yMax = pi * 3.5;
+                            if (yMax < 1) yMax = 100;
+
+                            // Grid
+                            ctx.strokeStyle = viz.colors.grid; ctx.lineWidth = 0.5;
+                            for (var g = 0; g <= 4; g++) {
+                                var gy = chartB - (g / 4) * chartH;
+                                ctx.beginPath(); ctx.moveTo(chartL, gy); ctx.lineTo(chartR, gy); ctx.stroke();
+                                ctx.fillStyle = viz.colors.text; ctx.font = '10px -apple-system,sans-serif';
+                                ctx.textAlign = 'right'; ctx.textBaseline = 'middle';
+                                ctx.fillText(Math.round(yMax * g / 4).toString(), chartL - 6, gy);
+                            }
+
+                            // Axes
+                            ctx.strokeStyle = viz.colors.axis; ctx.lineWidth = 1.5;
+                            ctx.beginPath(); ctx.moveTo(chartL, chartB); ctx.lineTo(chartR, chartB); ctx.stroke();
+                            ctx.beginPath(); ctx.moveTo(chartL, chartT); ctx.lineTo(chartL, chartB); ctx.stroke();
+
+                            // pi(N) horizontal line
+                            var piY = chartB - (pi / yMax) * chartH;
+                            ctx.strokeStyle = viz.colors.blue; ctx.lineWidth = 2;
+                            ctx.setLineDash([6, 4]);
+                            ctx.beginPath(); ctx.moveTo(chartL, piY); ctx.lineTo(chartR, piY); ctx.stroke();
+                            ctx.setLineDash([]);
+                            ctx.fillStyle = viz.colors.blue; ctx.font = '11px -apple-system,sans-serif';
+                            ctx.textAlign = 'left'; ctx.fillText('\u03C0(N) = ' + pi, chartR - 80, piY - 8);
+
+                            // Upper bound curve: F_1(s) * X * V(z)
+                            function upperBound(s) {
+                                if (s <= 0.5) return yMax * 2;
+                                var F = 1 + 1.0 * Math.exp(-(s - 1) * 0.8);
+                                return F * XVz;
+                            }
+
+                            // Lower bound curve: f_1(s) * X * V(z)
+                            function lowerBound(s) {
+                                if (s <= 1) return 0;
+                                var f = 1 - Math.exp(-(s - 1) * 0.6);
+                                return f * XVz;
+                            }
+
+                            // Draw upper bound
+                            ctx.strokeStyle = viz.colors.red; ctx.lineWidth = 2.5;
+                            ctx.beginPath();
+                            var started = false;
+                            for (var j = 0; j <= 200; j++) {
+                                var s = 0.5 + sMax * j / 200;
+                                var val = upperBound(s);
+                                var px = chartL + (s / sMax) * chartW;
+                                var py = chartB - (Math.min(val, yMax) / yMax) * chartH;
+                                py = Math.max(chartT, py);
+                                if (!started) { ctx.moveTo(px, py); started = true; }
+                                else ctx.lineTo(px, py);
+                            }
+                            ctx.stroke();
+
+                            // Draw lower bound
+                            ctx.strokeStyle = viz.colors.green; ctx.lineWidth = 2.5;
+                            ctx.beginPath();
+                            started = false;
+                            for (var k = 0; k <= 200; k++) {
+                                var s2 = 0.5 + sMax * k / 200;
+                                var val2 = lowerBound(s2);
+                                var px2 = chartL + (s2 / sMax) * chartW;
+                                var py2 = chartB - (Math.max(0, Math.min(val2, yMax)) / yMax) * chartH;
+                                if (!started) { ctx.moveTo(px2, py2); started = true; }
+                                else ctx.lineTo(px2, py2);
+                            }
+                            ctx.stroke();
+
+                            // x-axis label
+                            ctx.fillStyle = viz.colors.text; ctx.font = '10px -apple-system,sans-serif';
+                            ctx.textAlign = 'center'; ctx.textBaseline = 'top';
+                            for (var sx = 1; sx <= sMax; sx++) {
+                                var pxs = chartL + (sx / sMax) * chartW;
+                                ctx.fillText(sx.toString(), pxs, chartB + 4);
+                            }
+                            ctx.fillText('s = log D / log z', (chartL + chartR) / 2, chartB + 20);
+
+                            // Legend
+                            var legY = chartB + 38;
+                            ctx.fillStyle = viz.colors.red; ctx.fillRect(chartL + 20, legY, 10, 10);
+                            ctx.fillStyle = viz.colors.text; ctx.textAlign = 'left';
+                            ctx.fillText('Upper (Selberg)', chartL + 34, legY + 9);
+
+                            ctx.fillStyle = viz.colors.green; ctx.fillRect(chartL + 150, legY, 10, 10);
+                            ctx.fillStyle = viz.colors.text;
+                            ctx.fillText('Lower (Rosser-Iwaniec)', chartL + 164, legY + 9);
+
+                            ctx.fillStyle = viz.colors.blue; ctx.fillRect(chartL + 320, legY, 10, 10);
+                            ctx.fillStyle = viz.colors.text;
+                            ctx.fillText('\u03C0(N) actual', chartL + 334, legY + 9);
                         }
                         draw();
                         return viz;
@@ -639,15 +904,10 @@ f_\\kappa(s) F_\\kappa(s) = 4\\kappa e^{2\\gamma\\kappa} \\quad \\text{for } s \
             ],
             exercises: [
                 {
-                    question: "State precisely what it means for a lower bound sieve weight \\((\\beta_d)\\) to be 'valid'. Show that if \\(\\beta_d = \\mu(d)\\mathbf{1}_{d \\le D}\\) (the simplest truncation), the resulting lower bound can be negative for some \\(\\mathcal{A}\\).",
-                    hint: "A valid lower bound weight requires \\(\\sum_{d | n} \\beta_d \\le \\mathbf{1}_{\\gcd(n,P(z))=1}\\) for every \\(n\\). What goes wrong with the simple truncation?",
-                    solution: "A valid lower-bound sieve requires \\(\\sum_{d|\\gcd(n,P(z))}\\beta_d \\le \\mathbf{1}_{\\gcd(n,P(z))=1}\\) for all \\(n\\). With \\(\\beta_d = \\mu(d)\\mathbf{1}_{d\\le D}\\), for \\(n\\) with exactly one small prime factor \\(p \\le D\\), the sum becomes \\(\\mu(1) + \\mu(p) = 1 - 1 = 0 \\le 0\\), which is fine. But for \\(n = pq\\) with \\(pq > D, p,q \\le D^{1/2}\\), the sum misses the \\(\\mu(pq) = +1\\) term, leaving \\(1 - 1 - 1 = -1 < 0\\). Summing over \\(\\mathcal{A}\\) would give a sum including negative contributions, but the bound itself can be negative."
+                    question: 'Prove Buchstab\'s identity: \\(S(\\mathcal{A}, \\mathcal{P}, z) = S(\\mathcal{A}, \\mathcal{P}, w) - \\sum_{w \\leq p < z} S(\\mathcal{A}_p, \\mathcal{P}, p)\\).',
+                    hint: 'Partition the set \\(\\{a \\in \\mathcal{A} : (a, P(w)) = 1\\}\\) according to whether \\((a, P(z)) = 1\\) or \\(a\\) has a smallest prime factor \\(p\\) with \\(w \\leq p < z\\).',
+                    solution: 'Let \\(B = \\{a \\in \\mathcal{A} : (a, P(w)) = 1\\}\\), so \\(|B| = S(\\mathcal{A}, \\mathcal{P}, w)\\). Partition \\(B\\) as: (i) elements with no prime factor in \\([w, z)\\), which is \\(S(\\mathcal{A}, \\mathcal{P}, z)\\), and (ii) for each prime \\(p \\in [w, z)\\), elements whose smallest prime factor in \\([w, z)\\) is \\(p\\). The latter set consists of elements of \\(\\mathcal{A}_p\\) with no prime factor below \\(p\\), i.e., \\(S(\\mathcal{A}_p, \\mathcal{P}, p)\\). Summing: \\(S(\\mathcal{A}, w) = S(\\mathcal{A}, z) + \\sum_{w \\leq p < z} S(\\mathcal{A}_p, p)\\). Rearranging gives the identity.'
                 },
-                {
-                    question: "In Chen's theorem, the 'switching principle' is the identity \\(\\mathbf{1}_{P_2}(m) = \\mathbf{1}_{P_{\\le 2}}(m) - \\mathbf{1}_{P_1}(m)\\) restricted to the relevant range. Explain in one sentence why an upper bound for primes \\(p \\le N^{1/3}\\) dividing \\(m\\) translates into a lower bound for \\(m \\in P_2\\).",
-                    hint: "If you have an upper bound for \\(m \\in P_1\\) and a lower bound for \\(m \\in P_{\\le 2}\\), the difference gives...?",
-                    solution: "Lower bound for \\(P_2\\): (lower bound for \\(P_{\\le 2}\\)) minus (upper bound for \\(P_1\\)). Since \\(P_2 = P_{\\le 2} \\setminus P_1\\), any upper bound for the \\(P_1\\) portion subtracted from a lower bound for \\(P_{\\le 2}\\) yields a lower bound for \\(P_2\\); the switching principle makes the \\(P_1\\) count tractable via the Rosser-Iwaniec linear sieve applied to \\(m/p\\)."
-                }
             ]
         },
 
@@ -661,389 +921,171 @@ f_\\kappa(s) F_\\kappa(s) = 4\\kappa e^{2\\gamma\\kappa} \\quad \\text{for } s \
 <h2>The Parity Problem</h2>
 
 <div class="env-block intuition">
-    <div class="env-title">Why Sieves Cannot Detect Primes</div>
+    <div class="env-title">The Invisible Wall</div>
     <div class="env-body">
-        <p>Every sieve, no matter how cleverly constructed, appears to be unable to distinguish between numbers with an <em>even</em> number of prime factors and numbers with an <em>odd</em> number. This is not a technical limitation: it is a fundamental obstruction, first articulated clearly by Selberg in the 1950s.</p>
+        <p>Why can't the Selberg sieve detect the exact number of primes? Why is the factor of 2 in the upper bound \\(\\pi(N) \\leq (2+o(1)) N/\\log N\\) not just a technical limitation but a <em>theorem</em>? The answer is the <strong>parity problem</strong>: sieves that only use information about how many elements of \\(\\mathcal{A}\\) fall into residue classes cannot distinguish between numbers with an even number of prime factors and those with an odd number.</p>
     </div>
 </div>
 
-<h3>Selberg's Parity Obstruction</h3>
-<p>The Liouville function \\(\\lambda(n) = (-1)^{\\Omega(n)}\\) (where \\(\\Omega(n)\\) is the total number of prime factors with multiplicity) satisfies</p>
+<h3>The Bombieri Phenomenon</h3>
+
+<p>Consider two sequences:</p>
+<ul>
+    <li>\\(\\mathcal{A} = \\{n \\leq N : \\Omega(n) \\text{ is odd}\\}\\) (numbers with an odd number of prime factors, counted with multiplicity)</li>
+    <li>\\(\\mathcal{B} = \\{n \\leq N : \\Omega(n) \\text{ is even}\\}\\)</li>
+</ul>
+
+<p>These two sets have essentially the same density in every residue class modulo any \\(d\\): for \\(d\\) squarefree,</p>
+
 \\[
-\\sum_{n \\le N} \\lambda(n) = o(N)
+|\\mathcal{A}_d| \\approx |\\mathcal{B}_d| \\approx \\frac{N}{2d}.
 \\]
-<p>(equivalent to the Prime Number Theorem), but for any sieve weight \\((\\lambda_d)\\) supported on \\(d \\le D\\),</p>
-\\[
-\\sum_{n \\le N} \\left(\\sum_{d \\mid n,\\, d \\le D} \\lambda_d\\right)^2 \\ge \\frac{N}{2}
-\\]
-<p>when \\(D \\le N^{1/2}\\). The issue: the sieve cannot "see" the Liouville oscillation because</p>
-\\[
-\\sum_{d \\mid n} \\mu(d) \\cdot \\lambda(n/d) = \\begin{cases} \\pm 1 & n \\text{ is prime} \\\\ 0 & n = p^k,\\, k \\ge 2 \end{cases}
-\\]
-<p>and M&ouml;bius inversion cannot distinguish \\(\\Omega(n)\\) mod 2.</p>
+
+<p>Yet one set contains all the primes and the other contains none (except for contributions from prime powers). A sieve that only uses the counts \\(|\\mathcal{A}_d|\\) cannot distinguish between \\(\\mathcal{A}\\) and \\(\\mathcal{B}\\).</p>
 
 <div class="env-block theorem">
-    <div class="env-title">Theorem 12.4 (Selberg Parity Barrier)</div>
+    <div class="env-title">Theorem 12.5 (Selberg's Parity Barrier)</div>
     <div class="env-body">
-        <p>Let \\(\\mathcal{A} = \\{n \\le N : \\Omega(n) \\text{ even}\\}\\) and \\(\\mathcal{B} = \\{n \\le N : \\Omega(n) \\text{ odd}\\}\\). For any sieve weights \\(\\lambda_d\\) with \\(\\lambda_1 = 1\\) and support in \\(d \\le D \\le N^{1/2}\\):</p>
+        <p>Any "sieve of dimension 1" that uses only the information \\(|\\mathcal{A}_d|\\) for \\(d \\leq D\\) with \\(D < N\\) satisfies</p>
         \\[
-        \\sum_{n \\in \\mathcal{A}} \\left(\\sum_{d \\mid n} \\lambda_d\\right)^2 \\approx \\sum_{n \\in \\mathcal{B}} \\left(\\sum_{d \\mid n} \\lambda_d\\right)^2.
+        S(\\mathcal{A}, z) \\leq (2 + o(1)) \\frac{N}{\\log N}
         \\]
-        <p>Consequently, no sieve upper bound can prove \\(S(\\mathcal{A}) \\ll N/(\\log N)^c\\) for \\(c > 1\\), as primes (a subset of \\(\\mathcal{B}\\)) would be undercounted by the same amount that \\(\\mathcal{A}\\) is overcounted.</p>
+        <p>as an upper bound, and</p>
+        \\[
+        S(\\mathcal{A}, z) \\geq 0
+        \\]
+        <p>as a lower bound. Neither bound can be improved to match the true \\(\\pi(N) \\sim N / \\log N\\) within the sieve framework alone.</p>
     </div>
 </div>
 
-<h3>Consequences</h3>
-<p>The parity problem explains:</p>
+<h3>Why Factor of 2?</h3>
+
+<p>The sieve cannot tell apart:</p>
 <ul>
-    <li>Why sieve methods yield \\(P_2\\) results (e.g., Chen's theorem) but not twin primes \\(P_1 \\cap P_1\\).</li>
-    <li>Why the Brun-Titchmarsh bound \\(\\pi(x+y) - \\pi(x) \\le 2y/\\log y\\) has the constant 2 rather than 1 (the PNT constant).</li>
-    <li>Why the "almost prime" results (e.g., Goldbach with \\(P_2 + P_2\\)) are accessible while genuine prime results are not.</li>
+    <li>Integers with \\(\\Omega(n)\\) odd: contains primes \\(p\\), \\(p_1 p_2 p_3\\), etc.</li>
+    <li>Integers with \\(\\Omega(n)\\) even: contains \\(p_1 p_2\\), \\(p_1 p_2 p_3 p_4\\), etc.</li>
 </ul>
 
-<h3>Breaking the Parity Barrier</h3>
-<p>A few techniques can partially circumvent the parity obstruction:</p>
-<ul>
-    <li><strong>Exceptional zero method:</strong> If a Dirichlet \\(L\\)-function has a Siegel zero, one can break parity for the corresponding arithmetic progression.</li>
-    <li><strong>Exponential sums:</strong> Combining sieve with Vinogradov exponential sums (used in Goldbach for three primes).</li>
-    <li><strong>Higher-dimensional sieves:</strong> The GPY (Goldston-Pintz-Yildirim) method and Maynard's sieve use a different variational principle that incorporates Mobius function cancellations.</li>
-</ul>
+<p>The sieve's upper bound for "numbers with no small prime factor" counts <em>both</em> groups equally, hence overcounts the primes by a factor of 2. More precisely, the sieve gives an upper bound for \\(S(\\mathcal{A}, z) + S(\\mathcal{B}', z)\\) where \\(\\mathcal{B}'\\) is a "phantom" set with the same local densities.</p>
 
 <div class="viz-placeholder" data-viz="viz-parity-barrier"></div>
+
+<h3>Breaking the Parity Barrier</h3>
+
+<p>The parity problem is <em>not</em> a theorem about number theory; it is a theorem about sieves. It says that pure sieve methods, using only "Type I" information (average distribution in arithmetic progressions), cannot detect primes exactly. To break the barrier, one needs:</p>
+
+<ul>
+    <li><strong>Type II information</strong>: bilinear sums involving the M&ouml;bius function \\(\\mu\\) or the Liouville function \\(\\lambda\\), as in Vinogradov's method.</li>
+    <li><strong>Algebraic information</strong>: knowing that certain polynomial values are prime (Friedlander-Iwaniec \\(a^2 + b^4\\) theorem).</li>
+    <li><strong>Combinatorial identity</strong>: Vaughan's identity, Heath-Brown's identity, which decompose the von Mangoldt function \\(\\Lambda\\) into Type I and Type II components.</li>
+</ul>
+
+<div class="env-block remark">
+    <div class="env-title">Bombieri's Dictum</div>
+    <div class="env-body">
+        <p>"The parity problem is the central difficulty of sieve methods." Every major advance in analytic number theory that goes beyond what basic sieves provide (Chen's theorem, Bombieri-Friedlander-Iwaniec, Maynard-Tao bounded gaps) requires some mechanism to break parity, whether through bilinear forms, arithmetic structure, or level of distribution beyond the square root barrier.</p>
+    </div>
+</div>
 `,
             visualizations: [
                 {
                     id: 'viz-parity-barrier',
-                    title: 'Parity Barrier: Sieve Cannot Distinguish Even/Odd \\(\\Omega(n)\\)',
-                    description: 'Animated display of sieve weights applied to \\(\\mathcal{A} = \\{\\Omega(n) \\text{ even}\\}\\) vs \\(\\mathcal{B} = \\{\\Omega(n) \\text{ odd}\\}\\). Watch the running sums stay almost equal regardless of the sieve level D.',
+                    title: 'The Parity Barrier: Sieve Cannot Distinguish Odd vs Even \\(\\Omega\\)',
+                    description: 'Compare numbers with an odd number of prime factors (contains primes) vs even number. Their distribution in residue classes is nearly identical, making them invisible to sieves. The bar chart shows counts modulo small primes.',
                     setup: function(body, controls) {
-                        var viz = new VizEngine(body, { width: 620, height: 380, originX: 70, originY: 320, scale: 1 });
+                        var viz = new VizEngine(body, {
+                            width: 560, height: 380,
+                            originX: 0, originY: 0, scale: 1
+                        });
+
                         var N = 200;
-                        var animRunning = false;
-                        var frame = 0;
-
-                        VizEngine.createSlider(controls, 'N (range)', 50, 400, N, 50, function(v) {
-                            N = Math.round(v);
-                            frame = 0;
-                            draw(frame);
-                        });
-                        VizEngine.createButton(controls, 'Animate', function() {
-                            if (animRunning) {
-                                viz.stopAnimation();
-                                animRunning = false;
-                            } else {
-                                animRunning = true;
-                                viz.animate(function(t) {
-                                    frame = Math.floor(t / 40) % N;
-                                    draw(frame);
-                                });
-                            }
+                        VizEngine.createSlider(controls, 'N', 50, 500, N, 50, function(v) {
+                            N = Math.round(v); draw();
                         });
 
-                        function totalPrimeFactors(n) {
-                            var count = 0, temp = n;
-                            for (var p = 2; p * p <= temp; p++) {
-                                while (temp % p === 0) { count++; temp = Math.floor(temp / p); }
+                        function bigOmega(n) {
+                            var count = 0;
+                            var m = n;
+                            for (var p = 2; p * p <= m; p++) {
+                                while (m % p === 0) { count++; m /= p; }
                             }
-                            if (temp > 1) count++;
+                            if (m > 1) count++;
                             return count;
                         }
-
-                        function draw(highlightN) {
-                            viz.clear();
-                            var ctx = viz.ctx;
-                            var chartW = viz.width - 90, chartH = 270;
-                            var startX = 75, baseY = 310;
-
-                            // Compute running counts
-                            var evenCount = 0, oddCount = 0;
-                            var evens = [], odds = [];
-                            for (var n = 2; n <= N; n++) {
-                                var om = totalPrimeFactors(n);
-                                if (om % 2 === 0) evenCount++; else oddCount++;
-                                evens.push(evenCount);
-                                odds.push(oddCount);
-                            }
-
-                            var maxCount = Math.max(evenCount, oddCount);
-                            var scaleY = chartH / (maxCount || 1);
-                            var scaleX = chartW / (N - 2);
-
-                            // Draw even count curve
-                            ctx.strokeStyle = viz.colors.blue; ctx.lineWidth = 2;
-                            ctx.beginPath();
-                            for (var i = 0; i < evens.length; i++) {
-                                var sx = startX + i * scaleX;
-                                var sy = baseY - evens[i] * scaleY;
-                                i === 0 ? ctx.moveTo(sx, sy) : ctx.lineTo(sx, sy);
-                            }
-                            ctx.stroke();
-
-                            // Draw odd count curve
-                            ctx.strokeStyle = viz.colors.orange; ctx.lineWidth = 2;
-                            ctx.beginPath();
-                            for (var j = 0; j < odds.length; j++) {
-                                var sx2 = startX + j * scaleX;
-                                var sy2 = baseY - odds[j] * scaleY;
-                                j === 0 ? ctx.moveTo(sx2, sy2) : ctx.lineTo(sx2, sy2);
-                            }
-                            ctx.stroke();
-
-                            // Difference curve
-                            ctx.strokeStyle = viz.colors.green; ctx.lineWidth = 1.5;
-                            ctx.beginPath();
-                            for (var k2 = 0; k2 < evens.length; k2++) {
-                                var sx3 = startX + k2 * scaleX;
-                                var diff = evens[k2] - odds[k2];
-                                var sy3 = baseY - (maxCount / 2 + diff) * scaleY;
-                                k2 === 0 ? ctx.moveTo(sx3, sy3) : ctx.lineTo(sx3, sy3);
-                            }
-                            ctx.stroke();
-
-                            // Midline
-                            ctx.strokeStyle = viz.colors.grid; ctx.lineWidth = 1; ctx.setLineDash([4, 4]);
-                            ctx.beginPath();
-                            ctx.moveTo(startX, baseY - maxCount / 2 * scaleY);
-                            ctx.lineTo(startX + chartW, baseY - maxCount / 2 * scaleY);
-                            ctx.stroke(); ctx.setLineDash([]);
-
-                            // Highlight current n
-                            if (highlightN >= 2 && highlightN <= N) {
-                                var idx = highlightN - 2;
-                                var hx = startX + idx * scaleX;
-                                ctx.strokeStyle = viz.colors.purple; ctx.lineWidth = 1;
-                                ctx.beginPath(); ctx.moveTo(hx, baseY - chartH); ctx.lineTo(hx, baseY); ctx.stroke();
-                                var om2 = totalPrimeFactors(highlightN);
-                                viz.screenText('n=' + highlightN + ', \u03a9(n)=' + om2 + ' (' + (om2 % 2 === 0 ? 'even' : 'odd') + ')',
-                                    hx + 5, baseY - chartH + 10, viz.colors.purple, 11, 'left');
-                            }
-
-                            // Axes
-                            ctx.strokeStyle = viz.colors.axis; ctx.lineWidth = 1.5;
-                            ctx.beginPath(); ctx.moveTo(startX, baseY - chartH); ctx.lineTo(startX, baseY + 5); ctx.stroke();
-                            ctx.beginPath(); ctx.moveTo(startX, baseY); ctx.lineTo(startX + chartW, baseY); ctx.stroke();
-
-                            // Labels
-                            ctx.fillStyle = viz.colors.text; ctx.font = '10px -apple-system,sans-serif';
-                            ctx.textAlign = 'right';
-                            for (var tick = 0; tick <= maxCount; tick += Math.ceil(maxCount / 5)) {
-                                var ty = baseY - tick * scaleY;
-                                ctx.fillText(tick, startX - 4, ty);
-                            }
-
-                            viz.screenText('Parity Barrier: \u03a9(n) even vs odd', viz.width / 2, 14, viz.colors.white, 14);
-                            // Legend
-                            ctx.fillStyle = viz.colors.blue; ctx.fillRect(startX + 10, baseY + 14, 12, 8);
-                            ctx.fillStyle = viz.colors.text; ctx.font = '11px -apple-system,sans-serif'; ctx.textAlign = 'left';
-                            ctx.fillText('#{\u03a9(n) even}', startX + 26, baseY + 21);
-                            ctx.fillStyle = viz.colors.orange; ctx.fillRect(startX + 140, baseY + 14, 12, 8);
-                            ctx.fillText('#{\u03a9(n) odd}', startX + 156, baseY + 21);
-                            ctx.fillStyle = viz.colors.green; ctx.fillRect(startX + 260, baseY + 14, 12, 8);
-                            ctx.fillText('Difference', startX + 276, baseY + 21);
-                        }
-                        draw(50);
-                        return viz;
-                    }
-                }
-            ],
-            exercises: [
-                {
-                    question: "Show that the Liouville function \\(\\lambda(n) = (-1)^{\\Omega(n)}\\) satisfies \\(\\sum_{d \\mid n} \\lambda(d) = \\mathbf{1}_{n = k^2}\\) (the indicator of perfect squares). Use this to explain why any M&ouml;bius-based sieve sees \\(\\lambda\\) as 'noise'.",
-                    hint: "Compute the Dirichlet series \\(\\sum_n \\lambda(n)n^{-s}\\) and relate it to \\(\\zeta(2s)/\\zeta(s)\\).",
-                    solution: "The Dirichlet series of \\(\\lambda\\) is \\(\\sum_n \\lambda(n)/n^s = \\zeta(2s)/\\zeta(s)\\). The identity \\(\\sum_{d|n}\\lambda(d) = \\mathbf{1}_{n=k^2}\\) follows by comparing Euler products: \\((\\sum_{d|p^k}\\lambda(d)) = (1 + (-1) + 1 - \\cdots)\\) ends at 1 iff \\(k\\) is even. Since sieve weights \\(\\lambda_d\\) are supported on squarefree \\(d\\) and use the M&ouml;bius function, the convolution \\(\\sum_{d|n}\\lambda_d\\) is insensitive to \\(\\Omega(n) \\bmod 2\\) beyond what \\(\\mu\\) resolves &#x2014; and \\(\\mu(n) = 0\\) for non-squarefree \\(n\\), exactly where the parity oscillation occurs."
-                },
-                {
-                    question: "The Brun-Titchmarsh theorem gives \\(\\pi(x+y)-\\pi(x) \\le 2y/\\log y\\). The true bound (assuming GRH or conditional on PNT) is \\(y/\\log y\\). Explain why the factor of 2 is related to the parity barrier rather than a gap in the proof.",
-                    hint: "Compare what the sieve counts vs what is really prime, using the parity obstruction.",
-                    solution: "The Selberg upper bound sieve cannot distinguish primes (odd \\(\\Omega\\)) from numbers with two prime factors (also odd \\(\\Omega\\), contributing equally to the sieve count). So the sieve upper bounds \\(\\#\\{\\text{primes}\\} + \\#\\{P_2\\} \\le 2y/\\log y\\). Since \\(\\#\\{P_2\\} \\approx y/\\log y\\) as well (by sieve estimates), the parity barrier forces the constant 2. Without an external input breaking parity (e.g., exponential sums or zero-free regions), the constant cannot be improved to 1 by pure sieve methods."
-                }
-            ]
-        },
-
-        // ================================================================
-        // SECTION 6: A Different Kind of Sieve
-        // ================================================================
-        {
-            id: 'sec-bridge',
-            title: 'A Different Kind of Sieve',
-            content: `
-<h2>A Different Kind of Sieve: GPY, Maynard, and Beyond</h2>
-
-<p>The Selberg \\(\\lambda^2\\) sieve optimizes a single quadratic form. Modern breakthroughs on bounded gaps between primes use a <em>multidimensional</em> generalization of Selberg's idea, combined with a new variational problem that the parity barrier does not block.</p>
-
-<h3>The GPY Sieve (2005)</h3>
-<p>Goldston, Pintz, and Yildirim introduced the weighted sum</p>
-\\[
-\\mathcal{S} = \\sum_{n \\sim N} \\left(\\sum_{d \\mid P(n)} \\lambda_d\\right)^2 \\left(\\theta(n+h_1) + \\cdots + \\theta(n+h_k) - \\log(3N)\\right),
-\\]
-<p>where \\(P(n) = (n+h_1)\\cdots(n+h_k)\\) and \\(\\theta\\) is the von Mangoldt function. If \\(\\mathcal{S} > 0\\), then some \\(n\\) in the sum has at least one \\(n + h_i\\) prime, giving bounded gaps in spirit.</p>
-
-<p>GPY proved \\(\\liminf (p_{n+1} - p_n)/\\log p_n = 0\\) using this approach, but could not get bounded gaps &#x2014; they needed the Elliott-Halberstam conjecture for the full result.</p>
-
-<h3>Maynard's Multidimensional Sieve (2013)</h3>
-<p>Maynard (independently Zhang for the first bounded gap) used a more flexible weight</p>
-\\[
-w_n = \\left(\\sum_{\\mathbf{d}} \\lambda_{\\mathbf{d}} \\prod_{i=1}^k \\mathbf{1}_{d_i \\mid n + h_i}\\right)^2,
-\\]
-<p>where \\(\\mathbf{d} = (d_1, \\ldots, d_k)\\) and the \\(\\lambda_{\\mathbf{d}}\\) are supported on tuples with \\(\\prod d_i \\le D\\). This is the <em>multidimensional Selberg sieve</em>. The optimization is now over a \\(k\\)-variable function:</p>
-
-<div class="env-block theorem">
-    <div class="env-title">Theorem 12.5 (Maynard's Variational Problem)</div>
-    <div class="env-body">
-        <p>The optimal weight is determined by a smooth function \\(F: [0,1]^k \\to \\mathbb{R}\\) supported on the simplex \\(\\sum x_i \\le 1\\). Define</p>
-        \\[
-        M_k = \\sup_F \\frac{\\sum_{i=1}^k \\int_{[0,1]^{k-1}} \\left(\\int_0^1 F(x_1,\\ldots,x_k)\\, dx_i\\right)^2 d\\mathbf{x}_{-i}}{\\int_{[0,1]^k} F(\\mathbf{x})^2\\, d\\mathbf{x}}.
-        \\]
-        <p>If \\(M_k > m\\) (the Elliott-Halberstam level), then there are infinitely many prime tuples with at least \\(m+1\\) of the \\(k\\) shifts prime.</p>
-    </div>
-</div>
-
-<h3>The Polymath8 Project</h3>
-<p>The Polymath8 project (2013-2014) optimized Maynard's variational problem to show:</p>
-<ul>
-    <li><strong>Maynard's bound:</strong> \\(\\liminf (p_{n+1} - p_n) \\le 600\\) (using \\(k = 105\\)).</li>
-    <li><strong>Polymath8b:</strong> \\(\\liminf (p_{n+1} - p_n) \\le 246\\) (unconditionally).</li>
-    <li><strong>Under EH conjecture:</strong> \\(\\liminf (p_{n+1} - p_n) \\le 12\\).</li>
-</ul>
-<p>The record of 246 comes from numerically solving the variational problem for \\(M_k\\) with polynomial approximations.</p>
-
-<div class="env-block remark">
-    <div class="env-title">Why the Parity Barrier Does Not Block This</div>
-    <div class="env-body">
-        <p>The GPY/Maynard approach does not try to prove <em>a specific</em> \\(n+h_i\\) is prime; it proves that <em>some</em> among \\(k\\) candidates must be prime. The averaged-over-shifts structure averages out the parity obstruction &#x2014; the parity of \\(\\Omega(n+h_i)\\) for different \\(i\\) are not all locked together. This is fundamentally different from trying to sieve out composites from a single sequence.</p>
-    </div>
-</div>
-
-<div class="viz-placeholder" data-viz="viz-sieve-comparison"></div>
-
-<h3>Summary: The Sieve Landscape</h3>
-
-<table>
-    <thead>
-        <tr><th>Sieve</th><th>Type</th><th>Strength</th><th>Application</th></tr>
-    </thead>
-    <tbody>
-        <tr><td>Brun</td><td>Combinatorial</td><td>Upper + Lower (weak)</td><td>Brun's theorem</td></tr>
-        <tr><td>Selberg \\(\\lambda^2\\)</td><td>Quadratic opt.</td><td>Upper (sharp)</td><td>Brun-Titchmarsh</td></tr>
-        <tr><td>Rosser-Iwaniec</td><td>Combinatorial+opt.</td><td>Upper + Lower (sharp)</td><td>Chen's theorem</td></tr>
-        <tr><td>Large Sieve</td><td>Harmonic analysis</td><td>Mean-square upper</td><td>Bombieri-Vinogradov</td></tr>
-        <tr><td>GPY/Maynard</td><td>Multidim. quadratic</td><td>Prime \\(k\\)-tuples lower</td><td>Bounded prime gaps</td></tr>
-    </tbody>
-</table>
-`,
-            visualizations: [
-                {
-                    id: 'viz-sieve-comparison',
-                    title: 'Sieve Comparison: Brun vs Selberg vs Rosser-Iwaniec Upper Bounds',
-                    description: 'Compare the quality of upper bounds on \\(S(\\mathcal{A},\\mathcal{P},z)/X\\) as a function of \\(z\\) for \\(N=10^6\\). Selberg consistently beats Brun; the gap illustrates the combinatorial vs optimization approach.',
-                    setup: function(body, controls) {
-                        var viz = new VizEngine(body, { width: 620, height: 380, originX: 70, originY: 320, scale: 1 });
-                        var N = 1e5;
-                        VizEngine.createSlider(controls, 'log N', 3, 7, 5, 0.5, function(v) {
-                            N = Math.pow(10, v);
-                            draw();
-                        });
 
                         function draw() {
                             viz.clear();
                             var ctx = viz.ctx;
-                            var chartW = viz.width - 100, chartH = 270;
-                            var startX = 80, baseY = 310;
-                            var zMax = Math.pow(N, 0.5);
 
-                            // True pi(N)/X ~ 1/log(N)
-                            var truth = 1 / Math.log(N);
+                            viz.screenText('Parity Barrier: \u03A9(n) odd vs even in residue classes', viz.width / 2, 20, viz.colors.white, 13);
 
-                            // Compute bounds vs z
-                            var zSteps = 60;
-                            var brunUpper = [], selbergUpper = [], rosserUpper = [];
-                            var zVals = [];
+                            var moduli = [2, 3, 5, 7, 11, 13];
+                            var chartL = 40, chartR = viz.width - 20;
+                            var chartT = 50, chartB = 300;
+                            var chartW = chartR - chartL, chartH = chartB - chartT;
 
-                            for (var i = 1; i <= zSteps; i++) {
-                                var z = 2 + (zMax - 2) * i / zSteps;
-                                var logz = Math.log(z);
-                                var logN = Math.log(N);
+                            // For each modulus, count odd-Omega vs even-Omega per residue class
+                            var modW = chartW / moduli.length;
 
-                                // Mertens product ~ e^(-gamma)/log(z), so 1/V ~ e^(-gamma)/log(z)
-                                var gamma = 0.5772;
-                                var oneOverV = Math.exp(-gamma) / logz;
+                            for (var mi = 0; mi < moduli.length; mi++) {
+                                var mod = moduli[mi];
+                                var oddCounts = new Array(mod).fill(0);
+                                var evenCounts = new Array(mod).fill(0);
 
-                                // Selberg upper bound: ~ 2/log(z) * correction
-                                var selberg = 2 * Math.exp(-gamma) / logz;
-
-                                // Brun bound: slightly worse by constant
-                                var brun = selberg * (1 + 0.2 / Math.sqrt(logz));
-
-                                // Rosser upper: same as Selberg for upper
-                                var rosser = selberg * (1 + 0.05 * Math.log(logz) / logz);
-
-                                zVals.push(z);
-                                brunUpper.push(brun);
-                                selbergUpper.push(selberg);
-                                rosserUpper.push(rosser);
-                            }
-
-                            var maxY = Math.max.apply(null, brunUpper);
-                            var scaleY = chartH / maxY;
-                            var scaleX = chartW / zSteps;
-
-                            // Grid
-                            ctx.strokeStyle = viz.colors.grid; ctx.lineWidth = 0.5;
-                            for (var ytick = 0; ytick <= maxY; ytick += maxY / 5) {
-                                var ty = baseY - ytick * scaleY;
-                                ctx.beginPath(); ctx.moveTo(startX, ty); ctx.lineTo(startX + chartW, ty); ctx.stroke();
-                                ctx.fillStyle = viz.colors.text; ctx.font = '10px -apple-system,sans-serif';
-                                ctx.textAlign = 'right';
-                                ctx.fillText(ytick.toFixed(3), startX - 4, ty);
-                            }
-
-                            // Truth line
-                            ctx.strokeStyle = viz.colors.green; ctx.lineWidth = 1.5; ctx.setLineDash([6, 4]);
-                            var ty_truth = baseY - truth * scaleY;
-                            ctx.beginPath(); ctx.moveTo(startX, ty_truth); ctx.lineTo(startX + chartW, ty_truth); ctx.stroke();
-                            ctx.setLineDash([]);
-                            ctx.fillStyle = viz.colors.green; ctx.font = '11px -apple-system,sans-serif'; ctx.textAlign = 'left';
-                            ctx.fillText('\u03c0(N)/N (truth)', startX + chartW - 100, ty_truth - 6);
-
-                            // Draw Brun
-                            function drawCurve(arr, color, lw) {
-                                ctx.strokeStyle = color; ctx.lineWidth = lw;
-                                ctx.beginPath();
-                                for (var ii = 0; ii < arr.length; ii++) {
-                                    var sx = startX + ii * scaleX;
-                                    var sy = baseY - arr[ii] * scaleY;
-                                    ii === 0 ? ctx.moveTo(sx, sy) : ctx.lineTo(sx, sy);
+                                for (var n = 2; n <= N; n++) {
+                                    var r = n % mod;
+                                    if (bigOmega(n) % 2 === 1) oddCounts[r]++;
+                                    else evenCounts[r]++;
                                 }
-                                ctx.stroke();
+
+                                var maxC = 0;
+                                for (var r2 = 0; r2 < mod; r2++) {
+                                    maxC = Math.max(maxC, oddCounts[r2], evenCounts[r2]);
+                                }
+                                if (maxC < 1) maxC = 1;
+
+                                var blockL = chartL + mi * modW + 5;
+                                var blockR = chartL + (mi + 1) * modW - 5;
+                                var blockW = blockR - blockL;
+
+                                // Label
+                                ctx.fillStyle = viz.colors.white; ctx.font = '11px -apple-system,sans-serif';
+                                ctx.textAlign = 'center';
+                                ctx.fillText('mod ' + mod, (blockL + blockR) / 2, chartT - 8);
+
+                                var bw = Math.min(10, blockW / (mod * 2.5));
+
+                                for (var r3 = 0; r3 < mod; r3++) {
+                                    var bx = blockL + (r3 / mod) * blockW;
+
+                                    // Odd bar
+                                    var h1 = (oddCounts[r3] / maxC) * chartH;
+                                    ctx.fillStyle = viz.colors.teal;
+                                    ctx.fillRect(bx, chartB - h1, bw, h1);
+
+                                    // Even bar
+                                    var h2 = (evenCounts[r3] / maxC) * chartH;
+                                    ctx.fillStyle = viz.colors.orange;
+                                    ctx.fillRect(bx + bw + 1, chartB - h2, bw, h2);
+                                }
                             }
 
-                            drawCurve(brunUpper, viz.colors.orange, 2);
-                            drawCurve(selbergUpper, viz.colors.blue, 2.5);
-                            drawCurve(rosserUpper, viz.colors.teal, 2);
-
-                            // Axes
-                            ctx.strokeStyle = viz.colors.axis; ctx.lineWidth = 1.5;
-                            ctx.beginPath(); ctx.moveTo(startX, baseY - chartH); ctx.lineTo(startX, baseY + 5); ctx.stroke();
-                            ctx.beginPath(); ctx.moveTo(startX, baseY); ctx.lineTo(startX + chartW, baseY); ctx.stroke();
-
-                            // X labels
-                            ctx.fillStyle = viz.colors.text; ctx.font = '10px -apple-system,sans-serif'; ctx.textAlign = 'center';
-                            for (var xi = 0; xi <= 5; xi++) {
-                                var xpos = startX + xi * chartW / 5;
-                                var zval = 2 + (zMax - 2) * xi / 5;
-                                ctx.fillText('z=' + zval.toFixed(0), xpos, baseY + 12);
-                            }
-
-                            viz.screenText('Sieve Upper Bounds vs z (N = 10^' + Math.log10(N).toFixed(1) + ')', viz.width / 2, 14, viz.colors.white, 13);
+                            // Axis
+                            ctx.strokeStyle = viz.colors.axis; ctx.lineWidth = 1;
+                            ctx.beginPath(); ctx.moveTo(chartL, chartB); ctx.lineTo(chartR, chartB); ctx.stroke();
 
                             // Legend
-                            var legX = startX + 10, legY = baseY - chartH + 10;
-                            ctx.fillStyle = viz.colors.orange; ctx.fillRect(legX, legY, 14, 8);
-                            ctx.fillStyle = viz.colors.text; ctx.textAlign = 'left'; ctx.fillText('Brun', legX + 18, legY + 7);
-                            ctx.fillStyle = viz.colors.blue; ctx.fillRect(legX + 70, legY, 14, 8);
-                            ctx.fillStyle = viz.colors.text; ctx.fillText('Selberg', legX + 88, legY + 7);
-                            ctx.fillStyle = viz.colors.teal; ctx.fillRect(legX + 170, legY, 14, 8);
-                            ctx.fillStyle = viz.colors.text; ctx.fillText('Rosser-Iwaniec', legX + 188, legY + 7);
+                            var legY = chartB + 20;
+                            ctx.fillStyle = viz.colors.teal; ctx.fillRect(viz.width / 2 - 100, legY, 10, 10);
+                            ctx.fillStyle = viz.colors.text; ctx.font = '11px -apple-system,sans-serif';
+                            ctx.textAlign = 'left'; ctx.fillText('\u03A9(n) odd (has primes)', viz.width / 2 - 86, legY + 9);
+
+                            ctx.fillStyle = viz.colors.orange; ctx.fillRect(viz.width / 2 - 100, legY + 18, 10, 10);
+                            ctx.fillStyle = viz.colors.text;
+                            ctx.fillText('\u03A9(n) even (no primes)', viz.width / 2 - 86, legY + 27);
+
+                            viz.screenText('Nearly identical in every residue class \u2014 sieve cannot tell them apart',
+                                viz.width / 2, legY + 48, viz.colors.yellow, 11);
                         }
                         draw();
                         return viz;
@@ -1052,25 +1094,220 @@ w_n = \\left(\\sum_{\\mathbf{d}} \\lambda_{\\mathbf{d}} \\prod_{i=1}^k \\mathbf{
             ],
             exercises: [
                 {
-                    question: "In Maynard's sieve, the function \\(F\\) is defined on the simplex \\(\\mathcal{R}_k = \\{(x_1,\\ldots,x_k) : x_i \\ge 0,\\, \\sum x_i \\le 1\\}\\). Why is the simplex constraint natural? What does \\(\\sum x_i \\le 1\\) correspond to in terms of the sieve level \\(D\\)?",
-                    hint: "The variable \\(x_i\\) encodes \\(x_i = \\log d_i / \\log D\\) for the Selberg weight \\(\\lambda_{(d_1,\\ldots,d_k)}\\). What constraint on \\(\\prod d_i\\) does \\(\\sum x_i \\le 1\\) impose?",
-                    solution: "Setting \\(x_i = \\log d_i / \\log D\\), the constraint \\(\\sum x_i \\le 1\\) translates to \\(\\sum \\log d_i \\le \\log D\\), i.e., \\(\\prod d_i \\le D\\). This is the sieve-level constraint: the product of all moduli must not exceed \\(D\\) for the main-term calculation to dominate. The simplex is the continuous relaxation of this product constraint in the logarithmic coordinates natural to Selberg-type weights."
+                    question: 'Let \\(\\lambda(n) = (-1)^{\\Omega(n)}\\) be the Liouville function. Show that \\(\\sum_{d \\mid n} \\lambda(d) = \\begin{cases} 1 & \\text{if } n \\text{ is a perfect square}, \\\\ 0 & \\text{otherwise.} \\end{cases}\\)',
+                    hint: 'The Liouville function is completely multiplicative: \\(\\lambda(mn) = \\lambda(m)\\lambda(n)\\). Use the Euler product of \\(\\sum_{n} \\lambda(n)/n^s\\).',
+                    solution: 'Since \\(\\lambda\\) is completely multiplicative, \\(\\sum_{d \\mid n} \\lambda(d) = \\prod_{p^a \\| n} \\sum_{k=0}^{a} \\lambda(p^k) = \\prod_{p^a \\| n} \\sum_{k=0}^{a} (-1)^k\\). This sum is 1 if \\(a\\) is even and 0 if \\(a\\) is odd. Hence the product is 1 iff every prime power in the factorization has even exponent, i.e., \\(n\\) is a perfect square.'
                 },
                 {
-                    question: "Zhang proved \\(\\liminf(p_{n+1}-p_n) \\le 7 \\times 10^7\\) in 2013 using a 'smooth' variant of the Selberg sieve. Maynard later improved this to 600 using multidimensional weights. What key technical advantage does the multidimensional sieve have over Zhang's approach that allows such a dramatic improvement?",
-                    hint: "Zhang needed a variant of Elliott-Halberstam for primes in arithmetic progressions to smooth moduli. What does Maynard not need?",
-                    solution: "Zhang's approach uses a truncated divisor sum that requires the moduli \\(d\\) to be 'smooth' (\\(y\\)-friable) to exploit cancellations via the Bombieri-Vinogradov theorem extended to smooth moduli. This requires considerable technical overhead and yields weaker bounds on \\(k\\). Maynard's multidimensional sieve does not require smoothness of the moduli: it works directly with Bombieri-Vinogradov in its standard form. The multidimensional optimization over \\(F(x_1,\\ldots,x_k)\\) allows much larger \\(k\\) (Maynard uses \\(k=105\\) vs Zhang's effective \\(k \\approx 3.5 \\times 10^6\\)), and the resulting bound on \\(M_k\\) improves exponentially with \\(k\\)."
-                },
-                {
-                    question: "Consider the simplest nontrivial case of Maynard's variational problem with \\(k=2\\) and the admissible pair \\((0,2)\\). The variational ratio is \\(M_2 = 2\\int_0^1 (\\int_0^{1-x_1} F(x_1,x_2)\\,dx_2)^2 dx_1 / \\int F^2\\). Show that \\(F(x_1,x_2) = 1 - x_1 - x_2\\) achieves \\(M_2 = 1/2\\), below the threshold \\(M_2 > 1\\) needed for a prime pair.",
-                    hint: "Compute numerator and denominator with \\(F = 1 - x_1 - x_2\\) on the simplex \\(x_1 + x_2 \\le 1, x_i \\ge 0\\).",
-                    solution: "Denominator: \\(\\int_0^1 \\int_0^{1-x_1} (1-x_1-x_2)^2 dx_2 dx_1 = \\int_0^1 [(1-x_1)^3/3] dx_1 = 1/12\\). Numerator (by symmetry, each \\(i\\) contributes equally): for \\(i=1\\), \\(\\int_0^1 (1-x_1)^3/4 \\, dx_1 = 1/16\\), so the numerator is \\(2 \\times 1/16 = 1/8\\). Therefore \\(M_2 = (1/8)/(1/12) = 3/2 > 1\\). (The \\(F=1-x_1-x_2\\) choice actually exceeds the threshold for \\(k=2\\), demonstrating that \\(k=2\\) with this simple polynomial already has \\(M_2 > 1\\), but EH is still needed to conclude a prime pair since \\(M_2 > m=1\\) requires the distribution level to exceed 1/2.)"
-                },
-                {
-                    question: "The Polymath8b paper achieves \\(\\liminf(p_{n+1}-p_n) \\le 246\\). Explain why 246 is not likely to be reduced to 2 (the twin prime conjecture value) by improving the variational problem alone.",
-                    hint: "What is the conditional bound under Elliott-Halberstam, and what obstruction remains even conditionally?",
-                    solution: "Under the Elliott-Halberstam conjecture (level \\(1/2+\\varepsilon\\) distribution), Polymath8b achieves \\(\\le 12\\). The remaining gap between 12 and 2 is the parity barrier: the sieve cannot prove that <em>both</em> \\(n\\) and \\(n+2\\) are simultaneously prime, only that among \\(k\\) shifts at least one is prime. Even with perfect distribution results, the \\(k\\)-tuple sieve with \\(k\\) admissible shifts of width \\(H\\) yields bounded gaps of size \\(H\\), not 2. To get gap 2 from this approach would require an admissible 2-tuple \\(\\{0,2\\}\\) with \\(M_2 > 1/\\theta\\) where \\(\\theta > 1/2\\) is the distribution level, i.e., a distribution level exceeding 1 &#x2014; which is not achievable via any known method without breaking parity."
+                    question: 'Explain why the prime number theorem \\(\\pi(N) \\sim N/\\log N\\) is equivalent to \\(\\sum_{n \\leq N} \\lambda(n) = o(N)\\).',
+                    hint: 'The PNT is equivalent to \\(\\sum_{n \\leq N} \\mu(n) = o(N)\\). How does \\(\\lambda\\) relate to \\(\\mu\\)?',
+                    solution: 'We have \\(\\lambda(n) = \\sum_{d^2 \\mid n} \\mu(n/d^2)\\), so \\(\\sum_{n \\leq N} \\lambda(n) = \\sum_{d \\leq \\sqrt{N}} \\sum_{m \\leq N/d^2} \\mu(m)\\). If PNT holds, then \\(\\sum_{m \\leq X} \\mu(m) = o(X)\\) for each \\(X\\), giving \\(\\sum \\lambda(n) = o(N)\\). Conversely, if \\(\\sum \\lambda(n) = o(N)\\), M&ouml;bius inversion recovers \\(\\sum \\mu(n) = o(N)\\). The parity problem says sieves cannot prove this cancellation, since distinguishing \\(\\lambda = +1\\) from \\(\\lambda = -1\\) is precisely what sieves fail at.'
                 }
+            ]
+        },
+
+        // ================================================================
+        // SECTION 6: The Bridge — From Sieves to Modern Breakthroughs
+        // ================================================================
+        {
+            id: 'sec-bridge',
+            title: 'The Bridge to Modern Results',
+            content: `
+<h2>The Bridge: From Selberg's Sieve to Modern Breakthroughs</h2>
+
+<div class="env-block intuition">
+    <div class="env-title">Sieves as Infrastructure</div>
+    <div class="env-body">
+        <p>Selberg's sieve is not just an endpoint; it is a launching pad. The optimization framework, the sieve limit functions, and the understanding of the parity barrier form the infrastructure on which the major results of the last 50 years are built. From Bombieri's large sieve (Chapter 13) to Maynard's multidimensional sieve for bounded gaps, the evolution of sieve methods traces a remarkable arc from combinatorics through optimization to probability.</p>
+    </div>
+</div>
+
+<h3>The GPY Sieve (Goldston-Pintz-Y\u0131ld\u0131r\u0131m)</h3>
+
+<p>The GPY method (2005) introduced a weighted sieve approach to gaps between primes. Instead of sifting a single sequence, they consider the quantity</p>
+
+\\[
+\\sum_{N < n \\leq 2N} \\left(\\sum_{i=1}^{k} \\mathbf{1}_{\\text{prime}}(n + h_i) - 1\\right) w(n)^2,
+\\]
+
+<p>where \\(w(n)\\) is a weight function and \\(\\mathcal{H} = \\{h_1, \\ldots, h_k\\}\\) is an admissible \\(k\\)-tuple. If this sum is positive, then for some \\(n\\), at least two of the \\(n + h_i\\) are prime.</p>
+
+<p>GPY showed that with optimal weights, one can prove \\(\\liminf_{n \\to \\infty} (p_{n+1} - p_n) / \\log p_n = 0\\), i.e., primes are denser than average infinitely often. But their method fell just short of bounded gaps.</p>
+
+<h3>Maynard-Tao: Multidimensional Selberg Sieve</h3>
+
+<p>The breakthrough of Maynard (2013) and Tao (independently) was to replace GPY's one-dimensional weight with a <em>multidimensional</em> Selberg sieve weight:</p>
+
+\\[
+w(n) = \\left(\\sum_{\\substack{d_1 \\mid n+h_1 \\\\ \\vdots \\\\ d_k \\mid n+h_k}} \\lambda_{d_1, \\ldots, d_k}\\right)^2.
+\\]
+
+<p>The optimization is now over a function of \\(k\\) variables, and the resulting eigenvalue problem has a solution that gives</p>
+
+\\[
+\\liminf_{n \\to \\infty} (p_{n+m} - p_n) < \\infty \\quad \\text{for every fixed } m.
+\\]
+
+<div class="env-block theorem">
+    <div class="env-title">Theorem 12.6 (Maynard-Tao, 2013)</div>
+    <div class="env-body">
+        <p>There exists an absolute constant \\(C\\) such that</p>
+        \\[
+        \\liminf_{n \\to \\infty} (p_{n+1} - p_n) \\leq C.
+        \\]
+        <p>Maynard obtained \\(C = 600\\); subsequent Polymath project work reduced this to \\(C = 246\\). Under the Elliott-Halberstam conjecture, \\(C = 6\\).</p>
+    </div>
+</div>
+
+<h3>Zhang's Theorem and Level of Distribution</h3>
+
+<p>Yitang Zhang (2013) achieved the first proof of bounded gaps by combining the GPY framework with a proof that primes have level of distribution slightly beyond \\(1/2\\), for smooth moduli. His work showed:</p>
+
+\\[
+\\liminf_{n \\to \\infty} (p_{n+1} - p_n) \\leq 7 \\times 10^7.
+\\]
+
+<p>Zhang's key innovation was establishing a Bombieri-Vinogradov type theorem (Chapter 13) with moduli exceeding \\(\\sqrt{N}\\) by a small power, which was precisely what the GPY machinery needed.</p>
+
+<div class="viz-placeholder" data-viz="viz-optimization-landscape"></div>
+
+<h3>The Road to Twin Primes</h3>
+
+<p>The twin prime conjecture (\\(\\liminf (p_{n+1} - p_n) = 2\\)) remains open. What stands in the way?</p>
+
+<ul>
+    <li><strong>Parity barrier</strong>: The sieve factor of 2 prevents detecting individual primes. Maynard-Tao circumvents this by detecting <em>clusters</em> of primes, not individual ones.</li>
+    <li><strong>Level of distribution</strong>: The Bombieri-Vinogradov theorem gives level \\(1/2\\). Going to level \\(1\\) (the Elliott-Halberstam conjecture) would give gaps \\(\\leq 6\\) but not 2.</li>
+    <li><strong>Sieve dimension</strong>: Twin primes have \\(\\kappa = 2\\), making the sieve limits less favorable than for primes (\\(\\kappa = 1\\)).</li>
+</ul>
+
+<div class="env-block remark">
+    <div class="env-title">The Arc of Sieve Theory</div>
+    <div class="env-body">
+        <p>From Eratosthenes (250 BCE) through Brun (1915), Selberg (1947), Rosser-Iwaniec (1965), GPY (2005), Zhang (2013), and Maynard-Tao (2013), sieve methods have undergone a remarkable evolution. Each generation preserved the core insight of its predecessor while adding a new layer: combinatorics, optimization, analysis, high-dimensional geometry. The story is far from over.</p>
+    </div>
+</div>
+`,
+            visualizations: [
+                {
+                    id: 'viz-optimization-landscape',
+                    title: 'Optimization Landscape: Selberg Sieve as Quadratic Minimization',
+                    description: 'The Selberg sieve minimizes a quadratic form in the weights \\(\\lambda_d\\). This visualization shows a 2D slice of the optimization landscape. The minimum of the paraboloid gives the optimal sieve bound. Drag the point to explore the landscape.',
+                    setup: function(body, controls) {
+                        var viz = new VizEngine(body, {
+                            width: 560, height: 380,
+                            originX: 280, originY: 250, scale: 40
+                        });
+
+                        // Model: Q(x, y) = 3x^2 + 2xy + 4y^2 - 2x - 3y + 2
+                        // Minimum at (x*, y*) solving gradient = 0
+                        // grad = (6x + 2y - 2, 2x + 8y - 3) = 0
+                        // 6x + 2y = 2, 2x + 8y = 3 => x = 5/22, y = 7/22
+                        var optX = 5 / 22, optY = 7 / 22;
+
+                        function Q(x, y) {
+                            return 3 * x * x + 2 * x * y + 4 * y * y - 2 * x - 3 * y + 2;
+                        }
+
+                        var probe = viz.addDraggable('probe', 1.5, 1.5, viz.colors.orange, 8);
+
+                        function draw() {
+                            viz.clear();
+                            var ctx = viz.ctx;
+
+                            viz.screenText('Selberg Sieve: Quadratic Optimization', viz.width / 2, 18, viz.colors.white, 14);
+
+                            // Draw contours of Q
+                            var xMin = -3, xMax = 3, yMin = -2.5, yMax = 3;
+                            var levels = [0.5, 1.0, 1.5, 2.0, 3.0, 5.0, 8.0, 12.0];
+                            var contourColors = [
+                                viz.colors.blue + '55', viz.colors.blue + '44', viz.colors.teal + '44',
+                                viz.colors.teal + '33', viz.colors.green + '33', viz.colors.yellow + '33',
+                                viz.colors.orange + '22', viz.colors.red + '22'
+                            ];
+
+                            // Draw filled contours via heatmap
+                            var resolution = 3;
+                            for (var py = 0; py < viz.height; py += resolution) {
+                                for (var px = 0; px < viz.width; px += resolution) {
+                                    var coords = viz.toMath(px, py);
+                                    var val = Q(coords[0], coords[1]);
+                                    // Color based on value
+                                    var t = Math.max(0, Math.min(1, val / 15));
+                                    var r = Math.round(12 + t * 30);
+                                    var g = Math.round(12 + (1 - t) * 40);
+                                    var b = Math.round(32 + (1 - t) * 80);
+                                    ctx.fillStyle = 'rgb(' + r + ',' + g + ',' + b + ')';
+                                    ctx.fillRect(px, py, resolution, resolution);
+                                }
+                            }
+
+                            // Draw contour lines
+                            for (var li = 0; li < levels.length; li++) {
+                                var level = levels[li];
+                                ctx.strokeStyle = viz.colors.white + '44';
+                                ctx.lineWidth = 0.8;
+                                // Sample contour by marching
+                                for (var angle = 0; angle < Math.PI * 2; angle += 0.02) {
+                                    // Search for radius where Q = level along this angle from optimum
+                                    var rMin = 0, rMax = 5;
+                                    for (var iter = 0; iter < 20; iter++) {
+                                        var rMid = (rMin + rMax) / 2;
+                                        var xx = optX + rMid * Math.cos(angle);
+                                        var yy = optY + rMid * Math.sin(angle);
+                                        if (Q(xx, yy) < level) rMin = rMid;
+                                        else rMax = rMid;
+                                    }
+                                    var cr = (rMin + rMax) / 2;
+                                    var cx = optX + cr * Math.cos(angle);
+                                    var cy = optY + cr * Math.sin(angle);
+                                    var sp = viz.toScreen(cx, cy);
+                                    ctx.fillStyle = viz.colors.white + '22';
+                                    ctx.fillRect(sp[0], sp[1], 1.5, 1.5);
+                                }
+                            }
+
+                            // Draw axes
+                            ctx.strokeStyle = viz.colors.axis; ctx.lineWidth = 1;
+                            ctx.beginPath(); ctx.moveTo(0, viz.originY); ctx.lineTo(viz.width, viz.originY); ctx.stroke();
+                            ctx.beginPath(); ctx.moveTo(viz.originX, 0); ctx.lineTo(viz.originX, viz.height); ctx.stroke();
+
+                            // Axis labels
+                            ctx.fillStyle = viz.colors.text; ctx.font = '11px -apple-system,sans-serif';
+                            ctx.textAlign = 'center'; ctx.textBaseline = 'top';
+                            ctx.fillText('\u03BB\u2082', viz.width - 15, viz.originY + 4);
+                            ctx.textAlign = 'left'; ctx.textBaseline = 'middle';
+                            ctx.fillText('\u03BB\u2083', viz.originX + 6, 15);
+
+                            // Optimum point
+                            viz.drawPoint(optX, optY, viz.colors.green, 'min', 6);
+
+                            // Probe point
+                            var probeVal = Q(probe.x, probe.y);
+                            viz.drawPoint(probe.x, probe.y, viz.colors.orange, null, 8);
+
+                            // Info panel
+                            var panelY = viz.height - 60;
+                            ctx.fillStyle = '#0c0c20cc';
+                            ctx.fillRect(10, panelY, 280, 50);
+                            ctx.fillStyle = viz.colors.orange; ctx.font = '12px -apple-system,sans-serif';
+                            ctx.textAlign = 'left';
+                            ctx.fillText('Current: Q(' + probe.x.toFixed(2) + ', ' + probe.y.toFixed(2) + ') = ' + probeVal.toFixed(3), 20, panelY + 18);
+                            ctx.fillStyle = viz.colors.green;
+                            ctx.fillText('Minimum: Q(' + optX.toFixed(2) + ', ' + optY.toFixed(2) + ') = ' + Q(optX, optY).toFixed(3), 20, panelY + 38);
+                        }
+
+                        viz.animate(function() { draw(); });
+                        return viz;
+                    }
+                }
+            ],
+            exercises: [
+                {
+                    question: 'An admissible \\(k\\)-tuple \\(\\mathcal{H} = \\{h_1, \\ldots, h_k\\}\\) is a set of integers such that for every prime \\(p\\), the \\(h_i\\) do not cover all residue classes modulo \\(p\\). Verify that \\(\\{0, 2, 6\\}\\) is admissible but \\(\\{0, 1, 2\\}\\) is not.',
+                    hint: 'Check each prime \\(p\\) to see whether \\(\\{h_i \\mod p\\}\\) covers all residue classes.',
+                    solution: 'For \\(\\{0, 1, 2\\}\\): modulo 3, the residues are \\(\\{0, 1, 2\\}\\), which covers all three classes. So for \\(p = 3\\), one of \\(n, n+1, n+2\\) is always divisible by 3. Hence \\(\\{0, 1, 2\\}\\) is NOT admissible (at most one can be prime for \\(n > 1\\)). For \\(\\{0, 2, 6\\}\\): mod 2, residues are \\(\\{0, 0, 0\\}\\) (only one class); mod 3, residues are \\(\\{0, 2, 0\\}\\) (misses class 1); mod 5, residues are \\(\\{0, 2, 1\\}\\) (misses classes 3, 4). For all larger primes \\(p \\geq 7\\), the tuple has only 3 elements so cannot cover all \\(p \\geq 7\\) classes. So \\(\\{0, 2, 6\\}\\) is admissible.'
+                },
             ]
         }
     ]
