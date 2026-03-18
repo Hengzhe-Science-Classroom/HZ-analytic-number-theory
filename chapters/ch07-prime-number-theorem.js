@@ -1,164 +1,196 @@
+// === Chapter 7: The Prime Number Theorem ===
 window.CHAPTERS = window.CHAPTERS || [];
 window.CHAPTERS.push({
     id: 'ch07',
     number: 7,
     title: 'The Prime Number Theorem',
-    subtitle: 'The climax: \u03c0(x) \u223c x/ln(x), proved by complex analysis',
+    subtitle: 'The climax: \u03C0(x) ~ x/ln(x), proved by complex analysis',
     sections: [
-
         // ================================================================
-        // SECTION 1: The Climax
+        // SECTION 1: Motivation — Why PNT?
         // ================================================================
         {
             id: 'sec-motivation',
-            title: 'The Climax',
+            title: 'Motivation',
             content: `
-<h2>The Climax: The Prime Number Theorem</h2>
+<h2>The Central Question of Analytic Number Theory</h2>
 
 <div class="env-block intuition">
-    <div class="env-title">The Central Question</div>
+    <div class="env-title">The Climax</div>
     <div class="env-body">
-        <p>Among the first million integers, roughly how many are prime? Among the first trillion? Is there a clean formula that captures the density of primes in the long run?</p>
-        <p>Gauss pondered this at age 15, around 1792, staring at tables of primes. He noticed that the primes thin out, but in a remarkably regular way. His conjecture, refined over a century, became the crown jewel of 19th-century mathematics.</p>
+        <p>Everything we have built so far, arithmetic functions, Dirichlet series, the zeta function, analytic continuation, zero-free regions, converges on a single theorem. The <strong>Prime Number Theorem</strong> (PNT) asserts that the number of primes up to \\(x\\) satisfies</p>
+        \\[\\pi(x) \\sim \\frac{x}{\\ln x}\\]
+        <p>meaning \\(\\lim_{x \\to \\infty} \\pi(x) / (x/\\ln x) = 1\\). Primes thin out, but in a perfectly predictable way.</p>
     </div>
 </div>
 
-<p>Let \\(\\pi(x)\\) denote the number of primes up to \\(x\\). The <strong>Prime Number Theorem</strong> (PNT) states that primes are distributed asymptotically like \\(x / \\ln x\\):</p>
+<p>The conjecture is old. Gauss, as a teenager around 1792, studied tables of primes and guessed that the "density" of primes near \\(x\\) is roughly \\(1/\\ln x\\). By 1808 Legendre published the approximation \\(\\pi(x) \\approx x/(\\ln x - 1.08366)\\). But a proof eluded mathematicians for over a century.</p>
 
-<div class="env-block theorem">
-    <div class="env-title">Theorem 7.1 (Prime Number Theorem)</div>
+<h3>What Does \\(\\pi(x) \\sim x/\\ln x\\) Actually Say?</h3>
+
+<p>The statement is asymptotic: it does <em>not</em> say \\(\\pi(x) = x/\\ln x\\), nor does it give an error bound. It says the <em>ratio</em> tends to 1. More precisely:</p>
+
+<div class="env-block definition">
+    <div class="env-title">Definition (Asymptotic Equivalence)</div>
     <div class="env-body">
-        \\[\\pi(x) \\sim \\frac{x}{\\ln x} \\quad \\text{as } x \\to \\infty,\\]
-        <p>meaning \\(\\displaystyle\\lim_{x \\to \\infty} \\frac{\\pi(x)}{x / \\ln x} = 1.\\)</p>
+        <p>We write \\(f(x) \\sim g(x)\\) as \\(x \\to \\infty\\) if \\(\\lim_{x \\to \\infty} f(x)/g(x) = 1\\).</p>
     </div>
 </div>
 
-<p>Equivalently, the \\(n\\)-th prime \\(p_n \\sim n \\ln n\\), and the probability that a randomly chosen integer near \\(x\\) is prime is approximately \\(1/\\ln x\\).</p>
+<p>A sharper approximation uses the <strong>logarithmic integral</strong>:</p>
+\\[\\operatorname{Li}(x) = \\int_2^x \\frac{dt}{\\ln t}.\\]
+<p>Integration by parts gives \\(\\operatorname{Li}(x) = x/\\ln x + x/(\\ln x)^2 + 2x/(\\ln x)^3 + \\cdots\\), so \\(\\operatorname{Li}(x) \\sim x/\\ln x\\). In practice \\(\\operatorname{Li}(x)\\) is far more accurate than \\(x/\\ln x\\).</p>
 
-<h3>Historical Significance</h3>
-
-<p>The PNT was conjectured independently by Gauss and Legendre around 1800, but proved only in <strong>1896</strong> by Hadamard and de la Vall&eacute;e Poussin, working independently. Their proofs both used the Riemann zeta function and its zero-free region near the line \\(\\text{Re}(s) = 1\\). The key insight, first articulated by Riemann in his 1859 memoir, was that the distribution of primes is encoded in the zeros of \\(\\zeta(s)\\).</p>
-
-<p>This was one of the first great triumphs of complex analysis in pure number theory: a problem about integers, solved by the theory of functions of a complex variable.</p>
-
-<h3>Two Equivalent Forms</h3>
-
-<p>The PNT has several equivalent formulations, each highlighting a different aspect:</p>
-
-<ol>
-    <li>\\(\\pi(x) \\sim x / \\ln x\\) (counting primes directly)</li>
-    <li>\\(\\psi(x) \\sim x\\) (von Mangoldt's function, the cleanest analytically)</li>
-    <li>\\(\\theta(x) \\sim x\\) (Chebyshev's theta function)</li>
-    <li>\\(\\pi(x) \\sim \\operatorname{Li}(x) = \\int_2^x \\frac{dt}{\\ln t}\\) (best approximation)</li>
-</ol>
-
-<p>We will prove the equivalences and establish that \\(\\psi(x) \\sim x\\) is the analytically cleanest target.</p>
+<h3>Historical Timeline</h3>
 
 <div class="env-block remark">
-    <div class="env-title">Why \\(\\psi(x)\\)?</div>
+    <div class="env-title">Key Dates</div>
     <div class="env-body">
-        <p>The von Mangoldt function \\(\\Lambda(n)\\) equals \\(\\ln p\\) if \\(n = p^k\\) (prime power) and \\(0\\) otherwise. Its summatory function \\(\\psi(x) = \\sum_{n \\le x} \\Lambda(n)\\) is related to \\(-\\zeta'(s)/\\zeta(s)\\) by a Mellin-type formula, making it the natural target for contour integration.</p>
+        <ul>
+            <li><strong>~1792</strong>: Gauss conjectures the prime density \\(\\approx 1/\\ln x\\) from numerical data.</li>
+            <li><strong>1837</strong>: Dirichlet introduces \\(L\\)-functions and proves his theorem on primes in arithmetic progressions.</li>
+            <li><strong>1848-1850</strong>: Chebyshev proves \\(\\pi(x)\\) is bounded between \\(c_1 x/\\ln x\\) and \\(c_2 x/\\ln x\\) with explicit constants.</li>
+            <li><strong>1859</strong>: Riemann's memoir connects \\(\\pi(x)\\) to the zeros of \\(\\zeta(s)\\) via the explicit formula.</li>
+            <li><strong>1896</strong>: Hadamard and de la Vall\\'{e}e-Poussin independently prove PNT using the zero-free region \\(\\zeta(s) \\neq 0\\) on \\(\\operatorname{Re}(s) = 1\\).</li>
+            <li><strong>1949</strong>: Selberg and Erd\\H{o}s give "elementary" proofs (no complex analysis), but the analytic proof remains cleaner and more powerful.</li>
+        </ul>
     </div>
 </div>
 
-<div class="viz-placeholder" data-viz="viz-pnt-history"></div>
+<h3>The Strategy</h3>
+
+<p>The proof we present follows the classical Hadamard-de la Vall\\'{e}e-Poussin approach:</p>
+<ol>
+    <li>Reduce PNT to an equivalent statement about the Chebyshev function \\(\\psi(x)\\).</li>
+    <li>Express \\(\\psi(x)\\) via a contour integral involving \\(\\zeta'/\\zeta\\) (Perron's formula).</li>
+    <li>Shift the contour leftward past \\(\\operatorname{Re}(s) = 1\\), picking up the residue of the pole at \\(s = 1\\).</li>
+    <li>Use the zero-free region (Chapter 6) to bound the remaining integral.</li>
+    <li>Conclude \\(\\psi(x) \\sim x\\), hence \\(\\pi(x) \\sim x/\\ln x\\).</li>
+</ol>
+
+<div class="viz-placeholder" data-viz="viz-psi-convergence"></div>
 `,
             visualizations: [
                 {
-                    id: 'viz-pnt-history',
-                    title: 'Timeline: Road to the Prime Number Theorem',
-                    description: 'Key milestones in the development of the PNT, from Gauss\'s empirical observations to the 1896 proofs and beyond.',
+                    id: 'viz-psi-convergence',
+                    title: '\\(\\psi(x)/x\\) Converges to 1',
+                    description: 'The Chebyshev function \\(\\psi(x) = \\sum_{p^k \\leq x} \\ln p\\). The PNT is equivalent to \\(\\psi(x)/x \\to 1\\). Watch the ratio settle toward 1 as \\(x\\) grows.',
                     setup: function(body, controls) {
                         var viz = new VizEngine(body, {
-                            width: 700, height: 340,
-                            originX: 0, originY: 0, scale: 1
+                            width: 560, height: 380,
+                            originX: 60, originY: 340, scale: 1
                         });
 
-                        var events = [
-                            { year: 1792, label: 'Gauss conjectures\n\u03c0(x) ~ x/ln x', color: viz.colors.blue },
-                            { year: 1798, label: 'Legendre\nindependent conjecture', color: viz.colors.teal },
-                            { year: 1848, label: 'Chebyshev: bounds\nc\u2081x/ln x < \u03c0(x) < c\u2082x/ln x', color: viz.colors.orange },
-                            { year: 1859, label: 'Riemann: zeta zeros\ncontrol primes', color: viz.colors.purple },
-                            { year: 1896, label: 'Hadamard &\nde la Vall\xe9e Poussin\nPROVED PNT', color: viz.colors.green },
-                            { year: 1949, label: 'Erd\u0151s & Selberg:\nelementary proof', color: viz.colors.yellow },
-                        ];
+                        var maxX = 500;
+                        VizEngine.createSlider(controls, 'x max', 100, 5000, maxX, 100, function(v) {
+                            maxX = Math.round(v);
+                            draw();
+                        });
+
+                        var primes = VizEngine.sievePrimes(10000);
+
+                        function psi(x) {
+                            var sum = 0;
+                            for (var i = 0; i < primes.length; i++) {
+                                var p = primes[i];
+                                if (p > x) break;
+                                var pk = p;
+                                while (pk <= x) {
+                                    sum += Math.log(p);
+                                    pk *= p;
+                                }
+                            }
+                            return sum;
+                        }
 
                         function draw() {
                             viz.clear();
                             var ctx = viz.ctx;
-                            var W = viz.width, H = viz.height;
+                            var W = viz.width - 80;
+                            var H = 280;
+                            var baseY = 330;
+                            var topY = 40;
 
-                            viz.screenText('Timeline: Road to the Prime Number Theorem', W / 2, 22, viz.colors.white, 15);
+                            // Title
+                            viz.screenText('\u03C8(x)/x approaching 1', viz.width / 2, 20, viz.colors.white, 14);
 
-                            // Timeline bar
-                            var y0 = H / 2 + 10;
-                            var x0 = 50, x1 = W - 30;
-                            var yearMin = 1785, yearMax = 1960;
-                            function xOf(yr) {
-                                return x0 + (yr - yearMin) / (yearMax - yearMin) * (x1 - x0);
+                            // Draw axes
+                            ctx.strokeStyle = viz.colors.axis;
+                            ctx.lineWidth = 1;
+                            ctx.beginPath();
+                            ctx.moveTo(60, baseY);
+                            ctx.lineTo(viz.width - 20, baseY);
+                            ctx.stroke();
+                            ctx.beginPath();
+                            ctx.moveTo(60, baseY);
+                            ctx.lineTo(60, topY);
+                            ctx.stroke();
+
+                            // Y axis labels
+                            ctx.fillStyle = viz.colors.text;
+                            ctx.font = '10px -apple-system,sans-serif';
+                            ctx.textAlign = 'right';
+                            ctx.textBaseline = 'middle';
+                            for (var yv = 0; yv <= 1.4; yv += 0.2) {
+                                var sy = baseY - (yv / 1.5) * H;
+                                ctx.fillText(yv.toFixed(1), 55, sy);
+                                ctx.strokeStyle = viz.colors.grid;
+                                ctx.lineWidth = 0.5;
+                                ctx.beginPath();
+                                ctx.moveTo(60, sy);
+                                ctx.lineTo(viz.width - 20, sy);
+                                ctx.stroke();
                             }
 
-                            ctx.strokeStyle = viz.colors.axis; ctx.lineWidth = 2;
-                            ctx.beginPath(); ctx.moveTo(x0, y0); ctx.lineTo(x1, y0); ctx.stroke();
+                            // Draw y=1 line (target)
+                            var y1 = baseY - (1.0 / 1.5) * H;
+                            ctx.strokeStyle = viz.colors.green + '88';
+                            ctx.lineWidth = 2;
+                            ctx.setLineDash([6, 4]);
+                            ctx.beginPath();
+                            ctx.moveTo(60, y1);
+                            ctx.lineTo(viz.width - 20, y1);
+                            ctx.stroke();
+                            ctx.setLineDash([]);
+                            viz.screenText('y = 1', viz.width - 15, y1 - 10, viz.colors.green, 11, 'right');
 
-                            // Decade ticks
-                            ctx.fillStyle = viz.colors.text; ctx.font = '10px -apple-system,sans-serif';
+                            // Plot psi(x)/x
+                            var step = Math.max(1, Math.floor(maxX / 400));
+                            ctx.strokeStyle = viz.colors.blue;
+                            ctx.lineWidth = 2;
+                            ctx.beginPath();
+                            var started = false;
+                            for (var x = 2; x <= maxX; x += step) {
+                                var ratio = psi(x) / x;
+                                var sx = 60 + (x / maxX) * W;
+                                var sy2 = baseY - (ratio / 1.5) * H;
+                                if (!started) { ctx.moveTo(sx, sy2); started = true; }
+                                else ctx.lineTo(sx, sy2);
+                            }
+                            ctx.stroke();
+
+                            // X axis labels
+                            ctx.fillStyle = viz.colors.text;
+                            ctx.font = '10px -apple-system,sans-serif';
                             ctx.textAlign = 'center';
-                            for (var yr = 1800; yr <= 1960; yr += 20) {
-                                var xv = xOf(yr);
-                                ctx.strokeStyle = viz.colors.grid; ctx.lineWidth = 0.5;
-                                ctx.beginPath(); ctx.moveTo(xv, y0 - 5); ctx.lineTo(xv, y0 + 5); ctx.stroke();
-                                ctx.fillStyle = viz.colors.text;
-                                ctx.fillText(yr.toString(), xv, y0 + 18);
+                            ctx.textBaseline = 'top';
+                            var nLabels = Math.min(6, Math.floor(maxX / 100));
+                            for (var i = 1; i <= nLabels; i++) {
+                                var xv = Math.round(maxX * i / nLabels);
+                                var sxl = 60 + (xv / maxX) * W;
+                                ctx.fillText(xv.toString(), sxl, baseY + 4);
                             }
 
-                            // Events
-                            events.forEach(function(ev, i) {
-                                var xv = xOf(ev.year);
-                                var above = (i % 2 === 0);
-                                var labelY = above ? y0 - 80 : y0 + 55;
-                                var lineY1 = above ? y0 - 10 : y0 + 10;
-                                var lineY2 = above ? labelY + 28 : labelY - 5;
-
-                                ctx.strokeStyle = ev.color; ctx.lineWidth = 1.5;
-                                ctx.setLineDash([3, 3]);
-                                ctx.beginPath(); ctx.moveTo(xv, lineY1); ctx.lineTo(xv, lineY2); ctx.stroke();
-                                ctx.setLineDash([]);
-
-                                ctx.fillStyle = ev.color;
-                                ctx.beginPath(); ctx.arc(xv, y0, 5, 0, Math.PI * 2); ctx.fill();
-
-                                var lines = ev.label.split('\n');
-                                ctx.font = '10px -apple-system,sans-serif';
-                                ctx.textAlign = 'center';
-                                lines.forEach(function(line, li) {
-                                    ctx.fillStyle = ev.color;
-                                    ctx.fillText(line, xv, labelY + li * 14);
-                                });
-
-                                ctx.font = 'bold 11px -apple-system,sans-serif';
-                                ctx.fillStyle = viz.colors.white;
-                                ctx.fillText(ev.year.toString(), xv, above ? labelY - 14 : labelY + lines.length * 14 + 4);
-                            });
+                            // Current endpoint
+                            var endRatio = psi(maxX) / maxX;
+                            viz.screenText('\u03C8(' + maxX + ')/' + maxX + ' = ' + endRatio.toFixed(4), viz.width / 2, baseY + 22, viz.colors.teal, 12);
                         }
-
                         draw();
                         return viz;
                     }
                 }
             ],
-            exercises: [
-                {
-                    question: 'Using \\(\\pi(x) \\sim x/\\ln x\\), estimate \\(\\pi(10^6)\\), \\(\\pi(10^9)\\), and \\(\\pi(10^{12})\\). The true values are 78,498; 50,847,534; and 37,607,912,018. Compute the relative error in each case.',
-                    hint: 'Plug in the values: \\(x/\\ln x\\) at \\(x = 10^k\\) gives \\(10^k / (k \\ln 10)\\).',
-                    solution: 'At \\(10^6\\): \\(10^6/(6\\ln 10) \\approx 72{,}382\\), relative error \\(\\approx 7.8\\%\\). At \\(10^9\\): \\(\\approx 48{,}255{,}000\\), error \\(\\approx 5.1\\%\\). At \\(10^{12}\\): \\(\\approx 36{,}191{,}000{,}000\\), error \\(\\approx 3.8\\%\\). The approximation improves slowly (logarithmically) as \\(x \\to \\infty\\), which is why \\(\\operatorname{Li}(x)\\) is preferred in practice.'
-                },
-                {
-                    question: 'Show that \\(\\pi(x) \\sim x/\\ln x\\) implies the \\(n\\)-th prime satisfies \\(p_n \\sim n \\ln n\\).',
-                    hint: 'If \\(\\pi(p_n) = n\\) and \\(\\pi(x) \\sim x/\\ln x\\), substitute \\(x = p_n\\) and solve for \\(p_n\\) asymptotically.',
-                    solution: 'From \\(n = \\pi(p_n) \\sim p_n / \\ln p_n\\) we get \\(p_n \\sim n \\ln p_n\\). Since \\(p_n \\to \\infty\\), \\(\\ln p_n \\sim \\ln n\\), so \\(p_n \\sim n \\ln n\\). More carefully: \\(\\ln p_n = \\ln n + \\ln \\ln p_n \\sim \\ln n\\) since \\(\\ln \\ln p_n = o(\\ln n)\\).'
-                }
-            ]
+            exercises: []
         },
 
         // ================================================================
@@ -168,196 +200,227 @@ window.CHAPTERS.push({
             id: 'sec-chebyshev',
             title: 'Chebyshev Functions',
             content: `
-<h2>Chebyshev Functions: \\(\\psi(x)\\) and \\(\\theta(x)\\)</h2>
+<h2>The Chebyshev Functions \\(\\psi\\), \\(\\theta\\), and Their Equivalence</h2>
 
-<div class="env-block intuition">
-    <div class="env-title">Smooth Substitutes for \\(\\pi(x)\\)</div>
-    <div class="env-body">
-        <p>The function \\(\\pi(x)\\) is a step function that jumps by 1 at each prime. For analytic work, it is awkward because it treats all primes equally, ignoring their relative "weight." Chebyshev introduced two weighted counts that are analytically superior: each prime \\(p\\) is weighted by \\(\\ln p\\), which reflects its "size."</p>
-    </div>
-</div>
-
-<h3>The Two Functions</h3>
+<p>Rather than working directly with \\(\\pi(x)\\), the proof of PNT uses smoother "weighted" counting functions introduced by Chebyshev.</p>
 
 <div class="env-block definition">
     <div class="env-title">Definition (Chebyshev Functions)</div>
     <div class="env-body">
-        <p>For \\(x \\ge 1\\):</p>
-        <ul>
-            <li>\\(\\displaystyle\\theta(x) = \\sum_{p \\le x} \\ln p\\) (sum over primes only)</li>
-            <li>\\(\\displaystyle\\psi(x) = \\sum_{p^k \\le x} \\ln p = \\sum_{n \\le x} \\Lambda(n)\\) (sum over prime powers)</li>
-        </ul>
-        <p>where \\(\\Lambda(n)\\) is the von Mangoldt function: \\(\\Lambda(n) = \\ln p\\) if \\(n = p^k\\), else \\(0\\).</p>
+        <p>The <strong>first Chebyshev function</strong> is</p>
+        \\[\\theta(x) = \\sum_{p \\leq x} \\ln p\\]
+        <p>which sums \\(\\ln p\\) over primes \\(p \\leq x\\).</p>
+        <p>The <strong>second Chebyshev function</strong> is</p>
+        \\[\\psi(x) = \\sum_{n \\leq x} \\Lambda(n) = \\sum_{p^k \\leq x} \\ln p\\]
+        <p>where \\(\\Lambda\\) is the von Mangoldt function. This sums \\(\\ln p\\) over all prime powers \\(p^k \\leq x\\).</p>
     </div>
 </div>
 
-<p>The relationship between the two is:
-\\[\\psi(x) = \\theta(x) + \\theta(x^{1/2}) + \\theta(x^{1/3}) + \\cdots = \\sum_{k=1}^{\\lfloor \\log_2 x \\rfloor} \\theta(x^{1/k}).\\]
-The higher-order terms \\(\\theta(x^{1/2}), \\theta(x^{1/3}), \\ldots\\) are \\(O(x^{1/2})\\), so \\(\\psi(x) - \\theta(x) = O(x^{1/2} \\ln x)\\). In particular, \\(\\psi(x) \\sim x\\) if and only if \\(\\theta(x) \\sim x\\).</p>
+<h3>Why Use These?</h3>
 
-<h3>Equivalence of PNT Forms</h3>
+<p>The function \\(\\pi(x)\\) counts each prime equally, but from the perspective of Dirichlet series, the natural weight for the prime \\(p\\) is \\(\\ln p\\). Recall that \\(-\\zeta'(s)/\\zeta(s) = \\sum_{n=1}^{\\infty} \\Lambda(n) n^{-s}\\), so \\(\\psi(x)\\) is the partial-sum function of the coefficients of \\(-\\zeta'/\\zeta\\). This is what makes Perron's formula directly applicable.</p>
+
+<h3>Equivalence of PNT Statements</h3>
 
 <div class="env-block theorem">
-    <div class="env-title">Theorem 7.2 (Equivalences)</div>
+    <div class="env-title">Theorem 7.1 (Equivalence)</div>
     <div class="env-body">
         <p>The following are equivalent:</p>
         <ol>
-            <li>\\(\\pi(x) \\sim x / \\ln x\\)</li>
-            <li>\\(\\theta(x) \\sim x\\)</li>
-            <li>\\(\\psi(x) \\sim x\\)</li>
+            <li>\\(\\pi(x) \\sim x/\\ln x\\) (PNT for \\(\\pi\\)).</li>
+            <li>\\(\\theta(x) \\sim x\\) (PNT for \\(\\theta\\)).</li>
+            <li>\\(\\psi(x) \\sim x\\) (PNT for \\(\\psi\\)).</li>
         </ol>
     </div>
 </div>
 
-<p><strong>Proof sketch (1 \\Leftrightarrow 2):</strong> By partial summation (Abel summation),
-\\[\\theta(x) = \\pi(x) \\ln x - \\int_2^x \\frac{\\pi(t)}{t} \\, dt.\\]
-If \\(\\pi(x) \\sim x/\\ln x\\), the right side is \\(\\sim x - \\int_2^x (1/\\ln t) \\, dt\\). The integral \\(\\int_2^x dt/\\ln t = O(x/\\ln x)\\), so \\(\\theta(x) \\sim x\\). The converse is similar. \\(\\square\\)</p>
+<div class="env-block proof">
+    <div class="env-title">Proof Sketch</div>
+    <div class="env-body">
+        <p><strong>(3) \\(\\Rightarrow\\) (2):</strong> Since \\(\\psi(x) = \\theta(x) + \\theta(x^{1/2}) + \\theta(x^{1/3}) + \\cdots\\), and trivially \\(\\theta(x) \\leq \\psi(x)\\), we have</p>
+        \\[\\theta(x) \\leq \\psi(x) \\leq \\theta(x) + \\theta(x^{1/2}) + \\theta(x^{1/3}) + \\cdots.\\]
+        <p>Now \\(\\theta(y) \\leq y \\ln y\\) trivially (each prime \\(p \\leq y\\) contributes at most \\(\\ln y\\)). The sum of higher prime powers contributes at most \\(\\sqrt{x} \\ln x \\cdot \\log_2 x\\), which is \\(o(x)\\). Hence \\(\\psi(x) - \\theta(x) = o(x)\\), so \\(\\psi(x) \\sim x\\) iff \\(\\theta(x) \\sim x\\).</p>
 
-<h3>Connection to the Zeta Function</h3>
+        <p><strong>(2) \\(\\Leftrightarrow\\) (1):</strong> By Abel summation (partial summation),</p>
+        \\[\\theta(x) = \\pi(x) \\ln x - \\int_2^x \\frac{\\pi(t)}{t}\\, dt.\\]
+        <p>If \\(\\pi(x) \\sim x/\\ln x\\), then \\(\\theta(x) \\sim x\\). Conversely, if \\(\\theta(x) \\sim x\\), then \\(\\pi(x) \\sim x/\\ln x\\). The details use careful asymptotic analysis of the integral.</p>
+    </div>
+    <div class="qed">&marker;</div>
+</div>
 
-<p>The key analytic identity is:
-\\[-\\frac{\\zeta'(s)}{\\zeta(s)} = \\sum_{n=1}^\\infty \\frac{\\Lambda(n)}{n^s}, \\quad \\text{Re}(s) > 1.\\]
-This makes \\(\\psi(x)\\) the natural function to recover via Perron's formula from the Dirichlet series \\(-\\zeta'(s)/\\zeta(s)\\). The residue of \\(-\\zeta'(s)/\\zeta(s)\\) at \\(s = 1\\) is \\(1\\) (since \\(\\zeta(s)\\) has a simple pole there), which is exactly why \\(\\psi(x) \\sim x\\).</p>
+<h3>The Key Relation: \\(\\psi\\) and \\(\\zeta'/\\zeta\\)</h3>
 
-<div class="viz-placeholder" data-viz="viz-psi-convergence"></div>
+<p>The Dirichlet series representation</p>
+\\[-\\frac{\\zeta'(s)}{\\zeta(s)} = \\sum_{n=1}^{\\infty} \\frac{\\Lambda(n)}{n^s}, \\quad \\operatorname{Re}(s) > 1\\]
+<p>means \\(\\psi(x) = \\sum_{n \\leq x} \\Lambda(n)\\) is exactly the partial sum of the coefficients of \\(-\\zeta'/\\zeta\\). Perron's formula will convert this into a contour integral.</p>
+
+<div class="viz-placeholder" data-viz="viz-chebyshev-sandwich"></div>
 `,
             visualizations: [
                 {
-                    id: 'viz-psi-convergence',
-                    title: '\\(\\psi(x)/x \\to 1\\): Convergence to 1',
-                    description: 'Watch \\(\\psi(x)/x\\) (the ratio of the Chebyshev function to \\(x\\)) oscillate and converge to 1. Use the slider to extend the range.',
+                    id: 'viz-chebyshev-sandwich',
+                    title: 'Chebyshev Sandwich: \\(\\theta(x)\\), \\(\\psi(x)\\), and \\(x\\)',
+                    description: 'Compare the growth of \\(\\theta(x)\\) and \\(\\psi(x)\\) against the line \\(y = x\\). Both converge to the same asymptotic, but \\(\\psi\\) includes prime power contributions.',
                     setup: function(body, controls) {
                         var viz = new VizEngine(body, {
-                            width: 660, height: 360,
-                            originX: 60, originY: 310, scale: 1
+                            width: 560, height: 380,
+                            originX: 60, originY: 340, scale: 1
                         });
 
                         var maxX = 200;
-                        var animating = false;
-                        var animX = 10;
-
-                        VizEngine.createSlider(controls, 'x max', 100, 2000, maxX, 50, function(v) {
+                        VizEngine.createSlider(controls, 'x max', 50, 2000, maxX, 50, function(v) {
                             maxX = Math.round(v);
-                            animating = false;
-                            draw(maxX);
+                            draw();
                         });
 
-                        var btnAnim = VizEngine.createButton(controls, 'Animate', function() {
-                            animating = !animating;
-                            btnAnim.textContent = animating ? 'Pause' : 'Animate';
-                            if (animating) { animX = 10; runAnim(); }
-                        });
+                        var primes = VizEngine.sievePrimes(5000);
 
-                        // Sieve to get primes
-                        var MAXSIEVE = 2100;
-                        var primes = VizEngine.sievePrimes(MAXSIEVE);
-
-                        // Precompute psi(x) for x = 1..MAXSIEVE
-                        var psiArr = new Float64Array(MAXSIEVE + 1);
-                        for (var n = 2; n <= MAXSIEVE; n++) {
-                            psiArr[n] = psiArr[n - 1];
-                            // check if n is a prime power
-                            var val = n, p = 0;
-                            for (var pi = 0; pi < primes.length && primes[pi] <= val; pi++) {
-                                if (val % primes[pi] === 0) {
-                                    p = primes[pi];
-                                    while (val % p === 0) val = val / p;
-                                    if (val === 1) { psiArr[n] += Math.log(p); }
-                                    break;
-                                }
+                        function theta(x) {
+                            var sum = 0;
+                            for (var i = 0; i < primes.length; i++) {
+                                if (primes[i] > x) break;
+                                sum += Math.log(primes[i]);
                             }
+                            return sum;
                         }
 
-                        function draw(xLimit) {
+                        function psiFunc(x) {
+                            var sum = 0;
+                            for (var i = 0; i < primes.length; i++) {
+                                var p = primes[i];
+                                if (p > x) break;
+                                var pk = p;
+                                while (pk <= x) {
+                                    sum += Math.log(p);
+                                    pk *= p;
+                                }
+                            }
+                            return sum;
+                        }
+
+                        function draw() {
                             viz.clear();
                             var ctx = viz.ctx;
-                            var W = viz.width, H = viz.height;
-                            var plotW = W - 70, plotH = H - 50;
-                            var x0 = 60, y0 = 10;
+                            var W = viz.width - 80;
+                            var H = 280;
+                            var baseY = 330;
 
-                            // axes
-                            ctx.strokeStyle = viz.colors.axis; ctx.lineWidth = 1.5;
-                            ctx.beginPath(); ctx.moveTo(x0, y0); ctx.lineTo(x0, y0 + plotH); ctx.stroke();
-                            ctx.beginPath(); ctx.moveTo(x0, y0 + plotH); ctx.lineTo(x0 + plotW, y0 + plotH); ctx.stroke();
+                            viz.screenText('\u03B8(x), \u03C8(x), and x', viz.width / 2, 20, viz.colors.white, 14);
 
-                            // y=1 reference line
-                            var yRef = y0 + plotH * (1 - 1.0) / 0.6; // will be at ratio=1 in [0.7, 1.3]
-                            var yMin = 0.7, yMax = 1.3;
-                            var yRef2 = y0 + plotH * (1 - (1.0 - yMin) / (yMax - yMin));
-                            ctx.strokeStyle = viz.colors.green; ctx.lineWidth = 1; ctx.setLineDash([5, 4]);
-                            ctx.beginPath(); ctx.moveTo(x0, yRef2); ctx.lineTo(x0 + plotW, yRef2); ctx.stroke();
-                            ctx.setLineDash([]);
+                            // Axes
+                            ctx.strokeStyle = viz.colors.axis;
+                            ctx.lineWidth = 1;
+                            ctx.beginPath();
+                            ctx.moveTo(60, baseY);
+                            ctx.lineTo(viz.width - 20, baseY);
+                            ctx.stroke();
+                            ctx.beginPath();
+                            ctx.moveTo(60, baseY);
+                            ctx.lineTo(60, 30);
+                            ctx.stroke();
 
-                            // y-axis labels
-                            ctx.fillStyle = viz.colors.text; ctx.font = '11px -apple-system,sans-serif';
-                            ctx.textAlign = 'right'; ctx.textBaseline = 'middle';
-                            [0.7, 0.8, 0.9, 1.0, 1.1, 1.2, 1.3].forEach(function(v) {
-                                var sy = y0 + plotH * (1 - (v - yMin) / (yMax - yMin));
-                                ctx.fillStyle = v === 1.0 ? viz.colors.green : viz.colors.text;
-                                ctx.fillText(v.toFixed(1), x0 - 4, sy);
-                                ctx.strokeStyle = viz.colors.grid; ctx.lineWidth = 0.5;
-                                ctx.beginPath(); ctx.moveTo(x0, sy); ctx.lineTo(x0 + plotW, sy); ctx.stroke();
-                            });
+                            // Scale
+                            var yMax = maxX * 1.1;
 
-                            // x-axis labels
-                            ctx.fillStyle = viz.colors.text; ctx.textAlign = 'center'; ctx.textBaseline = 'top';
-                            var nTicks = Math.min(10, Math.floor(xLimit / 50));
-                            for (var ti = 0; ti <= nTicks; ti++) {
-                                var xv = Math.round(xLimit * ti / nTicks);
-                                var sx = x0 + (xv / xLimit) * plotW;
-                                ctx.fillText(xv, sx, y0 + plotH + 4);
+                            function toSx(x) { return 60 + (x / maxX) * W; }
+                            function toSy(y) { return baseY - (y / yMax) * H; }
+
+                            // Y labels
+                            ctx.fillStyle = viz.colors.text;
+                            ctx.font = '10px -apple-system,sans-serif';
+                            ctx.textAlign = 'right';
+                            ctx.textBaseline = 'middle';
+                            var yStep = Math.pow(10, Math.floor(Math.log10(yMax / 4)));
+                            if (yMax / yStep > 8) yStep *= 2;
+                            for (var yv = 0; yv <= yMax; yv += yStep) {
+                                var sy = toSy(yv);
+                                if (sy < 35) break;
+                                ctx.fillText(Math.round(yv).toString(), 55, sy);
+                                ctx.strokeStyle = viz.colors.grid;
+                                ctx.lineWidth = 0.5;
+                                ctx.beginPath();
+                                ctx.moveTo(60, sy);
+                                ctx.lineTo(viz.width - 20, sy);
+                                ctx.stroke();
                             }
 
-                            // psi(x)/x curve
-                            ctx.strokeStyle = viz.colors.blue; ctx.lineWidth = 2;
+                            // Draw y = x
+                            ctx.strokeStyle = viz.colors.white + '66';
+                            ctx.lineWidth = 1.5;
+                            ctx.setLineDash([4, 4]);
+                            ctx.beginPath();
+                            ctx.moveTo(toSx(0), toSy(0));
+                            ctx.lineTo(toSx(maxX), toSy(maxX));
+                            ctx.stroke();
+                            ctx.setLineDash([]);
+
+                            // Plot theta
+                            var step = Math.max(1, Math.floor(maxX / 300));
+                            ctx.strokeStyle = viz.colors.teal;
+                            ctx.lineWidth = 2;
                             ctx.beginPath();
                             var started = false;
-                            var step = Math.max(1, Math.floor(xLimit / 600));
-                            for (var xi = 2; xi <= Math.min(xLimit, MAXSIEVE); xi += step) {
-                                var ratio = psiArr[xi] / xi;
-                                if (ratio < yMin || ratio > yMax) { started = false; continue; }
-                                var sx2 = x0 + (xi / xLimit) * plotW;
-                                var sy2 = y0 + plotH * (1 - (ratio - yMin) / (yMax - yMin));
-                                if (!started) { ctx.moveTo(sx2, sy2); started = true; } else { ctx.lineTo(sx2, sy2); }
+                            for (var x = 2; x <= maxX; x += step) {
+                                var sx = toSx(x);
+                                var sy2 = toSy(theta(x));
+                                if (!started) { ctx.moveTo(sx, sy2); started = true; }
+                                else ctx.lineTo(sx, sy2);
                             }
                             ctx.stroke();
 
-                            // Current value label
-                            var lastX = Math.min(xLimit, MAXSIEVE);
-                            var lastRatio = psiArr[lastX] / lastX;
-                            viz.screenText('\u03c8(x)/x at x=' + lastX + ': ' + lastRatio.toFixed(4), W / 2, 18, viz.colors.blue, 13);
-                            viz.screenText('y = 1 (PNT: \u03c8(x)/x \u2192 1)', x0 + plotW - 10, yRef2 - 10, viz.colors.green, 11);
-                            viz.screenText('x', x0 + plotW + 5, y0 + plotH, viz.colors.text, 12);
-                            viz.screenText('\u03c8(x)/x', x0 - 20, y0 + 5, viz.colors.blue, 11);
-                        }
+                            // Plot psi
+                            ctx.strokeStyle = viz.colors.blue;
+                            ctx.lineWidth = 2;
+                            ctx.beginPath();
+                            started = false;
+                            for (var x2 = 2; x2 <= maxX; x2 += step) {
+                                var sx3 = toSx(x2);
+                                var sy3 = toSy(psiFunc(x2));
+                                if (!started) { ctx.moveTo(sx3, sy3); started = true; }
+                                else ctx.lineTo(sx3, sy3);
+                            }
+                            ctx.stroke();
 
-                        function runAnim() {
-                            if (!animating) return;
-                            animX = Math.min(animX + 3, Math.min(maxX, MAXSIEVE));
-                            draw(animX);
-                            if (animX < Math.min(maxX, MAXSIEVE)) {
-                                requestAnimationFrame(runAnim);
-                            } else {
-                                animating = false;
-                                btnAnim.textContent = 'Animate';
+                            // Legend
+                            var legY = baseY + 18;
+                            ctx.font = '11px -apple-system,sans-serif';
+                            ctx.textAlign = 'left';
+                            ctx.fillStyle = viz.colors.blue;
+                            ctx.fillRect(viz.width / 2 - 120, legY - 5, 12, 12);
+                            ctx.fillText('\u03C8(x)', viz.width / 2 - 104, legY + 5);
+                            ctx.fillStyle = viz.colors.teal;
+                            ctx.fillRect(viz.width / 2 - 40, legY - 5, 12, 12);
+                            ctx.fillText('\u03B8(x)', viz.width / 2 - 24, legY + 5);
+                            ctx.fillStyle = viz.colors.white + '88';
+                            ctx.fillRect(viz.width / 2 + 40, legY - 5, 12, 12);
+                            ctx.fillText('y = x', viz.width / 2 + 56, legY + 5);
+
+                            // X labels
+                            ctx.fillStyle = viz.colors.text;
+                            ctx.font = '10px -apple-system,sans-serif';
+                            ctx.textAlign = 'center';
+                            ctx.textBaseline = 'top';
+                            var xStep = Math.pow(10, Math.floor(Math.log10(maxX / 5)));
+                            if (maxX / xStep > 10) xStep *= 2;
+                            for (var xv = xStep; xv <= maxX; xv += xStep) {
+                                ctx.fillText(xv.toString(), toSx(xv), baseY + 4);
                             }
                         }
-
-                        draw(maxX);
+                        draw();
                         return viz;
                     }
                 }
             ],
             exercises: [
                 {
-                    question: 'Compute \\(\\psi(30)\\) by hand: list all prime powers \\(p^k \\le 30\\) and sum their \\(\\ln p\\) contributions.',
-                    hint: 'Prime powers up to 30: \\(2, 4, 8, 16\\) (from \\(p=2\\)); \\(3, 9, 27\\) (from \\(p=3\\)); \\(5, 25\\) (from \\(p=5\\)); \\(7\\); \\(11, 13, 17, 19, 23, 29\\).',
-                    solution: '\\(\\psi(30) = 4\\ln 2 + 3\\ln 3 + 2\\ln 5 + \\ln 7 + \\ln 11 + \\ln 13 + \\ln 17 + \\ln 19 + \\ln 23 + \\ln 29\\). Numerically: \\(4(0.693) + 3(1.099) + 2(1.609) + 1.946 + 2.398 + 2.565 + 2.833 + 2.944 + 3.135 + 3.367 \\approx 2.773 + 3.296 + 3.219 + 18.188 \\approx 27.476\\). So \\(\\psi(30)/30 \\approx 0.916\\), already reasonably close to 1.'
+                    question: 'Compute \\(\\theta(20)\\) and \\(\\psi(20)\\) by hand.',
+                    hint: 'Primes up to 20: 2, 3, 5, 7, 11, 13, 17, 19. For \\(\\psi\\), also include prime powers \\(4 = 2^2\\), \\(8 = 2^3\\), \\(9 = 3^2\\), \\(16 = 2^4\\).',
+                    solution: '\\(\\theta(20) = \\ln 2 + \\ln 3 + \\ln 5 + \\ln 7 + \\ln 11 + \\ln 13 + \\ln 17 + \\ln 19 = \\ln(2 \\cdot 3 \\cdot 5 \\cdot 7 \\cdot 11 \\cdot 13 \\cdot 17 \\cdot 19) = \\ln(9{,}699{,}690) \\approx 16.09\\). For \\(\\psi(20)\\): add \\(\\ln 2\\) for \\(4, 8, 16\\) (three extra copies) and \\(\\ln 3\\) for \\(9\\) (one extra copy). So \\(\\psi(20) = \\theta(20) + 3\\ln 2 + \\ln 3 \\approx 16.09 + 2.08 + 1.10 = 19.27\\).'
                 },
                 {
-                    question: 'Show that \\(\\psi(x) - \\theta(x) = O(\\sqrt{x} \\ln x)\\).',
-                    hint: 'Use \\(\\psi(x) = \\theta(x) + \\theta(x^{1/2}) + \\theta(x^{1/3}) + \\cdots\\) and the trivial bound \\(\\theta(y) \\le y \\ln y\\) (actually \\(\\theta(y) = O(y)\\)).',
-                    solution: 'The sum has at most \\(\\log_2 x\\) nonzero terms. The \\(k\\)-th term is \\(\\theta(x^{1/k}) = O(x^{1/k})\\). For \\(k \\ge 2\\): \\(\\sum_{k=2}^{\\log_2 x} \\theta(x^{1/k}) \\le \\sum_{k=2}^{\\log_2 x} O(x^{1/k}) \\le (\\log_2 x) \\cdot O(x^{1/2}) = O(\\sqrt{x} \\ln x)\\).'
+                    question: 'Show that \\(\\psi(x) - \\theta(x) = O(\\sqrt{x}\\,(\\ln x)^2)\\).',
+                    hint: 'The difference \\(\\psi(x) - \\theta(x) = \\sum_{k=2}^{\\infty} \\theta(x^{1/k})\\). Use \\(\\theta(y) \\leq y \\ln y\\) and note the sum has at most \\(\\log_2 x\\) nonzero terms.',
+                    solution: '\\(\\psi(x) - \\theta(x) = \\theta(x^{1/2}) + \\theta(x^{1/3}) + \\cdots\\). Since \\(\\theta(y) \\leq y \\ln y\\), the \\(k\\)-th term is \\(\\leq x^{1/k} \\ln(x^{1/k}) = x^{1/k} \\cdot \\frac{\\ln x}{k}\\). The dominant term is \\(k=2\\): \\(\\theta(\\sqrt{x}) \\leq \\sqrt{x} \\ln \\sqrt{x} = \\frac{1}{2}\\sqrt{x}\\ln x\\). There are \\(\\leq \\log_2 x\\) terms total, so \\(\\psi(x) - \\theta(x) = O(\\sqrt{x}(\\ln x)^2)\\).'
                 }
             ]
         },
@@ -369,177 +432,177 @@ This makes \\(\\psi(x)\\) the natural function to recover via Perron's formula f
             id: 'sec-chebyshev-bounds',
             title: "Chebyshev's Bounds",
             content: `
-<h2>Chebyshev's Bounds: Before the Full Proof</h2>
+<h2>Chebyshev's Bounds: The Right Order of Growth</h2>
 
-<div class="env-block intuition">
-    <div class="env-title">The State of Affairs in 1848</div>
-    <div class="env-body">
-        <p>Chebyshev could not prove the PNT, but he established the first rigorous bounds: the ratio \\(\\pi(x) / (x/\\ln x)\\) is trapped between two positive constants. This was a major advance over nothing.</p>
-    </div>
-</div>
+<p>Half a century before the PNT was proved, Chebyshev (1848-1850) showed that \\(\\pi(x)\\) has the right order of magnitude. He could not prove the limit equals 1, but he pinned it between two constants.</p>
 
 <div class="env-block theorem">
-    <div class="env-title">Theorem 7.3 (Chebyshev's Bounds, 1848)</div>
+    <div class="env-title">Theorem 7.2 (Chebyshev's Bounds)</div>
     <div class="env-body">
-        <p>There exist constants \\(0 < c_1 < 1 < c_2\\) such that for all \\(x \\ge 2\\):</p>
-        \\[c_1 \\frac{x}{\\ln x} < \\pi(x) < c_2 \\frac{x}{\\ln x}.\\]
-        <p>One can take \\(c_1 = \\ln 2 - \\varepsilon \\approx 0.693\\) and \\(c_2 = 2\\ln 2 + \\varepsilon \\approx 1.386\\).</p>
+        <p>There exist constants \\(0 < c_1 < 1 < c_2\\) such that for all sufficiently large \\(x\\),</p>
+        \\[c_1 \\frac{x}{\\ln x} \\leq \\pi(x) \\leq c_2 \\frac{x}{\\ln x}.\\]
+        <p>Equivalently, \\(c_1 x \\leq \\psi(x) \\leq c_2 x\\). Chebyshev obtained \\(c_1 = \\ln 2 \\approx 0.693\\) and \\(c_2 = 6 \\ln 2 / 5 \\approx 0.832\\) for the upper bound on \\(\\theta\\), and corresponding values for \\(\\pi\\).</p>
     </div>
 </div>
 
-<h3>Proof via Binomial Coefficients</h3>
-
-<p>Chebyshev's elegant method uses the central binomial coefficient \\(\\binom{2n}{n}\\).</p>
-
-<p><strong>Upper bound.</strong> Every prime \\(n < p \\le 2n\\) divides \\(\\binom{2n}{n}\\). Since \\(\\binom{2n}{n} \\le 4^n\\), the product of primes in \\((n, 2n]\\) satisfies:
-\\[\\prod_{n < p \\le 2n} p \\le 4^n.\\]
-Taking logarithms: \\(\\theta(2n) - \\theta(n) \\le n \\ln 4\\). Iterating (summing over \\(n, n/2, n/4, \\ldots\\)) gives \\(\\theta(x) \\le x \\ln 4\\), hence \\(\\pi(x) \\le 2\\ln 2 \\cdot x/\\ln x\\).</p>
-
-<p><strong>Lower bound.</strong> Since \\(\\binom{2n}{n} \\ge 4^n / (2n+1)\\), the product of primes in \\((n, 2n]\\) is at least \\(4^n / (2n+1)^k\\) for some small \\(k\\), yielding \\(\\pi(2n) - \\pi(n) \\ge \\ln 2 \\cdot n / \\ln(2n) \\cdot (1 - o(1))\\), and iterating gives the lower bound.</p>
-
-<h3>Bertrand's Postulate</h3>
-
-<p>As an immediate corollary of the lower bound argument (or by a more careful analysis), Chebyshev's method establishes:</p>
-
-<div class="env-block theorem">
-    <div class="env-title">Corollary 7.4 (Bertrand's Postulate)</div>
+<div class="env-block proof">
+    <div class="env-title">Proof Idea (Upper Bound)</div>
     <div class="env-body">
-        <p>For every integer \\(n \\ge 1\\), there exists a prime \\(p\\) with \\(n < p \\le 2n\\).</p>
+        <p>Consider the central binomial coefficient \\(\\binom{2n}{n}\\). On one hand, \\(\\binom{2n}{n} \\leq 2^{2n}\\) (since it is one term of \\((1+1)^{2n}\\)). On the other hand, every prime \\(p\\) with \\(n < p \\leq 2n\\) divides \\(\\binom{2n}{n}\\) (since \\(p\\) divides \\((2n)!\\) but not \\(n! \\cdot n!\\)). Therefore:</p>
+        \\[\\prod_{n < p \\leq 2n} p \\leq \\binom{2n}{n} \\leq 4^n.\\]
+        <p>Taking logarithms: \\(\\theta(2n) - \\theta(n) \\leq n \\ln 4\\). Telescoping gives \\(\\theta(x) \\leq 2x \\ln 2\\).</p>
+    </div>
+    <div class="qed">&marker;</div>
+</div>
+
+<div class="env-block proof">
+    <div class="env-title">Proof Idea (Lower Bound)</div>
+    <div class="env-body">
+        <p>We also have \\(\\binom{2n}{n} \\geq 2^{2n}/(2n+1)\\) (the central term is the largest). A more careful analysis of the prime factorization of \\(\\binom{2n}{n}\\) gives the lower bound. Alternatively, one shows \\(\\theta(x) \\geq (\\ln 2) x\\) for large \\(x\\) by analyzing \\(\\sum_{p \\leq x} \\ln p\\) via similar binomial coefficient arguments.</p>
+    </div>
+    <div class="qed">&marker;</div>
+</div>
+
+<h3>Chebyshev's Remarkable Claim</h3>
+
+<p>Chebyshev also showed: <em>if</em> \\(\\lim_{x \\to \\infty} \\pi(x)/(x/\\ln x)\\) exists, it must equal 1. So the only question was whether the limit exists at all. Proving existence required entirely different tools: complex analysis.</p>
+
+<div class="env-block remark">
+    <div class="env-title">Bertrand's Postulate</div>
+    <div class="env-body">
+        <p>As a bonus, Chebyshev's method proves <strong>Bertrand's postulate</strong>: for every \\(n \\geq 1\\), there exists a prime \\(p\\) with \\(n < p \\leq 2n\\). The bound \\(\\theta(2n) - \\theta(n) > 0\\) for large \\(n\\) (supplemented by computation for small \\(n\\)) gives exactly this.</p>
     </div>
 </div>
 
-<p>This is tight: Bertrand's postulate follows from \\(\\theta(2n) - \\theta(n) > 0\\), which is a consequence of the lower bound argument.</p>
-
-<div class="viz-placeholder" data-viz="viz-chebyshev-sandwich"></div>
+<div class="viz-placeholder" data-viz="viz-perron-integral"></div>
 `,
             visualizations: [
                 {
-                    id: 'viz-chebyshev-sandwich',
-                    title: "Chebyshev's Sandwich: \\(\\pi(x)\\) Between Two Bounds",
-                    description: 'The blue curve \\(\\pi(x)\\) is sandwiched between Chebyshev\'s lower and upper bounds (orange dashes). Drag the slider to increase \\(x\\).',
+                    id: 'viz-perron-integral',
+                    title: "Chebyshev's Bounds vs PNT",
+                    description: "Compare \\(\\pi(x)\\) with Chebyshev's upper and lower bounds and the PNT approximation \\(x/\\ln x\\). Chebyshev proved the sandwich; PNT says both bounds converge to the same line.",
                     setup: function(body, controls) {
                         var viz = new VizEngine(body, {
-                            width: 660, height: 380,
+                            width: 560, height: 380,
                             originX: 60, originY: 340, scale: 1
                         });
 
-                        var maxX = 300;
-                        var MAXSIEVE2 = 2200;
-                        var primes2 = VizEngine.sievePrimes(MAXSIEVE2);
-                        var piArr = new Int32Array(MAXSIEVE2 + 1);
-                        var pc = 0, pi2 = 0;
-                        for (var n2 = 0; n2 <= MAXSIEVE2; n2++) {
-                            if (pi2 < primes2.length && primes2[pi2] === n2) { pc++; pi2++; }
-                            piArr[n2] = pc;
-                        }
-
-                        VizEngine.createSlider(controls, 'x max', 50, 2000, maxX, 50, function(v) {
+                        var maxX = 500;
+                        VizEngine.createSlider(controls, 'x max', 50, 5000, maxX, 50, function(v) {
                             maxX = Math.round(v);
                             draw();
                         });
 
-                        var c1 = Math.log(2), c2 = 2 * Math.log(2);
+                        var primes = VizEngine.sievePrimes(10000);
+
+                        function piFunc(x) {
+                            var cnt = 0;
+                            for (var i = 0; i < primes.length; i++) {
+                                if (primes[i] > x) break;
+                                cnt++;
+                            }
+                            return cnt;
+                        }
 
                         function draw() {
                             viz.clear();
                             var ctx = viz.ctx;
-                            var W = viz.width, H = viz.height;
-                            var x0 = 60, plotH = H - 50, plotW = W - 80;
-                            var xLim = Math.min(maxX, MAXSIEVE2);
+                            var W = viz.width - 80;
+                            var H = 280;
+                            var baseY = 330;
+                            var piMax = piFunc(maxX);
+                            var yMax = Math.max(piMax * 1.3, 10);
 
-                            // find max pi for scaling
-                            var piMax = piArr[xLim] * 1.3;
-                            function sx(x) { return x0 + (x / xLim) * plotW; }
-                            function sy(y) { return H - 40 - (y / piMax) * plotH; }
+                            viz.screenText("Chebyshev's Bounds on \u03C0(x)", viz.width / 2, 20, viz.colors.white, 14);
 
-                            // Grid
-                            ctx.strokeStyle = viz.colors.grid; ctx.lineWidth = 0.5;
-                            var nYTicks = 5;
-                            for (var ti = 0; ti <= nYTicks; ti++) {
-                                var yv = piMax * ti / nYTicks;
-                                var syi = sy(yv);
-                                ctx.beginPath(); ctx.moveTo(x0, syi); ctx.lineTo(x0 + plotW, syi); ctx.stroke();
-                                ctx.fillStyle = viz.colors.text; ctx.font = '10px sans-serif';
-                                ctx.textAlign = 'right'; ctx.textBaseline = 'middle';
-                                ctx.fillText(Math.round(yv), x0 - 4, syi);
-                            }
-
-                            // Upper bound: c2 * x/ln(x)
-                            ctx.strokeStyle = viz.colors.orange; ctx.lineWidth = 1.5; ctx.setLineDash([6, 4]);
+                            // Axes
+                            ctx.strokeStyle = viz.colors.axis;
+                            ctx.lineWidth = 1;
                             ctx.beginPath();
-                            var ubStarted = false;
-                            for (var xi = 3; xi <= xLim; xi += Math.max(1, Math.floor(xLim / 400))) {
-                                var ub = c2 * xi / Math.log(xi);
-                                var sxi = sx(xi), syi2 = sy(ub);
-                                if (!ubStarted) { ctx.moveTo(sxi, syi2); ubStarted = true; } else { ctx.lineTo(sxi, syi2); }
-                            }
+                            ctx.moveTo(60, baseY);
+                            ctx.lineTo(viz.width - 20, baseY);
+                            ctx.stroke();
+                            ctx.beginPath();
+                            ctx.moveTo(60, baseY);
+                            ctx.lineTo(60, 30);
                             ctx.stroke();
 
-                            // Lower bound: c1 * x/ln(x)
-                            ctx.strokeStyle = viz.colors.yellow; ctx.lineWidth = 1.5;
+                            function toSx(x) { return 60 + (x / maxX) * W; }
+                            function toSy(y) { return baseY - (y / yMax) * H; }
+
+                            var step = Math.max(1, Math.floor(maxX / 300));
+
+                            // Upper bound: c2 * x/ln(x) with c2 = 1.25506
+                            ctx.strokeStyle = viz.colors.red + '88';
+                            ctx.lineWidth = 1.5;
+                            ctx.setLineDash([4, 4]);
                             ctx.beginPath();
-                            var lbStarted = false;
-                            for (var xi2 = 3; xi2 <= xLim; xi2 += Math.max(1, Math.floor(xLim / 400))) {
-                                var lb = c1 * xi2 / Math.log(xi2);
-                                var sxi2 = sx(xi2), syi3 = sy(lb);
-                                if (!lbStarted) { ctx.moveTo(sxi2, syi3); lbStarted = true; } else { ctx.lineTo(sxi2, syi3); }
+                            var started = false;
+                            for (var x = 3; x <= maxX; x += step) {
+                                var val = 1.25506 * x / Math.log(x);
+                                if (!started) { ctx.moveTo(toSx(x), toSy(val)); started = true; }
+                                else ctx.lineTo(toSx(x), toSy(val));
                             }
                             ctx.stroke();
                             ctx.setLineDash([]);
 
-                            // pi(x) step function
-                            ctx.strokeStyle = viz.colors.blue; ctx.lineWidth = 2;
+                            // Lower bound: c1 * x/ln(x) with c1 = 0.693
+                            ctx.strokeStyle = viz.colors.orange + '88';
+                            ctx.lineWidth = 1.5;
+                            ctx.setLineDash([4, 4]);
                             ctx.beginPath();
-                            var prevSx = sx(1), prevSy = sy(0);
-                            ctx.moveTo(prevSx, prevSy);
-                            var step3 = Math.max(1, Math.floor(xLim / 600));
-                            for (var xi3 = 2; xi3 <= xLim; xi3 += step3) {
-                                var nsxi = sx(xi3), nsyi = sy(piArr[xi3]);
-                                ctx.lineTo(nsxi, prevSy);
-                                ctx.lineTo(nsxi, nsyi);
-                                prevSy = nsyi;
+                            started = false;
+                            for (var x2 = 3; x2 <= maxX; x2 += step) {
+                                var val2 = 0.693 * x2 / Math.log(x2);
+                                if (!started) { ctx.moveTo(toSx(x2), toSy(val2)); started = true; }
+                                else ctx.lineTo(toSx(x2), toSy(val2));
+                            }
+                            ctx.stroke();
+                            ctx.setLineDash([]);
+
+                            // PNT: x/ln(x)
+                            ctx.strokeStyle = viz.colors.green;
+                            ctx.lineWidth = 1.5;
+                            ctx.beginPath();
+                            started = false;
+                            for (var x3 = 3; x3 <= maxX; x3 += step) {
+                                var val3 = x3 / Math.log(x3);
+                                if (!started) { ctx.moveTo(toSx(x3), toSy(val3)); started = true; }
+                                else ctx.lineTo(toSx(x3), toSy(val3));
                             }
                             ctx.stroke();
 
-                            // x/ln x
-                            ctx.strokeStyle = viz.colors.teal; ctx.lineWidth = 1; ctx.setLineDash([3, 3]);
+                            // pi(x) step function
+                            ctx.strokeStyle = viz.colors.blue;
+                            ctx.lineWidth = 2;
                             ctx.beginPath();
-                            var mStarted = false;
-                            for (var xi4 = 3; xi4 <= xLim; xi4 += Math.max(1, Math.floor(xLim / 400))) {
-                                var mv = xi4 / Math.log(xi4);
-                                var smx = sx(xi4), smy = sy(mv);
-                                if (!mStarted) { ctx.moveTo(smx, smy); mStarted = true; } else { ctx.lineTo(smx, smy); }
+                            var pidx = 0;
+                            ctx.moveTo(toSx(2), toSy(0));
+                            for (var i = 0; i < primes.length && primes[i] <= maxX; i++) {
+                                pidx = i + 1;
+                                ctx.lineTo(toSx(primes[i]), toSy(pidx - 1));
+                                ctx.lineTo(toSx(primes[i]), toSy(pidx));
                             }
-                            ctx.stroke(); ctx.setLineDash([]);
-
-                            // axes
-                            ctx.strokeStyle = viz.colors.axis; ctx.lineWidth = 1.5;
-                            ctx.beginPath(); ctx.moveTo(x0, H - 40); ctx.lineTo(x0 + plotW, H - 40); ctx.stroke();
-                            ctx.beginPath(); ctx.moveTo(x0, H - 40); ctx.lineTo(x0, H - 40 - plotH); ctx.stroke();
-                            ctx.fillStyle = viz.colors.text; ctx.font = '10px sans-serif';
-                            ctx.textAlign = 'center'; ctx.textBaseline = 'top';
-                            var nXTick = Math.min(8, Math.floor(xLim / 50));
-                            for (var ti2 = 1; ti2 <= nXTick; ti2++) {
-                                var xvl = Math.round(xLim * ti2 / nXTick);
-                                ctx.fillText(xvl, sx(xvl), H - 36);
-                            }
+                            ctx.lineTo(toSx(maxX), toSy(pidx));
+                            ctx.stroke();
 
                             // Legend
-                            var lx = x0 + 10, ly = 14;
-                            var items = [
-                                [viz.colors.blue, '\u03c0(x)'],
-                                [viz.colors.teal, 'x/ln x'],
-                                [viz.colors.orange, '2 ln2 \u00b7 x/ln x (upper)'],
-                                [viz.colors.yellow, 'ln2 \u00b7 x/ln x (lower)'],
-                            ];
-                            items.forEach(function(it, i) {
-                                ctx.fillStyle = it[0]; ctx.font = '11px sans-serif'; ctx.textAlign = 'left';
-                                ctx.fillRect(lx + i * 145, ly, 18, 10);
-                                ctx.fillStyle = viz.colors.text;
-                                ctx.fillText(it[1], lx + i * 145 + 22, ly + 9);
-                            });
+                            var legY = baseY + 16;
+                            ctx.font = '10px -apple-system,sans-serif';
+                            ctx.textAlign = 'left';
+                            ctx.fillStyle = viz.colors.blue;
+                            ctx.fillRect(60, legY - 4, 10, 10);
+                            ctx.fillText('\u03C0(x)', 74, legY + 4);
+                            ctx.fillStyle = viz.colors.green;
+                            ctx.fillRect(140, legY - 4, 10, 10);
+                            ctx.fillText('x/ln x', 154, legY + 4);
+                            ctx.fillStyle = viz.colors.red + '88';
+                            ctx.fillRect(220, legY - 4, 10, 10);
+                            ctx.fillText('upper', 234, legY + 4);
+                            ctx.fillStyle = viz.colors.orange + '88';
+                            ctx.fillRect(290, legY - 4, 10, 10);
+                            ctx.fillText('lower', 304, legY + 4);
                         }
-
                         draw();
                         return viz;
                     }
@@ -547,368 +610,478 @@ Taking logarithms: \\(\\theta(2n) - \\theta(n) \\le n \\ln 4\\). Iterating (summ
             ],
             exercises: [
                 {
-                    question: "Verify Chebyshev's upper bound argument: show that every prime \\(p\\) with \\(n < p \\le 2n\\) divides \\(\\binom{2n}{n}\\).",
-                    hint: '\\(\\binom{2n}{n} = (2n)! / (n!)^2\\). If \\(n < p \\le 2n\\), then \\(p\\) appears exactly once in \\((2n)!\\) in the range \\((n, 2n]\\), and not at all in \\(n!\\).',
-                    solution: 'Since \\(n < p \\le 2n\\), the factor \\(p\\) appears in \\((2n)!\\) (from the term \\(p\\) in \\(1 \\cdot 2 \\cdots 2n\\)) but does not appear in either copy of \\(n!\\) (since \\(p > n\\)). Therefore \\(p \\mid \\binom{2n}{n}\\). Moreover, \\(p^2 > 4n^2 > 2n\\) for \\(p > \\sqrt{2n}\\), so \\(p^2 \\nmid (2n)!\\) in the range \\((n,2n]\\), meaning the \\(p\\)-adic valuation is exactly 1.'
+                    question: 'Show that \\(\\binom{2n}{n} \\geq \\frac{4^n}{2n+1}\\) using the binomial theorem.',
+                    hint: 'Expand \\((1+1)^{2n} = \\sum_{k=0}^{2n} \\binom{2n}{k} = 4^n\\). The central term \\(\\binom{2n}{n}\\) is the largest of the \\(2n+1\\) terms.',
+                    solution: 'Since \\(\\binom{2n}{n} \\geq \\binom{2n}{k}\\) for all \\(k\\), and \\(\\sum_{k=0}^{2n} \\binom{2n}{k} = 4^n\\), we get \\((2n+1) \\binom{2n}{n} \\geq 4^n\\), hence \\(\\binom{2n}{n} \\geq 4^n/(2n+1)\\).'
                 },
                 {
-                    question: "Use \\(\\binom{2n}{n} \\le 4^n\\) to show \\(\\theta(2n) - \\theta(n) \\le n \\ln 4\\), and by iterating deduce \\(\\theta(x) \\le 2x \\ln 2\\).",
-                    hint: 'The product of primes in \\((n, 2n]\\) equals \\(\\exp(\\theta(2n) - \\theta(n))\\). This product divides \\(\\binom{2n}{n} \\le 4^n\\). To extend to all \\(x\\), write \\(x \\le 2^k\\) and telescope.',
-                    solution: 'From the divisibility: \\(\\exp(\\theta(2n) - \\theta(n)) \\le \\binom{2n}{n} \\le 4^n\\), so \\(\\theta(2n) - \\theta(n) \\le n \\ln 4 = 2n \\ln 2\\). For general \\(x\\), telescope: \\(\\theta(x) = \\sum_{j=0}^{k-1}[\\theta(x/2^j) - \\theta(x/2^{j+1})] \\le \\sum_{j=0}^{k-1} (x/2^{j+1})\\ln 4 \\le x \\ln 4\\).'
-                },
-                {
-                    question: 'Verify Bertrand\'s postulate for \\(n = 25\\): find a prime between 25 and 50.',
-                    hint: 'Just list: 29, 31, 37, 41, 43, 47 are all prime and lie in (25, 50).',
-                    solution: 'The primes between 25 and 50 are: 29, 31, 37, 41, 43, 47. So there are 6 primes in this range, confirming Bertrand\'s postulate with room to spare.'
+                    question: 'Use Chebyshev\'s upper bound \\(\\theta(x) < 2x \\ln 2\\) to show \\(\\pi(x) < \\frac{2 \\ln 2 \\cdot x}{\\ln x}\\) for \\(x \\geq 2\\).',
+                    hint: 'Since each prime \\(p \\leq x\\) contributes \\(\\ln p \\geq \\ln 2\\) to \\(\\theta(x)\\), and the largest contribution is \\(\\ln x\\), try the relation \\(\\theta(x) = \\sum_{p \\leq x} \\ln p \\geq \\pi(x) \\ln 2\\). But for the upper bound on \\(\\pi\\), use \\(\\theta(x) \\geq \\sum_{\\sqrt{x} < p \\leq x} \\ln p \\geq (\\pi(x) - \\pi(\\sqrt{x})) \\frac{\\ln x}{2}\\).',
+                    solution: 'For \\(p > \\sqrt{x}\\), we have \\(\\ln p > \\frac{1}{2}\\ln x\\). So \\(\\theta(x) \\geq \\sum_{\\sqrt{x}<p\\leq x} \\ln p > (\\pi(x) - \\pi(\\sqrt{x}))\\frac{\\ln x}{2}\\). Since \\(\\pi(\\sqrt{x}) \\leq \\sqrt{x}\\) and using \\(\\theta(x) < 2x\\ln 2\\): \\(\\pi(x) < \\frac{2\\theta(x)}{\\ln x} + \\sqrt{x} < \\frac{4x\\ln 2}{\\ln x} + \\sqrt{x} < \\frac{(4\\ln 2 + \\epsilon) x}{\\ln x}\\) for large \\(x\\). A tighter argument using \\(\\theta(x) \\leq \\pi(x) \\ln x\\) directly gives \\(\\pi(x) \\geq \\theta(x)/\\ln x > c_1 x / \\ln x\\), and the upper bound follows similarly.'
                 }
             ]
         },
 
         // ================================================================
-        // SECTION 4: Applying Perron's Formula
+        // SECTION 4: Perron's Formula Applied
         // ================================================================
         {
             id: 'sec-perron-applied',
-            title: "Applying Perron's Formula",
+            title: "Perron's Formula Applied",
             content: `
-<h2>Applying Perron's Formula to \\(\\psi(x)\\)</h2>
+<h2>Expressing \\(\\psi(x)\\) as a Contour Integral</h2>
 
-<div class="env-block intuition">
-    <div class="env-title">The Strategy</div>
-    <div class="env-body">
-        <p>Perron's formula converts a Dirichlet series into a contour integral. We use it to express \\(\\psi(x)\\) as an integral of \\(-\\zeta'(s)/\\zeta(s)\\) over a vertical line in the complex plane. Then we shift this contour to the left, picking up residues from the poles of \\(-\\zeta'(s)/\\zeta(s)\\). The main term \\(x\\) comes from the residue at \\(s = 1\\).</p>
-    </div>
-</div>
-
-<h3>The Dirichlet Series Identity</h3>
-
-<p>Recall the von Mangoldt identity:
-\\[-\\frac{\\zeta'(s)}{\\zeta(s)} = \\sum_{n=1}^\\infty \\frac{\\Lambda(n)}{n^s}, \\quad \\text{Re}(s) > 1.\\]
-This follows from logarithmic differentiation of the Euler product \\(\\zeta(s) = \\prod_p (1-p^{-s})^{-1}\\):
-\\[\\frac{d}{ds} \\ln \\zeta(s) = -\\sum_p \\frac{\\ln p \\cdot p^{-s}}{1 - p^{-s}} = -\\sum_p \\sum_{k=1}^\\infty \\frac{\\ln p}{p^{ks}} = -\\sum_{n=1}^\\infty \\frac{\\Lambda(n)}{n^s}.\\]
-</p>
-
-<h3>Perron's Formula</h3>
+<p>The bridge between the analytic properties of \\(\\zeta(s)\\) and the arithmetic function \\(\\psi(x)\\) is <strong>Perron's formula</strong>, which converts a Dirichlet series partial sum into a contour integral.</p>
 
 <div class="env-block theorem">
-    <div class="env-title">Theorem 7.5 (Perron's Formula, smooth version)</div>
+    <div class="env-title">Theorem 7.3 (Perron's Formula)</div>
     <div class="env-body">
-        <p>For \\(c > 1\\) and \\(x > 1\\) not an integer:
-        \\[\\psi(x) = \\frac{1}{2\\pi i} \\int_{c - i\\infty}^{c + i\\infty} \\left(-\\frac{\\zeta'(s)}{\\zeta(s)}\\right) \\frac{x^s}{s} \\, ds.\\]
-        </p>
+        <p>Let \\(F(s) = \\sum_{n=1}^{\\infty} a_n n^{-s}\\) be a Dirichlet series converging absolutely for \\(\\operatorname{Re}(s) > \\sigma_a\\), and let \\(A(x) = \\sum_{n \\leq x} a_n\\). Then for \\(c > \\sigma_a\\) and non-integer \\(x > 0\\),</p>
+        \\[A(x) = \\frac{1}{2\\pi i} \\int_{c - i\\infty}^{c + i\\infty} F(s) \\frac{x^s}{s}\\, ds.\\]
     </div>
 </div>
 
-<p>This is proved using the identity
-\\[\\frac{1}{2\\pi i} \\int_{c-i\\infty}^{c+i\\infty} \\frac{y^s}{s} ds = \\begin{cases} 1 & y > 1 \\\\ 0 & 0 < y < 1 \\end{cases} \\quad (c > 0)\\]
-applied term-by-term to the Dirichlet series: the \\(n\\)-th term contributes \\(\\Lambda(n)\\) iff \\(n \\le x\\) (i.e., \\(y = x/n > 1\\)).</p>
+<p>The key idea: the integral \\(\\frac{1}{2\\pi i}\\int_{c-i\\infty}^{c+i\\infty} y^s \\frac{ds}{s}\\) equals 1 if \\(y > 1\\), 0 if \\(0 < y < 1\\), and \\(1/2\\) if \\(y = 1\\). This acts as a "switch" that picks out terms with \\(n \\leq x\\).</p>
 
-<h3>Structure of Poles of \\(-\\zeta'/\\zeta\\)</h3>
+<h3>Application to \\(\\psi(x)\\)</h3>
 
-<p>The poles of \\(-\\zeta'(s)/\\zeta(s)\\) come from:</p>
-<ul>
-    <li><strong>Pole at \\(s = 1\\):</strong> \\(\\zeta(s) = 1/(s-1) + O(1)\\) near \\(s=1\\), so \\(-\\zeta'/\\zeta\\) has a simple pole with residue \\(1\\). This gives the main term \\(x^1/1 = x\\).</li>
-    <li><strong>Poles at nontrivial zeros \\(\\rho\\):</strong> If \\(\\zeta(\\rho) = 0\\) with order 1, then \\(-\\zeta'/\\zeta\\) has a simple pole at \\(s = \\rho\\) with residue \\(-1\\), contributing \\(-x^\\rho/\\rho\\).</li>
-    <li><strong>Trivial zeros at \\(s = -2, -4, -6, \\ldots\\):</strong> Contribute \\(-x^{-2k}/(-2k)\\), which are small.</li>
-    <li><strong>Pole at \\(s = 0\\):</strong> Contributes a constant.</li>
-</ul>
-
-<p>If we could shift the contour all the way to the left, we would get the "explicit formula":
-\\[\\psi(x) = x - \\sum_{\\rho} \\frac{x^\\rho}{\\rho} - \\ln(2\\pi) - \\frac{1}{2}\\ln(1 - x^{-2}).\\]
-This is Riemann's explicit formula, relating prime distribution to zeta zeros.</p>
-
-<div class="viz-placeholder" data-viz="viz-perron-integral"></div>
-`,
-            visualizations: [
-                {
-                    id: 'viz-perron-integral',
-                    title: "Perron's Contour: Vertical Line in \\(\\mathbb{C}\\)",
-                    description: 'The Perron contour is the vertical line Re(s) = c > 1. The integrand has poles at s=1 (from the simple pole of zeta) and at nontrivial zeros of zeta. Drag the vertical line to see how its position relative to the pole at s=1 changes.',
-                    setup: function(body, controls) {
-                        var viz = new VizEngine(body, {
-                            width: 620, height: 400,
-                            originX: 200, originY: 200, scale: 60
-                        });
-
-                        var cLine = 2.0;
-                        var t = 0;
-
-                        // Approximate nontrivial zeros (imaginary parts)
-                        var zeroIm = [14.135, 21.022, 25.011, 30.425, 32.935];
-
-                        VizEngine.createSlider(controls, 'c (Re of contour)', 0.2, 3.0, cLine, 0.05, function(v) {
-                            cLine = v;
-                            draw(t);
-                        });
-
-                        function draw(ts) {
-                            viz.clear();
-                            viz.drawGrid(1);
-                            viz.drawAxes();
-
-                            var ctx = viz.ctx;
-                            var W = viz.width, H = viz.height;
-
-                            // Critical strip shading (0 < Re(s) < 1)
-                            var [sx0] = viz.toScreen(0, 0), [sx1] = viz.toScreen(1, 0);
-                            ctx.fillStyle = viz.colors.purple + '18';
-                            ctx.fillRect(sx0, 0, sx1 - sx0, H);
-
-                            // Pole at s=1 (red X)
-                            var [px1, py1] = viz.toScreen(1, 0);
-                            ctx.strokeStyle = viz.colors.red; ctx.lineWidth = 2.5;
-                            ctx.beginPath(); ctx.moveTo(px1 - 8, py1 - 8); ctx.lineTo(px1 + 8, py1 + 8); ctx.stroke();
-                            ctx.beginPath(); ctx.moveTo(px1 - 8, py1 + 8); ctx.lineTo(px1 + 8, py1 - 8); ctx.stroke();
-                            ctx.fillStyle = viz.colors.red; ctx.font = '11px sans-serif';
-                            ctx.textAlign = 'left'; ctx.textBaseline = 'top';
-                            ctx.fillText('pole s=1', px1 + 10, py1 - 8);
-
-                            // Nontrivial zeros (at Re(s) = 0.5, by RH convention, shown schematically)
-                            zeroIm.forEach(function(im) {
-                                var scale = viz.scale;
-                                if (Math.abs(im) > H / (2 * scale) - 0.5) return;
-                                var [zx, zy] = viz.toScreen(0.5, im / scale);
-                                ctx.fillStyle = viz.colors.orange;
-                                ctx.beginPath(); ctx.arc(zx, zy, 5, 0, Math.PI * 2); ctx.fill();
-                                var [zx2, zy2] = viz.toScreen(0.5, -im / scale);
-                                ctx.beginPath(); ctx.arc(zx2, zy2, 5, 0, Math.PI * 2); ctx.fill();
-                            });
-
-                            // Contour line at Re(s) = c
-                            var [scx] = viz.toScreen(cLine, 0);
-                            ctx.strokeStyle = cLine > 1 ? viz.colors.blue : viz.colors.red;
-                            ctx.lineWidth = 2.5;
-                            ctx.setLineDash(cLine > 1 ? [] : [6, 4]);
-                            ctx.beginPath(); ctx.moveTo(scx, 0); ctx.lineTo(scx, H); ctx.stroke();
-                            ctx.setLineDash([]);
-
-                            // Label contour
-                            ctx.fillStyle = cLine > 1 ? viz.colors.blue : viz.colors.red;
-                            ctx.font = 'bold 12px sans-serif'; ctx.textAlign = 'center';
-                            ctx.fillText('Re(s) = c = ' + cLine.toFixed(2), scx, 16);
-
-                            // Arrow on contour (animated upward)
-                            var arrowY = (ts * 30) % H;
-                            var [ax] = viz.toScreen(cLine, 0);
-                            ctx.fillStyle = cLine > 1 ? viz.colors.blue : viz.colors.red;
-                            ctx.beginPath();
-                            ctx.moveTo(ax, arrowY - 8);
-                            ctx.lineTo(ax - 5, arrowY + 4);
-                            ctx.lineTo(ax + 5, arrowY + 4);
-                            ctx.closePath(); ctx.fill();
-
-                            // Labels
-                            viz.screenText('Critical strip: 0 < Re(s) < 1', W / 2, H - 18, viz.colors.purple, 11);
-                            viz.screenText('Orange dots: nontrivial zeros (Re\u2248\xbd assumed by RH)', W / 2, H - 4, viz.colors.orange, 10);
-                            ctx.fillStyle = cLine > 1 ? viz.colors.green : viz.colors.red;
-                            ctx.font = '12px sans-serif'; ctx.textAlign = 'center';
-                            ctx.fillText(cLine > 1 ? 'Contour to the right of s=1: Perron valid' : 'Contour left of s=1: must count residues!', W / 2, H - 32);
-                        }
-
-                        viz.animate(function(ts) { t = ts / 1000; draw(t); });
-                        return viz;
-                    }
-                }
-            ],
-            exercises: [
-                {
-                    question: 'Verify the identity \\(\\displaystyle -\\frac{\\zeta\'(s)}{\\zeta(s)} = \\sum_{n=1}^\\infty \\frac{\\Lambda(n)}{n^s}\\) for \\(\\text{Re}(s) > 1\\) by differentiating the Euler product.',
-                    hint: 'Take \\(\\ln\\) of \\(\\zeta(s) = \\prod_p (1 - p^{-s})^{-1}\\), differentiate termwise, and use \\(\\sum_{k \\ge 1} k p^{-ks}\\ln p\\) for each prime.',
-                    solution: '\\(\\ln\\zeta(s) = -\\sum_p \\ln(1 - p^{-s}) = \\sum_p \\sum_{k=1}^\\infty \\frac{p^{-ks}}{k}\\). Differentiating: \\(\\zeta\'(s)/\\zeta(s) = -\\sum_p \\sum_{k=1}^\\infty \\frac{\\ln p \\cdot p^{-ks}}{1} = -\\sum_p \\sum_{k=1}^\\infty \\frac{\\ln p}{p^{ks}}\\). Reindexing by \\(n = p^k\\): \\(-\\zeta\'/\\zeta = \\sum_n \\Lambda(n) n^{-s}\\).'
-                },
-                {
-                    question: 'What is the residue of \\(-\\zeta\'(s)/\\zeta(s)\\) at \\(s = 1\\)? What does this imply for the main term in \\(\\psi(x)\\)?',
-                    hint: 'Near \\(s = 1\\): \\(\\zeta(s) = \\frac{1}{s-1} + \\gamma + O(s-1)\\) (Laurent expansion). Compute \\(-\\zeta\'/\\zeta\\) near \\(s=1\\).',
-                    solution: 'Near \\(s=1\\): \\(\\zeta(s) \\approx (s-1)^{-1}\\), so \\(\\zeta\'(s) \\approx -(s-1)^{-2}\\) and \\(-\\zeta\'/\\zeta \\approx (s-1)^{-2} \\cdot (s-1) = (s-1)^{-1}\\). The residue is \\(1\\). In Perron\'s formula, this contributes \\(\\text{Res}_{s=1}\\left[\\frac{x^s}{s} \\cdot \\frac{1}{s-1}\\right] = x^1/1 = x\\), giving the main term \\(\\psi(x) \\approx x\\).'
-                }
-            ]
-        },
-
-        // ================================================================
-        // SECTION 5: Shifting the Contour
-        // ================================================================
-        {
-            id: 'sec-contour-proof',
-            title: 'Shifting the Contour',
-            content: `
-<h2>Shifting the Contour: Capturing the Main Term</h2>
-
-<div class="env-block intuition">
-    <div class="env-title">The Key Move</div>
-    <div class="env-body">
-        <p>Perron's formula gives \\(\\psi(x)\\) as an integral over the vertical line \\(\\text{Re}(s) = c > 1\\). To evaluate it, we shift this line to the left, toward \\(\\text{Re}(s) = 1\\). As we cross the pole at \\(s = 1\\), we pick up a residue equal to \\(x\\). The PNT then follows from showing the remaining integral is \\(o(x)\\), which requires a zero-free region for \\(\\zeta(s)\\) near \\(\\text{Re}(s) = 1\\).</p>
-    </div>
-</div>
-
-<h3>The Rectangular Contour</h3>
-
-<p>Fix \\(T > 0\\) large and consider the rectangular contour \\(\\mathcal{R}\\) with vertices at \\(c \\pm iT\\) and \\(\\sigma_0 \\pm iT\\), where \\(\\sigma_0 < 1\\) is chosen inside a zero-free region. By Cauchy's residue theorem:</p>
-
-\\[\\frac{1}{2\\pi i} \\oint_{\\mathcal{R}} \\left(-\\frac{\\zeta'(s)}{\\zeta(s)}\\right) \\frac{x^s}{s} ds = \\sum_{\\text{poles inside}} \\text{Res}.\\]
-
-<p>The only pole inside \\(\\mathcal{R}\\) (for \\(T\\) not hitting a zero imaginary part) is at \\(s = 1\\), contributing \\(x\\).</p>
-
-<h3>Bounding the Error Integrals</h3>
-
-<p>The contour \\(\\mathcal{R}\\) consists of four segments. The right vertical piece gives \\(\\psi(x)\\) (by Perron's formula). The other three pieces must be bounded.</p>
-
-<p><strong>Horizontal pieces</strong> \\((\\sigma_0 \\le \\sigma \\le c, \\text{Im}(s) = \\pm T)\\): On these, \\(|x^s/s| = x^\\sigma/T\\). Using a bound \\(|-\\zeta'/\\zeta| = O(\\log^2 T)\\) (valid in the zero-free region), the horizontal integrals contribute \\(O(x \\log^2 T / T)\\).</p>
-
-<p><strong>Left vertical piece</strong> \\((\\text{Re}(s) = \\sigma_0, |\\text{Im}(s)| \\le T)\\): Here \\(|x^s| = x^{\\sigma_0} = o(x)\\), so this piece is \\(O(x^{\\sigma_0} T)\\).</p>
-
-<h3>The Zero-Free Region is Crucial</h3>
-
-<p>Why do we need \\(\\zeta(s) \\ne 0\\) near \\(\\text{Re}(s) = 1\\)? Because \\(-\\zeta'/\\zeta\\) has poles at zeros of \\(\\zeta\\). If \\(\\zeta\\) had a zero on \\(\\text{Re}(s) = 1\\), shifting the contour past \\(\\text{Re}(s) = 1\\) would pick up an additional residue \\(x^\\rho/\\rho\\) with \\(|x^\\rho| = x\\), cancelling the main term. This is why the nonvanishing \\(\\zeta(1 + it) \\ne 0\\) for all real \\(t\\) is the essential ingredient.</p>
+<p>Taking \\(F(s) = -\\zeta'(s)/\\zeta(s)\\) and \\(a_n = \\Lambda(n)\\), Perron's formula gives:</p>
 
 <div class="env-block theorem">
-    <div class="env-title">Theorem 7.6 (Contour shift gives PNT)</div>
+    <div class="env-title">Corollary (Perron for \\(\\psi\\))</div>
     <div class="env-body">
-        <p>Assuming \\(\\zeta(1 + it) \\ne 0\\) for all \\(t \\in \\mathbb{R}\\), there exists \\(\\sigma_0 = \\sigma_0(T) < 1\\) (inside the zero-free region) such that:</p>
-        \\[\\psi(x) = x + O\\left(\\frac{x \\log^2 T}{T} + x^{\\sigma_0} T\\right).\\]
-        <p>Optimizing \\(T\\) (choosing \\(T = x^{1/2}\\)) gives \\(\\psi(x) = x + o(x)\\), i.e., \\(\\psi(x) \\sim x\\).</p>
+        <p>For \\(c > 1\\) and non-integer \\(x > 0\\),</p>
+        \\[\\psi(x) = \\frac{1}{2\\pi i} \\int_{c - i\\infty}^{c + i\\infty} \\left(-\\frac{\\zeta'(s)}{\\zeta(s)}\\right) \\frac{x^s}{s}\\, ds.\\]
     </div>
 </div>
+
+<p>In practice, we truncate the integral at height \\(T\\): integrate from \\(c - iT\\) to \\(c + iT\\), with an error term that depends on the growth of \\(\\zeta'/\\zeta\\) along the horizontal segments.</p>
+
+<h3>The Truncated Perron Formula</h3>
+
+<div class="env-block theorem">
+    <div class="env-title">Theorem 7.4 (Truncated Perron)</div>
+    <div class="env-body">
+        <p>For \\(c > 1\\), \\(x \\geq 2\\), \\(T \\geq 2\\),</p>
+        \\[\\psi(x) = \\frac{1}{2\\pi i} \\int_{c - iT}^{c + iT} \\left(-\\frac{\\zeta'(s)}{\\zeta(s)}\\right) \\frac{x^s}{s}\\, ds + O\\!\\left(\\frac{x \\ln^2 x}{T}\\right).\\]
+    </div>
+</div>
+
+<p>The error \\(O(x \\ln^2 x / T)\\) comes from estimating the tail of the integral for \\(|\\operatorname{Im}(s)| > T\\). By choosing \\(T\\) large enough (but not too large), we can make this error small relative to \\(x\\).</p>
+
+<h3>What Remains</h3>
+
+<p>We now have \\(\\psi(x)\\) expressed as a contour integral of \\(-\\zeta'/\\zeta \\cdot x^s/s\\) along the vertical line \\(\\operatorname{Re}(s) = c > 1\\). The next step: shift this contour leftward past \\(\\operatorname{Re}(s) = 1\\), using the residue theorem to pick up the pole at \\(s = 1\\).</p>
 
 <div class="viz-placeholder" data-viz="viz-contour-shift"></div>
 `,
             visualizations: [
                 {
                     id: 'viz-contour-shift',
-                    title: 'Contour Shift: From Re(s) = c to Re(s) = \\(\\sigma_0\\)',
-                    description: 'Animate the contour shifting left. Watch it capture the residue at s=1 (the main term x) and leave the error integrals on the horizontal and left-vertical segments. The animation shows the rectangular contour expanding and then shifting.',
+                    title: 'Contour Shift Animation',
+                    description: 'Watch the Perron contour shift leftward past Re(s) = 1, picking up the residue at s = 1. The pole at s = 1 contributes the main term x; the shifted contour contributes the error.',
                     setup: function(body, controls) {
                         var viz = new VizEngine(body, {
-                            width: 620, height: 420,
-                            originX: 240, originY: 210, scale: 55
+                            width: 560, height: 400,
+                            originX: 280, originY: 200, scale: 100
                         });
 
-                        var phase = 0; // 0..1: shift progress
-                        var animating = false;
-                        var animId = null;
+                        var t = 0;
+                        var playing = true;
 
-                        var btnAnim = VizEngine.createButton(controls, 'Animate Shift', function() {
-                            animating = !animating;
-                            btnAnim.textContent = animating ? 'Pause' : 'Animate Shift';
-                            if (animating) runAnim();
+                        VizEngine.createButton(controls, 'Play/Pause', function() {
+                            playing = !playing;
                         });
                         VizEngine.createButton(controls, 'Reset', function() {
-                            animating = false; phase = 0;
-                            btnAnim.textContent = 'Animate Shift';
-                            draw(phase);
+                            t = 0;
                         });
 
-                        function runAnim() {
-                            if (!animating) return;
-                            phase = Math.min(phase + 0.008, 1);
-                            draw(phase);
-                            if (phase < 1) { animId = requestAnimationFrame(runAnim); }
-                            else { animating = false; btnAnim.textContent = 'Animate Shift'; }
-                        }
-
-                        var cInit = 1.8, sigma0 = 0.5, T = 2.8;
-
-                        function draw(ph) {
+                        function draw(time) {
                             viz.clear();
-                            viz.drawGrid(1);
-                            viz.drawAxes();
                             var ctx = viz.ctx;
-                            var W = viz.width, H = viz.height;
 
-                            // Critical strip
-                            var [sx0] = viz.toScreen(0, 0), [sx1] = viz.toScreen(1, 0);
-                            ctx.fillStyle = viz.colors.purple + '15';
-                            ctx.fillRect(sx0, 0, sx1 - sx0, H);
+                            if (playing) t = (time / 3000) % 3;
 
-                            // Pole at s=1
-                            var [px1, py1] = viz.toScreen(1, 0);
-                            ctx.strokeStyle = viz.colors.red; ctx.lineWidth = 2.5;
-                            ctx.beginPath(); ctx.moveTo(px1-8,py1-8); ctx.lineTo(px1+8,py1+8); ctx.stroke();
-                            ctx.beginPath(); ctx.moveTo(px1-8,py1+8); ctx.lineTo(px1+8,py1-8); ctx.stroke();
-                            ctx.fillStyle = viz.colors.red; ctx.font = '11px sans-serif';
-                            ctx.textAlign = 'left'; ctx.fillText('Res = x', px1+10, py1-4);
+                            // Progress of shift: 0->1 is before shift, 1->2 during shift, 2->3 after
+                            var c = 1.5; // initial contour
+                            var cTarget = 0.5; // target after shift
+                            var cCurrent;
+                            var showResidue = false;
+                            var showPole = true;
 
-                            // Zeros on critical line
-                            [[14.135, 1], [21.022, 2]].forEach(function(zm) {
-                                var im = zm[0] / viz.scale;
-                                if (Math.abs(im) > H/(2*viz.scale)) return;
-                                var [zx, zy] = viz.toScreen(0.5, im);
-                                var [zx2, zy2] = viz.toScreen(0.5, -im);
-                                ctx.fillStyle = viz.colors.orange;
-                                ctx.beginPath(); ctx.arc(zx, zy, 4, 0, Math.PI*2); ctx.fill();
-                                ctx.beginPath(); ctx.arc(zx2, zy2, 4, 0, Math.PI*2); ctx.fill();
-                            });
+                            if (t < 1) {
+                                cCurrent = c;
+                            } else if (t < 2) {
+                                var frac = t - 1;
+                                cCurrent = c - (c - cTarget) * frac;
+                                if (cCurrent < 1.0) showResidue = true;
+                            } else {
+                                cCurrent = cTarget;
+                                showResidue = true;
+                            }
 
-                            // Current contour: right side at c, left side shifts from c to sigma0
-                            var c = cInit;
-                            var sigLeft = cInit + (sigma0 - cInit) * ph;
+                            // Background: shade the critical strip lightly
+                            var x0 = viz.originX + 0 * viz.scale;
+                            var x1 = viz.originX + 1 * viz.scale;
+                            ctx.fillStyle = '#1a1a4022';
+                            ctx.fillRect(x0, 0, x1 - x0, viz.height);
 
-                            // Draw rectangular contour
-                            var [rx0, ry0] = viz.toScreen(sigLeft, -T);
-                            var [rx1, ry1] = viz.toScreen(c, -T);
-                            var [rx2, ry2] = viz.toScreen(c, T);
-                            var [rx3, ry3] = viz.toScreen(sigLeft, T);
-
-                            ctx.strokeStyle = viz.colors.blue; ctx.lineWidth = 2;
+                            // Draw axes
+                            ctx.strokeStyle = viz.colors.axis;
+                            ctx.lineWidth = 1;
                             ctx.beginPath();
-                            ctx.moveTo(rx1, ry1);
-                            ctx.lineTo(rx2, ry2); // right side (Perron)
-                            ctx.strokeStyle = viz.colors.blue; ctx.stroke();
+                            ctx.moveTo(0, viz.originY);
+                            ctx.lineTo(viz.width, viz.originY);
+                            ctx.stroke();
+                            ctx.beginPath();
+                            ctx.moveTo(viz.originX, 0);
+                            ctx.lineTo(viz.originX, viz.height);
+                            ctx.stroke();
 
-                            // horizontal top
-                            ctx.strokeStyle = viz.colors.teal; ctx.lineWidth = 1.5;
-                            ctx.beginPath(); ctx.moveTo(rx2, ry2); ctx.lineTo(rx3, ry3); ctx.stroke();
+                            // Labels
+                            viz.screenText('Re', viz.width - 15, viz.originY - 12, viz.colors.text, 11);
+                            viz.screenText('Im', viz.originX + 14, 12, viz.colors.text, 11);
 
-                            // left side
-                            ctx.strokeStyle = ph > 0.05 ? viz.colors.green : viz.colors.blue;
-                            ctx.lineWidth = 2;
-                            ctx.beginPath(); ctx.moveTo(rx3, ry3); ctx.lineTo(rx0, ry0); ctx.stroke();
+                            // Re(s) = 1 line
+                            var xLine1 = viz.originX + 1 * viz.scale;
+                            ctx.strokeStyle = viz.colors.yellow + '66';
+                            ctx.lineWidth = 1;
+                            ctx.setLineDash([4, 4]);
+                            ctx.beginPath();
+                            ctx.moveTo(xLine1, 0);
+                            ctx.lineTo(xLine1, viz.height);
+                            ctx.stroke();
+                            ctx.setLineDash([]);
+                            viz.screenText('Re = 1', xLine1, viz.height - 12, viz.colors.yellow, 10);
 
-                            // horizontal bottom
-                            ctx.strokeStyle = viz.colors.teal; ctx.lineWidth = 1.5;
-                            ctx.beginPath(); ctx.moveTo(rx0, ry0); ctx.lineTo(rx1, ry1); ctx.stroke();
+                            // Pole at s = 1
+                            if (showPole) {
+                                var poleX = viz.originX + 1 * viz.scale;
+                                var poleY = viz.originY;
+                                ctx.strokeStyle = viz.colors.red;
+                                ctx.lineWidth = 2;
+                                var pr = 8;
+                                ctx.beginPath();
+                                ctx.moveTo(poleX - pr, poleY - pr);
+                                ctx.lineTo(poleX + pr, poleY + pr);
+                                ctx.stroke();
+                                ctx.beginPath();
+                                ctx.moveTo(poleX + pr, poleY - pr);
+                                ctx.lineTo(poleX - pr, poleY + pr);
+                                ctx.stroke();
+                                viz.screenText('s = 1', poleX + 14, poleY - 12, viz.colors.red, 11);
+                            }
 
-                            // Labels for segments
-                            ctx.font = '11px sans-serif'; ctx.textAlign = 'center';
+                            // Draw current contour (vertical line at Re = cCurrent)
+                            var contourX = viz.originX + cCurrent * viz.scale;
+                            var T = 1.5;
+                            var topY = viz.originY - T * viz.scale;
+                            var botY = viz.originY + T * viz.scale;
+
+                            ctx.strokeStyle = viz.colors.blue;
+                            ctx.lineWidth = 3;
+                            ctx.beginPath();
+                            ctx.moveTo(contourX, topY);
+                            ctx.lineTo(contourX, botY);
+                            ctx.stroke();
+
+                            // Arrows on contour
                             ctx.fillStyle = viz.colors.blue;
-                            ctx.fillText('\u03c8(x) side', (rx1+rx2)/2 + 30, (ry1+ry2)/2);
-                            ctx.fillStyle = viz.colors.teal;
-                            ctx.fillText('O(x log\xb2T/T)', (rx2+rx3)/2, ry2 - 8);
-                            ctx.fillText('O(x log\xb2T/T)', (rx0+rx1)/2, ry0 + 16);
-                            if (ph > 0.05) {
-                                ctx.fillStyle = viz.colors.green;
-                                ctx.fillText('O(x^\u03c3\u2080 T)', (rx0+rx3)/2 - 30, (ry0+ry3)/2);
+                            ctx.beginPath();
+                            ctx.moveTo(contourX, viz.originY - 20);
+                            ctx.lineTo(contourX - 6, viz.originY - 10);
+                            ctx.lineTo(contourX + 6, viz.originY - 10);
+                            ctx.closePath();
+                            ctx.fill();
+
+                            // Draw horizontal segments if shifting
+                            if (t >= 1 && cCurrent < c) {
+                                ctx.strokeStyle = viz.colors.teal;
+                                ctx.lineWidth = 2;
+                                // Top segment
+                                ctx.beginPath();
+                                ctx.moveTo(viz.originX + c * viz.scale, topY);
+                                ctx.lineTo(contourX, topY);
+                                ctx.stroke();
+                                // Bottom segment
+                                ctx.beginPath();
+                                ctx.moveTo(contourX, botY);
+                                ctx.lineTo(viz.originX + c * viz.scale, botY);
+                                ctx.stroke();
                             }
 
-                            // Residue label
-                            if (ph > 0.3) {
-                                ctx.fillStyle = viz.colors.yellow; ctx.font = 'bold 13px sans-serif';
-                                ctx.fillText('Captured: Res = x', px1, py1 + 30);
+                            // Residue contribution
+                            if (showResidue) {
+                                ctx.fillStyle = viz.colors.green + '44';
+                                ctx.beginPath();
+                                ctx.arc(viz.originX + 1 * viz.scale, viz.originY, 15, 0, Math.PI * 2);
+                                ctx.fill();
+                                ctx.strokeStyle = viz.colors.green;
+                                ctx.lineWidth = 2;
+                                ctx.beginPath();
+                                ctx.arc(viz.originX + 1 * viz.scale, viz.originY, 15, 0, Math.PI * 2);
+                                ctx.stroke();
+                                viz.screenText('Res = x', viz.originX + 1 * viz.scale, viz.originY + 28, viz.colors.green, 12);
                             }
 
-                            // sigma_0 label
-                            var [sigX] = viz.toScreen(sigLeft, 0);
-                            ctx.fillStyle = ph > 0.05 ? viz.colors.green : viz.colors.axis;
-                            ctx.font = '11px sans-serif'; ctx.textAlign = 'center';
-                            ctx.fillText('\u03c3 = ' + sigLeft.toFixed(2), sigX, 12);
+                            // Status text
+                            var statusText;
+                            if (t < 1) statusText = 'Contour at Re(s) = ' + c.toFixed(1) + ' (right of all poles)';
+                            else if (t < 2) statusText = 'Shifting contour left... Re(s) = ' + cCurrent.toFixed(2);
+                            else statusText = 'Residue at s = 1 gives main term x';
+                            viz.screenText(statusText, viz.width / 2, viz.height - 20, viz.colors.white, 12);
 
-                            viz.screenText('Phase: ' + (ph * 100).toFixed(0) + '% shifted  |  \u03c8(x) = x + (error terms)', W/2, H-8, viz.colors.text, 11);
+                            // Label
+                            viz.screenText('Re(s) = ' + cCurrent.toFixed(2), contourX, topY - 12, viz.colors.blue, 10);
                         }
 
-                        draw(phase);
+                        viz.animate(draw);
                         return viz;
                     }
                 }
             ],
             exercises: [
                 {
-                    question: 'Explain in your own words why \\(\\zeta(1+it) \\ne 0\\) is necessary for the PNT. What would happen to the contour integral argument if \\(\\zeta(1+i t_0) = 0\\) for some real \\(t_0\\)?',
-                    hint: 'A zero at \\(s = 1 + it_0\\) means \\(-\\zeta\'/\\zeta\\) has a pole there. When shifting the contour, you would cross this pole and pick up a residue.',
-                    solution: 'If \\(\\zeta(1+it_0) = 0\\), then \\(-\\zeta\'/\\zeta\\) has a simple pole at \\(\\rho = 1+it_0\\) with residue \\(-1\\). Shifting the contour past \\(\\text{Re}(s)=1\\) would pick up this residue, contributing \\(-x^{1+it_0}/(1+it_0)\\) to \\(\\psi(x)\\). Since \\(|x^{1+it_0}| = x\\), this term is of size \\(x\\), competing with the main term \\(x\\) and preventing \\(\\psi(x) \\sim x\\).'
+                    question: 'Verify the Perron kernel: show that for \\(c > 0\\), \\(\\frac{1}{2\\pi i}\\int_{c-i\\infty}^{c+i\\infty} \\frac{y^s}{s}\\,ds = 1\\) if \\(y > 1\\) and \\(= 0\\) if \\(0 < y < 1\\).',
+                    hint: 'For \\(y > 1\\), close the contour to the left (large semicircle in Re(s) < 0). The integrand has a simple pole at \\(s = 0\\) with residue \\(y^0 = 1\\). For \\(y < 1\\), close to the right where there are no poles.',
+                    solution: 'For \\(y > 1\\): close left with a large semicircle of radius \\(R\\). On the semicircle, \\(|y^s/s| = y^{\\operatorname{Re}(s)}/|s| \\to 0\\) since \\(\\operatorname{Re}(s) \\to -\\infty\\) and \\(y > 1\\). By the residue theorem, the integral equals \\(\\operatorname{Res}_{s=0}(y^s/s) = 1\\). For \\(y < 1\\): close right; \\(y^{\\operatorname{Re}(s)} \\to 0\\) as \\(\\operatorname{Re}(s) \\to +\\infty\\), and there are no poles to the right of the contour, so the integral is 0.'
                 },
                 {
-                    question: 'In the rectangular contour argument, why do we send \\(T \\to \\infty\\) rather than use a fixed \\(T\\)?',
-                    hint: 'Think about what happens to the horizontal integrals as \\(T \\to \\infty\\), and what constraints this places on the choice of \\(T\\).',
-                    solution: 'A fixed \\(T\\) might coincide with the imaginary part of a nontrivial zero, making \\(-\\zeta\'/\\zeta\\) large on the horizontal segments. By taking \\(T \\to \\infty\\) carefully (avoiding zeros), the horizontal contributions vanish. In practice, for the PNT we optimize \\(T = T(x) \\to \\infty\\) with \\(x\\) to get the best error term. One cannot simply take \\(T = \\infty\\) at once because the integrals might not converge absolutely.'
+                    question: 'Why does the truncation error in Theorem 7.4 have the form \\(O(x \\ln^2 x / T)\\)?',
+                    hint: 'The tail integral for \\(|\\operatorname{Im}(s)| > T\\) involves estimating \\(|\\zeta\'(s)/\\zeta(s)|\\) for large imaginary part. Use the bound \\(\\zeta\'/\\zeta(s) = O(\\ln^2 t)\\) for \\(\\sigma \\geq 1+1/\\ln t\\).',
+                    solution: 'On the line \\(\\operatorname{Re}(s) = c = 1 + 1/\\ln x\\), the integrand is \\((-\\zeta\'/\\zeta)(s) \\cdot x^s/s\\). We have \\(|x^s| = x^c = ex\\) and \\(|1/s| = O(1/T)\\) for \\(|t| \\geq T\\). The bound \\(\\zeta\'/\\zeta = O(\\ln^2 t)\\) means the tail integral is \\(O(x \\int_T^{\\infty} \\ln^2 t / t^2 \\, dt) = O(x \\ln^2 T / T)\\). Choosing \\(T\\) appropriately and noting \\(\\ln T \\leq \\ln x\\) gives \\(O(x \\ln^2 x / T)\\).'
+                }
+            ]
+        },
+
+        // ================================================================
+        // SECTION 5: The Contour Proof
+        // ================================================================
+        {
+            id: 'sec-contour-proof',
+            title: 'The Contour Proof',
+            content: `
+<h2>Shifting the Contour: The Heart of the Proof</h2>
+
+<p>We now execute the central argument. Starting from the Perron integral for \\(\\psi(x)\\), we deform the contour to extract the main term.</p>
+
+<h3>Setup</h3>
+
+<p>We work with the truncated integral</p>
+\\[I = \\frac{1}{2\\pi i} \\int_{c-iT}^{c+iT} \\left(-\\frac{\\zeta'(s)}{\\zeta(s)}\\right) \\frac{x^s}{s}\\, ds\\]
+<p>where \\(c = 1 + 1/\\ln x\\) and \\(T\\) will be chosen later. The integrand \\(-\\frac{\\zeta'(s)}{\\zeta(s)} \\cdot \\frac{x^s}{s}\\) has:</p>
+<ul>
+    <li>A <strong>pole at \\(s = 1\\)</strong> from the simple pole of \\(\\zeta(s)\\), with residue \\(x^1/1 = x\\).</li>
+    <li><strong>Poles at the zeros of \\(\\zeta(s)\\)</strong>, contributing to the explicit formula (Chapter 8).</li>
+    <li>A pole at \\(s = 0\\) from the \\(1/s\\) factor.</li>
+</ul>
+
+<h3>The Rectangular Contour</h3>
+
+<div class="env-block theorem">
+    <div class="env-title">Theorem 7.5 (Main Estimate)</div>
+    <div class="env-body">
+        <p>Let \\(\\sigma_0 = 1 - c_0 / \\ln T\\) where \\(c_0\\) is the constant from the zero-free region (Chapter 6): \\(\\zeta(s) \\neq 0\\) for \\(\\sigma \\geq 1 - c_0/\\ln(|t|+2)\\). Then</p>
+        \\[\\psi(x) = x + O\\!\\left(x \\exp\\left(-c_1 \\sqrt{\\ln x}\\right)\\right)\\]
+        <p>for some absolute constant \\(c_1 > 0\\).</p>
+    </div>
+</div>
+
+<div class="env-block proof">
+    <div class="env-title">Proof Outline</div>
+    <div class="env-body">
+        <p><strong>Step 1: Shift the contour.</strong> Replace the vertical line \\(\\operatorname{Re}(s) = c\\) by a rectangular path with left edge at \\(\\operatorname{Re}(s) = \\sigma_0 = 1 - c_0/\\ln T\\). By the residue theorem:</p>
+        \\[I = x + \\frac{1}{2\\pi i} \\oint_{\\text{shifted}} \\left(-\\frac{\\zeta'}{\\zeta}\\right) \\frac{x^s}{s}\\, ds\\]
+        <p>where the \\(x\\) comes from the residue at \\(s = 1\\).</p>
+
+        <p><strong>Step 2: Bound the shifted integral.</strong> On the three new segments:</p>
+        <ul>
+            <li><em>Horizontal segments</em> (\\(\\operatorname{Im}(s) = \\pm T\\), \\(\\sigma_0 \\leq \\sigma \\leq c\\)): Using \\(|\\zeta'/\\zeta| = O(\\ln^2 T)\\) and \\(|x^s/s| \\leq x^c / T\\), each contributes \\(O(x \\ln^3 T / T)\\).</li>
+            <li><em>Left vertical segment</em> (\\(\\sigma = \\sigma_0\\), \\(-T \\leq t \\leq T\\)): Using the zero-free region, \\(|\\zeta'/\\zeta(\\sigma_0 + it)| = O(\\ln^2 T)\\) uniformly, and \\(|x^s| = x^{\\sigma_0}\\). This contributes \\(O(x^{\\sigma_0} \\ln^3 T)\\).</li>
+        </ul>
+
+        <p><strong>Step 3: Optimize \\(T\\).</strong> The error from the left edge is \\(O(x^{\\sigma_0} \\ln^3 T) = O(x \\cdot x^{-(c_0/\\ln T)} \\ln^3 T)\\). We want \\(x^{-c_0/\\ln T} = e^{-c_0 \\ln x / \\ln T}\\) to be small. Choosing \\(T = e^{\\sqrt{\\ln x}}\\) gives \\(\\ln T = \\sqrt{\\ln x}\\), and the error becomes</p>
+        \\[O\\!\\left(x \\exp(-c_0 \\sqrt{\\ln x}) \\cdot (\\ln x)^{3/2}\\right) = O\\!\\left(x \\exp(-c_1 \\sqrt{\\ln x})\\right).\\]
+    </div>
+    <div class="qed">&marker;</div>
+</div>
+
+<h3>The Conclusion</h3>
+
+<p>We have proved \\(\\psi(x) = x + O(x e^{-c_1\\sqrt{\\ln x}})\\), which is much stronger than \\(\\psi(x) \\sim x\\). The PNT follows:</p>
+
+<div class="env-block theorem">
+    <div class="env-title">Theorem 7.6 (Prime Number Theorem)</div>
+    <div class="env-body">
+        \\[\\pi(x) \\sim \\frac{x}{\\ln x} \\sim \\operatorname{Li}(x).\\]
+    </div>
+</div>
+
+<p>The key input was the zero-free region from Chapter 6. A wider zero-free region would give a smaller error term. The Riemann Hypothesis (all nontrivial zeros on \\(\\operatorname{Re}(s) = 1/2\\)) would give \\(\\psi(x) = x + O(\\sqrt{x} \\ln^2 x)\\).</p>
+
+<div class="viz-placeholder" data-viz="viz-three-approximations"></div>
+`,
+            visualizations: [
+                {
+                    id: 'viz-three-approximations',
+                    title: 'Three Approximations to \\(\\pi(x)\\)',
+                    description: 'Compare \\(\\pi(x)\\) with \\(x/\\ln x\\), \\(\\operatorname{Li}(x)\\), and \\(x/(\\ln x - 1)\\). Li(x) is remarkably accurate even for moderate \\(x\\).',
+                    setup: function(body, controls) {
+                        var viz = new VizEngine(body, {
+                            width: 560, height: 400,
+                            originX: 60, originY: 360, scale: 1
+                        });
+
+                        var maxX = 500;
+                        VizEngine.createSlider(controls, 'x max', 50, 10000, maxX, 50, function(v) {
+                            maxX = Math.round(v);
+                            draw();
+                        });
+
+                        var primes = VizEngine.sievePrimes(15000);
+
+                        function piFunc(x) {
+                            var cnt = 0;
+                            for (var i = 0; i < primes.length; i++) {
+                                if (primes[i] > x) break;
+                                cnt++;
+                            }
+                            return cnt;
+                        }
+
+                        function Li(x) {
+                            // Numerical integration of 1/ln(t) from 2 to x
+                            if (x <= 2) return 0;
+                            var n = 500;
+                            var sum = 0;
+                            var dt = (x - 2) / n;
+                            for (var i = 0; i < n; i++) {
+                                var t = 2 + (i + 0.5) * dt;
+                                sum += 1 / Math.log(t);
+                            }
+                            return sum * dt;
+                        }
+
+                        function draw() {
+                            viz.clear();
+                            var ctx = viz.ctx;
+                            var W = viz.width - 80;
+                            var H = 300;
+                            var baseY = 350;
+                            var piMax = piFunc(maxX);
+                            var yMax = Math.max(piMax * 1.2, 10);
+
+                            viz.screenText('Three Approximations to \u03C0(x)', viz.width / 2, 18, viz.colors.white, 14);
+
+                            // Axes
+                            ctx.strokeStyle = viz.colors.axis;
+                            ctx.lineWidth = 1;
+                            ctx.beginPath();
+                            ctx.moveTo(60, baseY);
+                            ctx.lineTo(viz.width - 20, baseY);
+                            ctx.stroke();
+                            ctx.beginPath();
+                            ctx.moveTo(60, baseY);
+                            ctx.lineTo(60, 30);
+                            ctx.stroke();
+
+                            function toSx(x) { return 60 + (x / maxX) * W; }
+                            function toSy(y) { return baseY - (y / yMax) * H; }
+
+                            var step = Math.max(1, Math.floor(maxX / 300));
+
+                            // pi(x)
+                            ctx.strokeStyle = viz.colors.blue;
+                            ctx.lineWidth = 2.5;
+                            ctx.beginPath();
+                            var pidx = 0;
+                            ctx.moveTo(toSx(2), toSy(0));
+                            for (var i = 0; i < primes.length && primes[i] <= maxX; i++) {
+                                pidx = i + 1;
+                                ctx.lineTo(toSx(primes[i]), toSy(pidx - 1));
+                                ctx.lineTo(toSx(primes[i]), toSy(pidx));
+                            }
+                            ctx.lineTo(toSx(maxX), toSy(pidx));
+                            ctx.stroke();
+
+                            // x/ln(x)
+                            ctx.strokeStyle = viz.colors.orange;
+                            ctx.lineWidth = 1.5;
+                            ctx.beginPath();
+                            var started = false;
+                            for (var x = 3; x <= maxX; x += step) {
+                                var val = x / Math.log(x);
+                                if (!started) { ctx.moveTo(toSx(x), toSy(val)); started = true; }
+                                else ctx.lineTo(toSx(x), toSy(val));
+                            }
+                            ctx.stroke();
+
+                            // Li(x)
+                            ctx.strokeStyle = viz.colors.green;
+                            ctx.lineWidth = 1.5;
+                            ctx.beginPath();
+                            started = false;
+                            for (var x2 = 3; x2 <= maxX; x2 += step) {
+                                var val2 = Li(x2);
+                                if (!started) { ctx.moveTo(toSx(x2), toSy(val2)); started = true; }
+                                else ctx.lineTo(toSx(x2), toSy(val2));
+                            }
+                            ctx.stroke();
+
+                            // x/(ln(x) - 1)
+                            ctx.strokeStyle = viz.colors.purple;
+                            ctx.lineWidth = 1.5;
+                            ctx.setLineDash([4, 3]);
+                            ctx.beginPath();
+                            started = false;
+                            for (var x3 = 4; x3 <= maxX; x3 += step) {
+                                var lnx = Math.log(x3);
+                                if (lnx <= 1.01) continue;
+                                var val3 = x3 / (lnx - 1);
+                                if (!started) { ctx.moveTo(toSx(x3), toSy(val3)); started = true; }
+                                else ctx.lineTo(toSx(x3), toSy(val3));
+                            }
+                            ctx.stroke();
+                            ctx.setLineDash([]);
+
+                            // Legend
+                            var legY = baseY + 14;
+                            ctx.font = '10px -apple-system,sans-serif';
+                            ctx.textAlign = 'left';
+                            var items = [
+                                [viz.colors.blue, '\u03C0(x)'],
+                                [viz.colors.orange, 'x/ln x'],
+                                [viz.colors.green, 'Li(x)'],
+                                [viz.colors.purple, 'x/(ln x - 1)']
+                            ];
+                            for (var j = 0; j < items.length; j++) {
+                                var lx = 60 + j * 120;
+                                ctx.fillStyle = items[j][0];
+                                ctx.fillRect(lx, legY - 4, 10, 10);
+                                ctx.fillText(items[j][1], lx + 14, legY + 4);
+                            }
+
+                            // Show numerical comparison at endpoint
+                            var piEnd = piFunc(maxX);
+                            var xlnx = maxX > 2 ? (maxX / Math.log(maxX)).toFixed(1) : '?';
+                            var liEnd = Li(maxX).toFixed(1);
+                            viz.screenText('\u03C0(' + maxX + ')=' + piEnd + '  x/ln x=' + xlnx + '  Li(x)=' + liEnd, viz.width / 2, legY + 22, viz.colors.white, 11);
+                        }
+                        draw();
+                        return viz;
+                    }
+                }
+            ],
+            exercises: [
+                {
+                    question: 'Show that the residue of \\(-\\frac{\\zeta\'(s)}{\\zeta(s)} \\cdot \\frac{x^s}{s}\\) at \\(s=1\\) is \\(x\\).',
+                    hint: 'Near \\(s = 1\\), \\(\\zeta(s)\\) has a simple pole with residue 1, so \\(\\zeta(s) = \\frac{1}{s-1} + \\gamma + O(s-1)\\). Compute \\(\\zeta\'/\\zeta\\) near \\(s = 1\\).',
+                    solution: 'Near \\(s = 1\\): \\(\\zeta(s) = (s-1)^{-1} + \\gamma + \\cdots\\), so \\(\\zeta\'(s) = -(s-1)^{-2} + \\cdots\\), and \\(-\\zeta\'/\\zeta(s) = (s-1)^{-1}(1 + O(s-1))/(1 + \\gamma(s-1) + \\cdots) = (s-1)^{-1} + O(1)\\). Therefore \\(-\\frac{\\zeta\'(s)}{\\zeta(s)} \\cdot \\frac{x^s}{s} = \\frac{x^s}{s(s-1)} + O(x^s/s)\\). The residue at \\(s = 1\\) is \\(\\lim_{s \\to 1} (s-1) \\cdot \\frac{x^s}{s(s-1)} = x^1/1 = x\\).'
+                },
+                {
+                    question: 'Why does \\(T = e^{\\sqrt{\\ln x}}\\) optimize the error in the PNT proof?',
+                    hint: 'The error has two competing parts: the truncation error \\(O(x \\ln^2 x / T)\\) (wants \\(T\\) large) and the left-edge error \\(O(x e^{-c \\ln x / \\ln T})\\) (wants \\(\\ln T \\approx \\sqrt{\\ln x}\\)).',
+                    solution: 'Truncation error: \\(O(x \\ln^2 x / T)\\). With \\(T = e^{\\sqrt{\\ln x}}\\), this is \\(O(x (\\ln x)^2 e^{-\\sqrt{\\ln x}})\\), which is \\(o(x)\\). Left-edge error: \\(O(x e^{-c_0 \\ln x / \\ln T} \\cdot (\\ln T)^3) = O(x e^{-c_0 \\sqrt{\\ln x}} \\cdot (\\ln x)^{3/2})\\). Both are \\(O(x e^{-c_1 \\sqrt{\\ln x}})\\). Choosing \\(\\ln T\\) much smaller or larger would make one term dominate; \\(\\ln T = \\sqrt{\\ln x}\\) balances them.'
                 }
             ]
         },
@@ -920,153 +1093,189 @@ This is Riemann's explicit formula, relating prime distribution to zeta zeros.</
             id: 'sec-error-term',
             title: 'The Error Term',
             content: `
-<h2>The Error Term: How Quickly Does \\(\\psi(x)/x \\to 1\\)?</h2>
+<h2>How Good Is the Approximation?</h2>
 
-<div class="env-block intuition">
-    <div class="env-title">Beyond \\(\\sim\\)</div>
-    <div class="env-body">
-        <p>The PNT says \\(\\psi(x) \\sim x\\), but this hides the rate of convergence. The Chebyshev bounds show the ratio \\(\\psi(x)/x\\) stays between 0.693 and 1.386. The full PNT improves this to \\(|\\psi(x)/x - 1| \\to 0\\). But how fast? The answer depends on the zero-free region for \\(\\zeta(s)\\), and computing this explicitly is one of the central problems of analytic number theory.</p>
-    </div>
-</div>
+<p>The PNT says \\(\\psi(x) \\sim x\\), but how fast does the ratio converge? The error term in the PNT is one of the deepest questions in number theory, intimately connected to the Riemann Hypothesis.</p>
 
-<h3>The Classical Zero-Free Region</h3>
+<h3>What We Proved</h3>
 
-<p>De la Vall&eacute;e Poussin proved that there exists \\(c > 0\\) such that \\(\\zeta(\\sigma + it) \\ne 0\\) for
-\\[\\sigma \\ge 1 - \\frac{c}{\\ln(|t| + 2)}.\\]
-This is the "classical zero-free region." The key ingredient is the identity \\(3 + 4\\cos\\theta + \\cos 2\\theta \\ge 0\\), used to bound \\(\\text{Re}(-\\zeta'/\\zeta)\\) via the sum over primes.</p>
+<p>The classical proof gives:</p>
+\\[\\psi(x) = x + O\\!\\left(x \\exp(-c\\sqrt{\\ln x})\\right).\\]
+<p>Equivalently, \\(\\pi(x) = \\operatorname{Li}(x) + O(x \\exp(-c\\sqrt{\\ln x}))\\).</p>
 
-<h3>The Error Term Formula</h3>
+<p>This error term decreases slowly, slower than any power of \\(x\\). For example, at \\(x = 10^{10}\\), \\(\\sqrt{\\ln x} \\approx 4.8\\), so the relative error is roughly \\(e^{-4.8c}\\).</p>
+
+<h3>Improvements</h3>
 
 <div class="env-block theorem">
-    <div class="env-title">Theorem 7.7 (PNT with error term)</div>
+    <div class="env-title">Theorem 7.7 (Improved Error Terms)</div>
     <div class="env-body">
-        <p>There exists an absolute constant \\(c > 0\\) such that:
-        \\[\\psi(x) = x + O\\left(x \\exp\\left(-c \\sqrt{\\ln x}\\right)\\right),\\]
-        and equivalently,
-        \\[\\pi(x) = \\operatorname{Li}(x) + O\\left(x \\exp\\left(-c \\sqrt{\\ln x}\\right)\\right).\\]
-        </p>
+        <p>Using wider zero-free regions:</p>
+        <ul>
+            <li><strong>Korobov-Vinogradov (1958)</strong>: \\(\\psi(x) = x + O(x \\exp(-c(\\ln x)^{3/5}(\\ln \\ln x)^{-1/5}))\\).</li>
+            <li><strong>Under RH</strong>: \\(\\psi(x) = x + O(\\sqrt{x}\\ln^2 x)\\).</li>
+        </ul>
     </div>
 </div>
 
-<p>The term \\(\\exp(-c\\sqrt{\\ln x})\\) comes from optimizing the contour: the zero-free region width \\(c/\\ln T\\) forces \\(x^{\\sigma_0} = x^{1 - c/\\ln T}\\), and choosing \\(T = \\exp(\\sqrt{\\ln x})\\) balances the error.</p>
+<p>The gap between the unconditional error \\(O(x \\exp(-c(\\ln x)^{3/5-\\epsilon}))\\) and the conditional error \\(O(\\sqrt{x}\\ln^2 x)\\) is enormous. Closing this gap is essentially equivalent to making progress on RH.</p>
 
-<h3>The Role of the Riemann Hypothesis</h3>
+<h3>The Connection to Zeros</h3>
 
-<p>Under the Riemann Hypothesis (all nontrivial zeros have \\(\\text{Re}(\\rho) = 1/2\\)), one can show:
-\\[\\psi(x) = x + O\\left(\\sqrt{x} \\ln^2 x\\right).\\]
-This is much stronger: the error is \\(O(\\sqrt{x})\\) instead of \\(O(x e^{-c\\sqrt{\\ln x}})\\). The residues at zeros \\(\\rho = 1/2 + i\\gamma\\) contribute \\(x^{\\rho}/\\rho\\) with \\(|x^\\rho| = \\sqrt{x}\\). So the RH gives the "best possible" error, given the location of the zeros.</p>
+<p>The explicit formula (Chapter 8) makes the connection precise:</p>
+\\[\\psi(x) = x - \\sum_{\\rho} \\frac{x^{\\rho}}{\\rho} + \\text{lower order terms}\\]
+<p>where the sum runs over nontrivial zeros \\(\\rho = \\beta + i\\gamma\\) of \\(\\zeta(s)\\). Each zero contributes a term of size \\(\\sim x^{\\beta}/|\\rho|\\). If all zeros have \\(\\beta = 1/2\\) (RH), each contributes \\(O(\\sqrt{x}/|\\gamma|)\\), and the sum converges nicely. But if a zero has \\(\\beta\\) close to 1, its contribution \\(x^{\\beta}\\) is nearly as large as the main term.</p>
+
+<h3>Lower Bounds on the Error</h3>
+
+<div class="env-block theorem">
+    <div class="env-title">Theorem 7.8 (Littlewood, 1914)</div>
+    <div class="env-body">
+        <p>The error term in PNT cannot be too small:</p>
+        \\[\\pi(x) - \\operatorname{Li}(x) = \\Omega_{\\pm}\\!\\left(\\frac{\\sqrt{x}\\ln\\ln\\ln x}{\\ln x}\\right).\\]
+        <p>That is, \\(\\pi(x) - \\operatorname{Li}(x)\\) changes sign infinitely often and is sometimes as large as \\(\\sqrt{x}\\ln\\ln\\ln x / \\ln x\\) in both positive and negative directions.</p>
+    </div>
+</div>
+
+<p>Littlewood's theorem shows that \\(\\operatorname{Li}(x)\\) is <em>not</em> always an overestimate of \\(\\pi(x)\\). Although \\(\\operatorname{Li}(x) > \\pi(x)\\) for all computed values up to enormous bounds, it must eventually fail, and does so infinitely often. The first crossover point (Skewes' number) was originally estimated around \\(10^{10^{10^{34}}}\\), later reduced to approximately \\(1.4 \\times 10^{316}\\).</p>
 
 <div class="viz-placeholder" data-viz="viz-error-shrinking"></div>
 `,
             visualizations: [
                 {
                     id: 'viz-error-shrinking',
-                    title: '\\(|\\psi(x) - x|/x\\): The Error Shrinking',
-                    description: 'Plot the relative error \\(|\\psi(x) - x|/x\\) and compare it to \\(1/\\ln x\\) and the PNT bound \\(\\exp(-c\\sqrt{\\ln x})\\). The error oscillates but trends downward.',
+                    title: 'The PNT Error: \\(\\pi(x) - \\operatorname{Li}(x)\\)',
+                    description: 'Plot the difference \\(\\pi(x) - \\operatorname{Li}(x)\\). Despite being negative for all small \\(x\\) (Li overestimates), Littlewood proved it changes sign infinitely often.',
                     setup: function(body, controls) {
                         var viz = new VizEngine(body, {
-                            width: 660, height: 360,
-                            originX: 60, originY: 310, scale: 1
+                            width: 560, height: 380,
+                            originX: 60, originY: 200, scale: 1
                         });
 
-                        var maxX = 500;
-                        VizEngine.createSlider(controls, 'x max', 100, 2000, maxX, 100, function(v) {
+                        var maxX = 1000;
+                        VizEngine.createSlider(controls, 'x max', 100, 10000, maxX, 100, function(v) {
                             maxX = Math.round(v);
                             draw();
                         });
 
-                        // Precompute psi
-                        var MSIEVE = 2100;
-                        var primes3 = VizEngine.sievePrimes(MSIEVE);
-                        var psiB = new Float64Array(MSIEVE + 1);
-                        for (var n3 = 2; n3 <= MSIEVE; n3++) {
-                            psiB[n3] = psiB[n3-1];
-                            var vv = n3, pp = 0;
-                            for (var ii = 0; ii < primes3.length && primes3[ii] <= vv; ii++) {
-                                if (vv % primes3[ii] === 0) {
-                                    pp = primes3[ii];
-                                    while (vv % pp === 0) vv /= pp;
-                                    if (vv === 1) psiB[n3] += Math.log(pp);
-                                    break;
-                                }
+                        var primes = VizEngine.sievePrimes(15000);
+
+                        function piFunc(x) {
+                            var cnt = 0;
+                            for (var i = 0; i < primes.length; i++) {
+                                if (primes[i] > x) break;
+                                cnt++;
                             }
+                            return cnt;
+                        }
+
+                        function Li(x) {
+                            if (x <= 2) return 0;
+                            var n = 500;
+                            var sum = 0;
+                            var dt = (x - 2) / n;
+                            for (var i = 0; i < n; i++) {
+                                var t = 2 + (i + 0.5) * dt;
+                                sum += 1 / Math.log(t);
+                            }
+                            return sum * dt;
                         }
 
                         function draw() {
                             viz.clear();
                             var ctx = viz.ctx;
-                            var W = viz.width, H = viz.height;
-                            var x0 = 60, plotW = W - 80, plotH = H - 50;
-                            var y0 = 10;
-                            var xLim = Math.min(maxX, MSIEVE);
+                            var W = viz.width - 80;
+                            var H = 300;
+                            var baseY = 200;
 
-                            // Find max error for scaling
-                            var maxErr = 0;
-                            var step4 = Math.max(1, Math.floor(xLim / 400));
-                            for (var xi = 10; xi <= xLim; xi += step4) {
-                                var err = Math.abs(psiB[xi] - xi) / xi;
-                                if (err > maxErr) maxErr = err;
+                            viz.screenText('\u03C0(x) - Li(x)', viz.width / 2, 18, viz.colors.white, 14);
+
+                            // Compute differences to find range
+                            var step = Math.max(1, Math.floor(maxX / 400));
+                            var diffs = [];
+                            var dMin = Infinity, dMax = -Infinity;
+                            for (var x = 3; x <= maxX; x += step) {
+                                var d = piFunc(x) - Li(x);
+                                diffs.push({ x: x, d: d });
+                                if (d < dMin) dMin = d;
+                                if (d > dMax) dMax = d;
                             }
-                            maxErr = Math.max(maxErr, 0.05);
+                            var range = Math.max(Math.abs(dMin), Math.abs(dMax), 5);
 
-                            function sx(x) { return x0 + (x / xLim) * plotW; }
-                            function sy(y) { return y0 + plotH * (1 - y / maxErr); }
+                            function toSx(x) { return 60 + (x / maxX) * W; }
+                            function toSy(d) { return baseY - (d / range) * (H / 2 - 20); }
 
-                            // Grid
-                            ctx.strokeStyle = viz.colors.grid; ctx.lineWidth = 0.5;
-                            for (var ti = 0; ti <= 5; ti++) {
-                                var yv = maxErr * ti / 5;
-                                var syi = sy(yv);
-                                ctx.beginPath(); ctx.moveTo(x0, syi); ctx.lineTo(x0 + plotW, syi); ctx.stroke();
-                                ctx.fillStyle = viz.colors.text; ctx.font = '10px sans-serif';
-                                ctx.textAlign = 'right'; ctx.textBaseline = 'middle';
-                                ctx.fillText(yv.toFixed(3), x0 - 4, syi);
+                            // Axes
+                            ctx.strokeStyle = viz.colors.axis;
+                            ctx.lineWidth = 1;
+                            ctx.beginPath();
+                            ctx.moveTo(60, baseY);
+                            ctx.lineTo(viz.width - 20, baseY);
+                            ctx.stroke();
+                            ctx.beginPath();
+                            ctx.moveTo(60, 30);
+                            ctx.lineTo(60, viz.height - 30);
+                            ctx.stroke();
+
+                            // Zero line
+                            viz.screenText('0', 50, baseY, viz.colors.text, 10, 'right');
+
+                            // Y range labels
+                            ctx.fillStyle = viz.colors.text;
+                            ctx.font = '10px -apple-system,sans-serif';
+                            ctx.textAlign = 'right';
+                            ctx.textBaseline = 'middle';
+                            var yStep = Math.pow(10, Math.floor(Math.log10(range)));
+                            if (range / yStep < 3) yStep /= 2;
+                            for (var yv = -range; yv <= range; yv += yStep) {
+                                if (Math.abs(yv) < yStep * 0.1) continue;
+                                var sy = toSy(yv);
+                                if (sy < 35 || sy > viz.height - 35) continue;
+                                ctx.fillText(Math.round(yv).toString(), 55, sy);
+                                ctx.strokeStyle = viz.colors.grid;
+                                ctx.lineWidth = 0.5;
+                                ctx.beginPath();
+                                ctx.moveTo(60, sy);
+                                ctx.lineTo(viz.width - 20, sy);
+                                ctx.stroke();
                             }
 
-                            // 1/ln x reference
-                            ctx.strokeStyle = viz.colors.teal; ctx.lineWidth = 1.5; ctx.setLineDash([4,4]);
-                            ctx.beginPath(); var refStarted = false;
-                            for (var xi2 = 10; xi2 <= xLim; xi2 += step4) {
-                                var rv = 1 / Math.log(xi2);
-                                if (rv > maxErr * 1.05) { refStarted = false; continue; }
-                                var rsxi = sx(xi2), rsyi = sy(Math.min(rv, maxErr));
-                                if (!refStarted) { ctx.moveTo(rsxi, rsyi); refStarted = true; } else { ctx.lineTo(rsxi, rsyi); }
-                            }
-                            ctx.stroke(); ctx.setLineDash([]);
-
-                            // |psi(x)-x|/x
-                            ctx.strokeStyle = viz.colors.blue; ctx.lineWidth = 2;
-                            ctx.beginPath(); var errStarted = false;
-                            for (var xi3 = 10; xi3 <= xLim; xi3 += step4) {
-                                var errv = Math.abs(psiB[xi3] - xi3) / xi3;
-                                if (errv > maxErr * 1.05) { errStarted = false; continue; }
-                                var esxi = sx(xi3), esyi = sy(Math.min(errv, maxErr));
-                                if (!errStarted) { ctx.moveTo(esxi, esyi); errStarted = true; } else { ctx.lineTo(esxi, esyi); }
+                            // Plot the difference
+                            ctx.strokeStyle = viz.colors.teal;
+                            ctx.lineWidth = 2;
+                            ctx.beginPath();
+                            for (var i = 0; i < diffs.length; i++) {
+                                var sx = toSx(diffs[i].x);
+                                var sy2 = toSy(diffs[i].d);
+                                if (i === 0) ctx.moveTo(sx, sy2);
+                                else ctx.lineTo(sx, sy2);
                             }
                             ctx.stroke();
 
-                            // Axes
-                            ctx.strokeStyle = viz.colors.axis; ctx.lineWidth = 1.5;
-                            ctx.beginPath(); ctx.moveTo(x0, y0 + plotH); ctx.lineTo(x0 + plotW, y0 + plotH); ctx.stroke();
-                            ctx.beginPath(); ctx.moveTo(x0, y0); ctx.lineTo(x0, y0 + plotH); ctx.stroke();
+                            // Shade negative region
+                            ctx.fillStyle = viz.colors.red + '15';
+                            ctx.beginPath();
+                            ctx.moveTo(toSx(diffs[0].x), baseY);
+                            for (var j = 0; j < diffs.length; j++) {
+                                ctx.lineTo(toSx(diffs[j].x), toSy(Math.min(diffs[j].d, 0)));
+                            }
+                            ctx.lineTo(toSx(diffs[diffs.length - 1].x), baseY);
+                            ctx.closePath();
+                            ctx.fill();
 
-                            // x-axis labels
-                            ctx.fillStyle = viz.colors.text; ctx.font = '10px sans-serif';
-                            ctx.textAlign = 'center'; ctx.textBaseline = 'top';
-                            for (var ti2 = 1; ti2 <= 8; ti2++) {
-                                var xvl = Math.round(xLim * ti2 / 8);
-                                ctx.fillText(xvl, sx(xvl), y0 + plotH + 4);
+                            // X labels
+                            ctx.fillStyle = viz.colors.text;
+                            ctx.font = '10px -apple-system,sans-serif';
+                            ctx.textAlign = 'center';
+                            ctx.textBaseline = 'top';
+                            var xStep2 = Math.pow(10, Math.floor(Math.log10(maxX / 5)));
+                            if (maxX / xStep2 > 10) xStep2 *= 2;
+                            for (var xv = xStep2; xv <= maxX; xv += xStep2) {
+                                ctx.fillText(xv.toString(), toSx(xv), viz.height - 25);
                             }
 
-                            // Legend
-                            ctx.fillStyle = viz.colors.blue; ctx.font = '11px sans-serif'; ctx.textAlign = 'left';
-                            ctx.fillRect(x0 + 10, y0 + 10, 18, 10);
-                            ctx.fillStyle = viz.colors.text; ctx.fillText('|\u03c8(x) - x|/x', x0 + 32, y0 + 18);
-                            ctx.fillStyle = viz.colors.teal;
-                            ctx.fillRect(x0 + 150, y0 + 10, 18, 10);
-                            ctx.fillStyle = viz.colors.text; ctx.fillText('1/ln x', x0 + 172, y0 + 18);
+                            viz.screenText('Li(x) overestimates \u03C0(x) for small x (but not forever)', viz.width / 2, viz.height - 8, viz.colors.text, 10);
                         }
-
                         draw();
                         return viz;
                     }
@@ -1074,193 +1283,187 @@ This is much stronger: the error is \\(O(\\sqrt{x})\\) instead of \\(O(x e^{-c\\
             ],
             exercises: [
                 {
-                    question: 'The error term is \\(O(x e^{-c\\sqrt{\\ln x}})\\). Numerically, at \\(x = 10^{100}\\), how large is \\(e^{-c\\sqrt{\\ln x}}\\) relative to \\(1/\\ln x\\)? (Take \\(c = 0.2\\).)',
-                    hint: '\\(\\ln(10^{100}) = 100 \\ln 10 \\approx 230\\). Compute \\(e^{-0.2\\sqrt{230}}\\) and \\(1/230\\).',
-                    solution: '\\(\\sqrt{\\ln(10^{100})} = \\sqrt{100\\ln 10} \\approx \\sqrt{230.3} \\approx 15.18\\). So \\(e^{-0.2 \\times 15.18} = e^{-3.04} \\approx 0.048\\). Compare to \\(1/\\ln(10^{100}) \\approx 1/230 \\approx 0.0043\\). At this scale, the classical error bound \\(\\approx 0.048\\) is actually weaker than \\(1/\\ln x \\approx 0.004\\). This illustrates why the error term is not sharp and RH would give \\(O(x^{-1/2}\\ln^2 x)\\) instead.'
+                    question: 'Show that under RH, \\(\\pi(x) = \\operatorname{Li}(x) + O(\\sqrt{x} \\ln x)\\).',
+                    hint: 'If RH holds, \\(\\psi(x) = x + O(\\sqrt{x} \\ln^2 x)\\). Use Abel summation to convert from \\(\\psi\\) to \\(\\pi\\).',
+                    solution: 'Under RH, \\(\\psi(x) = x + O(\\sqrt{x}\\ln^2 x)\\). By partial summation, \\(\\pi(x) = \\psi(x)/\\ln x + \\int_2^x \\psi(t)/(t \\ln^2 t)\\,dt\\). Substituting \\(\\psi(t) = t + O(\\sqrt{t}\\ln^2 t)\\): the main term gives \\(\\operatorname{Li}(x)\\), and the error is \\(O(\\sqrt{x}/\\ln x) + O(\\int_2^x \\sqrt{t} \\ln^2 t / (t \\ln^2 t)\\,dt) = O(\\sqrt{x}/\\ln x) + O(\\sqrt{x}) = O(\\sqrt{x}\\ln x)\\).'
                 },
                 {
-                    question: 'Under RH, the error is \\(O(\\sqrt{x} \\ln^2 x)\\). Show this means \\(|\\pi(x) - \\operatorname{Li}(x)| = O(\\sqrt{x} \\ln x)\\).',
-                    hint: 'Use partial summation to relate \\(\\psi(x) - x\\) to \\(\\pi(x) - \\operatorname{Li}(x)\\).',
-                    solution: 'By Abel summation: \\(\\pi(x) = \\psi(x)/\\ln x + \\int_2^x \\psi(t)/t \\ln^2 t \\, dt + O(1)\\) (roughly). If \\(\\psi(x) = x + R(x)\\) with \\(R(x) = O(\\sqrt{x}\\ln^2 x)\\), then \\(\\pi(x) = x/\\ln x + R(x)/\\ln x + O(\\int_2^x \\sqrt{t}\\ln^2 t/(t\\ln^2 t)dt) = \\operatorname{Li}(x) + O(\\sqrt{x}\\ln x)\\). The integral \\(\\int_2^x \\sqrt{t}^{-1}dt = O(\\sqrt{x})\\), giving the stated bound.'
+                    question: 'The error \\(O(x \\exp(-c\\sqrt{\\ln x}))\\) goes to zero relative to \\(x\\). For what value of \\(x\\) does the relative error first drop below 1%? (Take \\(c = 0.5\\).)',
+                    hint: 'Solve \\(e^{-0.5\\sqrt{\\ln x}} < 0.01\\), i.e., \\(\\sqrt{\\ln x} > 2\\ln 100/1 = 9.21\\).',
+                    solution: 'We need \\(e^{-0.5\\sqrt{\\ln x}} < 0.01\\), so \\(0.5\\sqrt{\\ln x} > \\ln 100 \\approx 4.605\\), giving \\(\\sqrt{\\ln x} > 9.21\\), so \\(\\ln x > 84.8\\), i.e., \\(x > e^{84.8} \\approx 7 \\times 10^{36}\\). The convergence is very slow! This is why the PNT error term, though theoretically going to zero, is hard to observe for moderate \\(x\\).'
                 }
             ]
         },
 
         // ================================================================
-        // SECTION 7: Beyond the Leading Term
+        // SECTION 7: Bridge to What's Next
         // ================================================================
         {
             id: 'sec-bridge',
-            title: 'Beyond the Leading Term',
+            title: 'Looking Forward',
             content: `
-<h2>Beyond the Leading Term: What Comes Next?</h2>
+<h2>The PNT in Perspective</h2>
 
-<div class="env-block intuition">
-    <div class="env-title">From \\(\\sim\\) to \\(=\\)</div>
-    <div class="env-body">
-        <p>The PNT is a statement about leading-order behavior: \\(\\pi(x) \\sim x/\\ln x\\). But number theory needs more. Goldbach's conjecture, twin primes, primes in short intervals, primes in arithmetic progressions --- all require understanding not just the leading term but the fluctuations. The key is that the error term is controlled by zeros of \\(\\zeta(s)\\), each of which imprints an oscillation on \\(\\psi(x)\\).</p>
-    </div>
-</div>
+<p>The Prime Number Theorem is the crown jewel of Part C of this course. Let us reflect on what we have achieved and where the theory goes next.</p>
 
-<h3>The Explicit Formula Revisited</h3>
+<h3>What We Used</h3>
 
-<p>Riemann's explicit formula (for \\(x\\) not a prime power):
-\\[\\psi(x) = x - \\sum_{\\rho} \\frac{x^\\rho}{\\rho} - \\ln(2\\pi) - \\frac{1}{2}\\ln(1 - x^{-2}),\\]
-where the sum over \\(\\rho\\) runs over all nontrivial zeros of \\(\\zeta\\). Each zero \\(\\rho = \\beta + i\\gamma\\) contributes a term
-\\[\\frac{x^\\rho}{\\rho} = \\frac{x^\\beta}{|\\rho|} e^{i\\gamma \\ln x + i\\arg\\rho}.\\]
-This is an oscillatory term with frequency \\(\\gamma/(2\\pi)\\) in \\(\\ln x\\) and amplitude \\(x^\\beta/|\\rho|\\). If RH holds (\\(\\beta = 1/2\\)), all oscillations have amplitude \\(O(\\sqrt{x})\\).</p>
-
-<h3>Three Approximations to \\(\\pi(x)\\)</h3>
-
-<p>There are three increasingly accurate approximations:</p>
+<p>The proof combined every major tool from the preceding chapters:</p>
 <ol>
-    <li>\\(x / \\ln x\\): the simplest, off by \\(\\sim x/\\ln^2 x\\)</li>
-    <li>\\(\\operatorname{Li}(x) = \\int_2^x dt/\\ln t\\): much better, off by \\(O(x e^{-c\\sqrt{\\ln x}})\\) unconditionally</li>
-    <li>\\(\\operatorname{Li}(x) - \\sum_{\\rho} \\operatorname{Li}(x^\\rho)\\): the full Riemann approximation (requires knowing zeros)</li>
+    <li><strong>Arithmetic functions</strong> (Ch 1-2): the von Mangoldt function \\(\\Lambda(n)\\) and its summatory function \\(\\psi(x)\\).</li>
+    <li><strong>Dirichlet series</strong> (Ch 3): the representation \\(-\\zeta'/\\zeta(s) = \\sum \\Lambda(n) n^{-s}\\).</li>
+    <li><strong>Analytic continuation</strong> (Ch 4-5): extending \\(\\zeta(s)\\) and \\(\\zeta'/\\zeta(s)\\) to the left of \\(\\operatorname{Re}(s) = 1\\).</li>
+    <li><strong>Zero-free region</strong> (Ch 6): the critical input \\(\\zeta(1+it) \\neq 0\\), and the quantitative bound \\(\\sigma > 1 - c/\\ln t\\).</li>
+    <li><strong>Contour integration</strong>: Perron's formula and the residue theorem.</li>
 </ol>
 
-<p>The logarithmic integral \\(\\operatorname{Li}(x)\\) consistently overestimates \\(\\pi(x)\\) for all computed values of \\(x\\). Littlewood proved in 1914 that \\(\\pi(x) - \\operatorname{Li}(x)\\) changes sign infinitely often, but the first crossover is conjectured to occur near \\(x \\approx 10^{316}\\) (Skewes' number problem).</p>
+<h3>The Explicit Formula (Chapter 8 Preview)</h3>
 
-<h3>The Road Ahead</h3>
+<p>The contour argument we used discarded information about the zeros. In Chapter 8, we will track those contributions carefully, arriving at the <strong>explicit formula</strong>:</p>
+\\[\\psi(x) = x - \\sum_{\\rho} \\frac{x^{\\rho}}{\\rho} - \\ln(2\\pi) - \\frac{1}{2}\\ln(1 - x^{-2})\\]
+<p>where the sum is over all nontrivial zeros \\(\\rho\\) of \\(\\zeta(s)\\). Each zero creates an oscillation in \\(\\psi(x)\\); the PNT says these oscillations cancel in the limit.</p>
 
-<p>The PNT is not an endpoint but a beginning. The chapters ahead explore:</p>
-<ul>
-    <li><strong>Ch 8 (Explicit Formula):</strong> The exact relationship between zeros and prime oscillations.</li>
-    <li><strong>Ch 9–10 (Dirichlet L-functions):</strong> PNT for primes in arithmetic progressions \\(a \\pmod q\\).</li>
-    <li><strong>Ch 11–13 (Sieves):</strong> Counting primes when complex analysis is unavailable or too weak.</li>
-    <li><strong>Ch 18–19 (Gaps):</strong> How large can gaps between consecutive primes be?</li>
-</ul>
+<h3>Beyond the Classical PNT</h3>
 
 <div class="env-block remark">
-    <div class="env-title">The Riemann Hypothesis</div>
+    <div class="env-title">Extensions and Analogues</div>
     <div class="env-body">
-        <p>The Riemann Hypothesis — that all nontrivial zeros of \\(\\zeta(s)\\) lie on \\(\\text{Re}(s) = 1/2\\) — would give the best possible error term \\(O(\\sqrt{x}\\ln^2 x)\\). It remains unproven, listed as one of the Millennium Prize Problems. The deepest open question in all of mathematics asks: can the prime distribution be controlled as well as random coin flips?</p>
+        <ul>
+            <li><strong>Primes in arithmetic progressions</strong> (Ch 9-10): \\(\\pi(x; q, a) \\sim x/(\\varphi(q) \\ln x)\\) for \\(\\gcd(a,q) = 1\\), using \\(L\\)-functions.</li>
+            <li><strong>Siegel-Walfisz theorem</strong>: PNT in progressions uniform in \\(q \\leq (\\ln x)^A\\).</li>
+            <li><strong>Bombieri-Vinogradov</strong> (Ch 13): PNT in progressions "on average" for \\(q\\) up to \\(\\sqrt{x}/(\\ln x)^B\\).</li>
+            <li><strong>Short intervals</strong> (Ch 18): primes in \\([x, x + x^{\\theta}]\\) for \\(\\theta < 1\\).</li>
+        </ul>
     </div>
 </div>
 
-<div class="viz-placeholder" data-viz="viz-three-approximations"></div>
+<h3>A Historical Reflection</h3>
+
+<p>The PNT took over a century from conjecture to proof. Gauss's numerical insight (1792) had to wait for Riemann's vision (1859) and then Hadamard and de la Vall\\'{e}e-Poussin's technical execution (1896). The proof unified discrete number theory with continuous complex analysis in a way that reshaped mathematics. As Hadamard wrote: "The shortest path between two truths in the real domain passes through the complex domain."</p>
+
+<div class="viz-placeholder" data-viz="viz-pnt-history"></div>
 `,
             visualizations: [
                 {
-                    id: 'viz-three-approximations',
-                    title: 'Three Approximations: \\(\\pi(x)\\) vs \\(x/\\ln x\\) vs \\(\\operatorname{Li}(x)\\)',
-                    description: 'Compare the three approximations to \\(\\pi(x)\\). Li(x) tracks \\(\\pi(x)\\) much more closely than x/ln x. Use the slider to zoom in.',
+                    id: 'viz-pnt-history',
+                    title: 'PNT History Timeline',
+                    description: 'Key milestones in the journey from conjecture to proof, and beyond.',
                     setup: function(body, controls) {
                         var viz = new VizEngine(body, {
-                            width: 680, height: 400,
-                            originX: 60, originY: 360, scale: 1
+                            width: 560, height: 380,
+                            originX: 0, originY: 0, scale: 1
                         });
 
-                        var maxX = 500;
-                        VizEngine.createSlider(controls, 'x max', 50, 2000, maxX, 50, function(v) {
-                            maxX = Math.round(v);
-                            draw();
-                        });
-
-                        var MSIEVE2 = 2100;
-                        var primes4 = VizEngine.sievePrimes(MSIEVE2);
-                        var piArr2 = new Int32Array(MSIEVE2 + 1);
-                        var pc2 = 0, pi4 = 0;
-                        for (var n4 = 0; n4 <= MSIEVE2; n4++) {
-                            if (pi4 < primes4.length && primes4[pi4] === n4) { pc2++; pi4++; }
-                            piArr2[n4] = pc2;
-                        }
-
-                        // Li(x) via numerical integration
-                        function Li(x) {
-                            if (x <= 2) return 0;
-                            // Simple rectangle rule from 2 to x
-                            var sum = 0, steps = 200, dx = (x - 2) / steps;
-                            for (var i = 0; i <= steps; i++) {
-                                var t = 2 + i * dx;
-                                sum += (i === 0 || i === steps ? 0.5 : 1) / Math.log(t);
-                            }
-                            return sum * dx;
-                        }
+                        var events = [
+                            { year: 1792, label: 'Gauss conjectures', color: 'blue' },
+                            { year: 1837, label: 'Dirichlet L-functions', color: 'teal' },
+                            { year: 1850, label: 'Chebyshev bounds', color: 'orange' },
+                            { year: 1859, label: 'Riemann memoir', color: 'purple' },
+                            { year: 1896, label: 'PNT proved', color: 'green' },
+                            { year: 1914, label: 'Littlewood \u03A9 result', color: 'yellow' },
+                            { year: 1949, label: 'Elementary proof', color: 'red' },
+                            { year: 1958, label: 'Korobov-Vinogradov', color: 'pink' }
+                        ];
 
                         function draw() {
                             viz.clear();
                             var ctx = viz.ctx;
-                            var W = viz.width, H = viz.height;
-                            var x0 = 60, plotW = W - 80, plotH = H - 50, y0 = 10;
-                            var xLim = Math.min(maxX, MSIEVE2);
-                            var piMax = piArr2[xLim] * 1.15;
 
-                            function sx(x) { return x0 + (x / xLim) * plotW; }
-                            function sy(y) { return y0 + plotH * (1 - y / piMax); }
+                            viz.screenText('Key Milestones of the PNT', viz.width / 2, 20, viz.colors.white, 15);
 
-                            // Grid
-                            ctx.strokeStyle = viz.colors.grid; ctx.lineWidth = 0.5;
-                            for (var ti = 0; ti <= 5; ti++) {
-                                var yv = piMax * ti / 5;
-                                var syi = sy(yv);
-                                ctx.beginPath(); ctx.moveTo(x0, syi); ctx.lineTo(x0 + plotW, syi); ctx.stroke();
-                                ctx.fillStyle = viz.colors.text; ctx.font = '10px sans-serif';
-                                ctx.textAlign = 'right'; ctx.textBaseline = 'middle';
-                                ctx.fillText(Math.round(yv), x0 - 4, syi);
-                            }
+                            var lineY = 100;
+                            var startX = 50;
+                            var endX = viz.width - 30;
+                            var yearMin = 1780;
+                            var yearMax = 1970;
 
-                            var step5 = Math.max(1, Math.floor(xLim / 300));
-
-                            // x/ln x
-                            ctx.strokeStyle = viz.colors.orange; ctx.lineWidth = 1.5; ctx.setLineDash([6,4]);
-                            ctx.beginPath(); var s1 = false;
-                            for (var xi = 3; xi <= xLim; xi += step5) {
-                                var yv2 = xi / Math.log(xi);
-                                var sxi = sx(xi), syi2 = sy(yv2);
-                                if (!s1) { ctx.moveTo(sxi, syi2); s1 = true; } else ctx.lineTo(sxi, syi2);
-                            }
-                            ctx.stroke(); ctx.setLineDash([]);
-
-                            // Li(x)
-                            ctx.strokeStyle = viz.colors.yellow; ctx.lineWidth = 1.5;
-                            ctx.beginPath(); var s2 = false;
-                            var liStep = Math.max(5, Math.floor(xLim / 100));
-                            for (var xi2 = 5; xi2 <= xLim; xi2 += liStep) {
-                                var lyv = Li(xi2);
-                                var lsxi = sx(xi2), lsyi = sy(lyv);
-                                if (!s2) { ctx.moveTo(lsxi, lsyi); s2 = true; } else ctx.lineTo(lsxi, lsyi);
-                            }
-                            ctx.stroke();
-
-                            // pi(x)
-                            ctx.strokeStyle = viz.colors.blue; ctx.lineWidth = 2;
+                            // Timeline line
+                            ctx.strokeStyle = viz.colors.axis;
+                            ctx.lineWidth = 2;
                             ctx.beginPath();
-                            var prevSyi = sy(0);
-                            ctx.moveTo(sx(1), prevSyi);
-                            for (var xi3 = 2; xi3 <= xLim; xi3 += step5) {
-                                var nsxi = sx(xi3), nsyi = sy(piArr2[xi3]);
-                                ctx.lineTo(nsxi, prevSyi);
-                                ctx.lineTo(nsxi, nsyi);
-                                prevSyi = nsyi;
-                            }
+                            ctx.moveTo(startX, lineY);
+                            ctx.lineTo(endX, lineY);
                             ctx.stroke();
 
-                            // Axes
-                            ctx.strokeStyle = viz.colors.axis; ctx.lineWidth = 1.5;
-                            ctx.beginPath(); ctx.moveTo(x0, y0 + plotH); ctx.lineTo(x0 + plotW, y0 + plotH); ctx.stroke();
-                            ctx.beginPath(); ctx.moveTo(x0, y0); ctx.lineTo(x0, y0 + plotH); ctx.stroke();
-                            ctx.fillStyle = viz.colors.text; ctx.font = '10px sans-serif';
-                            ctx.textAlign = 'center'; ctx.textBaseline = 'top';
-                            for (var ti2 = 1; ti2 <= 8; ti2++) {
-                                var xvl = Math.round(xLim * ti2 / 8);
-                                ctx.fillText(xvl, sx(xvl), y0 + plotH + 4);
+                            // Decade marks
+                            ctx.fillStyle = viz.colors.text;
+                            ctx.font = '9px -apple-system,sans-serif';
+                            ctx.textAlign = 'center';
+                            ctx.textBaseline = 'top';
+                            for (var yr = 1800; yr <= 1960; yr += 20) {
+                                var sx = startX + (yr - yearMin) / (yearMax - yearMin) * (endX - startX);
+                                ctx.strokeStyle = viz.colors.grid;
+                                ctx.lineWidth = 0.5;
+                                ctx.beginPath();
+                                ctx.moveTo(sx, lineY - 4);
+                                ctx.lineTo(sx, lineY + 4);
+                                ctx.stroke();
+                                ctx.fillStyle = viz.colors.text;
+                                ctx.fillText(yr.toString(), sx, lineY + 8);
                             }
 
-                            // Legend
-                            var items = [
-                                [viz.colors.blue, '\u03c0(x) (exact)'],
-                                [viz.colors.yellow, 'Li(x)'],
-                                [viz.colors.orange, 'x/ln x'],
-                            ];
-                            items.forEach(function(it, i) {
-                                ctx.fillStyle = it[0];
-                                ctx.fillRect(x0 + 10 + i * 140, y0 + 10, 18, 10);
-                                ctx.fillStyle = viz.colors.text; ctx.font = '11px sans-serif'; ctx.textAlign = 'left';
-                                ctx.fillText(it[1], x0 + 32 + i * 140, y0 + 18);
-                            });
-                        }
+                            // Events
+                            for (var i = 0; i < events.length; i++) {
+                                var ev = events[i];
+                                var ex = startX + (ev.year - yearMin) / (yearMax - yearMin) * (endX - startX);
+                                var col = viz.colors[ev.color] || viz.colors.white;
+                                var above = (i % 2 === 0);
+                                var ey = above ? lineY - 30 - (i % 3) * 28 : lineY + 30 + (i % 3) * 28;
 
+                                // Connecting line
+                                ctx.strokeStyle = col + '88';
+                                ctx.lineWidth = 1;
+                                ctx.beginPath();
+                                ctx.moveTo(ex, lineY);
+                                ctx.lineTo(ex, ey);
+                                ctx.stroke();
+
+                                // Dot on timeline
+                                ctx.fillStyle = col;
+                                ctx.beginPath();
+                                ctx.arc(ex, lineY, 5, 0, Math.PI * 2);
+                                ctx.fill();
+
+                                // Label
+                                ctx.fillStyle = col;
+                                ctx.font = 'bold 10px -apple-system,sans-serif';
+                                ctx.textAlign = 'center';
+                                ctx.textBaseline = above ? 'bottom' : 'top';
+                                ctx.fillText(ev.year.toString(), ex, ey + (above ? -2 : 2));
+                                ctx.font = '9px -apple-system,sans-serif';
+                                ctx.fillStyle = viz.colors.white;
+                                ctx.fillText(ev.label, ex, ey + (above ? -14 : 14));
+                            }
+
+                            // Bottom summary cards
+                            var cardY = 260;
+                            var cards = [
+                                { title: 'Conjecture', desc: '~100 years', color: viz.colors.blue },
+                                { title: 'Framework', desc: 'Riemann 1859', color: viz.colors.purple },
+                                { title: 'Proof', desc: 'Hadamard/VP 1896', color: viz.colors.green },
+                                { title: 'Refinement', desc: 'Error terms', color: viz.colors.orange }
+                            ];
+                            var cardW = (viz.width - 80) / 4;
+                            for (var j = 0; j < cards.length; j++) {
+                                var cx = 40 + j * cardW + cardW / 2;
+                                ctx.fillStyle = cards[j].color + '22';
+                                ctx.fillRect(40 + j * cardW + 4, cardY, cardW - 8, 50);
+                                ctx.strokeStyle = cards[j].color + '66';
+                                ctx.lineWidth = 1;
+                                ctx.strokeRect(40 + j * cardW + 4, cardY, cardW - 8, 50);
+                                ctx.fillStyle = cards[j].color;
+                                ctx.font = 'bold 11px -apple-system,sans-serif';
+                                ctx.textAlign = 'center';
+                                ctx.textBaseline = 'top';
+                                ctx.fillText(cards[j].title, cx, cardY + 8);
+                                ctx.fillStyle = viz.colors.text;
+                                ctx.font = '10px -apple-system,sans-serif';
+                                ctx.fillText(cards[j].desc, cx, cardY + 26);
+                            }
+
+                            // Arrow between framework and proof
+                            viz.screenText('The zero-free region was the missing piece', viz.width / 2, cardY + 65, viz.colors.teal, 11);
+                        }
                         draw();
                         return viz;
                     }
@@ -1268,22 +1471,21 @@ This is an oscillatory term with frequency \\(\\gamma/(2\\pi)\\) in \\(\\ln x\\)
             ],
             exercises: [
                 {
-                    question: 'Show that \\(\\operatorname{Li}(x) - x/\\ln x \\sim x/\\ln^2 x\\) as \\(x \\to \\infty\\). This explains why \\(\\operatorname{Li}(x)\\) is a better approximation.',
-                    hint: 'Integrate \\(\\operatorname{Li}(x) = \\int_2^x \\frac{dt}{\\ln t}\\) by parts: let \\(u = 1/\\ln t\\), \\(dv = dt\\).',
-                    solution: 'By parts: \\(\\int_2^x \\frac{dt}{\\ln t} = \\frac{x}{\\ln x} - \\frac{2}{\\ln 2} + \\int_2^x \\frac{dt}{\\ln^2 t}\\). The main correction is \\(\\int_2^x dt/\\ln^2 t \\sim x/\\ln^2 x\\). So \\(\\operatorname{Li}(x) = x/\\ln x + x/\\ln^2 x + O(x/\\ln^3 x)\\), confirming \\(\\operatorname{Li}(x) - x/\\ln x \\sim x/\\ln^2 x\\). Integrating by parts \\(k\\) times gives \\(\\operatorname{Li}(x) \\sim \\sum_{j=1}^k (j-1)! x/\\ln^j x\\) (asymptotic series).'
+                    question: 'The PNT says \\(\\pi(x) \\sim x/\\ln x\\). Show that this implies the \\(n\\)-th prime \\(p_n\\) satisfies \\(p_n \\sim n \\ln n\\).',
+                    hint: 'If \\(\\pi(x) \\sim x/\\ln x\\), set \\(x = p_n\\) so \\(\\pi(p_n) = n\\). Then \\(n \\sim p_n/\\ln p_n\\), i.e., \\(p_n \\sim n \\ln p_n\\). Now argue that \\(\\ln p_n \\sim \\ln n\\).',
+                    solution: 'From \\(\\pi(p_n) = n\\) and \\(\\pi(x) \\sim x/\\ln x\\), we get \\(n \\sim p_n / \\ln p_n\\), so \\(p_n \\sim n \\ln p_n\\). Taking logs: \\(\\ln p_n \\sim \\ln n + \\ln\\ln p_n \\sim \\ln n\\) (since \\(\\ln\\ln p_n = o(\\ln n)\\)). Substituting back: \\(p_n \\sim n \\ln n\\).'
                 },
                 {
-                    question: "Each nontrivial zero \\(\\rho = 1/2 + i\\gamma\\) (assuming RH) contributes \\(-x^\\rho/\\rho\\) to \\(\\psi(x)\\). Show this term oscillates with frequency \\(\\gamma/(2\\pi)\\) in \\(\\ln x\\).",
-                    hint: 'Write \\(x^\\rho = x^{1/2} e^{i\\gamma \\ln x}\\) and take the real part.',
-                    solution: '\\(x^\\rho = e^{\\rho \\ln x} = e^{(1/2 + i\\gamma)\\ln x} = \\sqrt{x} e^{i\\gamma \\ln x}\\). The real contribution is \\(\\text{Re}(-x^\\rho/\\rho) = -\\sqrt{x} \\text{Re}(e^{i\\gamma \\ln x}/\\rho)\\). Since \\(e^{i\\gamma \\ln x} = \\cos(\\gamma \\ln x) + i\\sin(\\gamma \\ln x)\\), this oscillates with angular frequency \\(\\gamma\\) in \\(\\ln x\\), or ordinary frequency \\(\\gamma/(2\\pi)\\). The amplitude is \\(\\sqrt{x}/|\\rho|\\), growing with \\(x\\) but much slower than \\(x\\).'
+                    question: 'Show that \\(\\sum_{p \\leq x} 1/p = \\ln \\ln x + M + o(1)\\) for a constant \\(M\\) (Mertens\' theorem), assuming PNT.',
+                    hint: 'Use Abel summation with \\(a_n = 1/n\\) if \\(n\\) is prime and the PNT estimate \\(\\pi(x) = \\operatorname{Li}(x) + o(x/\\ln x)\\).',
+                    solution: 'By Abel summation, \\(\\sum_{p \\leq x} 1/p = \\pi(x)/x + \\int_2^x \\pi(t)/t^2\\, dt\\). The first term is \\(\\sim 1/\\ln x = o(1)\\). For the integral, \\(\\pi(t)/t^2 \\sim 1/(t \\ln t)\\), so \\(\\int_2^x dt/(t \\ln t) = \\ln \\ln x - \\ln \\ln 2\\). A careful treatment of the error gives \\(\\sum_{p \\leq x} 1/p = \\ln \\ln x + M + O(1/\\ln x)\\) where \\(M = \\gamma + \\sum_p (\\ln(1-1/p) + 1/p) \\approx 0.2615\\) is the Meissel-Mertens constant.'
                 },
                 {
-                    question: "Littlewood's theorem states \\(\\pi(x) - \\operatorname{Li}(x)\\) changes sign infinitely often. Why is this surprising given that \\(\\operatorname{Li}(x) > \\pi(x)\\) for all computed \\(x \\le 10^{23}\\)?",
-                    hint: 'Think about what the explicit formula implies: the error is a sum of oscillatory terms. As more zeros contribute, can the sum change sign?',
-                    solution: 'The explicit formula shows \\(\\pi(x) - \\operatorname{Li}(x) = -\\sum_\\rho \\operatorname{Li}(x^\\rho) + \\cdots\\). The leading oscillatory term from the first zero \\(\\gamma_1 \\approx 14.1\\) has \\(\\operatorname{Li}(x)\\) consistently larger at small \\(x\\), but the sum of infinitely many oscillatory terms eventually constructively interferes to push \\(\\pi(x) - \\operatorname{Li}(x)\\) positive. This happens around \\(x \\approx e^{727.95\\ldots}\\) (Skewes 1955, improved to \\(e^{727.9513}\\) by later work). The moral: asymptotic statements say nothing about any fixed range of \\(x\\), no matter how large.'
+                    question: 'Why was the "elementary" proof of Selberg and Erd\\H{o}s (1949) considered remarkable, and why is the analytic proof still preferred?',
+                    hint: 'Think about what tools each proof uses and what generalizations each approach enables.',
+                    solution: 'The elementary proof avoids complex analysis entirely, using only real-variable methods and clever combinatorial identities (Selberg\'s symmetry formula). This was remarkable because many believed complex analysis was essential. However, the analytic proof is preferred because: (1) it gives a quantitative error term \\(O(x e^{-c\\sqrt{\\ln x}})\\) naturally, while the elementary proof requires substantial additional work for any error term; (2) the analytic method generalizes directly to PNT in arithmetic progressions, number fields, and other settings via \\(L\\)-functions; (3) the key ideas (Perron + zero-free region) are clean and conceptually transparent.'
                 }
             ]
         }
-
     ]
 });
