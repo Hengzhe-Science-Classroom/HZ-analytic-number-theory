@@ -11,8 +11,25 @@ Follows existing 科学教室 pattern:
 - `index.html` -- shell with KaTeX, sidebar, welcome screen, chapter manifest
 - `styles.css` -- dark theme, math environments, viz containers, responsive layout
 - `app.js` -- lazy-loading chapters, localStorage progress (`analytic-number-theory-progress`), section tabs, exercises, navigation
-- `viz-engine.js` -- Canvas-based VizEngine class with grid/axes/vectors/points/draggables/sliders/animation
-- `chapters/ch00-*.js` through `chapters/ch21-*.js` -- chapter content modules
+- `viz-engine.js` -- Canvas-based VizEngine class with grid/axes/vectors/points/draggables/sliders/animation. **Extensions needed for this course:** `drawDomainColoring(f, xRange, yRange)` for per-pixel complex function visualization, `drawHeatmap(data, colorMap)` for density plots. Both use `ctx.createImageData`/`putImageData`.
+- `chapters/chNN-<slug>.js` -- chapter content modules (22 files)
+- `chapters/chNN-<slug>-viz.js` -- optional companion files for heavy visualizations (domain coloring, pixel-level rendering). Loaded automatically by app.js if present.
+
+### Chapter File Names
+
+```
+ch00-drama-of-primes.js          ch11-combinatorial-sieves.js
+ch01-arithmetic-functions.js     ch12-selberg-sieve.js
+ch02-averages.js                 ch13-large-sieve-bv.js
+ch03-dirichlet-series.js         ch14-exponential-sums.js
+ch04-riemann-zeta.js             ch15-circle-method.js
+ch05-analytic-continuation.js    ch16-zeros-of-l-functions.js
+ch06-zero-free-regions.js        ch17-automorphic-forms.js
+ch07-prime-number-theorem.js     ch18-short-intervals.js
+ch08-explicit-formula.js         ch19-bounded-gaps.js
+ch09-dirichlet-characters.js     ch20-computational-ant.js
+ch10-dirichlet-theorem.js        ch21-open-problems.js
+```
 
 ## Chapter Outline (22 chapters)
 
@@ -24,7 +41,7 @@ Follows existing 科学教室 pattern:
 - Visualizations:
   - Animated pi(x) staircase vs x/ln(x) and Li(x)
   - Prime gap oscillations (gap_n vs n, animated)
-  - Ulam spiral (interactive zoom)
+  - Ulam spiral (interactive zoom, capped at 10000 to avoid performance issues)
   - Euler product animated: removing composite contributions one prime at a time
   - Prime race: pi(x;4,1) vs pi(x;4,3)
 - Bridge: To count primes, we need to understand arithmetic functions and their averages.
@@ -77,7 +94,7 @@ Follows existing 科学教室 pattern:
 
 **Ch 5: Analytic Continuation & Functional Equation**
 - Motivation: Extending zeta to the whole complex plane reveals the hidden symmetry s <-> 1-s.
-- Content: Riemann's original proof via theta function, Poisson summation, Mellin transform, Jacobi theta function and modular relation, three proofs of the functional equation (theta, contour integral, Hurwitz zeta)
+- Content: Riemann's original proof via theta function, Poisson summation, Mellin transform, Jacobi theta function and modular relation, three proofs of the functional equation (theta, contour integral, Hurwitz zeta). Hurwitz zeta zeta(s,a) developed as a standalone object here (not just a proof device), as it is the bridge to L-functions in Ch 9 via L(s,chi) = q^{-s} sum chi(a) zeta(s, a/q). Also introduces Perron's formula as the key tool connecting Dirichlet series to summatory functions (used in Ch 7).
 - Visualizations:
   - Theta function: modular transformation theta(1/t) = sqrt(t) theta(t) animated
   - Poisson summation: time domain vs frequency domain, animated duality
@@ -119,7 +136,7 @@ Follows existing 科学教室 pattern:
   - Individual zero's wave: x^rho / rho as an oscillating correction
   - Cumulative: first 10, 50, 200 zeros -- convergence to psi(x)
   - RH error vs classical error: side-by-side comparison
-  - Sound analogy: zeros as "frequencies," primes as the "signal" (with actual audio if possible)
+  - Sound analogy: zeros as "frequencies," primes as the "signal" (optional Web Audio API extension; degrade gracefully to visual-only oscillation plot if audio unavailable)
 - Bridge: The same machinery works for primes in arithmetic progressions, using L-functions.
 
 ### Part D: L-Functions & Primes in Progressions (Ch 9-10)
@@ -185,7 +202,7 @@ Follows existing 科学教室 pattern:
 
 **Ch 14: Exponential Sums**
 - Motivation: Exponential sums measure the "randomness" of sequences -- cancellation means pseudorandomness.
-- Content: Weyl sums, van der Corput method (A/B processes), Vinogradov's method, Gauss sums revisited, Kloosterman sums, Weil bound
+- Content: Weyl sums, van der Corput method (A/B processes), Vinogradov's method, Gauss sums revisited, Kloosterman sums, Weil bound (stated without proof; the proof requires algebraic geometry over finite fields, beyond our prerequisites)
 - Visualizations:
   - Weyl sum trajectory: e(alpha * n^k) plotted as cumulative sum in C, showing spiral/random walk
   - Cancellation vs coherence: slider for alpha (rational vs irrational), dramatic behavior change
@@ -218,13 +235,14 @@ Follows existing 科学教室 pattern:
 
 **Ch 17: Automorphic Forms: A First Look**
 - Motivation: Modular forms are the "right" framework -- every classical L-function arises from one.
-- Content: Modular forms, fundamental domain, Hecke operators, Hecke eigenforms, L-functions attached to modular forms, Ramanujan conjecture, Langlands program overview
+- Note: This is a roadmap chapter. Results are stated with motivation and examples, not proved in full. The goal is to show how the classical theory of Parts A-F fits into the modern framework.
+- Content: Modular forms definition and examples, fundamental domain of SL(2,Z), Hecke operators and eigenforms, L-functions attached to modular forms, Ramanujan conjecture (stated), Langlands program overview (stated, with examples of known cases)
 - Visualizations:
   - Upper half-plane: fundamental domain tiled by SL(2,Z) action (animated)
-  - Modular form |f(z)| as a landscape on H (3D surface or contour plot)
+  - Modular form |f(z)| as contour heatmap on H (using drawHeatmap, not 3D)
   - Hecke operator T_p: geometric action on lattices
   - L-function gallery: Ramanujan tau, elliptic curve L-functions, symmetric power L-functions
-  - Langlands diagram: the web of functoriality (interactive map)
+  - Langlands diagram: nodes = types of automorphic objects (Dirichlet characters, modular forms, Maass forms, GL(n) automorphic representations), edges = known functorial lifts; click node to see examples and associated L-functions
 - Bridge: We now survey the frontiers where all these tools converge.
 
 ### Part G: Frontiers (Ch 18-21)
@@ -260,6 +278,7 @@ Follows existing 科学教室 pattern:
   - Pi(x) computation: Meissel-Lehmer formula tree of contributions
   - Record computations timeline: billions of zeros verified
   - Interactive: compute Z(t) for user-chosen t values
+- Bridge: Computation reveals patterns and suggests conjectures. The final chapter surveys what remains open.
 
 **Ch 21: Open Problems & the Road Ahead**
 - Motivation: Synthesis -- where does the subject stand, and where is it going?
@@ -304,3 +323,20 @@ Follows existing 科学教室 pattern:
 - Copyright: 2026 Hengzhe Zhao, AGPL-3.0 & Commercial
 - No external dependencies beyond KaTeX CDN
 - Responsive design (mobile sidebar toggle)
+
+## Topics Not Covered
+
+The following topics from Iwaniec & Kowalski are deliberately omitted to keep scope manageable:
+- Halasz's theorem and mean value estimates for Dirichlet polynomials
+- Large values of Dirichlet polynomials
+- Subconvexity bounds for L-functions
+- Spectral theory of automorphic forms (beyond the roadmap in Ch 17)
+- Kloosterman sum applications to the Linnik problem
+
+These are natural candidates for a future "Analytic Number Theory II" course.
+
+## Cross-References
+
+- Abel summation (Ch 2) is reused in Ch 3 (Dirichlet series convergence) and Ch 7 (Perron's formula). Chapters reference back rather than re-derive.
+- Hurwitz zeta (Ch 5) is the bridge to L-functions (Ch 9) via L(s,chi) = q^{-s} sum chi(a) zeta(s, a/q).
+- Perron's formula (Ch 5) is the key tool for the PNT proof (Ch 7).
