@@ -1,290 +1,360 @@
-// Extra visualizations for Ch 9: Dirichlet Characters & L-Functions
-// Registered under window.EXTRA_VIZ['ch09']
-
+// === Ch09 Dirichlet Characters — Extra Visualizations ===
+// Loaded automatically by app.js as companion to ch09-dirichlet-characters.js
 window.EXTRA_VIZ = window.EXTRA_VIZ || {};
-window.EXTRA_VIZ['ch09'] = window.EXTRA_VIZ['ch09'] || {};
-
-// -----------------------------------------------------------------------
-// viz-l-function-gallery: Domain coloring of L(s, chi) for chi mod 5
-// Attached to sec-l-functions
-// -----------------------------------------------------------------------
-window.EXTRA_VIZ['ch09']['sec-l-functions'] = [
-    {
-        id: 'viz-l-function-gallery',
-        title: 'Domain Coloring of \\(L(s, \\chi)\\) for \\(\\chi\\) mod 5',
-        description: 'Each pixel is colored by the argument (hue) and modulus (brightness) of \\(L(s,\\chi)\\). Zeros appear as black points where all hues meet. The pole of the principal character \\(L(s,\\chi_0)\\) at \\(s=1\\) shows as a bright multi-hued singularity. Toggle between the four characters mod 5.',
-        setup: function(body, controls) {
-            var viz = new VizEngine(body, { width: 620, height: 380 });
-            var chiIdx = 0;
-            var xRange = [-1, 3];
-            var yRange = [-4, 4];
-
-            // Build character mod 5 value table
-            // (Z/5Z)* = {1,2,3,4}, cyclic of order 4, generator g=2
-            // dlog: 2^0=1, 2^1=2, 2^2=4, 2^3=3
-            var phi5 = 4;
-            var dlog5 = { 1: 0, 2: 1, 4: 2, 3: 3 };
-            function chi5(n, j) {
-                var r = ((n % 5) + 5) % 5;
-                if (r === 0) return [0, 0];
-                var k = dlog5[r];
-                var angle = 2 * Math.PI * j * k / phi5;
-                return [Math.cos(angle), Math.sin(angle)];
-            }
-
-            // L(s, chi) partial sum: sum_{n=1}^{N} chi(n) n^{-s}
-            // Uses Euler-Maclaurin-style acceleration: for non-principal chi,
-            // partial sums of chi are bounded, so we use direct sum with tail estimate.
-            function computeL(re, im, j) {
-                // For |im| large, series converges but slowly; cap at reasonable N
-                var N = 800;
-                var sumRe = 0, sumIm = 0;
-                for (var n = 1; n <= N; n++) {
-                    var cv = chi5(n, j);
-                    if (cv[0] === 0 && cv[1] === 0) continue;
-                    // n^{-s} = n^{-re} * exp(-i*im*ln(n))
-                    var logN = Math.log(n);
-                    var mag = Math.exp(-re * logN);
-                    var phase = -im * logN;
-                    var cosP = Math.cos(phase), sinP = Math.sin(phase);
-                    // (cv[0] + i cv[1]) * mag * (cosP + i sinP)
-                    sumRe += mag * (cv[0] * cosP - cv[1] * sinP);
-                    sumIm += mag * (cv[0] * sinP + cv[1] * cosP);
-                }
-                return [sumRe, sumIm];
-            }
-
-            var chiLabels = ['\u03C7\u2080 (principal)', '\u03C7\u2081', '\u03C7\u2082', '\u03C7\u2083'];
-            var chiColors = ['#58a6ff', '#3fb9a0', '#f0883e', '#bc8cff'];
-
-            // Create character selector buttons
-            var btnRow = document.createElement('div');
-            btnRow.style.cssText = 'display:flex;gap:6px;flex-wrap:wrap;';
-            chiLabels.forEach(function(label, j) {
-                var btn = document.createElement('button');
-                btn.style.cssText = 'padding:3px 10px;border:1px solid ' + chiColors[j] + ';border-radius:4px;background:' + (j === chiIdx ? chiColors[j] + '44' : '#1a1a40') + ';color:' + chiColors[j] + ';font-size:0.78rem;cursor:pointer;';
-                btn.textContent = label;
-                btn.addEventListener('click', function() {
-                    chiIdx = j;
-                    btnRow.querySelectorAll('button').forEach(function(b, k) {
-                        b.style.background = k === j ? chiColors[k] + '44' : '#1a1a40';
-                    });
-                    render();
+window.EXTRA_VIZ['ch09'] = {
+    // ================================================================
+    // Section: sec-l-functions — Domain coloring gallery of L(s, chi)
+    // ================================================================
+    'sec-l-functions': [
+        {
+            id: 'viz-l-function-gallery',
+            title: 'L-Function Gallery: Domain Coloring',
+            description: 'Domain coloring of L(s, chi) for the four characters mod 5. Color encodes the argument of L(s, chi); brightness encodes the modulus. Zeros appear as points where all colors meet. The pole of L(s, chi_0) at s=1 appears as a bright singularity.',
+            setup: function(body, controls) {
+                var viz = new VizEngine(body, {
+                    width: 560, height: 400,
+                    originX: 280, originY: 200, scale: 80
                 });
-                btnRow.appendChild(btn);
-            });
-            controls.appendChild(btnRow);
 
-            var statusEl = document.createElement('span');
-            statusEl.style.cssText = 'font-size:0.76rem;color:#8b949e;margin-left:8px;';
-            statusEl.textContent = 'Computing...';
-            controls.appendChild(statusEl);
+                var chiIdx = 0;
+                var qVal = 5;
+                var xRange = [-2, 4];
+                var yRange = [-3, 3];
+                var resolution = 2; // pixel step for speed
 
-            function render() {
-                statusEl.textContent = 'Computing...';
-                var j = chiIdx;
-                // Render asynchronously in tiles to avoid blocking UI
-                var pw = viz.canvas.width, ph = viz.canvas.height;
-                var ctx = viz.ctx;
-                var dpr = window.devicePixelRatio || 1;
-                var logicalW = viz.width, logicalH = viz.height;
+                function gcd(a, b) { while (b) { var t = b; b = a % b; a = t; } return a; }
 
-                ctx.save(); ctx.setTransform(1, 0, 0, 1, 0, 0);
-                var imgData = ctx.createImageData(pw, ph);
-                var data = imgData.data;
+                function getChiTable(q) {
+                    var coprime = [];
+                    for (var i = 1; i < q; i++) if (gcd(i, q) === 1) coprime.push(i);
+                    var phi = coprime.length;
+                    var order = {};
+                    for (var j = 0; j < phi; j++) {
+                        var g = coprime[j], o = 1, v = g % q;
+                        while (v !== 1) { v = (v * g) % q; o++; }
+                        order[g] = o;
+                    }
+                    var gen = null;
+                    for (var k = 0; k < phi; k++) {
+                        if (order[coprime[k]] === phi) { gen = coprime[k]; break; }
+                    }
+                    var chars = [];
+                    if (gen) {
+                        var dlogs = {};
+                        var pw = 1;
+                        for (var m = 0; m < phi; m++) { dlogs[pw] = m; pw = (pw * gen) % q; }
+                        for (var c = 0; c < phi; c++) {
+                            var chiVals = new Array(q);
+                            for (var n = 0; n < q; n++) {
+                                if (gcd(n, q) === 1) {
+                                    var angle = 2 * Math.PI * c * dlogs[n % q] / phi;
+                                    chiVals[n] = [Math.cos(angle), Math.sin(angle)];
+                                } else {
+                                    chiVals[n] = [0, 0];
+                                }
+                            }
+                            chars.push(chiVals);
+                        }
+                    } else {
+                        var cv0 = new Array(q);
+                        for (var n2 = 0; n2 < q; n2++) cv0[n2] = gcd(n2, q) === 1 ? [1, 0] : [0, 0];
+                        chars.push(cv0);
+                    }
+                    return chars;
+                }
 
-                // For principal character, re > 1 required for convergence; we still plot
-                // with truncated series (shows pole structure approximately)
-                var tileH = 20;
-                var curY = 0;
+                var charTable = getChiTable(qVal);
 
-                function renderTile() {
-                    var endY = Math.min(curY + tileH, ph);
-                    for (var py = curY; py < endY; py++) {
-                        for (var px = 0; px < pw; px++) {
+                VizEngine.createSlider(controls, 'Character \u03C7', 0, 3, chiIdx, 1, function(v) {
+                    chiIdx = Math.round(v);
+                    if (chiIdx >= charTable.length) chiIdx = charTable.length - 1;
+                    draw();
+                });
+
+                // Compute L(s, chi) via partial sums
+                function computeL(sRe, sIm, chi, N) {
+                    var sumRe = 0, sumIm = 0;
+                    for (var n = 1; n <= N; n++) {
+                        var cv = chi[n % qVal];
+                        if (cv[0] === 0 && cv[1] === 0) continue;
+                        // n^(-s) = exp(-s * log n)
+                        var logn = Math.log(n);
+                        var mag = Math.exp(-sRe * logn);
+                        var phase = -sIm * logn;
+                        var nRe = mag * Math.cos(phase);
+                        var nIm = mag * Math.sin(phase);
+                        // chi(n) * n^(-s)
+                        sumRe += cv[0] * nRe - cv[1] * nIm;
+                        sumIm += cv[0] * nIm + cv[1] * nRe;
+                    }
+                    return [sumRe, sumIm];
+                }
+
+                function draw() {
+                    var ctx = viz.ctx;
+                    var pw = viz.canvas.width;
+                    var ph = viz.canvas.height;
+                    var dpr = window.devicePixelRatio || 1;
+                    var chi = charTable[chiIdx];
+
+                    // Use domain coloring
+                    ctx.save();
+                    ctx.setTransform(1, 0, 0, 1, 0, 0);
+                    var imgData = ctx.createImageData(pw, ph);
+                    var data = imgData.data;
+
+                    var N = 60; // partial sum terms (balance speed vs accuracy)
+
+                    for (var py = 0; py < ph; py += resolution) {
+                        for (var px = 0; px < pw; px += resolution) {
                             var re = xRange[0] + (xRange[1] - xRange[0]) * px / pw;
                             var im = yRange[1] - (yRange[1] - yRange[0]) * py / ph;
-                            var val;
-                            // For principal character mod 5: L(s,chi0) ~ zeta(s) * product
-                            // We use chi5(n,0) which is 1 for gcd(n,5)=1, 0 otherwise
-                            // This is the standard computation
-                            val = computeL(re, im, j);
-                            var u = val[0], v = val[1];
-                            var arg = Math.atan2(v, u);
-                            var mag = Math.sqrt(u * u + v * v);
+
+                            var val = computeL(re, im, chi, N);
+                            var arg = Math.atan2(val[1], val[0]);
+                            var mag2 = Math.sqrt(val[0] * val[0] + val[1] * val[1]);
                             var hue = (arg / Math.PI + 1) / 2;
                             var sat = 0.85;
-                            // Enhanced brightness: dark at zeros, bright at poles
-                            var light = 1 - 1 / (1 + mag * 0.4);
+                            var light = 1 - 1 / (1 + mag2 * 0.3);
                             var rgb = VizEngine.hslToRgb(hue, sat, light);
-                            var idx = (py * pw + px) * 4;
-                            data[idx] = rgb[0]; data[idx + 1] = rgb[1]; data[idx + 2] = rgb[2]; data[idx + 3] = 255;
+
+                            for (var dy = 0; dy < resolution && py + dy < ph; dy++) {
+                                for (var dx = 0; dx < resolution && px + dx < pw; dx++) {
+                                    var idx = ((py + dy) * pw + (px + dx)) * 4;
+                                    data[idx] = rgb[0];
+                                    data[idx + 1] = rgb[1];
+                                    data[idx + 2] = rgb[2];
+                                    data[idx + 3] = 255;
+                                }
+                            }
                         }
                     }
-                    curY = endY;
-                    if (curY < ph) {
-                        ctx.putImageData(imgData, 0, 0);
-                        requestAnimationFrame(renderTile);
-                    } else {
-                        ctx.putImageData(imgData, 0, 0);
-                        ctx.restore();
-                        // Draw axis overlays
-                        drawOverlay(j);
-                        statusEl.textContent = chiLabels[j] + ' mod 5';
+                    ctx.putImageData(imgData, 0, 0);
+                    ctx.restore();
+
+                    // Draw axes overlay
+                    var ctx2 = viz.ctx;
+
+                    // Re(s)=1 line (critical for pole/non-vanishing)
+                    var sx1 = (1 - xRange[0]) / (xRange[1] - xRange[0]) * viz.width;
+                    ctx2.strokeStyle = 'rgba(255,255,255,0.3)';
+                    ctx2.lineWidth = 1;
+                    ctx2.setLineDash([4, 4]);
+                    ctx2.beginPath();
+                    ctx2.moveTo(sx1, 0);
+                    ctx2.lineTo(sx1, viz.height);
+                    ctx2.stroke();
+                    ctx2.setLineDash([]);
+
+                    // Re(s)=1/2 line (critical line)
+                    var sxHalf = (0.5 - xRange[0]) / (xRange[1] - xRange[0]) * viz.width;
+                    ctx2.strokeStyle = 'rgba(255,200,100,0.3)';
+                    ctx2.setLineDash([4, 4]);
+                    ctx2.beginPath();
+                    ctx2.moveTo(sxHalf, 0);
+                    ctx2.lineTo(sxHalf, viz.height);
+                    ctx2.stroke();
+                    ctx2.setLineDash([]);
+
+                    // Real axis
+                    var syAxis = (yRange[1]) / (yRange[1] - yRange[0]) * viz.height;
+                    ctx2.strokeStyle = 'rgba(255,255,255,0.2)';
+                    ctx2.lineWidth = 1;
+                    ctx2.beginPath();
+                    ctx2.moveTo(0, syAxis);
+                    ctx2.lineTo(viz.width, syAxis);
+                    ctx2.stroke();
+
+                    // Labels
+                    var labelColor = 'rgba(255,255,255,0.7)';
+                    viz.screenText('L(s, \u03C7_' + chiIdx + ') mod ' + qVal, viz.width / 2, 16, labelColor, 14);
+                    viz.screenText('Re(s)=1', sx1 + 4, 32, 'rgba(255,255,255,0.5)', 10, 'left');
+                    viz.screenText('Re(s)=\u00BD', sxHalf + 4, 32, 'rgba(255,200,100,0.5)', 10, 'left');
+
+                    if (chiIdx === 0) {
+                        viz.screenText('Pole at s=1', sx1 + 4, syAxis - 10, 'rgba(255,100,100,0.8)', 10, 'left');
+                    }
+
+                    // Axis ticks
+                    ctx2.fillStyle = labelColor;
+                    ctx2.font = '9px -apple-system,sans-serif';
+                    ctx2.textAlign = 'center';
+                    ctx2.textBaseline = 'top';
+                    for (var x = Math.ceil(xRange[0]); x <= Math.floor(xRange[1]); x++) {
+                        var tx = (x - xRange[0]) / (xRange[1] - xRange[0]) * viz.width;
+                        ctx2.fillText(x, tx, syAxis + 2);
                     }
                 }
-                renderTile();
+                draw();
+                return viz;
             }
-
-            function drawOverlay(j) {
-                var ctx = viz.ctx;
-                var dpr = window.devicePixelRatio || 1;
-
-                function toScreen(re, im) {
-                    var px = (re - xRange[0]) / (xRange[1] - xRange[0]) * viz.width;
-                    var py = (yRange[1] - im) / (yRange[1] - yRange[0]) * viz.height;
-                    return [px, py];
-                }
-
-                // Re(s) = 1 line
-                ctx.strokeStyle = '#ffffff44'; ctx.lineWidth = 1; ctx.setLineDash([4, 4]);
-                var [x1px] = toScreen(1, 0);
-                ctx.beginPath(); ctx.moveTo(x1px, 0); ctx.lineTo(x1px, viz.height); ctx.stroke();
-
-                // Re(s) = 1/2 line (GRH)
-                ctx.strokeStyle = '#bc8cff55';
-                var [x05px] = toScreen(0.5, 0);
-                ctx.beginPath(); ctx.moveTo(x05px, 0); ctx.lineTo(x05px, viz.height); ctx.stroke();
-                ctx.setLineDash([]);
-
-                // Im(s) = 0
-                ctx.strokeStyle = '#ffffff33'; ctx.lineWidth = 1;
-                var [, y0px] = toScreen(0, 0);
-                ctx.beginPath(); ctx.moveTo(0, y0px); ctx.lineTo(viz.width, y0px); ctx.stroke();
-
-                // Labels
-                ctx.fillStyle = '#ffffffaa'; ctx.font = '11px -apple-system,sans-serif';
-                ctx.textAlign = 'center'; ctx.textBaseline = 'top';
-                ctx.fillText('Re(s)=1', x1px, 4);
-                ctx.fillStyle = '#bc8cff99';
-                ctx.fillText('Re(s)=\u00BD', x05px, 4);
-
-                // Title
-                ctx.fillStyle = '#f0f6fc'; ctx.font = 'bold 13px -apple-system,sans-serif';
-                ctx.textAlign = 'left'; ctx.textBaseline = 'top';
-                ctx.fillText('L(s, ' + ['\\u03C7\\u2080', '\\u03C7\\u2081', '\\u03C7\\u2082', '\\u03C7\\u2083'][j] + ') mod 5', 8, 8);
-            }
-
-            render();
-            return viz;
         }
-    }
-];
+    ],
 
-// -----------------------------------------------------------------------
-// viz-orthogonality-demo: Vector addition showing character cancellation
-// Attached to sec-orthogonality
-// -----------------------------------------------------------------------
-window.EXTRA_VIZ['ch09']['sec-orthogonality'] = [
-    {
-        id: 'viz-orthogonality-demo',
-        title: 'Orthogonality: Vector Cancellation',
-        description: 'For a fixed \\(n\\), each character \\(\\chi\\) contributes a vector \\(\\chi(n)\\) in the complex plane. When \\(n \\equiv 1 \\pmod q\\) all vectors point right and reinforce. For any other \\(n \\not\\equiv 1\\), they cancel perfectly to zero. Select \\(n\\) and \\(q\\) to see the cancellation.',
-        setup: function(body, controls) {
-            var viz = new VizEngine(body, { width: 620, height: 340, originX: 310, originY: 170, scale: 55 });
-            var q = 5, n = 2;
-            var animating = false;
-            var animT = 0;
-            var animId = null;
+    // ================================================================
+    // Section: sec-orthogonality — Orthogonality demo
+    // ================================================================
+    'sec-orthogonality': [
+        {
+            id: 'viz-orthogonality-demo',
+            title: 'Orthogonality in Action',
+            description: 'Visualize the first orthogonality relation. For each character chi mod q, the sum of chi(n) over a complete period is displayed as a vector sum on the complex plane. Non-trivial characters produce perfect cancellation; the principal character sums to phi(q).',
+            setup: function(body, controls) {
+                var viz = new VizEngine(body, {
+                    width: 560, height: 400,
+                    originX: 200, originY: 200, scale: 40
+                });
 
-            VizEngine.createSlider(controls, 'mod q', 3, 8, q, 1, function(v) { q = Math.round(v); if (n >= q) n = 1; draw(1); });
-            VizEngine.createSlider(controls, 'n', 0, 11, n, 1, function(v) { n = Math.round(v); draw(1); });
+                var qVal = 7;
+                var chiIdx = 0;
 
-            var animBtn = VizEngine.createButton(controls, 'Animate', function() {
-                if (animId) { cancelAnimationFrame(animId); animId = null; animBtn.textContent = 'Animate'; return; }
-                animBtn.textContent = 'Stop';
-                animT = 0;
-                function step() {
-                    animT += 0.015;
-                    draw(Math.min(1, animT));
-                    if (animT < 1) animId = requestAnimationFrame(step);
-                    else { animId = null; animBtn.textContent = 'Animate'; }
+                function gcd(a, b) { while (b) { var t = b; b = a % b; a = t; } return a; }
+
+                function getCharsModQ(q) {
+                    var coprime = [];
+                    for (var i = 1; i < q; i++) if (gcd(i, q) === 1) coprime.push(i);
+                    var phi = coprime.length;
+                    var order = {};
+                    for (var j = 0; j < phi; j++) {
+                        var g = coprime[j], o = 1, v = g % q;
+                        while (v !== 1) { v = (v * g) % q; o++; }
+                        order[g] = o;
+                    }
+                    var gen = null;
+                    for (var k = 0; k < phi; k++) {
+                        if (order[coprime[k]] === phi) { gen = coprime[k]; break; }
+                    }
+                    var chars = [];
+                    if (gen) {
+                        var dlogs = {};
+                        var pw = 1;
+                        for (var m = 0; m < phi; m++) { dlogs[pw] = m; pw = (pw * gen) % q; }
+                        for (var c = 0; c < phi; c++) {
+                            var chi = {};
+                            for (var n = 0; n < q; n++) {
+                                if (gcd(n, q) === 1) {
+                                    var angle = 2 * Math.PI * c * dlogs[n % q] / phi;
+                                    chi[n] = [Math.cos(angle), Math.sin(angle)];
+                                } else {
+                                    chi[n] = [0, 0];
+                                }
+                            }
+                            chars.push(chi);
+                        }
+                    } else {
+                        var chi0 = {};
+                        for (var n2 = 0; n2 < q; n2++) chi0[n2] = gcd(n2, q) === 1 ? [1, 0] : [0, 0];
+                        chars.push(chi0);
+                    }
+                    return chars;
                 }
-                animId = requestAnimationFrame(step);
-            });
 
-            function gcd(a, b) { while (b) { var t = b; b = a % b; a = t; } return a; }
-            function modpow(base, exp, mod) { var r = 1; base %= mod; while (exp > 0) { if (exp & 1) r = r * base % mod; exp >>= 1; base = base * base % mod; } return r; }
-            function findPhi(q) { var c = 0; for (var i = 1; i < q; i++) if (gcd(i, q) === 1) c++; return c; }
-            function findGen(q) {
-                var phi = findPhi(q);
-                for (var g = 2; g < q; g++) {
-                    if (gcd(g, q) !== 1) continue;
-                    var ok = true;
-                    for (var d = 1; d < phi; d++) { if (phi % d === 0 && modpow(g, d, q) === 1) { ok = false; break; } }
-                    if (ok) return { g: g, phi: phi };
+                var allChars = getCharsModQ(qVal);
+
+                VizEngine.createSlider(controls, 'q', 3, 11, qVal, 1, function(v) {
+                    qVal = Math.round(v);
+                    allChars = getCharsModQ(qVal);
+                    chiIdx = Math.min(chiIdx, allChars.length - 1);
+                    draw();
+                });
+                VizEngine.createSlider(controls, 'Character \u03C7', 0, 10, chiIdx, 1, function(v) {
+                    chiIdx = Math.min(Math.round(v), allChars.length - 1);
+                    draw();
+                });
+
+                function draw() {
+                    viz.clear();
+                    var ctx = viz.ctx;
+                    var chi = allChars[chiIdx];
+
+                    viz.drawSegment(-6, 0, 6, 0, viz.colors.grid, 0.5);
+                    viz.drawSegment(0, -6, 0, 6, viz.colors.grid, 0.5);
+
+                    viz.screenText('Sum of \u03C7_' + chiIdx + '(n) for n = 1 to ' + qVal, viz.width / 2, 18, viz.colors.white, 14);
+
+                    // Draw each chi(n) as a vector, head-to-tail
+                    var curRe = 0, curIm = 0;
+                    var colors = [viz.colors.blue, viz.colors.teal, viz.colors.orange, viz.colors.purple,
+                                  viz.colors.green, viz.colors.red, viz.colors.yellow, viz.colors.pink,
+                                  viz.colors.blue, viz.colors.teal, viz.colors.orange, viz.colors.purple];
+
+                    for (var n = 1; n <= qVal; n++) {
+                        var val = chi[n % qVal] || [0, 0];
+                        if (val[0] === 0 && val[1] === 0) continue;
+                        var nextRe = curRe + val[0];
+                        var nextIm = curIm + val[1];
+                        var col = colors[(n - 1) % colors.length];
+
+                        // Draw arrow
+                        var [sx1, sy1] = viz.toScreen(curRe, curIm);
+                        var [sx2, sy2] = viz.toScreen(nextRe, nextIm);
+                        ctx.strokeStyle = col;
+                        ctx.lineWidth = 2.5;
+                        ctx.beginPath();
+                        ctx.moveTo(sx1, sy1);
+                        ctx.lineTo(sx2, sy2);
+                        ctx.stroke();
+
+                        // Arrowhead
+                        var dx = sx2 - sx1, dy = sy2 - sy1;
+                        var len = Math.sqrt(dx * dx + dy * dy);
+                        if (len > 5) {
+                            var angle = Math.atan2(dy, dx);
+                            ctx.fillStyle = col;
+                            ctx.beginPath();
+                            ctx.moveTo(sx2, sy2);
+                            ctx.lineTo(sx2 - 8 * Math.cos(angle - 0.4), sy2 - 8 * Math.sin(angle - 0.4));
+                            ctx.lineTo(sx2 - 8 * Math.cos(angle + 0.4), sy2 - 8 * Math.sin(angle + 0.4));
+                            ctx.closePath();
+                            ctx.fill();
+                        }
+
+                        // Label
+                        var midx = (sx1 + sx2) / 2, midy = (sy1 + sy2) / 2;
+                        var nx = -(sy2 - sy1), ny = sx2 - sx1;
+                        var nlen = Math.sqrt(nx * nx + ny * ny) || 1;
+                        ctx.fillStyle = col;
+                        ctx.font = '10px -apple-system,sans-serif';
+                        ctx.textAlign = 'center';
+                        ctx.textBaseline = 'middle';
+                        ctx.fillText(n.toString(), midx + nx / nlen * 14, midy + ny / nlen * 14);
+
+                        curRe = nextRe;
+                        curIm = nextIm;
+                    }
+
+                    // Final sum point
+                    var sumMag = Math.sqrt(curRe * curRe + curIm * curIm);
+                    viz.drawPoint(curRe, curIm, viz.colors.orange, null, 6);
+                    viz.drawPoint(0, 0, viz.colors.white, 'O', 3);
+
+                    // Info panel on right
+                    var infoX = 400;
+                    var infoY = 60;
+                    ctx.fillStyle = viz.colors.white;
+                    ctx.font = '12px -apple-system,sans-serif';
+                    ctx.textAlign = 'left';
+                    ctx.textBaseline = 'top';
+                    ctx.fillText('Sum = ' + curRe.toFixed(3) + ' + ' + curIm.toFixed(3) + 'i', infoX, infoY);
+                    ctx.fillText('|Sum| = ' + sumMag.toFixed(4), infoX, infoY + 18);
+
+                    var phi = allChars.length;
+                    if (chiIdx === 0) {
+                        ctx.fillStyle = viz.colors.teal;
+                        ctx.fillText('= \u03C6(' + qVal + ') = ' + phi, infoX, infoY + 40);
+                        ctx.fillText('Principal character:', infoX, infoY + 58);
+                        ctx.fillText('all arrows point right', infoX, infoY + 74);
+                    } else {
+                        ctx.fillStyle = sumMag < 0.01 ? viz.colors.green : viz.colors.red;
+                        ctx.fillText(sumMag < 0.01 ? 'Perfect cancellation!' : 'Sum \u2260 0 (non-complete period?)', infoX, infoY + 40);
+                        ctx.fillStyle = viz.colors.text;
+                        ctx.fillText('Non-trivial character:', infoX, infoY + 58);
+                        ctx.fillText('arrows form a closed polygon', infoX, infoY + 74);
+                    }
                 }
-                return { g: 2, phi: phi };
+                draw();
+                return viz;
             }
-            function getCharVals(q, nVal) {
-                var gen = findGen(q);
-                var phi = gen.phi, g = gen.g;
-                var dlog = {}; var cur = 1;
-                for (var k = 0; k < phi; k++) { dlog[cur] = k; cur = cur * g % q; }
-                var r = ((nVal % q) + q) % q;
-                var results = [];
-                for (var j = 0; j < phi; j++) {
-                    if (r === 0 || gcd(r, q) > 1) { results.push([0, 0]); continue; }
-                    var angle = 2 * Math.PI * j * dlog[r] / phi;
-                    results.push([Math.cos(angle), Math.sin(angle)]);
-                }
-                return results;
-            }
-
-            function draw(progress) {
-                viz.clear();
-                var colors = [viz.colors.blue, viz.colors.teal, viz.colors.orange, viz.colors.purple, viz.colors.red, viz.colors.yellow, viz.colors.pink, viz.colors.green];
-
-                // Unit circle
-                viz.drawCircle(0, 0, 1, null, viz.colors.grid + '44', 1);
-                viz.drawAxes();
-
-                var phi = findPhi(q);
-                var nEff = ((n % q) + q) % q;
-                var vals = getCharVals(q, nEff);
-
-                // Draw vectors sequentially (tip-to-tail)
-                var cx = 0, cy = 0;
-                var numToShow = Math.min(phi, Math.ceil(progress * phi));
-
-                for (var j = 0; j < numToShow; j++) {
-                    var v = vals[j];
-                    var nx = cx + v[0];
-                    var ny = cy + v[1];
-                    viz.drawVector(cx, cy, nx, ny, colors[j % colors.length], '\u03C7' + j, 2);
-                    cx = nx; cy = ny;
-                }
-
-                // Final sum point
-                if (numToShow > 0) {
-                    viz.drawPoint(cx, cy, viz.colors.white, '', 6);
-                    var sumMag = Math.sqrt(cx * cx + cy * cy);
-                    var isTarget = (nEff === 1 && gcd(nEff, q) === 1);
-                    var isUnit = gcd(nEff, q) === 1;
-                    var msg;
-                    if (!isUnit) { msg = 'n=' + nEff + ' \u2209 (Z/' + q + 'Z)^\\u00D7: sum = 0'; }
-                    else if (Math.abs(sumMag - phi) < 0.1) { msg = 'n\u22611 mod ' + q + ': sum = \u03C6(' + q + ') = ' + phi + ' \u2713'; }
-                    else if (sumMag < 0.1) { msg = 'n=' + nEff + '\u2260 1 mod ' + q + ': sum = 0 (cancellation) \u2713'; }
-                    else { msg = 'n=' + nEff + ': partial sum = (' + cx.toFixed(2) + ', ' + cy.toFixed(2) + ')'; }
-                    viz.screenText(msg, viz.width / 2, viz.height - 24, viz.colors.teal, 12);
-                }
-
-                var phi2 = findPhi(q);
-                viz.screenText('Sum of \u03C7(n=' + nEff + ') over all ' + phi2 + ' characters mod ' + q, viz.width / 2, 14, viz.colors.white, 13);
-            }
-
-            draw(1);
-            return viz;
         }
-    }
-];
+    ]
+};
