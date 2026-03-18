@@ -5,7 +5,6 @@ window.CHAPTERS.push({
     title: 'Averages of Arithmetic Functions',
     subtitle: 'Smoothing the chaos to reveal the pattern',
     sections: [
-
         // ================================================================
         // SECTION 1: Why Averages?
         // ================================================================
@@ -16,190 +15,268 @@ window.CHAPTERS.push({
 <h2>Why Averages?</h2>
 
 <div class="env-block intuition">
-    <div class="env-title">The Central Paradox</div>
+    <div class="env-title">The Central Problem</div>
     <div class="env-body">
-        <p>The divisor function \\(d(n)\\) counts how many positive integers divide \\(n\\). At \\(n = 2^{20} = 1048576\\) it equals 21. At \\(n = 2^{20} - 1 = 1048575\\), which equals \\(3 \\cdot 5 \\cdot 25 \\cdot 43 \\cdot 65 \\cdot 127\\), the count is much larger. Neighboring values behave completely differently. Yet if you average \\(d(1), d(2), \\ldots, d(N)\\), the result converges to \\(\\log N\\) with stunning precision.</p>
-        <p><strong>Lesson:</strong> individual values are wild, but the average is tame. Analytic number theory exploits this.</p>
+        <p>Individual values of arithmetic functions like \\(d(n)\\), \\(\\varphi(n)\\), or \\(\\Lambda(n)\\) jump around wildly. The divisor function \\(d(n)\\) equals 2 at every prime but can be arbitrarily large at highly composite numbers. Trying to understand these functions one value at a time is like trying to understand a coastline by examining individual grains of sand. The right move is to step back and look at the average.</p>
     </div>
 </div>
 
-<p>Arithmetic functions such as \\(d(n)\\), \\(\\phi(n)\\), and \\(\\Lambda(n)\\) oscillate wildly as \\(n\\) varies. Trying to understand them pointwise is hopeless in general. The breakthrough insight, going back to Dirichlet and Chebyshev, is to study <em>summatory functions</em>:</p>
+<p>The key idea of this chapter is deceptively simple: if \\(f(n)\\) is too irregular to study directly, study its <strong>summatory function</strong></p>
 
 \\[
-D(x) = \\sum_{n \\le x} d(n), \\quad \\Phi(x) = \\sum_{n \\le x} \\phi(n), \\quad \\Psi(x) = \\sum_{n \\le x} \\Lambda(n).
+F(x) = \\sum_{n \\le x} f(n)
 \\]
 
-<p>These partial sums smooth out local fluctuations. Their asymptotics encode deep information about the primes.</p>
-
-<h3>Average Order</h3>
+<p>instead. Summation smooths out fluctuations. Even though \\(d(n)\\) oscillates unpredictably, the sum \\(\\sum_{n \\le x} d(n)\\) grows like \\(x \\log x\\), which tells us the <em>average</em> number of divisors near \\(x\\) is about \\(\\log x\\).</p>
 
 <div class="env-block definition">
-    <div class="env-title">Definition 2.1 (Average Order)</div>
+    <div class="env-title">Definition (Average Order)</div>
     <div class="env-body">
-        <p>An arithmetic function \\(f\\) has <strong>average order</strong> \\(g(n)\\) if</p>
-        \\[\\sum_{n \\le x} f(n) \\sim \\sum_{n \\le x} g(n) \\quad \\text{as } x \\to \\infty.\\]
-        <p>Equivalently, \\(\\frac{1}{x} \\sum_{n \\le x} f(n) \\sim \\frac{1}{x} \\sum_{n \\le x} g(n)\\).</p>
+        <p>We say \\(g(n)\\) is the <strong>average order</strong> of an arithmetic function \\(f(n)\\) if</p>
+        \\[
+        \\sum_{n \\le x} f(n) \\sim \\sum_{n \\le x} g(n) \\quad \\text{as } x \\to \\infty,
+        \\]
+        <p>that is, the ratio of the two sums tends to 1.</p>
     </div>
 </div>
 
-<p>The table below records the average orders we will establish in this chapter.</p>
+<p>This is a weaker statement than pointwise approximation. The average order of \\(d(n)\\) is \\(\\log n\\), but \\(d(n)\\) can be much larger or smaller than \\(\\log n\\) for any particular \\(n\\). The average captures the typical behavior.</p>
 
-<table style="width:100%;border-collapse:collapse;margin:1.2em 0;">
-    <thead>
-        <tr style="border-bottom:1px solid #30363d;">
-            <th style="text-align:left;padding:6px 10px;color:#8b949e;">Function</th>
-            <th style="text-align:left;padding:6px 10px;color:#8b949e;">Average Order</th>
-            <th style="text-align:left;padding:6px 10px;color:#8b949e;">Result</th>
-        </tr>
-    </thead>
-    <tbody>
-        <tr style="border-bottom:1px solid #21262d;">
-            <td style="padding:6px 10px;">\\(d(n)\\)</td>
-            <td style="padding:6px 10px;">\\(\\log n\\)</td>
-            <td style="padding:6px 10px;">Dirichlet 1849</td>
-        </tr>
-        <tr style="border-bottom:1px solid #21262d;">
-            <td style="padding:6px 10px;">\\(\\phi(n)\\)</td>
-            <td style="padding:6px 10px;">\\(\\frac{6}{{\\pi^2}} n\\)</td>
-            <td style="padding:6px 10px;">\\(\\Phi(x) \\sim \\frac{3x^2}{\\pi^2}\\)</td>
-        </tr>
-        <tr style="border-bottom:1px solid #21262d;">
-            <td style="padding:6px 10px;">\\(\\sigma(n)\\)</td>
-            <td style="padding:6px 10px;">\\(\\frac{\\pi^2}{6} n\\)</td>
-            <td style="padding:6px 10px;">\\(\\Sigma(x) \\sim \\frac{\\pi^2 x^2}{12}\\)</td>
-        </tr>
-        <tr>
-            <td style="padding:6px 10px;">\\(\\Lambda(n)\\)</td>
-            <td style="padding:6px 10px;">1</td>
-            <td style="padding:6px 10px;">\\(\\Psi(x) \\sim x\\) (PNT)</td>
-        </tr>
-    </tbody>
-</table>
-
-<div class="viz-placeholder" data-viz="viz-running-averages"></div>
+<div class="env-block example">
+    <div class="env-title">Example: Classical Average Orders</div>
+    <div class="env-body">
+        <p>Several fundamental results in analytic number theory take the form of average-order statements:</p>
+        <ul>
+            <li>\\(d(n)\\) has average order \\(\\log n\\): \\(\\sum_{n \\le x} d(n) \\sim x \\log x\\)</li>
+            <li>\\(\\sigma(n)/n\\) has average order \\(\\pi^2/6\\): \\(\\sum_{n \\le x} \\sigma(n) \\sim \\frac{\\pi^2}{12} x^2\\)</li>
+            <li>\\(\\varphi(n)\\) has average order \\(\\frac{3}{\\pi^2} n\\): \\(\\sum_{n \\le x} \\varphi(n) \\sim \\frac{3}{\\pi^2} x^2\\)</li>
+            <li>\\(\\Lambda(n)\\) has average order 1: \\(\\sum_{n \\le x} \\Lambda(n) \\sim x\\) (equivalent to PNT)</li>
+        </ul>
+    </div>
+</div>
 
 <div class="env-block remark">
-    <div class="env-title">Why the Average of \\(\\Lambda(n)\\) is so Deep</div>
+    <div class="env-title">Why This Matters</div>
     <div class="env-body">
-        <p>That \\(\\Psi(x) \\sim x\\) is equivalent to the Prime Number Theorem. Chebyshev proved in 1852 that \\(\\Psi(x) \\asymp x\\) (within constant multiples), but the exact asymptotic \\(\\Psi(x)/x \\to 1\\) waited until Hadamard and de la Vallee Poussin in 1896. We will revisit this in Chapter 7.</p>
+        <p>The last statement, \\(\\psi(x) = \\sum_{n \\le x} \\Lambda(n) \\sim x\\), is <em>equivalent</em> to the Prime Number Theorem. The entire program of proving PNT reduces to understanding the average behavior of the von Mangoldt function. This is why summatory functions are the central objects of analytic number theory, not the arithmetic functions themselves.</p>
     </div>
 </div>
+
+<div class="viz-placeholder" data-viz="viz-running-averages"></div>
 `,
             visualizations: [
                 {
                     id: 'viz-running-averages',
                     title: 'Running Averages of Arithmetic Functions',
-                    description: 'The running average (1/x) sum_{n<=x} f(n) for d(n), phi(n)/n, and Lambda(n). Each converges to its average order. Toggle functions with the buttons.',
+                    description: 'Watch how the running average (1/x)\\sum_{n<=x} f(n) stabilizes as x grows, even though f(n) itself oscillates wildly. Compare d(n), phi(n), and Lambda(n).',
                     setup: function(body, controls) {
-                        var viz = new VizEngine(body, { width: 600, height: 340, originX: 60, originY: 300, scale: 1 });
+                        var viz = new VizEngine(body, {
+                            width: 560, height: 380,
+                            originX: 60, originY: 320, scale: 1
+                        });
+
                         var N = 200;
+                        var funcChoice = 0; // 0 = d(n), 1 = phi(n), 2 = Lambda(n)
+                        var funcNames = ['d(n): divisor function', 'phi(n): Euler totient', 'Lambda(n): von Mangoldt'];
+                        var avgLabels = ['avg ~ log(n)', 'avg ~ 3n/pi^2', 'avg ~ 1 (PNT)'];
 
-                        // Precompute number-theoretic functions up to N
-                        function computeAll(limit) {
-                            var d = new Array(limit + 1).fill(1);
-                            var phi = new Array(limit + 1);
-                            var lam = new Array(limit + 1).fill(0);
-                            for (var i = 0; i <= limit; i++) phi[i] = i;
+                        VizEngine.createSlider(controls, 'N', 50, 500, N, 50, function(v) {
+                            N = Math.round(v);
+                            draw();
+                        });
 
-                            for (var p = 2; p <= limit; p++) {
-                                if (phi[p] === p) { // p is prime
-                                    for (var m = p; m <= limit; m += p) {
-                                        phi[m] -= phi[m] / p;
-                                        d[m]++;
-                                    }
-                                    for (var pk = p; pk <= limit; pk *= p) {
-                                        for (var m2 = pk; m2 <= limit; m2 += pk) {
-                                            lam[m2] = Math.log(p);
-                                        }
-                                    }
-                                }
+                        var btnD = VizEngine.createButton(controls, 'd(n)', function() { funcChoice = 0; draw(); });
+                        var btnPhi = VizEngine.createButton(controls, '\u03C6(n)', function() { funcChoice = 1; draw(); });
+                        var btnLambda = VizEngine.createButton(controls, '\u039B(n)', function() { funcChoice = 2; draw(); });
+
+                        // Compute arithmetic functions
+                        function divisorCount(n) {
+                            var count = 0;
+                            for (var d = 1; d * d <= n; d++) {
+                                if (n % d === 0) { count += (d * d === n) ? 1 : 2; }
                             }
-                            // Proper divisor count: initialize to 0 and count properly
-                            var dc = new Array(limit + 1).fill(0);
-                            for (var k = 1; k <= limit; k++) {
-                                for (var m3 = k; m3 <= limit; m3 += k) dc[m3]++;
-                            }
-                            return { d: dc, phi: phi, lam: lam };
+                            return count;
                         }
 
-                        var data = computeAll(N);
-                        var showD = true, showPhi = true, showLam = true;
+                        function eulerPhi(n) {
+                            var result = n;
+                            var p = 2;
+                            var m = n;
+                            while (p * p <= m) {
+                                if (m % p === 0) {
+                                    while (m % p === 0) m /= p;
+                                    result -= result / p;
+                                }
+                                p++;
+                            }
+                            if (m > 1) result -= result / m;
+                            return Math.round(result);
+                        }
 
-                        var btnD = VizEngine.createButton(controls, 'd(n): avg ~ log n', function() { showD = !showD; btnD.style.opacity = showD ? '1' : '0.4'; draw(); });
-                        var btnPhi = VizEngine.createButton(controls, 'phi(n)/n: avg ~ 6/pi^2', function() { showPhi = !showPhi; btnPhi.style.opacity = showPhi ? '1' : '0.4'; draw(); });
-                        var btnLam = VizEngine.createButton(controls, 'Lambda(n): avg ~ 1', function() { showLam = !showLam; btnLam.style.opacity = showLam ? '1' : '0.4'; draw(); });
-                        controls.style.gap = '6px';
+                        function vonMangoldt(n) {
+                            if (n < 2) return 0;
+                            var p = 2;
+                            while (p * p <= n) {
+                                if (n % p === 0) {
+                                    // Check if n is a power of p
+                                    while (n > 1) {
+                                        if (n % p !== 0) return 0;
+                                        n /= p;
+                                    }
+                                    return Math.log(p);
+                                }
+                                p++;
+                            }
+                            return Math.log(n); // n is prime
+                        }
+
+                        function getFunc(n) {
+                            if (funcChoice === 0) return divisorCount(n);
+                            if (funcChoice === 1) return eulerPhi(n);
+                            return vonMangoldt(n);
+                        }
+
+                        function getAvgPrediction(n) {
+                            if (funcChoice === 0) return Math.log(n);
+                            if (funcChoice === 1) return (3 / (Math.PI * Math.PI)) * n;
+                            return 1;
+                        }
 
                         function draw() {
                             viz.clear();
                             var ctx = viz.ctx;
-                            var W = viz.width, H = viz.height;
-                            var padL = 60, padR = 20, padT = 28, padB = 36;
-                            var chartW = W - padL - padR, chartH = H - padT - padB;
+
+                            viz.screenText(funcNames[funcChoice], viz.width / 2, 18, viz.colors.white, 14);
+
+                            // Compute values and running averages
+                            var vals = [];
+                            var runAvgs = [];
+                            var sum = 0;
+                            var maxVal = 0;
+                            var maxAvg = 0;
+
+                            for (var n = 1; n <= N; n++) {
+                                var v = getFunc(n);
+                                vals.push(v);
+                                sum += v;
+                                runAvgs.push(sum / n);
+                                if (v > maxVal) maxVal = v;
+                                if (sum / n > maxAvg) maxAvg = sum / n;
+                            }
+
+                            // Also track predicted average
+                            var predMax = 0;
+                            for (var i = 1; i <= N; i++) {
+                                var pred = getAvgPrediction(i);
+                                if (pred > predMax) predMax = pred;
+                            }
+
+                            var yMax = Math.max(maxAvg, predMax) * 1.3;
+                            if (yMax < 1) yMax = 2;
+
+                            var chartL = 60;
+                            var chartR = viz.width - 30;
+                            var chartT = 40;
+                            var chartB = 310;
+                            var chartW = chartR - chartL;
+                            var chartH = chartB - chartT;
 
                             // Axes
-                            ctx.strokeStyle = viz.colors.axis; ctx.lineWidth = 1.5;
-                            ctx.beginPath(); ctx.moveTo(padL, padT); ctx.lineTo(padL, padT + chartH); ctx.lineTo(padL + chartW, padT + chartH); ctx.stroke();
+                            ctx.strokeStyle = viz.colors.axis;
+                            ctx.lineWidth = 1;
+                            ctx.beginPath();
+                            ctx.moveTo(chartL, chartB);
+                            ctx.lineTo(chartR, chartB);
+                            ctx.stroke();
+                            ctx.beginPath();
+                            ctx.moveTo(chartL, chartB);
+                            ctx.lineTo(chartL, chartT);
+                            ctx.stroke();
 
-                            // Y labels
-                            ctx.fillStyle = viz.colors.text; ctx.font = '10px -apple-system,sans-serif'; ctx.textAlign = 'right';
-                            var yMax = 6;
-                            for (var yv = 0; yv <= yMax; yv++) {
-                                var sy = padT + chartH - (yv / yMax) * chartH;
-                                ctx.fillText(yv.toString(), padL - 5, sy + 4);
-                                ctx.strokeStyle = viz.colors.grid; ctx.lineWidth = 0.5;
-                                ctx.beginPath(); ctx.moveTo(padL, sy); ctx.lineTo(padL + chartW, sy); ctx.stroke();
-                            }
-                            // X labels
-                            ctx.textAlign = 'center'; ctx.textBaseline = 'top';
-                            for (var xv = 0; xv <= N; xv += 50) {
-                                var sx = padL + (xv / N) * chartW;
-                                ctx.fillStyle = viz.colors.text; ctx.font = '10px -apple-system,sans-serif';
-                                ctx.fillText(xv.toString(), sx, padT + chartH + 5);
-                            }
-
-                            function plotRunningAvg(arr, scaleY, color, refFn) {
-                                // Draw reference line
-                                ctx.strokeStyle = color + '55'; ctx.lineWidth = 1; ctx.setLineDash([4, 4]);
+                            // Y-axis labels
+                            ctx.fillStyle = viz.colors.text;
+                            ctx.font = '10px -apple-system,sans-serif';
+                            ctx.textAlign = 'right';
+                            ctx.textBaseline = 'middle';
+                            for (var tick = 0; tick <= 4; tick++) {
+                                var yVal = (yMax * tick / 4);
+                                var sy = chartB - (tick / 4) * chartH;
+                                ctx.fillText(yVal.toFixed(1), chartL - 6, sy);
+                                ctx.strokeStyle = viz.colors.grid;
+                                ctx.lineWidth = 0.5;
                                 ctx.beginPath();
-                                for (var n = 2; n <= N; n++) {
-                                    var ref = refFn(n);
-                                    var rx = padL + ((n) / N) * chartW;
-                                    var ry = padT + chartH - Math.min((ref / yMax) * chartH, chartH);
-                                    if (n === 2) ctx.moveTo(rx, ry); else ctx.lineTo(rx, ry);
-                                }
-                                ctx.stroke(); ctx.setLineDash([]);
-
-                                // Draw running average
-                                ctx.strokeStyle = color; ctx.lineWidth = 2;
-                                ctx.beginPath();
-                                var sum = 0;
-                                for (var n = 1; n <= N; n++) {
-                                    sum += arr[n] * scaleY;
-                                    var avg = sum / n;
-                                    var px = padL + (n / N) * chartW;
-                                    var py = padT + chartH - Math.min((avg / yMax) * chartH, chartH);
-                                    if (n === 1) ctx.moveTo(px, py); else ctx.lineTo(px, py);
-                                }
+                                ctx.moveTo(chartL, sy);
+                                ctx.lineTo(chartR, sy);
                                 ctx.stroke();
                             }
 
-                            if (showD) plotRunningAvg(data.d, 1, viz.colors.blue, function(n) { return Math.log(n); });
-                            if (showPhi) plotRunningAvg(data.phi, 1 / 1, viz.colors.teal, function(n) { return (6 / (Math.PI * Math.PI)) * n / n * n; });
-                            if (showLam) plotRunningAvg(data.lam, 1, viz.colors.orange, function(_n) { return 1; });
+                            // X-axis labels
+                            ctx.textAlign = 'center';
+                            ctx.textBaseline = 'top';
+                            var xStep = Math.max(1, Math.round(N / 6));
+                            for (var xn = xStep; xn <= N; xn += xStep) {
+                                var sx = chartL + (xn / N) * chartW;
+                                ctx.fillText(xn.toString(), sx, chartB + 4);
+                            }
+
+                            // Plot individual values as faint dots
+                            for (var j = 0; j < N; j++) {
+                                var px = chartL + ((j + 1) / N) * chartW;
+                                var py = chartB - (vals[j] / yMax) * chartH;
+                                if (py < chartT) py = chartT;
+                                ctx.fillStyle = viz.colors.blue + '44';
+                                ctx.beginPath();
+                                ctx.arc(px, py, 1.5, 0, Math.PI * 2);
+                                ctx.fill();
+                            }
+
+                            // Plot running average
+                            ctx.strokeStyle = viz.colors.teal;
+                            ctx.lineWidth = 2;
+                            ctx.beginPath();
+                            for (var k = 0; k < N; k++) {
+                                var ax = chartL + ((k + 1) / N) * chartW;
+                                var ay = chartB - (runAvgs[k] / yMax) * chartH;
+                                if (ay < chartT) ay = chartT;
+                                if (k === 0) ctx.moveTo(ax, ay);
+                                else ctx.lineTo(ax, ay);
+                            }
+                            ctx.stroke();
+
+                            // Plot predicted average
+                            ctx.strokeStyle = viz.colors.orange;
+                            ctx.lineWidth = 1.5;
+                            ctx.setLineDash([6, 4]);
+                            ctx.beginPath();
+                            for (var m = 0; m < N; m++) {
+                                var bx = chartL + ((m + 1) / N) * chartW;
+                                var by = chartB - (getAvgPrediction(m + 1) / yMax) * chartH;
+                                if (by < chartT) by = chartT;
+                                if (m === 0) ctx.moveTo(bx, by);
+                                else ctx.lineTo(bx, by);
+                            }
+                            ctx.stroke();
+                            ctx.setLineDash([]);
 
                             // Legend
-                            var legItems = [];
-                            if (showD) legItems.push({ color: viz.colors.blue, label: 'avg d(n) \u2192 log n' });
-                            if (showPhi) legItems.push({ color: viz.colors.teal, label: 'avg \u03c6(n)/n \u2192 6/\u03c6\u00b2' });
-                            if (showLam) legItems.push({ color: viz.colors.orange, label: 'avg \u039b(n) \u2192 1' });
-                            legItems.forEach(function(it, i) {
-                                ctx.fillStyle = it.color; ctx.fillRect(padL + 10 + i * 160, padT + 8, 20, 3);
-                                ctx.fillStyle = viz.colors.text; ctx.font = '11px -apple-system,sans-serif'; ctx.textAlign = 'left';
-                                ctx.fillText(it.label, padL + 34 + i * 160, padT + 13);
-                            });
-                            ctx.fillStyle = viz.colors.text; ctx.font = '11px -apple-system,sans-serif'; ctx.textAlign = 'center';
-                            ctx.fillText('n', padL + chartW / 2, padT + chartH + 22);
+                            var legY = chartB + 26;
+                            ctx.font = '11px -apple-system,sans-serif';
+                            ctx.textAlign = 'left';
+
+                            ctx.fillStyle = viz.colors.blue + '88';
+                            ctx.fillRect(chartL, legY, 12, 12);
+                            ctx.fillStyle = viz.colors.text;
+                            ctx.fillText('f(n) values', chartL + 16, legY + 10);
+
+                            ctx.fillStyle = viz.colors.teal;
+                            ctx.fillRect(chartL + 120, legY, 12, 12);
+                            ctx.fillStyle = viz.colors.text;
+                            ctx.fillText('running avg', chartL + 136, legY + 10);
+
+                            ctx.fillStyle = viz.colors.orange;
+                            ctx.fillRect(chartL + 240, legY, 12, 12);
+                            ctx.fillStyle = viz.colors.text;
+                            ctx.fillText(avgLabels[funcChoice], chartL + 256, legY + 10);
                         }
                         draw();
                         return viz;
@@ -208,9 +285,9 @@ D(x) = \\sum_{n \\le x} d(n), \\quad \\Phi(x) = \\sum_{n \\le x} \\phi(n), \\qua
             ],
             exercises: [
                 {
-                    question: 'Show that \\(d(n) \\ge 1\\) for all \\(n \\ge 1\\), and that \\(d(n) = 2\\) if and only if \\(n\\) is prime. What is \\(d(1)\\)?',
-                    hint: 'Every \\(n\\) is divisible by 1 and by itself. When are those the only divisors?',
-                    solution: '\\(d(n) \\ge 1\\) because 1 always divides \\(n\\). \\(d(1) = 1\\) since only 1 divides 1. \\(d(n) = 2\\) iff the only divisors are 1 and \\(n\\), i.e., iff \\(n\\) is prime.'
+                    question: 'Compute \\(\\frac{1}{10}\\sum_{n=1}^{10} d(n)\\) directly. Compare with \\(\\log 10 \\approx 2.303\\).',
+                    hint: 'List d(1) through d(10): d(1)=1, d(2)=2, d(3)=2, d(4)=3, d(5)=2, d(6)=4, d(7)=2, d(8)=4, d(9)=3, d(10)=4.',
+                    solution: 'The sum is 1+2+2+3+2+4+2+4+3+4 = 27, so the average is 2.7. This is reasonably close to \\(\\log 10 \\approx 2.303\\). The discrepancy is not a contradiction: the asymptotic statement \\(\\sum_{n \\le x} d(n) \\sim x \\log x\\) only claims the ratio tends to 1 as \\(x \\to \\infty\\). At \\(x = 10\\) we are far from the asymptotic regime.'
                 }
             ]
         },
@@ -224,154 +301,281 @@ D(x) = \\sum_{n \\le x} d(n), \\quad \\Phi(x) = \\sum_{n \\le x} \\phi(n), \\qua
             content: `
 <h2>Summatory Functions</h2>
 
-<p>For an arithmetic function \\(f\\), define its <em>summatory function</em></p>
+<div class="env-block intuition">
+    <div class="env-title">The Big Three</div>
+    <div class="env-body">
+        <p>Three summatory functions dominate analytic number theory. Each encodes different information about the primes, and their asymptotic behavior is intimately connected to deep theorems.</p>
+    </div>
+</div>
 
-\\[F(x) = \\sum_{n \\le x} f(n).\\]
+<h3>The Divisor Summatory Function \\(D(x)\\)</h3>
 
-<p>The floor function \\(\\lfloor x \\rfloor\\) is the largest integer \\(\\le x\\). We write \\(\\{x\\} = x - \\lfloor x \\rfloor\\) for the fractional part.</p>
+<div class="env-block definition">
+    <div class="env-title">Definition</div>
+    <div class="env-body">
+        <p>The <strong>divisor summatory function</strong> is</p>
+        \\[
+        D(x) = \\sum_{n \\le x} d(n),
+        \\]
+        <p>where \\(d(n) = \\sum_{d \\mid n} 1\\) counts the number of positive divisors of \\(n\\).</p>
+    </div>
+</div>
 
-<h3>The Divisor Sum \\(D(x)\\)</h3>
+<p>We can rewrite this sum in a revealing way. Since \\(d(n) = \\sum_{d \\mid n} 1\\), we have</p>
+
+\\[
+D(x) = \\sum_{n \\le x} \\sum_{d \\mid n} 1 = \\sum_{d \\le x} \\left\\lfloor \\frac{x}{d} \\right\\rfloor.
+\\]
+
+<p>The last step swaps the order of summation: instead of summing over \\(n\\) and then its divisors, we sum over each potential divisor \\(d\\) and count how many multiples of \\(d\\) are at most \\(x\\). This is a key technique that recurs throughout the subject.</p>
 
 <div class="env-block theorem">
     <div class="env-title">Theorem 2.1 (Dirichlet, 1849)</div>
     <div class="env-body">
         <p>For \\(x \\ge 1\\),</p>
-        \\[D(x) := \\sum_{n \\le x} d(n) = x \\log x + (2\\gamma - 1)x + O(\\sqrt{x}),\\]
-        <p>where \\(\\gamma = 0.5772\\ldots\\) is the Euler-Mascheroni constant.</p>
+        \\[
+        D(x) = x \\log x + (2\\gamma - 1)x + O(\\sqrt{x}),
+        \\]
+        <p>where \\(\\gamma \\approx 0.5772\\) is the Euler-Mascheroni constant.</p>
     </div>
 </div>
 
-<p>The proof uses the hyperbola method and will occupy Section 5. For now, observe that the leading term \\(x \\log x\\) confirms that the average order of \\(d(n)\\) is \\(\\log n\\).</p>
+<h3>Euler's Totient Summatory Function \\(\\Phi(x)\\)</h3>
 
-<h3>Euler's Totient Sum \\(\\Phi(x)\\)</h3>
+<div class="env-block definition">
+    <div class="env-title">Definition</div>
+    <div class="env-body">
+        <p>The <strong>totient summatory function</strong> is</p>
+        \\[
+        \\Phi(x) = \\sum_{n \\le x} \\varphi(n).
+        \\]
+    </div>
+</div>
 
 <div class="env-block theorem">
     <div class="env-title">Theorem 2.2</div>
     <div class="env-body">
-        \\[\\Phi(x) := \\sum_{n \\le x} \\phi(n) = \\frac{3x^2}{\\pi^2} + O(x \\log x).\\]
+        <p>For \\(x \\ge 1\\),</p>
+        \\[
+        \\Phi(x) = \\frac{3}{\\pi^2} x^2 + O(x \\log x).
+        \\]
+        <p>Equivalently, the average value of \\(\\varphi(n)/n\\) is \\(6/\\pi^2 = 1/\\zeta(2)\\). This says that the "probability" that two random integers are coprime is \\(6/\\pi^2 \\approx 0.6079\\).</p>
     </div>
 </div>
 
-<p><strong>Proof sketch.</strong> Use the identity \\(\\phi(n) = \\sum_{d \\mid n} \\mu(d) \\cdot (n/d)\\) and Mobius inversion. Alternatively, note that \\(\\Phi(x) = \\frac{1}{2}\\left(1 + \\sum_{n \\le x} \\mu(n) \\lfloor x/n \\rfloor (\\lfloor x/n \\rfloor + 1)\\right)\\) and use \\(\\sum \\mu(n)/n^2 = 6/\\pi^2\\).</p>
-
-<h3>Chebyshev's \\(\\Psi(x)\\)</h3>
+<h3>Chebyshev's Function \\(\\psi(x)\\)</h3>
 
 <div class="env-block definition">
-    <div class="env-title">Definition 2.2 (Chebyshev's Psi)</div>
+    <div class="env-title">Definition</div>
     <div class="env-body">
-        <p>The von Mangoldt function is</p>
-        \\[\\Lambda(n) = \\begin{cases} \\log p & \\text{if } n = p^k \\text{ for some prime } p, k \\ge 1, \\\\ 0 & \\text{otherwise.} \\end{cases}\\]
-        <p>Chebyshev's second function is \\(\\Psi(x) = \\sum_{n \\le x} \\Lambda(n) = \\sum_{p^k \\le x} \\log p.\\)</p>
+        <p>The <strong>Chebyshev psi function</strong> is</p>
+        \\[
+        \\psi(x) = \\sum_{n \\le x} \\Lambda(n) = \\sum_{p^k \\le x} \\log p,
+        \\]
+        <p>where the von Mangoldt function \\(\\Lambda(n) = \\log p\\) if \\(n = p^k\\) for some prime \\(p\\) and integer \\(k \\ge 1\\), and \\(\\Lambda(n) = 0\\) otherwise.</p>
     </div>
 </div>
 
-<p>The connection to primes is made precise by</p>
+<div class="env-block theorem">
+    <div class="env-title">Theorem 2.3 (Prime Number Theorem, equivalent form)</div>
+    <div class="env-body">
+        <p>\\[\\psi(x) \\sim x \\quad \\text{as } x \\to \\infty.\\]</p>
+        <p>This is equivalent to \\(\\pi(x) \\sim x/\\log x\\). The function \\(\\psi(x)\\) is analytically more natural than \\(\\pi(x)\\) because \\(\\Lambda(n)\\) is multiplicative-friendly and connects directly to the zeros of \\(\\zeta(s)\\) via the explicit formula.</p>
+    </div>
+</div>
 
-\\[\\Psi(x) = \\sum_{p \\le x} \\log p + \\sum_{p^2 \\le x} \\log p + \\cdots = \\theta(x) + \\theta(x^{1/2}) + \\theta(x^{1/3}) + \\cdots,\\]
-
-<p>where \\(\\theta(x) = \\sum_{p \\le x} \\log p\\). Since \\(\\theta(x^{1/k}) = 0\\) for \\(x^{1/k} < 2\\), the sum is finite. It follows that \\(\\Psi(x) \\sim x \\Leftrightarrow \\theta(x) \\sim x \\Leftrightarrow \\pi(x) \\sim x/\\log x\\) (the PNT).</p>
+<div class="env-block remark">
+    <div class="env-title">Chebyshev's Bounds (1852)</div>
+    <div class="env-body">
+        <p>Before the PNT was proved, Chebyshev showed that there exist constants \\(A < 1 < B\\) such that</p>
+        \\[Ax < \\psi(x) < Bx\\]
+        <p>for all large \\(x\\). He obtained \\(A \\approx 0.921\\) and \\(B \\approx 1.106\\). This was already enough to prove Bertrand's postulate: there is always a prime between \\(n\\) and \\(2n\\).</p>
+    </div>
+</div>
 
 <div class="viz-placeholder" data-viz="viz-psi-chebyshev"></div>
 `,
             visualizations: [
                 {
                     id: 'viz-psi-chebyshev',
-                    title: 'Chebyshev\'s Psi(x) vs x',
-                    description: 'Plot of Psi(x) and the comparison line y = x. The ratio Psi(x)/x hovering near 1 is a harbinger of the Prime Number Theorem.',
+                    title: 'Chebyshev\'s psi(x) vs x',
+                    description: 'The Chebyshev function psi(x) counts primes (weighted by log p) and prime powers. Watch how psi(x)/x converges to 1, confirming the PNT. The jumps occur at prime powers.',
                     setup: function(body, controls) {
-                        var viz = new VizEngine(body, { width: 600, height: 320, originX: 60, originY: 290, scale: 1 });
-                        var N = 300;
+                        var viz = new VizEngine(body, {
+                            width: 560, height: 380,
+                            originX: 60, originY: 320, scale: 1
+                        });
 
-                        // Precompute Lambda via smallest prime factor sieve
-                        var spf = new Array(N + 1).fill(0);
-                        for (var i = 2; i <= N; i++) {
-                            if (spf[i] === 0) {
-                                for (var j = i; j <= N; j += i) {
-                                    if (spf[j] === 0) spf[j] = i;
-                                }
-                            }
-                        }
-                        function vonMangoldt(n) {
-                            if (n < 2) return 0;
-                            var p = spf[n]; var m = n;
-                            while (m % p === 0) m = m / p;
-                            return m === 1 ? Math.log(p) : 0;
-                        }
-
-                        // Build Psi(x)
-                        var psi = new Array(N + 1).fill(0);
-                        for (var k = 1; k <= N; k++) psi[k] = psi[k - 1] + vonMangoldt(k);
+                        var xMax = 200;
+                        VizEngine.createSlider(controls, 'x max', 50, 1000, xMax, 50, function(v) {
+                            xMax = Math.round(v);
+                            draw();
+                        });
 
                         var showRatio = false;
-                        VizEngine.createButton(controls, 'Toggle: Psi(x) / Ratio', function() { showRatio = !showRatio; draw(); });
+                        VizEngine.createButton(controls, 'Toggle \u03C8(x)/x', function() {
+                            showRatio = !showRatio;
+                            draw();
+                        });
+
+                        var primes = VizEngine.sievePrimes(1100);
+
+                        function vonMangoldt(n) {
+                            if (n < 2) return 0;
+                            for (var i = 0; i < primes.length; i++) {
+                                var p = primes[i];
+                                if (p * p > n) break;
+                                if (n % p === 0) {
+                                    var m = n;
+                                    while (m > 1) {
+                                        if (m % p !== 0) return 0;
+                                        m /= p;
+                                    }
+                                    return Math.log(p);
+                                }
+                            }
+                            return Math.log(n);
+                        }
 
                         function draw() {
                             viz.clear();
                             var ctx = viz.ctx;
-                            var W = viz.width, H = viz.height;
-                            var padL = 60, padR = 20, padT = 28, padB = 40;
-                            var chartW = W - padL - padR, chartH = H - padT - padB;
 
-                            ctx.strokeStyle = viz.colors.axis; ctx.lineWidth = 1.5;
-                            ctx.beginPath(); ctx.moveTo(padL, padT); ctx.lineTo(padL, padT + chartH); ctx.lineTo(padL + chartW, padT + chartH); ctx.stroke();
+                            var chartL = 60, chartR = viz.width - 30;
+                            var chartT = 40, chartB = 310;
+                            var chartW = chartR - chartL;
+                            var chartH = chartB - chartT;
 
-                            if (!showRatio) {
-                                // Y scale: 0..N
-                                var yMax = N;
-                                for (var yv = 0; yv <= yMax; yv += 50) {
-                                    var sy = padT + chartH - (yv / yMax) * chartH;
-                                    ctx.fillStyle = viz.colors.text; ctx.font = '10px -apple-system,sans-serif'; ctx.textAlign = 'right';
-                                    ctx.fillText(yv.toString(), padL - 4, sy + 4);
-                                    ctx.strokeStyle = viz.colors.grid; ctx.lineWidth = 0.5;
-                                    ctx.beginPath(); ctx.moveTo(padL, sy); ctx.lineTo(padL + chartW, sy); ctx.stroke();
+                            // Compute psi
+                            var psi = 0;
+                            var psiVals = [0]; // psi(0) = 0
+                            for (var n = 1; n <= xMax; n++) {
+                                psi += vonMangoldt(n);
+                                psiVals.push(psi);
+                            }
+
+                            if (showRatio) {
+                                viz.screenText('\u03C8(x) / x', viz.width / 2, 18, viz.colors.white, 14);
+
+                                // Y range for ratio
+                                var yMin = 0.7, yMax2 = 1.3;
+
+                                // Axes
+                                ctx.strokeStyle = viz.colors.axis; ctx.lineWidth = 1;
+                                ctx.beginPath(); ctx.moveTo(chartL, chartB); ctx.lineTo(chartR, chartB); ctx.stroke();
+                                ctx.beginPath(); ctx.moveTo(chartL, chartB); ctx.lineTo(chartL, chartT); ctx.stroke();
+
+                                // Horizontal line at 1
+                                var y1 = chartB - ((1 - yMin) / (yMax2 - yMin)) * chartH;
+                                ctx.strokeStyle = viz.colors.orange;
+                                ctx.lineWidth = 1.5;
+                                ctx.setLineDash([6, 4]);
+                                ctx.beginPath(); ctx.moveTo(chartL, y1); ctx.lineTo(chartR, y1); ctx.stroke();
+                                ctx.setLineDash([]);
+
+                                ctx.fillStyle = viz.colors.orange;
+                                ctx.font = '11px -apple-system,sans-serif';
+                                ctx.textAlign = 'left';
+                                ctx.fillText('PNT: ratio \u2192 1', chartR - 100, y1 - 10);
+
+                                // Y labels
+                                ctx.fillStyle = viz.colors.text;
+                                ctx.font = '10px -apple-system,sans-serif';
+                                ctx.textAlign = 'right';
+                                ctx.textBaseline = 'middle';
+                                for (var t = 0; t <= 4; t++) {
+                                    var yv = yMin + (yMax2 - yMin) * t / 4;
+                                    var sy = chartB - (t / 4) * chartH;
+                                    ctx.fillText(yv.toFixed(2), chartL - 6, sy);
                                 }
-                                // y = x reference
-                                ctx.strokeStyle = viz.colors.orange + '88'; ctx.lineWidth = 1.5; ctx.setLineDash([6, 4]);
-                                ctx.beginPath(); ctx.moveTo(padL, padT + chartH); ctx.lineTo(padL + chartW, padT); ctx.stroke(); ctx.setLineDash([]);
 
-                                // Psi(x)
-                                ctx.strokeStyle = viz.colors.blue; ctx.lineWidth = 2;
+                                // Plot ratio
+                                ctx.strokeStyle = viz.colors.teal;
+                                ctx.lineWidth = 2;
                                 ctx.beginPath();
-                                for (var n = 1; n <= N; n++) {
-                                    var px = padL + (n / N) * chartW;
-                                    var py = padT + chartH - (psi[n] / yMax) * chartH;
-                                    n === 1 ? ctx.moveTo(px, py) : ctx.lineTo(px, py);
+                                var started = false;
+                                for (var i = 2; i <= xMax; i++) {
+                                    var ratio = psiVals[i] / i;
+                                    var px = chartL + (i / xMax) * chartW;
+                                    var py = chartB - ((ratio - yMin) / (yMax2 - yMin)) * chartH;
+                                    py = Math.max(chartT, Math.min(chartB, py));
+                                    if (!started) { ctx.moveTo(px, py); started = true; }
+                                    else ctx.lineTo(px, py);
                                 }
                                 ctx.stroke();
-                                // Labels
-                                ctx.fillStyle = viz.colors.blue; ctx.font = '12px -apple-system,sans-serif'; ctx.textAlign = 'left';
-                                ctx.fillText('\u03a8(x)', padL + chartW - 45, padT + chartH * 0.15);
-                                ctx.fillStyle = viz.colors.orange; ctx.fillText('y = x', padL + chartW - 40, padT + chartH * 0.05);
                             } else {
-                                // Ratio Psi(x)/x
-                                var yMin2 = 0.5, yMax2 = 1.5;
-                                for (var yv2 = yMin2; yv2 <= yMax2 + 0.01; yv2 += 0.25) {
-                                    var sy2 = padT + chartH - ((yv2 - yMin2) / (yMax2 - yMin2)) * chartH;
-                                    ctx.fillStyle = viz.colors.text; ctx.font = '10px -apple-system,sans-serif'; ctx.textAlign = 'right';
-                                    ctx.fillText(yv2.toFixed(2), padL - 4, sy2 + 4);
-                                    ctx.strokeStyle = yv2 === 1 ? viz.colors.orange + 'aa' : viz.colors.grid; ctx.lineWidth = yv2 === 1 ? 1 : 0.5;
-                                    ctx.beginPath(); ctx.moveTo(padL, sy2); ctx.lineTo(padL + chartW, sy2); ctx.stroke();
+                                viz.screenText('\u03C8(x) = \u03A3 \u039B(n) for n \u2264 x', viz.width / 2, 18, viz.colors.white, 14);
+
+                                var yMaxVal = Math.max(psiVals[xMax], xMax) * 1.1;
+
+                                // Axes
+                                ctx.strokeStyle = viz.colors.axis; ctx.lineWidth = 1;
+                                ctx.beginPath(); ctx.moveTo(chartL, chartB); ctx.lineTo(chartR, chartB); ctx.stroke();
+                                ctx.beginPath(); ctx.moveTo(chartL, chartB); ctx.lineTo(chartL, chartT); ctx.stroke();
+
+                                // Y labels
+                                ctx.fillStyle = viz.colors.text;
+                                ctx.font = '10px -apple-system,sans-serif';
+                                ctx.textAlign = 'right';
+                                ctx.textBaseline = 'middle';
+                                for (var t2 = 0; t2 <= 4; t2++) {
+                                    var yv2 = (yMaxVal * t2 / 4);
+                                    var sy2 = chartB - (t2 / 4) * chartH;
+                                    ctx.fillText(Math.round(yv2).toString(), chartL - 6, sy2);
                                 }
-                                ctx.strokeStyle = viz.colors.blue; ctx.lineWidth = 2;
+
+                                // Plot y=x line
+                                ctx.strokeStyle = viz.colors.orange;
+                                ctx.lineWidth = 1.5;
+                                ctx.setLineDash([6, 4]);
                                 ctx.beginPath();
-                                for (var n2 = 5; n2 <= N; n2++) {
-                                    var px2 = padL + (n2 / N) * chartW;
-                                    var ratio = psi[n2] / n2;
-                                    var clamped = Math.max(yMin2, Math.min(yMax2, ratio));
-                                    var py2 = padT + chartH - ((clamped - yMin2) / (yMax2 - yMin2)) * chartH;
-                                    n2 === 5 ? ctx.moveTo(px2, py2) : ctx.lineTo(px2, py2);
+                                ctx.moveTo(chartL, chartB);
+                                var endY = chartB - (xMax / yMaxVal) * chartH;
+                                ctx.lineTo(chartR, endY);
+                                ctx.stroke();
+                                ctx.setLineDash([]);
+
+                                ctx.fillStyle = viz.colors.orange;
+                                ctx.font = '11px -apple-system,sans-serif';
+                                ctx.textAlign = 'left';
+                                ctx.fillText('y = x', chartR - 40, endY - 10);
+
+                                // Plot psi(x) as step function
+                                ctx.strokeStyle = viz.colors.teal;
+                                ctx.lineWidth = 2;
+                                ctx.beginPath();
+                                for (var j = 0; j <= xMax; j++) {
+                                    var px2 = chartL + (j / xMax) * chartW;
+                                    var py2 = chartB - (psiVals[j] / yMaxVal) * chartH;
+                                    if (j === 0) ctx.moveTo(px2, py2);
+                                    else ctx.lineTo(px2, py2);
                                 }
                                 ctx.stroke();
-                                ctx.fillStyle = viz.colors.blue; ctx.font = '12px -apple-system,sans-serif'; ctx.textAlign = 'left';
-                                ctx.fillText('\u03a8(x)/x', padL + 8, padT + 14);
                             }
-                            // X labels
-                            ctx.textAlign = 'center'; ctx.textBaseline = 'top'; ctx.fillStyle = viz.colors.text; ctx.font = '10px -apple-system,sans-serif';
-                            for (var xv = 0; xv <= N; xv += 50) {
-                                var sxv = padL + (xv / N) * chartW;
-                                ctx.fillText(xv.toString(), sxv, padT + chartH + 5);
+
+                            // X-axis labels
+                            ctx.fillStyle = viz.colors.text;
+                            ctx.font = '10px -apple-system,sans-serif';
+                            ctx.textAlign = 'center';
+                            ctx.textBaseline = 'top';
+                            var xStep = Math.max(1, Math.round(xMax / 6));
+                            for (var xl = xStep; xl <= xMax; xl += xStep) {
+                                var sxl = chartL + (xl / xMax) * chartW;
+                                ctx.fillText(xl.toString(), sxl, chartB + 4);
                             }
-                            ctx.fillText('x', padL + chartW / 2, padT + chartH + 22);
+
+                            // Legend
+                            var legY = chartB + 26;
+                            ctx.font = '11px -apple-system,sans-serif';
+                            ctx.textAlign = 'left';
+                            ctx.fillStyle = viz.colors.teal;
+                            ctx.fillRect(chartL, legY, 12, 12);
+                            ctx.fillStyle = viz.colors.text;
+                            ctx.fillText(showRatio ? '\u03C8(x)/x' : '\u03C8(x)', chartL + 16, legY + 10);
+                            ctx.fillStyle = viz.colors.orange;
+                            ctx.fillRect(chartL + 100, legY, 12, 12);
+                            ctx.fillStyle = viz.colors.text;
+                            ctx.fillText(showRatio ? 'PNT limit = 1' : 'y = x', chartL + 116, legY + 10);
                         }
                         draw();
                         return viz;
@@ -380,9 +584,14 @@ D(x) = \\sum_{n \\le x} d(n), \\quad \\Phi(x) = \\sum_{n \\le x} \\phi(n), \\qua
             ],
             exercises: [
                 {
-                    question: 'Using the identity \\(\\sum_{d \\mid n} \\phi(d) = n\\), show that \\(\\Phi(x) = \\frac{1}{2}\\sum_{n \\le x} \\mu(n) \\lfloor x/n \\rfloor (\\lfloor x/n \\rfloor + 1)\\) up to a small error. (Apostol Ch. 3 approach.)',
-                    hint: 'Apply Mobius inversion to \\(n = \\sum_{d \\mid n} \\phi(d)\\), swap summation order, and use \\(\\sum_{n \\le x} n = x(x+1)/2\\).',
-                    solution: 'From \\(n = \\sum_{d \\mid n} \\phi(d)\\) and Mobius inversion, \\(\\phi(n) = \\sum_{d \\mid n} \\mu(d)(n/d)\\). Then \\(\\Phi(x) = \\sum_{n \\le x} \\sum_{d \\mid n} \\mu(d)(n/d) = \\sum_{d \\le x} \\mu(d) \\sum_{m \\le x/d} m = \\sum_{d \\le x} \\mu(d) \\cdot \\frac{\\lfloor x/d \\rfloor(\\lfloor x/d \\rfloor + 1)}{2}\\).'
+                    question: 'Show that \\(D(x) = \\sum_{d \\le x} \\lfloor x/d \\rfloor\\) by exchanging the order of summation in \\(\\sum_{n \\le x} \\sum_{d \\mid n} 1\\).',
+                    hint: 'Write the double sum as \\(\\sum_{d \\ge 1} \\sum_{\\substack{n \\le x \\\\ d \\mid n}} 1\\). How many multiples of \\(d\\) are at most \\(x\\)?',
+                    solution: 'We have \\(\\sum_{n \\le x} d(n) = \\sum_{n \\le x} \\sum_{d \\mid n} 1 = \\sum_{d=1}^{\\lfloor x \\rfloor} \\sum_{\\substack{n \\le x \\\\ d \\mid n}} 1\\). The inner sum counts multiples of \\(d\\) up to \\(x\\), which is \\(\\lfloor x/d \\rfloor\\). So \\(D(x) = \\sum_{d \\le x} \\lfloor x/d \\rfloor\\).'
+                },
+                {
+                    question: 'Using the identity \\(\\sum_{d \\mid n} \\varphi(d) = n\\), show that \\(\\Phi(x) = \\sum_{n \\le x} \\varphi(n)\\) can be expressed in terms of \\(\\lfloor x/d \\rfloor\\).',
+                    hint: 'Start from \\(\\sum_{n \\le x} n = \\sum_{n \\le x} \\sum_{d \\mid n} \\varphi(d)\\) and swap the order of summation.',
+                    solution: 'We have \\(\\sum_{n \\le x} n = \\sum_{n \\le x} \\sum_{d \\mid n} \\varphi(d) = \\sum_{d \\le x} \\varphi(d) \\lfloor x/d \\rfloor\\). Since \\(\\sum_{n \\le x} n = \\lfloor x \\rfloor(\\lfloor x \\rfloor + 1)/2\\), this gives a relationship between \\(\\Phi(x)\\) and the floor function sums. This can be inverted using Mobius inversion to obtain \\(\\Phi(x)\\) asymptotics.'
                 }
             ]
         },
@@ -396,154 +605,197 @@ D(x) = \\sum_{n \\le x} d(n), \\quad \\Phi(x) = \\sum_{n \\le x} \\phi(n), \\qua
             content: `
 <h2>Abel Summation</h2>
 
-<p>Abel summation is the discrete analogue of integration by parts. It converts a sum \\(\\sum_{n \\le x} a(n) f(n)\\) into a summatory function \\(A(x) = \\sum_{n \\le x} a(n)\\) times a smooth factor.</p>
-
-<div class="env-block theorem">
-    <div class="env-title">Theorem 2.3 (Abel's Summation Formula)</div>
+<div class="env-block intuition">
+    <div class="env-title">Discrete Integration by Parts</div>
     <div class="env-body">
-        <p>Let \\(a(n)\\) be arithmetic, \\(A(x) = \\sum_{n \\le x} a(n)\\), and \\(f\\) continuously differentiable on \\([1, x]\\). Then</p>
-        \\[\\sum_{n \\le x} a(n) f(n) = A(x) f(x) - \\int_1^x A(t) f'(t) \\, dt.\\]
+        <p>Abel summation is the discrete analogue of integration by parts. Just as \\(\\int u \\, dv = uv - \\int v \\, du\\) converts one integral into another, Abel summation converts a sum \\(\\sum a(n) f(n)\\) into an integral involving the partial sums \\(A(x) = \\sum_{n \\le x} a(n)\\). This is powerful because it lets us exploit smooth information about \\(f\\) (which we can integrate) together with average-order information about \\(a(n)\\) (which is what \\(A(x)\\) encodes).</p>
     </div>
 </div>
 
-<p><strong>Proof.</strong> Write \\(a(n) = A(n) - A(n-1)\\). Then:</p>
+<div class="env-block theorem">
+    <div class="env-title">Theorem 2.4 (Abel Summation Formula)</div>
+    <div class="env-body">
+        <p>Let \\(a(n)\\) be an arithmetic function and let \\(A(x) = \\sum_{n \\le x} a(n)\\). If \\(f\\) is a function with a continuous derivative on \\([1, x]\\), then</p>
+        \\[
+        \\sum_{n \\le x} a(n) f(n) = A(x) f(x) - \\int_1^x A(t) f'(t) \\, dt.
+        \\]
+    </div>
+</div>
 
-\\[\\sum_{n=1}^{N} a(n) f(n) = \\sum_{n=1}^{N} (A(n) - A(n-1)) f(n) = A(N)f(N) - \\sum_{n=1}^{N-1} A(n)(f(n+1) - f(n)).\\]
-
-<p>This is summation by parts. Replacing the difference \\(f(n+1) - f(n) = \\int_n^{n+1} f'(t)\\,dt\\) and \\(A(n) = A(t)\\) for \\(t \\in [n, n+1)\\) gives the integral form. \\(\\square\\)</p>
-
-<h3>Application: Partial Sums of \\(1/n\\)</h3>
+<div class="env-block proof">
+    <div class="env-title">Proof Sketch</div>
+    <div class="env-body">
+        <p>Write \\(a(n) = A(n) - A(n-1)\\), so</p>
+        \\[
+        \\sum_{n=1}^{N} a(n) f(n) = \\sum_{n=1}^{N} [A(n) - A(n-1)] f(n).
+        \\]
+        <p>Rearranging (the discrete analogue of integration by parts):</p>
+        \\[
+        = A(N) f(N) - \\sum_{n=1}^{N-1} A(n) [f(n+1) - f(n)].
+        \\]
+        <p>Since \\(f\\) is \\(C^1\\), we have \\(f(n+1) - f(n) = \\int_n^{n+1} f'(t) \\, dt\\), and on each interval \\([n, n+1)\\), \\(A(t) = A(n)\\). Combining these gives the result.</p>
+    </div>
+</div>
 
 <div class="env-block example">
-    <div class="env-title">Example 2.1</div>
+    <div class="env-title">Example: Partial Sums of \\(1/n\\)</div>
     <div class="env-body">
-        <p>Take \\(a(n) = 1\\), so \\(A(x) = \\lfloor x \\rfloor = x - \\{x\\}\\). With \\(f(t) = 1/t\\):</p>
-        \\[\\sum_{n \\le x} \\frac{1}{n} = \\frac{\\lfloor x \\rfloor}{x} + \\int_1^x \\frac{\\lfloor t \\rfloor}{t^2} \\, dt = \\log x + \\gamma + O(1/x).\\]
-        <p>The constant \\(\\gamma = \\int_1^\\infty \\left(\\frac{\\lfloor t \\rfloor}{t^2} - \\frac{1}{t}\\right) dt + 1\\) is the Euler-Mascheroni constant.</p>
+        <p>Take \\(a(n) = 1\\) (so \\(A(x) = \\lfloor x \\rfloor\\)) and \\(f(t) = 1/t\\). Abel summation gives</p>
+        \\[
+        \\sum_{n \\le x} \\frac{1}{n} = \\frac{\\lfloor x \\rfloor}{x} + \\int_1^x \\frac{\\lfloor t \\rfloor}{t^2} \\, dt.
+        \\]
+        <p>Writing \\(\\lfloor t \\rfloor = t - \\{t\\}\\) where \\(\\{t\\}\\) is the fractional part, this becomes</p>
+        \\[
+        = 1 - \\frac{\\{x\\}}{x} + \\log x - \\int_1^x \\frac{\\{t\\}}{t^2} \\, dt = \\log x + \\gamma + O(1/x),
+        \\]
+        <p>where \\(\\gamma = 1 - \\int_1^\\infty \\{t\\}/t^2 \\, dt\\) is the Euler-Mascheroni constant.</p>
     </div>
 </div>
 
-<h3>Application: Dirichlet Series Convergence</h3>
-
-<p>Abel summation is the key tool for establishing convergence of Dirichlet series \\(\\sum a(n) n^{-s}\\). If \\(A(x) = O(x^\\alpha)\\), then \\(\\sum a(n) n^{-s}\\) converges absolutely for \\(\\text{Re}(s) > \\alpha\\).</p>
-
-<div class="env-block theorem">
-    <div class="env-title">Theorem 2.4 (Convergence via Abel)</div>
+<div class="env-block example">
+    <div class="env-title">Example: From \\(\\psi(x) \\sim x\\) to PNT</div>
     <div class="env-body">
-        <p>If \\(A(x) = O(x^\\alpha)\\), then for \\(\\sigma = \\text{Re}(s) > \\alpha\\):</p>
-        \\[\\sum_{n=1}^\\infty \\frac{a(n)}{n^s} = s \\int_1^\\infty \\frac{A(t)}{t^{s+1}} \\, dt.\\]
+        <p>Take \\(a(n) = \\Lambda(n)\\) and \\(f(t) = 1/\\log t\\). Then \\(\\sum_{n \\le x} \\Lambda(n)/\\log n\\) is closely related to \\(\\pi(x)\\) (each prime \\(p\\) contributes \\(\\log p / \\log p = 1\\)). Abel summation converts the asymptotic \\(\\psi(x) \\sim x\\) into \\(\\pi(x) \\sim x/\\log x\\). This is how the PNT in the form \\(\\psi(x) \\sim x\\) implies the classical statement \\(\\pi(x) \\sim x/\\log x\\).</p>
     </div>
 </div>
 
 <div class="viz-placeholder" data-viz="viz-abel-summation"></div>
-
-<div class="env-block remark">
-    <div class="env-title">Partial Summation vs Abel: Terminology</div>
-    <div class="env-body">
-        <p>In analytic number theory, "Abel summation" and "partial summation" are used interchangeably. The result is sometimes called the "Euler-Maclaurin summation formula" in its integral form, though that formula has additional Bernoulli correction terms (Section 4).</p>
-    </div>
-</div>
 `,
             visualizations: [
                 {
                     id: 'viz-abel-summation',
-                    title: 'Abel Summation: Geometric Proof',
-                    description: 'Abel summation as discrete integration by parts. The step function A(x) and smooth function f(x) interact: the sum equals A(x)f(x) minus the integral of A(t)f\'(t). Drag the slider to change x.',
+                    title: 'Abel Summation: Geometric Interpretation',
+                    description: 'Abel summation decomposes sum a(n)f(n) into a boundary term A(x)f(x) minus an integral. The shaded area shows the integral term. Drag x to see how the decomposition works.',
                     setup: function(body, controls) {
-                        var viz = new VizEngine(body, { width: 600, height: 340, originX: 60, originY: 300, scale: 1 });
-                        var xVal = 8;
-                        var slider = VizEngine.createSlider(controls, 'N', 2, 15, xVal, 1, function(v) { xVal = Math.round(v); draw(); });
+                        var viz = new VizEngine(body, {
+                            width: 560, height: 380,
+                            originX: 60, originY: 330, scale: 25
+                        });
 
+                        var xVal = 8;
+                        VizEngine.createSlider(controls, 'x', 3, 15, xVal, 1, function(v) {
+                            xVal = Math.round(v);
+                            draw();
+                        });
+
+                        // a(n) = 1, f(t) = 1/t, A(x) = floor(x)
                         function draw() {
                             viz.clear();
                             var ctx = viz.ctx;
-                            var W = viz.width, H = viz.height;
-                            var padL = 60, padR = 20, padT = 28, padB = 36;
-                            var chartW = W - padL - padR, chartH = H - padT - padB;
-                            var N = xVal;
-                            var xMax = 16;
+
+                            viz.screenText('Abel summation: \u03A3 1/n = \u230Ax\u230B/x + \u222B \u230At\u230B/t\u00B2 dt', viz.width / 2, 18, viz.colors.white, 13);
+
+                            var chartL = 60, chartR = viz.width - 30;
+                            var chartT = 40, chartB = 320;
+                            var chartW = chartR - chartL;
+                            var chartH = chartB - chartT;
+
+                            var xRange = xVal + 1;
+                            var yMax = 1.2;
+
+                            // Map math coords to pixel
+                            function toPixel(x, y) {
+                                return [chartL + (x / xRange) * chartW, chartB - (y / yMax) * chartH];
+                            }
 
                             // Axes
-                            ctx.strokeStyle = viz.colors.axis; ctx.lineWidth = 1.5;
-                            ctx.beginPath(); ctx.moveTo(padL, padT); ctx.lineTo(padL, padT + chartH); ctx.lineTo(padL + chartW, padT + chartH); ctx.stroke();
+                            ctx.strokeStyle = viz.colors.axis; ctx.lineWidth = 1;
+                            ctx.beginPath(); ctx.moveTo(chartL, chartB); ctx.lineTo(chartR, chartB); ctx.stroke();
+                            ctx.beginPath(); ctx.moveTo(chartL, chartB); ctx.lineTo(chartL, chartT); ctx.stroke();
 
-                            // f(t) = 1/t, A(t) = floor(t)
-                            var yMax = 2.5;
-
-                            // Y grid
-                            for (var yv = 0; yv <= yMax; yv += 0.5) {
-                                var sy = padT + chartH - (yv / yMax) * chartH;
-                                ctx.fillStyle = viz.colors.text; ctx.font = '9px -apple-system,sans-serif'; ctx.textAlign = 'right';
-                                ctx.fillText(yv.toFixed(1), padL - 4, sy + 4);
-                                ctx.strokeStyle = viz.colors.grid; ctx.lineWidth = 0.5;
-                                ctx.beginPath(); ctx.moveTo(padL, sy); ctx.lineTo(padL + chartW, sy); ctx.stroke();
+                            // Shade the integral: A(t)/t^2 between 1 and x
+                            // A(t) = floor(t), so we draw rectangles
+                            for (var n = 1; n < xVal; n++) {
+                                var leftX = n;
+                                var rightX = n + 1;
+                                if (rightX > xVal) rightX = xVal;
+                                // On [n, n+1), A(t) = n, so A(t)/t^2 area
+                                // We shade below f(t) = 1/t from leftX to rightX, height A(n)*(1/t - 1/(t+dt))
+                                // Actually let's shade A(t)*f'(t) area = floor(t)/t^2
+                                var steps = 20;
+                                ctx.fillStyle = viz.colors.teal + '33';
+                                ctx.beginPath();
+                                var p0 = toPixel(leftX, 0);
+                                ctx.moveTo(p0[0], p0[1]);
+                                for (var s = 0; s <= steps; s++) {
+                                    var t = leftX + (rightX - leftX) * s / steps;
+                                    var val = n / (t * t);
+                                    var pp = toPixel(t, Math.min(val, yMax));
+                                    ctx.lineTo(pp[0], pp[1]);
+                                }
+                                var pEnd = toPixel(rightX, 0);
+                                ctx.lineTo(pEnd[0], pEnd[1]);
+                                ctx.closePath();
+                                ctx.fill();
                             }
 
-                            function sx(t) { return padL + (t / xMax) * chartW; }
-                            function sy(y) { return padT + chartH - (y / yMax) * chartH; }
-
-                            // Draw A(t)*f(t) rectangles (Abel decomposition)
-                            // sum a(n)*f(n) = sum of bars at integer n, height f(n)
-                            ctx.fillStyle = viz.colors.blue + '44';
-                            for (var n = 1; n <= N; n++) {
-                                var barH = 1 / n;
-                                var x1 = sx(n - 0.4), x2 = sx(n + 0.4);
-                                var y1 = sy(barH), y2 = sy(0);
-                                ctx.fillRect(x1, y1, x2 - x1, y2 - y1);
-                                ctx.strokeStyle = viz.colors.blue; ctx.lineWidth = 1;
-                                ctx.strokeRect(x1, y1, x2 - x1, y2 - y1);
-                            }
-
-                            // Draw A(t)*(-f'(t)) area (integral term) -- shade region under curve from 1 to N
-                            ctx.fillStyle = viz.colors.orange + '33';
+                            // Draw f(t) = 1/t
+                            ctx.strokeStyle = viz.colors.blue;
+                            ctx.lineWidth = 2;
                             ctx.beginPath();
-                            ctx.moveTo(sx(1), sy(0));
-                            var steps = 200;
-                            for (var i = 0; i <= steps; i++) {
-                                var t = 1 + (N - 1) * i / steps;
-                                var floorT = Math.floor(t);
-                                var val = floorT / (t * t); // A(t)/t^2 = A(t)*(-f'(t)) for f=1/t
-                                ctx.lineTo(sx(t), sy(val));
-                            }
-                            ctx.lineTo(sx(N), sy(0));
-                            ctx.closePath(); ctx.fill();
-
-                            // Draw 1/t curve
-                            ctx.strokeStyle = viz.colors.teal; ctx.lineWidth = 2;
-                            ctx.beginPath();
-                            for (var i = 0; i <= 200; i++) {
-                                var t = 1 + (xMax - 1) * i / 200;
-                                var x = sx(t), yy = sy(1 / t);
-                                i === 0 ? ctx.moveTo(x, yy) : ctx.lineTo(x, yy);
+                            var started = false;
+                            for (var i = 0; i <= 300; i++) {
+                                var t = 0.3 + (xRange - 0.3) * i / 300;
+                                var fv = 1 / t;
+                                if (fv > yMax * 1.2) continue;
+                                var p = toPixel(t, fv);
+                                if (!started) { ctx.moveTo(p[0], p[1]); started = true; }
+                                else ctx.lineTo(p[0], p[1]);
                             }
                             ctx.stroke();
 
-                            // N marker
-                            ctx.strokeStyle = viz.colors.red; ctx.lineWidth = 1.5; ctx.setLineDash([4, 4]);
-                            ctx.beginPath(); ctx.moveTo(sx(N), padT); ctx.lineTo(sx(N), padT + chartH); ctx.stroke(); ctx.setLineDash([]);
-                            ctx.fillStyle = viz.colors.red; ctx.font = '11px -apple-system,sans-serif'; ctx.textAlign = 'center';
-                            ctx.fillText('N=' + N, sx(N), padT + 12);
+                            // Draw step function A(t)/t^2
+                            ctx.strokeStyle = viz.colors.teal;
+                            ctx.lineWidth = 1.5;
+                            for (var k = 1; k < xVal; k++) {
+                                var lx = k, rx = Math.min(k + 1, xVal);
+                                ctx.beginPath();
+                                for (var s2 = 0; s2 <= 40; s2++) {
+                                    var t2 = lx + (rx - lx) * s2 / 40;
+                                    var val2 = k / (t2 * t2);
+                                    var p2 = toPixel(t2, Math.min(val2, yMax));
+                                    if (s2 === 0) ctx.moveTo(p2[0], p2[1]);
+                                    else ctx.lineTo(p2[0], p2[1]);
+                                }
+                                ctx.stroke();
+                            }
 
-                            // Running harmonic sum display
-                            var harmSum = 0;
-                            for (var k = 1; k <= N; k++) harmSum += 1 / k;
-                            var logApprox = Math.log(N) + 0.5772;
-                            ctx.fillStyle = viz.colors.white; ctx.font = '11px -apple-system,sans-serif'; ctx.textAlign = 'left';
-                            ctx.fillText('\u03a3 1/n = ' + harmSum.toFixed(4) + '   ln(N)+\u03b3 \u2248 ' + logApprox.toFixed(4), padL + 8, padT + 14);
+                            // Mark the points 1/n
+                            for (var m = 1; m <= xVal; m++) {
+                                var pm = toPixel(m, 1 / m);
+                                ctx.fillStyle = viz.colors.orange;
+                                ctx.beginPath();
+                                ctx.arc(pm[0], pm[1], 4, 0, Math.PI * 2);
+                                ctx.fill();
+                            }
 
-                            // Legend
-                            ctx.fillStyle = viz.colors.blue + 'aa'; ctx.fillRect(padL + 8, padT + chartH - 40, 14, 10);
-                            ctx.fillStyle = viz.colors.text; ctx.font = '10px -apple-system,sans-serif'; ctx.textAlign = 'left';
-                            ctx.fillText('1/n terms (blue)', padL + 26, padT + chartH - 32);
-                            ctx.fillStyle = viz.colors.orange + 'aa'; ctx.fillRect(padL + 8, padT + chartH - 26, 14, 10);
-                            ctx.fillText('\u222bA(t)/t\u00b2 dt (orange)', padL + 26, padT + chartH - 18);
-                            ctx.fillStyle = viz.colors.teal; ctx.fillRect(padL + 200, padT + chartH - 26, 14, 3);
-                            ctx.fillStyle = viz.colors.text; ctx.fillText('f(t) = 1/t', padL + 218, padT + chartH - 18);
+                            // Show sum value
+                            var harmonicSum = 0;
+                            for (var h = 1; h <= xVal; h++) harmonicSum += 1 / h;
+                            var euler = 0.5772156649;
+
+                            viz.screenText('H(' + xVal + ') = \u03A3 1/n = ' + harmonicSum.toFixed(4), viz.width / 2, chartB + 24, viz.colors.white, 12);
+                            viz.screenText('log(' + xVal + ') + \u03B3 = ' + (Math.log(xVal) + euler).toFixed(4), viz.width / 2, chartB + 40, viz.colors.orange, 11);
+
+                            // Labels
+                            ctx.fillStyle = viz.colors.blue;
+                            ctx.font = '12px -apple-system,sans-serif';
+                            ctx.textAlign = 'left';
+                            var lbl1 = toPixel(1.5, 1 / 1.5);
+                            ctx.fillText('f(t) = 1/t', lbl1[0] + 10, lbl1[1] - 6);
+
+                            ctx.fillStyle = viz.colors.teal;
+                            var lbl2 = toPixel(3, 2 / 9);
+                            ctx.fillText('\u230At\u230B/t\u00B2', lbl2[0] + 10, lbl2[1] - 6);
 
                             // X labels
-                            ctx.textAlign = 'center'; ctx.textBaseline = 'top'; ctx.fillStyle = viz.colors.text; ctx.font = '10px -apple-system,sans-serif';
-                            for (var xv = 2; xv <= xMax; xv += 2) {
-                                ctx.fillText(xv.toString(), sx(xv), padT + chartH + 5);
+                            ctx.fillStyle = viz.colors.text;
+                            ctx.font = '10px -apple-system,sans-serif';
+                            ctx.textAlign = 'center';
+                            ctx.textBaseline = 'top';
+                            for (var xl = 1; xl <= xVal; xl++) {
+                                var sxl = toPixel(xl, 0);
+                                ctx.fillText(xl.toString(), sxl[0], chartB + 4);
                             }
                         }
                         draw();
@@ -553,14 +805,14 @@ D(x) = \\sum_{n \\le x} d(n), \\quad \\Phi(x) = \\sum_{n \\le x} \\phi(n), \\qua
             ],
             exercises: [
                 {
-                    question: 'Use Abel summation with \\(a(n) = \\Lambda(n)\\) and \\(f(t) = 1/t\\) to express \\(\\sum_{n \\le x} \\Lambda(n)/n\\) in terms of \\(\\Psi(x)\\) and an integral. Given \\(\\Psi(x) = x + O(x \\exp(-c\\sqrt{\\log x}))\\), find the asymptotic.',
-                    hint: 'Apply Theorem 2.3 with \\(f(t) = 1/t\\), so \\(f\'(t) = -1/t^2\\). The main term is \\(\\Psi(x)/x + \\int_1^x \\Psi(t)/t^2 \\, dt\\).',
-                    solution: 'Abel summation gives \\(\\sum_{n \\le x} \\Lambda(n)/n = \\Psi(x)/x + \\int_1^x \\Psi(t)/t^2 \\, dt\\). Substituting \\(\\Psi(t) = t + E(t)\\) with \\(E(t)\\) small: main term is \\(1 + \\int_1^x t^{-1}\\,dt = 1 + \\log x\\). So \\(\\sum_{n \\le x} \\Lambda(n)/n = \\log x + O(1)\\), consistent with Mertens\' theorem.'
+                    question: 'Use Abel summation with \\(a(n) = 1\\) and \\(f(t) = \\log t\\) to derive an asymptotic formula for \\(\\sum_{n \\le x} \\log n = \\log(\\lfloor x \\rfloor!)\\).',
+                    hint: 'You have \\(A(x) = \\lfloor x \\rfloor\\) and \\(f\'(t) = 1/t\\). Apply the Abel formula and use \\(\\lfloor t \\rfloor = t - \\{t\\}\\).',
+                    solution: 'Abel summation gives \\(\\sum_{n \\le x} \\log n = \\lfloor x \\rfloor \\log x - \\int_1^x \\lfloor t \\rfloor / t \\, dt\\). Writing \\(\\lfloor t \\rfloor = t - \\{t\\}\\), the integral becomes \\(\\int_1^x 1 \\, dt - \\int_1^x \\{t\\}/t \\, dt = (x - 1) - \\int_1^x \\{t\\}/t \\, dt\\). The fractional part integral is \\(O(\\log x)\\), giving \\(\\log(\\lfloor x \\rfloor!) = x \\log x - x + O(\\log x)\\), which is Stirling\'s approximation.'
                 },
                 {
-                    question: 'Using Abel summation, show that if \\(\\sum_{p \\le x} 1/p = \\log\\log x + M + o(1)\\) (Mertens), then \\(\\sum_{p \\le x} (\\log p)/p = \\log x + O(1)\\).',
-                    hint: 'Apply Abel summation to the sum over primes with \\(a(p) = 1/p\\) and the weight \\(\\log p\\), or directly integrate the known asymptotic.',
-                    solution: 'Let \\(\\pi(t)\\) count primes. By partial summation: \\(\\sum_{p \\le x} (\\log p)/p = \\sum_{p \\le x} (1/p) \\cdot \\log p\\). Writing \\(A(t) = \\sum_{p \\le t} 1/p = \\log\\log t + C + o(1)\\) and \\(f(t) = \\log t\\), Abel\'s formula gives main contribution \\(A(x)\\log x - \\int_2^x A(t)/t \\, dt = \\log x + O(\\log\\log x)\\).'
+                    question: 'Explain why Abel summation is called "discrete integration by parts." Identify the correspondence: what plays the role of \\(u\\), \\(dv\\), \\(v\\), and \\(du\\)?',
+                    hint: 'Compare \\(\\int u \\, dv = uv - \\int v \\, du\\) with \\(\\sum a(n) f(n) = A(x) f(x) - \\int A(t) f\'(t) \\, dt\\).',
+                    solution: 'In \\(\\int u \\, dv = uv - \\int v \\, du\\): \\(u \\leftrightarrow f(t)\\) (the smooth function), \\(dv \\leftrightarrow dA(t)\\) (the sum, viewed as a Stieltjes measure), \\(v \\leftrightarrow A(t)\\) (the partial sums), and \\(du \\leftrightarrow f\'(t) \\, dt\\). The Abel formula is literally the Riemann-Stieltjes integration by parts formula \\(\\int_1^x f(t) \\, dA(t) = f(x)A(x) - f(1)A(1) - \\int_1^x A(t) f\'(t) \\, dt\\).'
                 }
             ]
         },
@@ -574,48 +826,57 @@ D(x) = \\sum_{n \\le x} d(n), \\quad \\Phi(x) = \\sum_{n \\le x} \\phi(n), \\qua
             content: `
 <h2>The Euler-Maclaurin Formula</h2>
 
-<p>Abel summation replaces a sum by an integral up to a controlled error. The Euler-Maclaurin formula goes further: it provides an asymptotic expansion of the <em>difference</em> between the sum and the integral in terms of Bernoulli numbers.</p>
+<div class="env-block intuition">
+    <div class="env-title">Beyond Abel Summation</div>
+    <div class="env-body">
+        <p>Abel summation relates a discrete sum to an integral with one correction term. The Euler-Maclaurin formula goes further: it expresses the difference between a sum and an integral as a systematic series of corrections involving higher derivatives, controlled by the Bernoulli numbers. It is the workhorse for computing precise asymptotics.</p>
+    </div>
+</div>
 
-<h3>Bernoulli Numbers and Polynomials</h3>
+<h3>Bernoulli Numbers</h3>
 
 <div class="env-block definition">
-    <div class="env-title">Definition 2.3 (Bernoulli Numbers)</div>
+    <div class="env-title">Definition (Bernoulli Numbers)</div>
     <div class="env-body">
-        <p>The Bernoulli numbers \\(B_k\\) are defined by the generating function</p>
-        \\[\\frac{t}{e^t - 1} = \\sum_{k=0}^\\infty B_k \\frac{t^k}{k!}, \\quad |t| < 2\\pi.\\]
-        <p>First few values: \\(B_0 = 1,\\; B_1 = -\\tfrac{1}{2},\\; B_2 = \\tfrac{1}{6},\\; B_3 = 0,\\; B_4 = -\\tfrac{1}{30},\\ldots\\) All \\(B_k = 0\\) for odd \\(k \\ge 3\\).</p>
+        <p>The <strong>Bernoulli numbers</strong> \\(B_0, B_1, B_2, \\ldots\\) are defined by the generating function</p>
+        \\[
+        \\frac{t}{e^t - 1} = \\sum_{k=0}^{\\infty} B_k \\frac{t^k}{k!}.
+        \\]
+        <p>The first several values are: \\(B_0 = 1\\), \\(B_1 = -1/2\\), \\(B_2 = 1/6\\), \\(B_3 = 0\\), \\(B_4 = -1/30\\), \\(B_5 = 0\\), \\(B_6 = 1/42\\). All odd Bernoulli numbers beyond \\(B_1\\) vanish.</p>
     </div>
 </div>
+
+<h3>The Formula</h3>
 
 <div class="env-block theorem">
-    <div class="env-title">Theorem 2.5 (Euler-Maclaurin Formula)</div>
+    <div class="env-title">Theorem 2.5 (Euler-Maclaurin Summation Formula)</div>
     <div class="env-body">
-        <p>Let \\(f\\) be \\((K+1)\\) times continuously differentiable on \\([m, n]\\). Then</p>
-        \\[\\sum_{j=m}^{n} f(j) = \\int_m^n f(t) \\, dt + \\frac{f(m)+f(n)}{2} + \\sum_{k=1}^{K} \\frac{B_{2k}}{(2k)!} \\bigl(f^{(2k-1)}(n) - f^{(2k-1)}(m)\\bigr) + R_K,\\]
-        <p>where \\(|R_K| \\le \\frac{2}{(2\\pi)^{2K}} \\int_m^n |f^{(2K+1)}(t)| \\, dt.\\)</p>
+        <p>If \\(f\\) has \\(2p\\) continuous derivatives on \\([a, b]\\) where \\(a, b\\) are integers, then</p>
+        \\[
+        \\sum_{n=a}^{b} f(n) = \\int_a^b f(t) \\, dt + \\frac{f(a) + f(b)}{2} + \\sum_{k=1}^{p} \\frac{B_{2k}}{(2k)!} \\left[ f^{(2k-1)}(b) - f^{(2k-1)}(a) \\right] + R_p,
+        \\]
+        <p>where the remainder satisfies \\(|R_p| \\le \\frac{2}{(2\\pi)^{2p}} \\int_a^b |f^{(2p)}(t)| \\, dt\\).</p>
     </div>
 </div>
 
-<h3>Stirling's Formula Sketch</h3>
-
-<p>Apply Euler-Maclaurin to \\(f(j) = \\log j\\) with \\(m=1, n=N\\):</p>
-
-\\[\\log(N!) = \\sum_{j=1}^N \\log j = N\\log N - N + \\tfrac{1}{2}\\log N + \\tfrac{1}{2}\\log(2\\pi) + O(1/N).\\]
-
-<p>This is Stirling's approximation \\(N! \\approx \\sqrt{2\\pi N} (N/e)^N\\).</p>
-
-<h3>The Harmonic Numbers</h3>
-
-<p>Apply Euler-Maclaurin to \\(f(j) = 1/j\\):</p>
-
-\\[H_N = \\sum_{j=1}^N \\frac{1}{j} = \\log N + \\gamma + \\frac{1}{2N} - \\sum_{k=1}^K \\frac{B_{2k}}{2k} \\cdot N^{-2k} + O(N^{-2K-2}),\\]
-
-<p>where \\(\\gamma = 0.5772156649\\ldots\\) This is a complete asymptotic expansion (but divergent as a series).</p>
+<div class="env-block example">
+    <div class="env-title">Example: Stirling's Formula via Euler-Maclaurin</div>
+    <div class="env-body">
+        <p>Apply the Euler-Maclaurin formula to \\(f(t) = \\log t\\) on \\([1, N]\\):</p>
+        \\[
+        \\log N! = \\sum_{n=1}^{N} \\log n = \\int_1^N \\log t \\, dt + \\frac{\\log N}{2} + \\frac{B_2}{2}\\left(\\frac{1}{N} - 1\\right) + \\cdots
+        \\]
+        \\[
+        = N \\log N - N + 1 + \\frac{\\log N}{2} + \\frac{1}{12N} - 1 + \\cdots
+        \\]
+        <p>This yields Stirling's approximation \\(N! \\sim \\sqrt{2\\pi N}(N/e)^N\\) with computable correction terms.</p>
+    </div>
+</div>
 
 <div class="env-block remark">
-    <div class="env-title">Asymptotic vs Convergent</div>
+    <div class="env-title">Connection to the Zeta Function</div>
     <div class="env-body">
-        <p>The Euler-Maclaurin expansion \\(H_N \\sim \\log N + \\gamma + \\frac{1}{2N} - \\frac{1}{12N^2} + \\cdots\\) diverges as a formal series (Bernoulli numbers grow factorially). But truncating at any fixed \\(K\\) gives an error \\(O(N^{-2K-2})\\). This is an <em>asymptotic expansion</em>: better for fixed \\(N\\) as \\(K\\) increases up to a point, then worse. The optimal truncation minimizes \\(N^{-2K}(2K)!/(2\\pi)^{2K}\\).</p>
+        <p>Euler-Maclaurin applied to \\(f(t) = t^{-s}\\) on \\([1, \\infty)\\) gives the analytic continuation of the Riemann zeta function to \\(\\text{Re}(s) > -2p + 1\\). Each Bernoulli correction extends the domain further. This is one of the classical methods for continuing \\(\\zeta(s)\\) beyond \\(\\text{Re}(s) > 1\\).</p>
     </div>
 </div>
 
@@ -624,111 +885,137 @@ D(x) = \\sum_{n \\le x} d(n), \\quad \\Phi(x) = \\sum_{n \\le x} \\phi(n), \\qua
             visualizations: [
                 {
                     id: 'viz-euler-maclaurin',
-                    title: 'Euler-Maclaurin: H_N vs ln(N) + gamma',
-                    description: 'The harmonic numbers H_N compared to ln(N)+gamma and successive Euler-Maclaurin approximations. See the correction terms snap into precision.',
+                    title: 'Euler-Maclaurin: Sum vs Integral',
+                    description: 'Compare the discrete sum sum f(n) with the integral of f. The Euler-Maclaurin formula explains the difference. The correction terms (involving Bernoulli numbers) close the gap.',
                     setup: function(body, controls) {
-                        var viz = new VizEngine(body, { width: 600, height: 330, originX: 60, originY: 300, scale: 1 });
-                        var nMax = 50;
-                        var gamma = 0.5772156649;
-                        var terms = 0;
-                        var slider = VizEngine.createSlider(controls, 'EM terms K', 0, 4, 0, 1, function(v) { terms = Math.round(v); draw(); });
+                        var viz = new VizEngine(body, {
+                            width: 560, height: 380,
+                            originX: 60, originY: 330, scale: 1
+                        });
 
-                        // Bernoulli numbers B_{2k}/(2k) for k=1..4
-                        var emCoeffs = [
-                            1 / 12,        // B2/(2) = (1/6)/2
-                            -1 / 120,      // B4/(4) = (-1/30)/4
-                            1 / 252,       // B6/(6) = (1/42)/6
-                            -1 / 240       // B8/(8) = (-1/30)/8
-                        ];
+                        var nMax = 10;
+                        var pTerms = 0; // number of Euler-Maclaurin correction terms
+                        var funcIdx = 0; // 0 = 1/t, 1 = log(t)
 
-                        function emApprox(N, K) {
-                            var val = Math.log(N) + gamma + 1 / (2 * N);
-                            for (var k = 0; k < K && k < emCoeffs.length; k++) {
-                                var power = 1;
-                                for (var j = 0; j < 2 * (k + 1); j++) power *= N;
-                                val -= emCoeffs[k] / power;
+                        VizEngine.createSlider(controls, 'N', 3, 30, nMax, 1, function(v) {
+                            nMax = Math.round(v);
+                            draw();
+                        });
+                        VizEngine.createSlider(controls, 'Correction terms', 0, 4, pTerms, 1, function(v) {
+                            pTerms = Math.round(v);
+                            draw();
+                        });
+                        VizEngine.createButton(controls, 'f = 1/t', function() { funcIdx = 0; draw(); });
+                        VizEngine.createButton(controls, 'f = log(t)', function() { funcIdx = 1; draw(); });
+
+                        // Bernoulli numbers B_2, B_4, B_6, B_8
+                        var bernoulli = [1/6, -1/30, 1/42, -1/30]; // B_2, B_4, B_6, B_8
+
+                        function f(t) { return funcIdx === 0 ? 1/t : Math.log(t); }
+                        // Derivatives of 1/t: f^(k)(t) = (-1)^k k! / t^{k+1}
+                        // Derivatives of log(t): f^(k)(t) = (-1)^{k+1} (k-1)! / t^k for k>=1
+                        function fDeriv(k, t) {
+                            if (funcIdx === 0) {
+                                // k-th derivative of 1/t
+                                var sign = (k % 2 === 0) ? 1 : -1;
+                                var fact = 1; for (var i = 2; i <= k; i++) fact *= i;
+                                return sign * fact / Math.pow(t, k + 1);
+                            } else {
+                                // k-th derivative of log(t)
+                                if (k === 0) return Math.log(t);
+                                var sign2 = ((k + 1) % 2 === 0) ? 1 : -1;
+                                var fact2 = 1; for (var j = 2; j <= k - 1; j++) fact2 *= j;
+                                return sign2 * fact2 / Math.pow(t, k);
                             }
-                            return val;
-                        }
-
-                        function harmonic(N) {
-                            var h = 0; for (var k = 1; k <= N; k++) h += 1 / k; return h;
                         }
 
                         function draw() {
                             viz.clear();
                             var ctx = viz.ctx;
-                            var W = viz.width, H = viz.height;
-                            var padL = 60, padR = 20, padT = 28, padB = 36;
-                            var chartW = W - padL - padR, chartH = H - padT - padB;
 
-                            ctx.strokeStyle = viz.colors.axis; ctx.lineWidth = 1.5;
-                            ctx.beginPath(); ctx.moveTo(padL, padT); ctx.lineTo(padL, padT + chartH); ctx.lineTo(padL + chartW, padT + chartH); ctx.stroke();
+                            var fName = funcIdx === 0 ? 'f(t) = 1/t' : 'f(t) = log(t)';
+                            viz.screenText('Euler-Maclaurin: ' + fName, viz.width / 2, 18, viz.colors.white, 13);
 
-                            var yMin = 0, yMax = 4.5;
+                            // Compute exact sum
+                            var exactSum = 0;
+                            for (var n = 1; n <= nMax; n++) exactSum += f(n);
 
-                            for (var yv = 0; yv <= yMax; yv += 1) {
-                                var sy = padT + chartH - ((yv - yMin) / (yMax - yMin)) * chartH;
-                                ctx.fillStyle = viz.colors.text; ctx.font = '10px -apple-system,sans-serif'; ctx.textAlign = 'right';
-                                ctx.fillText(yv.toString(), padL - 4, sy + 4);
-                                ctx.strokeStyle = viz.colors.grid; ctx.lineWidth = 0.5;
-                                ctx.beginPath(); ctx.moveTo(padL, sy); ctx.lineTo(padL + chartW, sy); ctx.stroke();
+                            // Compute integral
+                            var integral;
+                            if (funcIdx === 0) integral = Math.log(nMax); // integral of 1/t from 1 to N
+                            else integral = nMax * Math.log(nMax) - nMax + 1; // integral of log(t) from 1 to N
+
+                            // Euler-Maclaurin approximation
+                            var emApprox = integral + (f(1) + f(nMax)) / 2;
+                            for (var p = 0; p < pTerms && p < bernoulli.length; p++) {
+                                var k = 2 * (p + 1); // B_{2k}/(2k)!
+                                var factK = 1; for (var fi = 2; fi <= k; fi++) factK *= fi;
+                                emApprox += bernoulli[p] / factK * (fDeriv(k - 1, nMax) - fDeriv(k - 1, 1));
                             }
 
-                            function toSx(n) { return padL + (n / nMax) * chartW; }
-                            function toSy(y) { return padT + chartH - ((y - yMin) / (yMax - yMin)) * chartH; }
+                            var error = Math.abs(exactSum - emApprox);
+                            var integralError = Math.abs(exactSum - integral);
 
-                            // Exact harmonic numbers
-                            ctx.strokeStyle = viz.colors.blue; ctx.lineWidth = 2;
-                            ctx.beginPath();
-                            for (var n = 1; n <= nMax; n++) {
-                                var h = harmonic(n);
-                                n === 1 ? ctx.moveTo(toSx(n), toSy(h)) : ctx.lineTo(toSx(n), toSy(h));
+                            // Bar comparison
+                            var barY = 80;
+                            var barH = 30;
+                            var barMaxW = viz.width - 140;
+                            var maxBarVal = Math.max(exactSum, emApprox, integral) * 1.1;
+
+                            // Exact sum bar
+                            ctx.fillStyle = viz.colors.blue;
+                            ctx.fillRect(120, barY, (exactSum / maxBarVal) * barMaxW, barH);
+                            ctx.fillStyle = viz.colors.text;
+                            ctx.font = '11px -apple-system,sans-serif';
+                            ctx.textAlign = 'right';
+                            ctx.textBaseline = 'middle';
+                            ctx.fillText('Exact sum:', 115, barY + barH / 2);
+                            ctx.textAlign = 'left';
+                            ctx.fillStyle = viz.colors.white;
+                            ctx.fillText(exactSum.toFixed(6), 120 + (exactSum / maxBarVal) * barMaxW + 6, barY + barH / 2);
+
+                            // Integral bar
+                            barY += 45;
+                            ctx.fillStyle = viz.colors.orange;
+                            ctx.fillRect(120, barY, (integral / maxBarVal) * barMaxW, barH);
+                            ctx.fillStyle = viz.colors.text;
+                            ctx.textAlign = 'right';
+                            ctx.fillText('Integral:', 115, barY + barH / 2);
+                            ctx.textAlign = 'left';
+                            ctx.fillStyle = viz.colors.white;
+                            ctx.fillText(integral.toFixed(6) + '  (err: ' + integralError.toFixed(6) + ')', 120 + (integral / maxBarVal) * barMaxW + 6, barY + barH / 2);
+
+                            // E-M approximation bar
+                            barY += 45;
+                            ctx.fillStyle = viz.colors.teal;
+                            ctx.fillRect(120, barY, Math.max(0, (emApprox / maxBarVal) * barMaxW), barH);
+                            ctx.fillStyle = viz.colors.text;
+                            ctx.textAlign = 'right';
+                            ctx.fillText('E-M (' + pTerms + ' corr):', 115, barY + barH / 2);
+                            ctx.textAlign = 'left';
+                            ctx.fillStyle = viz.colors.white;
+                            ctx.fillText(emApprox.toFixed(6) + '  (err: ' + error.toExponential(2) + ')', 120 + Math.max(0, (emApprox / maxBarVal) * barMaxW) + 6, barY + barH / 2);
+
+                            // Bernoulli numbers table
+                            barY += 60;
+                            viz.screenText('Bernoulli numbers used:', viz.width / 2, barY, viz.colors.white, 12);
+                            barY += 20;
+                            var bNames = ['B\u2082 = 1/6', 'B\u2084 = -1/30', 'B\u2086 = 1/42', 'B\u2088 = -1/30'];
+                            for (var bi = 0; bi < Math.min(pTerms, 4); bi++) {
+                                var bx = 80 + bi * 130;
+                                ctx.fillStyle = viz.colors.teal;
+                                ctx.font = '11px -apple-system,sans-serif';
+                                ctx.textAlign = 'left';
+                                ctx.fillText(bNames[bi], bx, barY);
                             }
-                            ctx.stroke();
-
-                            // log(N)+gamma baseline
-                            ctx.strokeStyle = viz.colors.orange; ctx.lineWidth = 1.5; ctx.setLineDash([6, 4]);
-                            ctx.beginPath();
-                            for (var n = 1; n <= nMax; n++) {
-                                var approx0 = Math.log(n) + gamma;
-                                n === 1 ? ctx.moveTo(toSx(n), toSy(approx0)) : ctx.lineTo(toSx(n), toSy(approx0));
-                            }
-                            ctx.stroke(); ctx.setLineDash([]);
-
-                            // EM approximation with K terms
-                            if (terms > 0) {
-                                ctx.strokeStyle = viz.colors.green; ctx.lineWidth = 2;
-                                ctx.beginPath();
-                                for (var n = 1; n <= nMax; n++) {
-                                    var approxK = emApprox(n, terms);
-                                    n === 1 ? ctx.moveTo(toSx(n), toSy(approxK)) : ctx.lineTo(toSx(n), toSy(approxK));
-                                }
-                                ctx.stroke();
+                            if (pTerms === 0) {
+                                ctx.fillStyle = viz.colors.text;
+                                ctx.font = '11px -apple-system,sans-serif';
+                                ctx.textAlign = 'center';
+                                ctx.fillText('(none, using only integral + endpoint average)', viz.width / 2, barY);
                             }
 
-                            // Error panel: show |H_N - approx| at N=nMax
-                            var errBaseline = Math.abs(harmonic(nMax) - (Math.log(nMax) + gamma));
-                            var errEM = terms > 0 ? Math.abs(harmonic(nMax) - emApprox(nMax, terms)) : null;
-                            ctx.fillStyle = viz.colors.white; ctx.font = '11px -apple-system,sans-serif'; ctx.textAlign = 'left';
-                            ctx.fillText('At N=' + nMax + ':  |H_N - ln N - \u03b3| = ' + errBaseline.toFixed(6), padL + 8, padT + 14);
-                            if (errEM !== null) {
-                                ctx.fillStyle = viz.colors.green;
-                                ctx.fillText('|H_N - EM_' + terms + '| = ' + errEM.toExponential(3), padL + 8, padT + 30);
-                            }
-
-                            // Legend
-                            ctx.fillStyle = viz.colors.blue; ctx.fillRect(padL + 8, padT + chartH - 38, 18, 3);
-                            ctx.fillStyle = viz.colors.text; ctx.font = '10px -apple-system,sans-serif'; ctx.textAlign = 'left'; ctx.fillText('H_N (exact)', padL + 30, padT + chartH - 31);
-                            ctx.fillStyle = viz.colors.orange; ctx.fillRect(padL + 120, padT + chartH - 38, 18, 3);
-                            ctx.fillText('ln N + \u03b3', padL + 142, padT + chartH - 31);
-                            if (terms > 0) { ctx.fillStyle = viz.colors.green; ctx.fillRect(padL + 220, padT + chartH - 38, 18, 3); ctx.fillStyle = viz.colors.text; ctx.fillText('EM K=' + terms, padL + 242, padT + chartH - 31); }
-
-                            ctx.textAlign = 'center'; ctx.textBaseline = 'top'; ctx.fillStyle = viz.colors.text; ctx.font = '10px -apple-system,sans-serif';
-                            for (var xv = 0; xv <= nMax; xv += 10) {
-                                ctx.fillText(xv.toString(), toSx(xv), padT + chartH + 5);
-                            }
-                            ctx.fillText('N', padL + chartW / 2, padT + chartH + 22);
+                            viz.screenText('Increasing correction terms improves accuracy exponentially', viz.width / 2, viz.height - 20, viz.colors.text, 11);
                         }
                         draw();
                         return viz;
@@ -737,9 +1024,9 @@ D(x) = \\sum_{n \\le x} d(n), \\quad \\Phi(x) = \\sum_{n \\le x} \\phi(n), \\qua
             ],
             exercises: [
                 {
-                    question: 'Apply the Euler-Maclaurin formula to \\(f(j) = 1/j^2\\) to show \\(\\sum_{j=1}^N 1/j^2 = \\pi^2/6 - 1/N + O(1/N^2)\\). What is the next correction term?',
-                    hint: 'The integral \\(\\int_N^\\infty t^{-2} \\, dt = 1/N\\). The boundary term at infinity vanishes. Use \\(B_2 = 1/6\\), \\(f\'(t) = -2/t^3\\).',
-                    solution: 'By EM: \\(\\sum_{j=1}^N 1/j^2 = \\pi^2/6 - \\int_N^\\infty t^{-2}\\,dt + \\frac{1}{2N^2} + \\frac{B_2}{2!} \\cdot (-2N^{-3}) + \\cdots = \\pi^2/6 - N^{-1} + \\frac{1}{2}N^{-2} + O(N^{-3})\\).'
+                    question: 'Use the Euler-Maclaurin formula (with \\(p = 1\\)) applied to \\(f(t) = 1/t\\) on \\([1, N]\\) to derive the asymptotic expansion \\(\\sum_{n=1}^{N} 1/n = \\log N + \\gamma + 1/(2N) - 1/(12N^2) + O(1/N^4)\\).',
+                    hint: 'The formula gives: integral \\(= \\log N\\), endpoint average \\(= (1 + 1/N)/2\\), and the \\(B_2\\) term involves \\(f\'(b) - f\'(a) = -1/N^2 + 1\\).',
+                    solution: 'Euler-Maclaurin with \\(p=1\\): \\(\\sum_{n=1}^N 1/n = \\int_1^N 1/t \\, dt + (1 + 1/N)/2 + \\frac{B_2}{2!}(f\'(N) - f\'(1)) + R_1\\). We have \\(\\int_1^N 1/t \\, dt = \\log N\\), \\(f\'(t) = -1/t^2\\), so the \\(B_2\\) correction is \\(\\frac{1/6}{2}(-1/N^2 + 1) = \\frac{1}{12}(1 - 1/N^2)\\). Collecting: \\(\\log N + 1/2 + 1/(2N) + 1/12 - 1/(12N^2) + R_1\\). The constant \\(1/2 + 1/12 + \\cdots\\) assembles into \\(\\gamma\\).'
                 }
             ]
         },
@@ -749,160 +1036,211 @@ D(x) = \\sum_{n \\le x} d(n), \\quad \\Phi(x) = \\sum_{n \\le x} \\phi(n), \\qua
         // ================================================================
         {
             id: 'sec-hyperbola',
-            title: "Dirichlet's Hyperbola Method",
+            title: 'Dirichlet\'s Hyperbola Method',
             content: `
 <h2>Dirichlet's Hyperbola Method</h2>
 
-<p>We prove Theorem 2.1: \\(D(x) = x\\log x + (2\\gamma-1)x + O(\\sqrt{x})\\). The proof is a masterpiece of elementary analytic number theory.</p>
-
-<h3>Setup: Counting Lattice Points</h3>
-
-<p>Observe that</p>
-
-\\[D(x) = \\sum_{n \\le x} d(n) = \\sum_{n \\le x} \\sum_{d \\mid n} 1 = \\#\\{(a,b) \\in \\mathbb{Z}_{>0}^2 : ab \\le x\\}.\\]
-
-<p>We are counting integer lattice points under the hyperbola \\(ab = x\\) in the first quadrant. By symmetry \\((a,b) \\leftrightarrow (b,a)\\), we can split:</p>
-
-\\[D(x) = 2 \\sum_{a \\le \\sqrt{x}} \\left\\lfloor \\frac{x}{a} \\right\\rfloor - \\lfloor \\sqrt{x} \\rfloor^2.\\]
-
-<p>The first term counts lattice points in the region \\(a \\le \\sqrt{x}\\) (both sides), and the correction subtracts the square \\(a, b \\le \\sqrt{x}\\) that was counted twice.</p>
-
-<div class="viz-placeholder" data-viz="viz-hyperbola-lattice"></div>
-
-<h3>Asymptotic Evaluation</h3>
-
-<div class="env-block theorem">
-    <div class="env-title">Theorem 2.6 (Dirichlet's Hyperbola Identity)</div>
+<div class="env-block intuition">
+    <div class="env-title">The Key Geometric Idea</div>
     <div class="env-body">
-        \\[D(x) = 2\\sum_{n \\le \\sqrt{x}} \\left\\lfloor \\frac{x}{n} \\right\\rfloor - \\lfloor\\sqrt{x}\\rfloor^2.\\]
+        <p>To compute \\(D(x) = \\sum_{n \\le x} d(n) = \\sum_{ab \\le x} 1\\), we count lattice points \\((a, b)\\) with \\(a, b \\ge 1\\) in the region under the hyperbola \\(ab = x\\). The naive approach sums along one variable. Dirichlet's insight: split the region at the "diagonal" \\(a = b = \\sqrt{x}\\) and sum over each half separately. This avoids double-counting and yields a better error term.</p>
     </div>
 </div>
 
-<strong>Proof of the asymptotic.</strong> Write \\(\\lfloor x/n \\rfloor = x/n - \\{x/n\\}\\):
+<div class="env-block theorem">
+    <div class="env-title">Theorem 2.6 (Dirichlet's Hyperbola Method for \\(D(x)\\))</div>
+    <div class="env-body">
+        <p>Let \\(f = g * h\\) (Dirichlet convolution). Then</p>
+        \\[
+        \\sum_{n \\le x} f(n) = \\sum_{a \\le u} g(a) H(x/a) + \\sum_{b \\le v} h(b) G(x/b) - G(u) H(v),
+        \\]
+        <p>where \\(G(x) = \\sum_{n \\le x} g(n)\\), \\(H(x) = \\sum_{n \\le x} h(n)\\), and \\(uv = x\\).</p>
+        <p>Applying this to \\(d = 1 * 1\\) with \\(u = v = \\sqrt{x}\\) gives</p>
+        \\[
+        D(x) = 2 \\sum_{a \\le \\sqrt{x}} \\left\\lfloor \\frac{x}{a} \\right\\rfloor - \\lfloor \\sqrt{x} \\rfloor^2 = x \\log x + (2\\gamma - 1)x + O(\\sqrt{x}).
+        \\]
+    </div>
+</div>
 
-\\[2\\sum_{n \\le \\sqrt{x}} \\frac{x}{n} = 2x \\sum_{n \\le \\sqrt{x}} \\frac{1}{n} = 2x\\bigl(\\tfrac{1}{2}\\log x + \\gamma + O(x^{-1/2})\\bigr) = x\\log x + 2\\gamma x + O(\\sqrt{x}).\\]
-
-<p>The error from fractional parts: \\(\\sum_{n \\le \\sqrt{x}} \\{x/n\\} = O(\\sqrt{x})\\). And \\(\\lfloor\\sqrt{x}\\rfloor^2 = x - O(\\sqrt{x})\\). Combining:</p>
-
-\\[D(x) = x\\log x + 2\\gamma x - x + O(\\sqrt{x}) = x\\log x + (2\\gamma-1)x + O(\\sqrt{x}). \\quad \\square\\]
-
-<h3>Generalizations</h3>
-
-<p>The hyperbola method applies whenever we need asymptotics for \\(\\sum_{n \\le x} (f * g)(n)\\) where \\(f * g\\) is a Dirichlet convolution:</p>
-
-\\[\\sum_{n \\le x} (f*g)(n) = \\sum_{a \\le u} f(a) G(x/a) + \\sum_{b \\le x/u} g(b) F(x/b) - F(u) G(x/u),\\]
-
-<p>for any \\(u \\le x\\). The optimal choice of \\(u\\) (often \\(u = \\sqrt{x}\\)) balances the error terms.</p>
+<div class="env-block proof">
+    <div class="env-title">Proof Idea</div>
+    <div class="env-body">
+        <p>We count lattice points \\((a, b)\\) with \\(ab \\le x\\) by splitting into three regions:</p>
+        <ul>
+            <li><strong>Region I</strong>: \\(a \\le \\sqrt{x}\\), any valid \\(b\\) (i.e., \\(b \\le x/a\\)). Contribution: \\(\\sum_{a \\le \\sqrt{x}} \\lfloor x/a \\rfloor\\).</li>
+            <li><strong>Region II</strong>: \\(b \\le \\sqrt{x}\\), any valid \\(a\\). By symmetry, same as Region I: \\(\\sum_{b \\le \\sqrt{x}} \\lfloor x/b \\rfloor\\).</li>
+            <li><strong>Overlap</strong>: \\(a \\le \\sqrt{x}\\) and \\(b \\le \\sqrt{x}\\). This is counted twice, so subtract \\(\\lfloor \\sqrt{x} \\rfloor^2\\).</li>
+        </ul>
+        <p>The estimate \\(\\sum_{a \\le \\sqrt{x}} \\lfloor x/a \\rfloor = x \\sum_{a \\le \\sqrt{x}} 1/a + O(\\sqrt{x})\\), combined with the harmonic sum asymptotics, gives the result.</p>
+    </div>
+</div>
 
 <div class="env-block remark">
     <div class="env-title">The Dirichlet Divisor Problem</div>
     <div class="env-body">
-        <p>Dirichlet's error term \\(O(\\sqrt{x})\\) is not optimal. The true error is conjectured to be \\(O(x^{1/4+\\epsilon})\\). Voronoi (1903) improved it to \\(O(x^{1/3} \\log x)\\). The current record is \\(O(x^{131/416})\\) (Huxley, 2003). This is one of the most famous open problems in analytic number theory.</p>
+        <p>What is the true order of the error \\(\\Delta(x) = D(x) - x \\log x - (2\\gamma - 1)x\\)? Dirichlet showed \\(\\Delta(x) = O(\\sqrt{x})\\). The best known bound (as of 2024) is \\(O(x^{131/416 + \\varepsilon})\\) due to Huxley. It is conjectured that \\(\\Delta(x) = O(x^{1/4 + \\varepsilon})\\), but this remains open. Hardy showed that \\(\\Delta(x) = \\Omega(x^{1/4})\\), so \\(1/4\\) would be optimal.</p>
     </div>
 </div>
+
+<div class="viz-placeholder" data-viz="viz-hyperbola-lattice"></div>
 `,
             visualizations: [
                 {
                     id: 'viz-hyperbola-lattice',
-                    title: 'Lattice Points Under the Hyperbola xy = N',
-                    description: 'Blue dots: lattice points with ab <= N. Orange region: a <= sqrt(N) (used in Dirichlet\'s split). Drag the slider to change N and watch D(N) build up.',
+                    title: 'Dirichlet\'s Hyperbola Method: Lattice Point Counting',
+                    description: 'Count lattice points (a,b) with ab <= x under the hyperbola. The blue region counts a <= sqrt(x), the green region counts b <= sqrt(x), and the overlap (orange) is subtracted. Drag x to see how the count changes.',
                     setup: function(body, controls) {
-                        var viz = new VizEngine(body, { width: 600, height: 380, originX: 40, originY: 360, scale: 1 });
-                        var N = 30;
-                        var slider = VizEngine.createSlider(controls, 'N', 5, 80, N, 1, function(v) { N = Math.round(v); draw(); });
+                        var viz = new VizEngine(body, {
+                            width: 560, height: 400,
+                            originX: 50, originY: 360, scale: 1
+                        });
+
+                        var xVal = 30;
+                        VizEngine.createSlider(controls, 'x', 10, 100, xVal, 5, function(v) {
+                            xVal = Math.round(v);
+                            draw();
+                        });
 
                         function draw() {
                             viz.clear();
                             var ctx = viz.ctx;
-                            var W = viz.width, H = viz.height;
-                            var padL = 40, padR = 20, padT = 28, padB = 28;
-                            var chartW = W - padL - padR, chartH = H - padT - padB;
-                            var axisMax = Math.ceil(N * 0.85) + 2;
 
-                            function sx(a) { return padL + (a / axisMax) * chartW; }
-                            function sy(b) { return padT + chartH - (b / axisMax) * chartH; }
+                            viz.screenText('Lattice points under ab = ' + xVal, viz.width / 2, 18, viz.colors.white, 14);
 
-                            // Axes
-                            ctx.strokeStyle = viz.colors.axis; ctx.lineWidth = 1.5;
-                            ctx.beginPath(); ctx.moveTo(padL, padT); ctx.lineTo(padL, padT + chartH); ctx.lineTo(padL + chartW, padT + chartH); ctx.stroke();
+                            var sqrtX = Math.sqrt(xVal);
+                            var maxCoord = Math.ceil(xVal / 1) + 1;
+                            var displayMax = Math.min(maxCoord, xVal + 2);
 
-                            // Grid
-                            ctx.strokeStyle = viz.colors.grid; ctx.lineWidth = 0.4;
-                            for (var k = 1; k <= axisMax; k++) {
-                                ctx.beginPath(); ctx.moveTo(sx(k), padT); ctx.lineTo(sx(k), padT + chartH); ctx.stroke();
-                                ctx.beginPath(); ctx.moveTo(padL, sy(k)); ctx.lineTo(padL + chartW, sy(k)); ctx.stroke();
+                            // Scale to fit
+                            var chartL = 50, chartB = 355, chartT = 40, chartR = viz.width - 20;
+                            var chartW = chartR - chartL;
+                            var chartH = chartB - chartT;
+                            var pixPerUnit = Math.min(chartW, chartH) / displayMax;
+
+                            function toP(a, b) {
+                                return [chartL + a * pixPerUnit, chartB - b * pixPerUnit];
                             }
 
-                            var sqrtN = Math.sqrt(N);
-
-                            // Orange shading: a <= sqrt(N) strip
-                            ctx.fillStyle = viz.colors.orange + '22';
-                            ctx.fillRect(padL, padT, sx(sqrtN) - padL, chartH);
-
-                            // Teal shading: b <= sqrt(N) strip (symmetric)
-                            ctx.fillStyle = viz.colors.teal + '18';
-                            ctx.fillRect(padL, sy(sqrtN), chartW, padT + chartH - sy(sqrtN));
-
-                            // Hyperbola curve xy = N
-                            ctx.strokeStyle = viz.colors.yellow; ctx.lineWidth = 2;
-                            ctx.beginPath();
-                            var started = false;
-                            for (var i = 0; i <= 300; i++) {
-                                var a = 0.5 + (axisMax - 0.5) * i / 300;
-                                var b = N / a;
-                                if (b > axisMax || b < 0.3) { started = false; continue; }
-                                var px = sx(a), py = sy(b);
-                                if (!started) { ctx.moveTo(px, py); started = true; } else { ctx.lineTo(px, py); }
+                            // Draw grid
+                            ctx.strokeStyle = viz.colors.grid;
+                            ctx.lineWidth = 0.3;
+                            for (var g = 0; g <= displayMax; g++) {
+                                var pg = toP(g, 0);
+                                ctx.beginPath(); ctx.moveTo(pg[0], chartB); ctx.lineTo(pg[0], chartT); ctx.stroke();
+                                pg = toP(0, g);
+                                ctx.beginPath(); ctx.moveTo(chartL, pg[1]); ctx.lineTo(chartR, pg[1]); ctx.stroke();
                             }
-                            ctx.stroke();
 
-                            // Sqrt(N) vertical line
-                            ctx.strokeStyle = viz.colors.orange; ctx.lineWidth = 1.5; ctx.setLineDash([5, 4]);
-                            ctx.beginPath(); ctx.moveTo(sx(sqrtN), padT); ctx.lineTo(sx(sqrtN), padT + chartH); ctx.stroke(); ctx.setLineDash([]);
+                            // Shade Region I (a <= sqrt(x), blue) and Region II (b <= sqrt(x), green)
+                            var sqrtFloor = Math.floor(sqrtX);
 
-                            // Lattice points
-                            var count = 0;
-                            for (var a = 1; a <= axisMax; a++) {
-                                for (var b = 1; b * a <= N; b++) {
-                                    count++;
-                                    var inLeft = a <= sqrtN;
-                                    ctx.fillStyle = inLeft ? viz.colors.blue : viz.colors.purple;
-                                    var r = Math.max(2, Math.min(5, 180 / axisMax));
-                                    ctx.beginPath(); ctx.arc(sx(a), sy(b), r, 0, Math.PI * 2); ctx.fill();
+                            // Region I: a from 1 to sqrtFloor, b from 1 to floor(x/a) but b > sqrtFloor
+                            for (var a = 1; a <= sqrtFloor; a++) {
+                                var bMax = Math.floor(xVal / a);
+                                for (var b = sqrtFloor + 1; b <= bMax && b <= displayMax; b++) {
+                                    var pp = toP(a, b);
+                                    ctx.fillStyle = viz.colors.blue + '44';
+                                    ctx.fillRect(pp[0] - pixPerUnit * 0.4, pp[1] - pixPerUnit * 0.4, pixPerUnit * 0.8, pixPerUnit * 0.8);
                                 }
                             }
 
-                            // Dirichlet formula value
-                            var dirichlet = 0;
-                            for (var a2 = 1; a2 <= sqrtN; a2++) dirichlet += Math.floor(N / a2);
-                            dirichlet = 2 * dirichlet - Math.floor(sqrtN) * Math.floor(sqrtN);
+                            // Region II: b from 1 to sqrtFloor, a from sqrtFloor+1 to floor(x/b)
+                            for (var b2 = 1; b2 <= sqrtFloor; b2++) {
+                                var aMax = Math.floor(xVal / b2);
+                                for (var a2 = sqrtFloor + 1; a2 <= aMax && a2 <= displayMax; a2++) {
+                                    var pp2 = toP(a2, b2);
+                                    ctx.fillStyle = viz.colors.green + '44';
+                                    ctx.fillRect(pp2[0] - pixPerUnit * 0.4, pp2[1] - pixPerUnit * 0.4, pixPerUnit * 0.8, pixPerUnit * 0.8);
+                                }
+                            }
+
+                            // Overlap: a <= sqrtFloor, b <= sqrtFloor, ab <= x
+                            for (var a3 = 1; a3 <= sqrtFloor; a3++) {
+                                for (var b3 = 1; b3 <= sqrtFloor && a3 * b3 <= xVal; b3++) {
+                                    var pp3 = toP(a3, b3);
+                                    ctx.fillStyle = viz.colors.orange + '55';
+                                    ctx.fillRect(pp3[0] - pixPerUnit * 0.4, pp3[1] - pixPerUnit * 0.4, pixPerUnit * 0.8, pixPerUnit * 0.8);
+                                }
+                            }
+
+                            // Draw lattice points
+                            var totalPoints = 0;
+                            for (var la = 1; la <= displayMax; la++) {
+                                for (var lb = 1; lb <= displayMax && la * lb <= xVal; lb++) {
+                                    totalPoints++;
+                                    var lp = toP(la, lb);
+                                    ctx.fillStyle = viz.colors.white;
+                                    ctx.beginPath();
+                                    ctx.arc(lp[0], lp[1], Math.min(3, pixPerUnit * 0.2), 0, Math.PI * 2);
+                                    ctx.fill();
+                                }
+                            }
+
+                            // Draw hyperbola ab = x
+                            ctx.strokeStyle = viz.colors.red;
+                            ctx.lineWidth = 2;
+                            ctx.beginPath();
+                            var started = false;
+                            for (var t = 0.5; t <= displayMax; t += 0.2) {
+                                var hb = xVal / t;
+                                if (hb > displayMax || hb < 0.3) continue;
+                                var hp = toP(t, hb);
+                                if (!started) { ctx.moveTo(hp[0], hp[1]); started = true; }
+                                else ctx.lineTo(hp[0], hp[1]);
+                            }
+                            ctx.stroke();
+
+                            // Draw sqrt(x) lines
+                            ctx.strokeStyle = viz.colors.yellow;
+                            ctx.lineWidth = 1;
+                            ctx.setLineDash([4, 4]);
+                            var sqrtP = toP(sqrtX, 0);
+                            ctx.beginPath(); ctx.moveTo(sqrtP[0], chartB); ctx.lineTo(sqrtP[0], chartT); ctx.stroke();
+                            sqrtP = toP(0, sqrtX);
+                            ctx.beginPath(); ctx.moveTo(chartL, sqrtP[1]); ctx.lineTo(chartR, sqrtP[1]); ctx.stroke();
+                            ctx.setLineDash([]);
+
+                            // Labels
+                            ctx.fillStyle = viz.colors.yellow;
+                            ctx.font = '10px -apple-system,sans-serif';
+                            ctx.textAlign = 'center';
+                            sqrtP = toP(sqrtX, 0);
+                            ctx.fillText('\u221A' + xVal, sqrtP[0], chartB + 14);
 
                             // Axis labels
-                            ctx.fillStyle = viz.colors.text; ctx.font = '10px -apple-system,sans-serif'; ctx.textAlign = 'center';
-                            for (var k2 = 5; k2 <= axisMax; k2 += 5) {
-                                ctx.fillText(k2.toString(), sx(k2), padT + chartH + 6);
-                                ctx.textAlign = 'right';
-                                ctx.fillText(k2.toString(), padL - 4, sy(k2) + 4);
-                                ctx.textAlign = 'center';
+                            ctx.fillStyle = viz.colors.text;
+                            ctx.font = '10px -apple-system,sans-serif';
+                            ctx.textAlign = 'center';
+                            ctx.textBaseline = 'top';
+                            for (var xl = 1; xl <= displayMax; xl += Math.max(1, Math.floor(displayMax / 10))) {
+                                var xlp = toP(xl, 0);
+                                ctx.fillText(xl.toString(), xlp[0], chartB + 2);
                             }
-                            ctx.fillStyle = viz.colors.text; ctx.font = '11px -apple-system,sans-serif'; ctx.textAlign = 'center';
-                            ctx.fillText('a', padL + chartW / 2, padT + chartH + 18);
-                            ctx.textAlign = 'right'; ctx.fillText('b', padL - 8, padT + 10);
 
-                            // Info panel
-                            ctx.fillStyle = viz.colors.white; ctx.font = '12px -apple-system,sans-serif'; ctx.textAlign = 'left';
-                            ctx.fillText('N = ' + N + '   D(N) = ' + count + '   Formula: ' + dirichlet, padL + 4, padT + 14);
-                            ctx.fillStyle = viz.colors.orange; ctx.font = '10px -apple-system,sans-serif';
-                            ctx.fillText('\u221aN = ' + sqrtN.toFixed(2), sx(sqrtN) + 4, padT + 26);
+                            // Summary
+                            var Dx = totalPoints;
+                            var approx = xVal * Math.log(xVal) + (2 * 0.5772 - 1) * xVal;
+                            viz.screenText('D(' + xVal + ') = ' + Dx + '    Approx: ' + approx.toFixed(1) + '    Error: ' + Math.abs(Dx - approx).toFixed(1), viz.width / 2, chartB + 30, viz.colors.white, 11);
 
                             // Legend
-                            ctx.fillStyle = viz.colors.blue; ctx.beginPath(); ctx.arc(padL + 12, padT + chartH - 22, 4, 0, Math.PI * 2); ctx.fill();
-                            ctx.fillStyle = viz.colors.text; ctx.font = '10px -apple-system,sans-serif'; ctx.textAlign = 'left';
-                            ctx.fillText('a \u2264 \u221aN', padL + 20, padT + chartH - 18);
-                            ctx.fillStyle = viz.colors.purple; ctx.beginPath(); ctx.arc(padL + 90, padT + chartH - 22, 4, 0, Math.PI * 2); ctx.fill();
-                            ctx.fillText('a > \u221aN', padL + 98, padT + chartH - 18);
-                            ctx.fillStyle = viz.colors.yellow; ctx.fillRect(padL + 170, padT + chartH - 25, 16, 2);
-                            ctx.fillStyle = viz.colors.text; ctx.fillText('ab = N', padL + 190, padT + chartH - 18);
+                            var legX = chartR - 180, legY = chartT + 10;
+                            ctx.font = '10px -apple-system,sans-serif';
+                            ctx.textAlign = 'left';
+
+                            ctx.fillStyle = viz.colors.blue + '88';
+                            ctx.fillRect(legX, legY, 10, 10);
+                            ctx.fillStyle = viz.colors.text;
+                            ctx.fillText('Region I (a \u2264 \u221Ax)', legX + 14, legY + 9);
+
+                            ctx.fillStyle = viz.colors.green + '88';
+                            ctx.fillRect(legX, legY + 16, 10, 10);
+                            ctx.fillStyle = viz.colors.text;
+                            ctx.fillText('Region II (b \u2264 \u221Ax)', legX + 14, legY + 25);
+
+                            ctx.fillStyle = viz.colors.orange + '88';
+                            ctx.fillRect(legX, legY + 32, 10, 10);
+                            ctx.fillStyle = viz.colors.text;
+                            ctx.fillText('Overlap (subtract)', legX + 14, legY + 41);
                         }
                         draw();
                         return viz;
@@ -911,25 +1249,20 @@ D(x) = \\sum_{n \\le x} d(n), \\quad \\Phi(x) = \\sum_{n \\le x} \\phi(n), \\qua
             ],
             exercises: [
                 {
-                    question: 'Compute \\(D(100) = \\sum_{n \\le 100} d(n)\\) using Dirichlet\'s formula \\(D(x) = 2\\sum_{n \\le 10} \\lfloor 100/n \\rfloor - 10^2\\). Verify against the asymptotic \\(100\\log 100 + (2\\gamma-1) \\cdot 100 \\approx ?\\)',
-                    hint: 'Compute \\(\\lfloor 100/n \\rfloor\\) for \\(n = 1, 2, \\ldots, 10\\): you get 100, 50, 33, 25, 20, 16, 14, 12, 11, 10. Sum is 291. Formula gives \\(2 \\times 291 - 100 = 482\\).',
-                    solution: '\\(D(100) = 2(100+50+33+25+20+16+14+12+11+10) - 100 = 2 \\times 291 - 100 = 482\\). Asymptotic: \\(100\\ln 100 + (2 \\times 0.5772 - 1) \\times 100 \\approx 460.5 + 15.44 \\approx 475.9\\). Error \\(\\approx 6\\), well within \\(O(\\sqrt{100}) = O(10)\\).'
+                    question: 'Verify Dirichlet\'s formula for \\(x = 12\\): compute \\(D(12)\\) directly, then via the hyperbola method with \\(u = v = \\lfloor\\sqrt{12}\\rfloor = 3\\).',
+                    hint: 'Direct: \\(D(12) = \\sum_{n=1}^{12} d(n)\\). Hyperbola: \\(2\\sum_{a=1}^{3} \\lfloor 12/a \\rfloor - 3^2\\).',
+                    solution: 'Direct: d(1)=1, d(2)=2, d(3)=2, d(4)=3, d(5)=2, d(6)=4, d(7)=2, d(8)=4, d(9)=3, d(10)=4, d(11)=2, d(12)=6. Sum = 35. Hyperbola: \\(2(\\lfloor 12/1 \\rfloor + \\lfloor 12/2 \\rfloor + \\lfloor 12/3 \\rfloor) - 3^2 = 2(12 + 6 + 4) - 9 = 44 - 9 = 35\\). They agree.'
                 },
                 {
-                    question: 'Apply the hyperbola method to \\(\\sum_{n \\le x} \\sigma(n)\\) where \\(\\sigma(n) = \\sum_{d \\mid n} d\\). Use the identity \\(\\sigma = \\text{id} * \\mathbf{1}\\) to derive the leading asymptotic.',
-                    hint: '\\(\\sum_{n \\le x} \\sigma(n) = \\sum_{a \\le x} a \\lfloor x/a \\rfloor\\). Use \\(\\sum_{a \\le x} a = x^2/2 + O(x)\\) and the hyperbola split.',
-                    solution: '\\(\\sum_{n \\le x} \\sigma(n) = \\sum_{a \\le x} \\sum_{b \\le x/a} a = \\sum_{a \\le x} a \\lfloor x/a \\rfloor\\). Writing \\(\\lfloor x/a \\rfloor \\approx x/a\\): main term is \\(x \\sum_{a \\le x} 1 = x \\cdot x\\) -- not quite. More carefully, the sum equals \\(\\frac{\\pi^2}{12} x^2 + O(x \\log x)\\) by Dirichlet convolution of \\(\\text{id}\\) with \\(\\mathbf{1}\\).'
-                },
-                {
-                    question: 'Show that the error in Dirichlet\'s formula \\(D(x) - x\\log x - (2\\gamma-1)x\\) changes sign infinitely often (i.e., is \\(\\Omega_\\pm(x^{1/4})\\)). This is the Hardy-Landau-Ingham result.',
-                    hint: 'This follows from the fact that the Dirichlet series for \\(d(n)\\) has zeros of \\(\\zeta(s)^2\\) on the critical line. The oscillation is driven by the contribution of the zeros.',
-                    solution: 'Hardy (1916) showed the error term is \\(\\Omega(x^{1/4} \\log x)\\). The key idea: if the error had fixed sign for large \\(x\\), the Dirichlet series \\(\\sum d(n) n^{-s} - \\zeta(s)^2\\) would extend analytically past \\(s = 1/2\\), contradicting the analytic behavior of \\(\\zeta(s)^2\\) near its zeros on the critical line.'
+                    question: 'Use the hyperbola method to find the asymptotic formula for \\(\\sum_{n \\le x} \\sigma_0(n^2)\\), where \\(\\sigma_0(n^2) = \\sum_{d \\mid n^2} 1\\). (Hint: \\(\\sigma_0(n^2) = \\sum_{d \\mid n} 2^{\\omega(n/d)}\\) where \\(\\omega\\) counts distinct prime factors.)',
+                    hint: 'This is harder. The key is that \\(\\sigma_0(n^2) = (d * |\\mu|)(n)\\) in Dirichlet convolution sense, so the hyperbola method applies to this convolution.',
+                    solution: 'One can show \\(\\sigma_0(n^2) = \\sum_{ab = n} |\\mu(a)|\\), i.e., \\(\\sigma_0(n^2) = (|\\mu| * 1)(n)\\). Applying the hyperbola method: \\(\\sum_{n \\le x} \\sigma_0(n^2) = \\sum_{a \\le \\sqrt{x}} |\\mu(a)| \\lfloor x/a \\rfloor + \\sum_{b \\le \\sqrt{x}} Q(x/b) - Q(\\sqrt{x})\\lfloor\\sqrt{x}\\rfloor\\), where \\(Q(x) = \\sum_{n \\le x} |\\mu(n)| \\sim 6x/\\pi^2\\). This gives \\(\\sum_{n \\le x} \\sigma_0(n^2) \\sim \\frac{6}{\\pi^2} x \\log x + O(x)\\).'
                 }
             ]
         },
 
         // ================================================================
-        // SECTION 6: From Sums to Series (Bridge to Ch 3)
+        // SECTION 6: From Sums to Series
         // ================================================================
         {
             id: 'sec-bridge',
@@ -937,161 +1270,225 @@ D(x) = \\sum_{n \\le x} d(n), \\quad \\Phi(x) = \\sum_{n \\le x} \\phi(n), \\qua
             content: `
 <h2>From Sums to Series</h2>
 
-<p>The techniques of this chapter, Abel summation and the Euler-Maclaurin formula, do more than prove specific asymptotics. They reveal a deep connection: <em>summatory functions of arithmetic functions and Dirichlet series are two sides of the same coin.</em></p>
-
-<h3>Abel Summation and Dirichlet Series</h3>
-
-<p>Let \\(f\\) be arithmetic and \\(F(x) = \\sum_{n \\le x} f(n)\\). Abel's formula gives:</p>
-
-\\[\\sum_{n=1}^{\\infty} \\frac{f(n)}{n^s} = s \\int_1^\\infty \\frac{F(t)}{t^{s+1}} \\, dt, \\quad \\text{Re}(s) > \\sigma_c,\\]
-
-<p>where \\(\\sigma_c\\) is the abscissa of convergence. Thus the analytic properties of the Dirichlet series \\(\\mathcal{D}(s) = \\sum f(n)/n^s\\) (poles, zeros, functional equations) are encoded in the asymptotics of \\(F(x)\\), and vice versa.</p>
-
-<div class="env-block theorem">
-    <div class="env-title">Theorem 2.7 (Perron's Formula, preview)</div>
+<div class="env-block intuition">
+    <div class="env-title">The Bridge to Chapter 3</div>
     <div class="env-body">
-        <p>The inversion of the above relationship is <strong>Perron's formula</strong>: for \\(c > \\sigma_c\\),</p>
-        \\[F(x) = \\frac{1}{2\\pi i} \\int_{c-i\\infty}^{c+i\\infty} \\mathcal{D}(s) \\frac{x^s}{s} \\, ds.\\]
-        <p>This reduces the study of \\(F(x)\\) to contour integration, allowing the residues at poles and the contribution of zeros to be extracted.</p>
+        <p>In this chapter we studied finite sums \\(\\sum_{n \\le x} f(n)\\). In the next chapter we study Dirichlet series \\(\\sum_{n=1}^{\\infty} f(n) n^{-s}\\). These are not unrelated objects. Abel summation is exactly the tool that connects them: the convergence and analytic properties of \\(\\sum f(n) n^{-s}\\) are controlled by the growth of the partial sums \\(\\sum_{n \\le x} f(n)\\).</p>
     </div>
 </div>
 
-<h3>The Zeta Function Appears</h3>
+<h3>From Summatory Functions to Dirichlet Series</h3>
 
-<p>For \\(f = \\mathbf{1}\\) (the constant 1 function), \\(\\mathcal{D}(s) = \\zeta(s)\\) and \\(F(x) = \\lfloor x \\rfloor\\). For \\(f = d\\), \\(\\mathcal{D}(s) = \\zeta(s)^2\\). For \\(f = \\Lambda\\), the logarithmic derivative gives \\(-\\zeta'/\\zeta\\). The asymptotics we proved in this chapter are shadows of the analytic structure of \\(\\zeta(s)\\).</p>
+<p>Abel summation with \\(f(t) = t^{-s}\\) gives a fundamental relationship. If \\(F(x) = \\sum_{n \\le x} a(n)\\), then</p>
+
+\\[
+\\sum_{n=1}^{\\infty} a(n) n^{-s} = s \\int_1^{\\infty} F(t) t^{-s-1} \\, dt,
+\\]
+
+<p>provided the integral (or series) converges. This Mellin-type formula shows that the Dirichlet series is a continuous transform of the summatory function.</p>
 
 <div class="env-block theorem">
-    <div class="env-title">Key Correspondence Table</div>
+    <div class="env-title">Theorem 2.7 (Abscissa of Convergence)</div>
     <div class="env-body">
-        <table style="width:100%;border-collapse:collapse;">
-            <thead>
-                <tr style="border-bottom:1px solid #30363d;">
-                    <th style="text-align:left;padding:4px 8px;color:#8b949e;">Arithmetic function</th>
-                    <th style="text-align:left;padding:4px 8px;color:#8b949e;">Dirichlet series</th>
-                    <th style="text-align:left;padding:4px 8px;color:#8b949e;">Summatory asymptotic</th>
-                </tr>
-            </thead>
-            <tbody>
-                <tr style="border-bottom:1px solid #21262d;"><td style="padding:4px 8px;">\\(\\mathbf{1}\\)</td><td style="padding:4px 8px;">\\(\\zeta(s)\\)</td><td style="padding:4px 8px;">\\(\\lfloor x \\rfloor = x + O(1)\\)</td></tr>
-                <tr style="border-bottom:1px solid #21262d;"><td style="padding:4px 8px;">\\(d(n)\\)</td><td style="padding:4px 8px;">\\(\\zeta(s)^2\\)</td><td style="padding:4px 8px;">\\(x\\log x + (2\\gamma-1)x + O(\\sqrt{x})\\)</td></tr>
-                <tr style="border-bottom:1px solid #21262d;"><td style="padding:4px 8px;">\\(\\phi(n)\\)</td><td style="padding:4px 8px;">\\(\\zeta(s-1)/\\zeta(s)\\)</td><td style="padding:4px 8px;">\\(3x^2/\\pi^2 + O(x\\log x)\\)</td></tr>
-                <tr><td style="padding:4px 8px;">\\(\\Lambda(n)\\)</td><td style="padding:4px 8px;">\\(-\\zeta'(s)/\\zeta(s)\\)</td><td style="padding:4px 8px;">\\(\\Psi(x) \\sim x\\) (PNT)</td></tr>
-            </tbody>
-        </table>
+        <p>If \\(F(x) = \\sum_{n \\le x} a(n) = O(x^\\alpha)\\), then the Dirichlet series \\(\\sum a(n) n^{-s}\\) converges for \\(\\text{Re}(s) > \\alpha\\). The precise abscissa of convergence is</p>
+        \\[
+        \\sigma_c = \\limsup_{x \\to \\infty} \\frac{\\log |F(x)|}{\\log x}.
+        \\]
+    </div>
+</div>
+
+<div class="env-block example">
+    <div class="env-title">Example: Recovering \\(\\zeta(s)\\) Convergence</div>
+    <div class="env-body">
+        <p>For \\(a(n) = 1\\), we have \\(F(x) = \\lfloor x \\rfloor = O(x)\\), so \\(\\alpha = 1\\) and the Dirichlet series \\(\\sum n^{-s} = \\zeta(s)\\) converges for \\(\\text{Re}(s) > 1\\). This is the classical result.</p>
+        <p>For \\(a(n) = \\mu(n)\\), the PNT implies \\(M(x) = \\sum_{n \\le x} \\mu(n) = o(x)\\), which gives convergence of \\(\\sum \\mu(n) n^{-s} = 1/\\zeta(s)\\) for \\(\\text{Re}(s) > 1\\). The RH would give \\(M(x) = O(x^{1/2+\\varepsilon})\\), implying convergence for \\(\\text{Re}(s) > 1/2\\).</p>
+    </div>
+</div>
+
+<h3>The Error Term and Zeros</h3>
+
+<p>The asymptotic expansions we derived in this chapter all have error terms. These error terms are intimately related to the zeros of the associated Dirichlet series:</p>
+
+<ul>
+    <li>\\(D(x) = x \\log x + (2\\gamma - 1)x + \\Delta(x)\\): the error \\(\\Delta(x)\\) is related to the zeros of \\(\\zeta(s)^2\\)</li>
+    <li>\\(\\psi(x) = x + E(x)\\): the error \\(E(x)\\) is <em>directly</em> given by a sum over zeros of \\(\\zeta(s)\\) (the explicit formula of Chapter 8)</li>
+    <li>\\(\\Phi(x) = \\frac{3}{\\pi^2} x^2 + E_\\varphi(x)\\): controlled by zeros of \\(\\zeta(s)\\)</li>
+</ul>
+
+<p>This profound connection, that the oscillatory behavior of number-theoretic sums is governed by the zeros of analytic functions, is the central theme of analytic number theory. We will develop it fully starting in Chapter 3.</p>
+
+<div class="env-block remark">
+    <div class="env-title">Summary of Methods</div>
+    <div class="env-body">
+        <p>We now have four tools for studying summatory functions:</p>
+        <ol>
+            <li><strong>Direct estimation</strong>: rewriting sums by swapping order of summation</li>
+            <li><strong>Abel summation</strong>: converting sums into integrals (one correction term)</li>
+            <li><strong>Euler-Maclaurin</strong>: systematic corrections via Bernoulli numbers</li>
+            <li><strong>Hyperbola method</strong>: exploiting the structure of Dirichlet convolutions</li>
+        </ol>
+        <p>Each is suited to different situations. In Chapter 3, we add the most powerful tool of all: the analytic properties of Dirichlet series.</p>
     </div>
 </div>
 
 <div class="viz-placeholder" data-viz="viz-error-oscillation"></div>
-
-<h3>The Road Ahead</h3>
-
-<p>In Chapter 3 we define Dirichlet series rigorously, establish their convergence properties (including the half-plane of absolute convergence), and prove the Euler product formula. In Chapter 4 we meet the Riemann zeta function as an analytic function on \\(\\mathbb{C}\\), with its pole at \\(s=1\\) and its functional equation. The present chapter has equipped us with the summatory-function intuition that makes those analytic results meaningful.</p>
-
-<div class="env-block intuition">
-    <div class="env-title">The Unifying Vision</div>
-    <div class="env-body">
-        <p>The reason analytic number theory works is this: the wild, erratic behavior of arithmetic functions averages out into smooth asymptotics. Those asymptotics are controlled by poles and zeros of associated Dirichlet series. The location of the zeros of \\(\\zeta(s)\\), particularly whether they lie on \\(\\text{Re}(s) = 1/2\\) (the Riemann Hypothesis), governs the precision of the Prime Number Theorem. Everything connects.</p>
-    </div>
-</div>
 `,
             visualizations: [
                 {
                     id: 'viz-error-oscillation',
-                    title: 'The Dirichlet Error: D(x) - x log x - (2gamma-1)x',
-                    description: 'The oscillating error term E(x) = D(x) - x log x - (2gamma-1)x. The envelope ~ sqrt(x) is shown. Use the slider to zoom in x.',
+                    title: 'Error Term Oscillations',
+                    description: 'The error Delta(x) = D(x) - x log x - (2gamma-1)x oscillates in a way controlled by the zeros of zeta(s). Watch the oscillations as x grows.',
                     setup: function(body, controls) {
-                        var viz = new VizEngine(body, { width: 600, height: 320, originX: 60, originY: 160, scale: 1 });
+                        var viz = new VizEngine(body, {
+                            width: 560, height: 380,
+                            originX: 60, originY: 200, scale: 1
+                        });
+
                         var xMax = 200;
-                        var gamma = 0.5772156649;
+                        var showDivisor = true;
+                        var showPsi = false;
 
-                        var sliderX = VizEngine.createSlider(controls, 'x max', 50, 500, xMax, 10, function(v) { xMax = Math.round(v); draw(); });
+                        VizEngine.createSlider(controls, 'x max', 50, 1000, xMax, 50, function(v) {
+                            xMax = Math.round(v);
+                            draw();
+                        });
+                        VizEngine.createButton(controls, '\u0394(x) divisor', function() { showDivisor = true; showPsi = false; draw(); });
+                        VizEngine.createButton(controls, '\u03C8(x)-x', function() { showDivisor = false; showPsi = true; draw(); });
 
-                        // Precompute D(x) incrementally up to 500
-                        var MAXN = 500;
-                        var Dval = new Array(MAXN + 1).fill(0);
-                        for (var k = 1; k <= MAXN; k++) {
-                            Dval[k] = Dval[k - 1];
-                            for (var d = 1; d * d <= k; d++) {
-                                if (k % d === 0) {
-                                    Dval[k] += (d * d === k) ? 1 : 2;
+                        var primes = VizEngine.sievePrimes(1100);
+
+                        function divisorCount(n) {
+                            var count = 0;
+                            for (var d = 1; d * d <= n; d++) {
+                                if (n % d === 0) count += (d * d === n) ? 1 : 2;
+                            }
+                            return count;
+                        }
+
+                        function vonMangoldt(n) {
+                            if (n < 2) return 0;
+                            for (var i = 0; i < primes.length; i++) {
+                                var p = primes[i];
+                                if (p * p > n) break;
+                                if (n % p === 0) {
+                                    var m = n;
+                                    while (m > 1) {
+                                        if (m % p !== 0) return 0;
+                                        m /= p;
+                                    }
+                                    return Math.log(p);
                                 }
                             }
+                            return Math.log(n);
                         }
 
                         function draw() {
                             viz.clear();
                             var ctx = viz.ctx;
-                            var W = viz.width, H = viz.height;
-                            var padL = 60, padR = 20, padT = 28, padB = 36;
-                            var chartW = W - padL - padR, chartH = H - padT - padB;
+
+                            var gamma = 0.5772156649;
+
+                            var chartL = 60, chartR = viz.width - 20;
+                            var chartT = 40, chartB = 350;
+                            var chartW = chartR - chartL;
+                            var chartH = chartB - chartT;
+                            var midY = (chartT + chartB) / 2;
 
                             // Compute errors
                             var errors = [];
-                            for (var n = 1; n <= xMax; n++) {
-                                var main = n * Math.log(n) + (2 * gamma - 1) * n;
-                                errors.push(Dval[n] - main);
+                            var maxErr = 0;
+                            var cumSum = 0;
+
+                            if (showDivisor) {
+                                viz.screenText('\u0394(x) = D(x) - x log x - (2\u03B3-1)x', viz.width / 2, 18, viz.colors.white, 13);
+                                for (var n = 1; n <= xMax; n++) {
+                                    cumSum += divisorCount(n);
+                                    var predicted = n * Math.log(n) + (2 * gamma - 1) * n;
+                                    var err = cumSum - predicted;
+                                    errors.push(err);
+                                    if (Math.abs(err) > maxErr) maxErr = Math.abs(err);
+                                }
+                            } else {
+                                viz.screenText('\u03C8(x) - x', viz.width / 2, 18, viz.colors.white, 13);
+                                for (var n2 = 1; n2 <= xMax; n2++) {
+                                    cumSum += vonMangoldt(n2);
+                                    var err2 = cumSum - n2;
+                                    errors.push(err2);
+                                    if (Math.abs(err2) > maxErr) maxErr = Math.abs(err2);
+                                }
                             }
-                            var eMax = Math.max.apply(null, errors.map(Math.abs));
-                            var yMax = Math.max(eMax * 1.1, 2);
-                            var yMin = -yMax;
+
+                            if (maxErr < 1) maxErr = 1;
 
                             // Axes
-                            ctx.strokeStyle = viz.colors.axis; ctx.lineWidth = 1.5;
-                            var zeroY = padT + chartH * yMax / (yMax - yMin);
-                            ctx.beginPath(); ctx.moveTo(padL, padT); ctx.lineTo(padL, padT + chartH); ctx.stroke();
-                            ctx.beginPath(); ctx.moveTo(padL, zeroY); ctx.lineTo(padL + chartW, zeroY); ctx.stroke();
+                            ctx.strokeStyle = viz.colors.axis; ctx.lineWidth = 1;
+                            ctx.beginPath(); ctx.moveTo(chartL, chartB); ctx.lineTo(chartR, chartB); ctx.stroke();
+                            ctx.beginPath(); ctx.moveTo(chartL, midY); ctx.lineTo(chartR, midY); ctx.stroke();
 
-                            function toSx(n) { return padL + (n / xMax) * chartW; }
-                            function toSy(y) { return padT + chartH * (yMax - y) / (yMax - yMin); }
+                            // Zero line label
+                            ctx.fillStyle = viz.colors.text;
+                            ctx.font = '10px -apple-system,sans-serif';
+                            ctx.textAlign = 'right';
+                            ctx.textBaseline = 'middle';
+                            ctx.fillText('0', chartL - 6, midY);
+                            ctx.fillText('+' + maxErr.toFixed(0), chartL - 6, chartT + 10);
+                            ctx.fillText('-' + maxErr.toFixed(0), chartL - 6, chartB - 10);
 
-                            // sqrt(x) envelope
-                            ctx.strokeStyle = viz.colors.orange + '88'; ctx.lineWidth = 1.5; ctx.setLineDash([5, 4]);
+                            // Plot error
+                            ctx.strokeStyle = showDivisor ? viz.colors.teal : viz.colors.purple;
+                            ctx.lineWidth = 1.5;
                             ctx.beginPath();
-                            for (var n = 1; n <= xMax; n++) {
-                                var env = Math.sqrt(n) * 2;
-                                n === 1 ? ctx.moveTo(toSx(n), toSy(env)) : ctx.lineTo(toSx(n), toSy(env));
-                            }
-                            ctx.stroke();
-                            ctx.beginPath();
-                            for (var n = 1; n <= xMax; n++) {
-                                var env2 = -Math.sqrt(n) * 2;
-                                n === 1 ? ctx.moveTo(toSx(n), toSy(env2)) : ctx.lineTo(toSx(n), toSy(env2));
-                            }
-                            ctx.stroke(); ctx.setLineDash([]);
-
-                            // Error curve
-                            ctx.strokeStyle = viz.colors.blue; ctx.lineWidth = 1.5;
-                            ctx.beginPath();
-                            for (var n = 1; n <= xMax; n++) {
-                                var px = toSx(n), py = toSy(errors[n - 1]);
-                                n === 1 ? ctx.moveTo(px, py) : ctx.lineTo(px, py);
+                            for (var i = 0; i < errors.length; i++) {
+                                var px = chartL + ((i + 1) / xMax) * chartW;
+                                var py = midY - (errors[i] / maxErr) * (chartH / 2 - 10);
+                                py = Math.max(chartT, Math.min(chartB, py));
+                                if (i === 0) ctx.moveTo(px, py);
+                                else ctx.lineTo(px, py);
                             }
                             ctx.stroke();
 
-                            // Y axis labels
-                            ctx.fillStyle = viz.colors.text; ctx.font = '10px -apple-system,sans-serif'; ctx.textAlign = 'right';
-                            var step = Math.pow(10, Math.floor(Math.log10(yMax)));
-                            for (var yv = -yMax; yv <= yMax; yv += step) {
-                                var sy2 = toSy(yv);
-                                if (sy2 < padT || sy2 > padT + chartH) continue;
-                                ctx.fillText(Math.round(yv).toString(), padL - 4, sy2 + 4);
-                                ctx.strokeStyle = viz.colors.grid; ctx.lineWidth = 0.4;
-                                ctx.beginPath(); ctx.moveTo(padL, sy2); ctx.lineTo(padL + chartW, sy2); ctx.stroke();
+                            // Draw sqrt(x) envelope for divisor error
+                            if (showDivisor) {
+                                ctx.strokeStyle = viz.colors.orange;
+                                ctx.lineWidth = 1;
+                                ctx.setLineDash([4, 4]);
+                                ctx.beginPath();
+                                for (var j = 1; j <= xMax; j++) {
+                                    var sx = chartL + (j / xMax) * chartW;
+                                    var envY = midY - (Math.sqrt(j) / maxErr) * (chartH / 2 - 10);
+                                    if (j === 1) ctx.moveTo(sx, envY);
+                                    else ctx.lineTo(sx, envY);
+                                }
+                                ctx.stroke();
+                                ctx.beginPath();
+                                for (var j2 = 1; j2 <= xMax; j2++) {
+                                    var sx2 = chartL + (j2 / xMax) * chartW;
+                                    var envY2 = midY + (Math.sqrt(j2) / maxErr) * (chartH / 2 - 10);
+                                    if (j2 === 1) ctx.moveTo(sx2, envY2);
+                                    else ctx.lineTo(sx2, envY2);
+                                }
+                                ctx.stroke();
+                                ctx.setLineDash([]);
+
+                                // Legend
+                                ctx.fillStyle = viz.colors.orange;
+                                ctx.font = '10px -apple-system,sans-serif';
+                                ctx.textAlign = 'left';
+                                ctx.fillText('\u00B1\u221Ax envelope', chartR - 110, chartT + 10);
                             }
 
                             // X labels
-                            ctx.textAlign = 'center'; ctx.textBaseline = 'top'; ctx.fillStyle = viz.colors.text; ctx.font = '10px -apple-system,sans-serif';
-                            for (var xv = 0; xv <= xMax; xv += Math.round(xMax / 5)) {
-                                ctx.fillText(xv.toString(), toSx(xv), padT + chartH + 5);
+                            ctx.fillStyle = viz.colors.text;
+                            ctx.font = '10px -apple-system,sans-serif';
+                            ctx.textAlign = 'center';
+                            ctx.textBaseline = 'top';
+                            var xStep = Math.max(1, Math.round(xMax / 6));
+                            for (var xl = xStep; xl <= xMax; xl += xStep) {
+                                var sxl = chartL + (xl / xMax) * chartW;
+                                ctx.fillText(xl.toString(), sxl, chartB + 4);
                             }
-                            ctx.fillText('x', padL + chartW / 2, padT + chartH + 22);
 
-                            // Legend
-                            ctx.fillStyle = viz.colors.blue; ctx.fillRect(padL + 8, padT + 6, 18, 2);
-                            ctx.fillStyle = viz.colors.text; ctx.font = '10px -apple-system,sans-serif'; ctx.textAlign = 'left';
-                            ctx.fillText('E(x) = D(x) \u2212 x\u2009ln\u2009x \u2212 (2\u03b3\u22121)x', padL + 30, padT + 10);
-                            ctx.fillStyle = viz.colors.orange + 'aa'; ctx.fillRect(padL + 8, padT + 22, 18, 2);
-                            ctx.fillStyle = viz.colors.text; ctx.fillText('\u00b12\u221ax envelope', padL + 30, padT + 26);
+                            viz.screenText('The oscillations encode information about the zeros of \u03B6(s)', viz.width / 2, chartB + 22, viz.colors.text, 10);
                         }
                         draw();
                         return viz;
@@ -1100,20 +1497,15 @@ D(x) = \\sum_{n \\le x} d(n), \\quad \\Phi(x) = \\sum_{n \\le x} \\phi(n), \\qua
             ],
             exercises: [
                 {
-                    question: 'Using Abel summation (Theorem 2.4), show that \\(\\zeta(s) = \\frac{s}{s-1} - s\\int_1^\\infty \\{t\\} t^{-s-1} \\, dt\\) for \\(\\text{Re}(s) > 0, s \\ne 1\\). This gives an analytic continuation of \\(\\zeta(s)\\) to the half-plane \\(\\text{Re}(s) > 0\\).',
-                    hint: 'Take \\(a(n) = 1\\), \\(A(x) = \\lfloor x \\rfloor = x - \\{x\\}\\), and \\(f(t) = t^{-s}\\). Apply Theorem 2.4 and split \\(\\lfloor t \\rfloor = t - \\{t\\}\\).',
-                    solution: 'Theorem 2.4: \\(\\zeta(s) = s\\int_1^\\infty \\lfloor t\\rfloor t^{-s-1}\\,dt = s\\int_1^\\infty (t - \\{t\\}) t^{-s-1}\\,dt = s\\int_1^\\infty t^{-s}\\,dt - s\\int_1^\\infty \\{t\\} t^{-s-1}\\,dt = \\frac{s}{s-1} - s\\int_1^\\infty \\{t\\}t^{-s-1}\\,dt\\). The integral converges for \\(\\text{Re}(s) > 0\\) since \\(\\{t\\} \\in [0,1)\\).'
+                    question: 'Show that if \\(\\psi(x) \\sim x\\), then \\(\\pi(x) \\sim x/\\log x\\) using Abel summation. (Hint: write \\(\\pi(x) = \\sum_{p \\le x} 1\\) and note that \\(\\Lambda\\) weights primes by \\(\\log p\\).)',
+                    hint: 'We have \\(\\pi(x) = \\sum_{n \\le x} \\Lambda(n)/\\log n + O(\\sqrt{x})\\) (the \\(O(\\sqrt{x})\\) accounts for prime powers). Apply Abel summation with \\(a(n) = \\Lambda(n)\\) and \\(f(t) = 1/\\log t\\).',
+                    solution: 'Write \\(\\theta(x) = \\sum_{p \\le x} \\log p\\). Since \\(\\psi(x) - \\theta(x) = O(\\sqrt{x} \\log x)\\), \\(\\theta(x) \\sim x\\) too. Now \\(\\pi(x) = \\sum_{p \\le x} 1 = \\sum_{p \\le x} \\frac{\\log p}{\\log p}\\). Abel summation with \\(A(x) = \\theta(x) \\sim x\\) and \\(f(t) = 1/\\log t\\) gives \\(\\pi(x) = \\theta(x)/\\log x + \\int_2^x \\theta(t)/(t \\log^2 t) \\, dt\\). Since \\(\\theta(t) \\sim t\\), the integral is \\(\\int_2^x 1/\\log^2 t \\, dt = o(x/\\log x)\\). So \\(\\pi(x) \\sim x/\\log x\\).'
                 },
                 {
-                    question: 'Derive the average order of \\(\\phi(n)\\): show \\(\\frac{1}{x}\\sum_{n \\le x} \\phi(n) \\to \\frac{6}{\\pi^2}\\cdot x\\) by using \\(\\sum_{n \\le x} \\phi(n) = \\frac{x^2}{2} \\cdot \\frac{6}{\\pi^2} + O(x\\log x)\\). The key identity is \\(\\phi(n) = n \\sum_{d \\mid n} \\mu(d)/d\\).',
-                    hint: 'Substitute \\(\\phi(n) = \\sum_{d \\mid n} \\mu(d) (n/d)\\), swap order of summation: \\(\\Phi(x) = \\sum_{d \\le x} \\mu(d) \\sum_{m \\le x/d} m\\). Use \\(\\sum_{m \\le y} m = y^2/2 + O(y)\\) and \\(\\sum_{d=1}^\\infty \\mu(d)/d^2 = 6/\\pi^2\\).',
-                    solution: '\\(\\Phi(x) = \\sum_{d \\le x} \\mu(d) \\frac{(x/d)^2}{2} + O(x/d) = \\frac{x^2}{2} \\sum_{d \\le x} \\frac{\\mu(d)}{d^2} + O(x\\log x)\\). Since \\(\\sum_{d=1}^\\infty \\mu(d)/d^2 = 1/\\zeta(2) = 6/\\pi^2\\) and the tail \\(\\sum_{d > x} \\mu(d)/d^2 = O(1/x)\\): \\(\\Phi(x) = \\frac{3x^2}{\\pi^2} + O(x\\log x)\\).'
+                    question: 'The abscissa of convergence of \\(\\sum_{n=1}^\\infty d(n) n^{-s}\\) is \\(\\sigma_c = 1\\). Verify this using Theorem 2.7 and the known asymptotic \\(D(x) \\sim x \\log x\\).',
+                    hint: 'Compute \\(\\limsup_{x \\to \\infty} \\log|D(x)|/\\log x\\). Since \\(D(x) \\sim x \\log x\\), what is the growth rate?',
+                    solution: 'We have \\(D(x) \\sim x \\log x\\), so \\(\\log D(x) \\sim \\log(x \\log x) = \\log x + \\log \\log x\\). Thus \\(\\log D(x)/\\log x \\to 1\\) as \\(x \\to \\infty\\). By Theorem 2.7, \\(\\sigma_c = 1\\). This is consistent with the fact that \\(\\sum d(n) n^{-s} = \\zeta(s)^2\\), which has a double pole at \\(s = 1\\) and converges for \\(\\text{Re}(s) > 1\\).'
                 },
-                {
-                    question: 'Show that \\(\\sum_{p \\le x} \\frac{1}{p} \\sim \\log\\log x\\) is equivalent (via Abel summation) to \\(\\pi(x) \\sim x/\\log x\\). This is part of the proof that the average order of \\(\\mathbf{1}_{\\text{prime}}\\) is \\(1/\\log n\\).',
-                    hint: 'Let \\(a(n) = \\mathbf{1}_{\\text{prime}}(n)/\\log n\\) and apply Abel to \\(\\sum_{p \\le x} 1/p = \\sum a(n)\\log n \\cdot (1/\\log n) \\cdot (1/n) \\cdot n\\ldots\\) More directly: Abel on \\(\\pi(t)\\) with \\(f(t) = 1/(t\\log t)\\).',
-                    solution: 'Abel summation: \\(\\sum_{p \\le x} 1/p = \\pi(x)/(x\\log x) + \\int_2^x \\pi(t)/(t\\log t)^\\prime\\ldots\\). If \\(\\pi(t) \\sim t/\\log t\\), then \\(\\int_2^x \\frac{\\pi(t)}{t(\\log t)^2}\\,dt \\sim \\int_2^x \\frac{1}{(\\log t)^2 } \\cdot \\frac{1}{\\log t}\\,dt\\) ... the standard computation yields \\(\\log\\log x + M\\) for a constant \\(M\\) (Mertens\' constant). The equivalence is bidirectional via partial summation.'
-                }
             ]
         }
     ]
