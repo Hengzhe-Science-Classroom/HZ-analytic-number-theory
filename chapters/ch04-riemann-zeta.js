@@ -1,3 +1,4 @@
+// === Chapter 4: The Riemann Zeta Function ===
 window.CHAPTERS = window.CHAPTERS || [];
 window.CHAPTERS.push({
     id: 'ch04',
@@ -5,120 +6,173 @@ window.CHAPTERS.push({
     title: 'The Riemann Zeta Function',
     subtitle: 'The master key to the distribution of primes',
     sections: [
-
         // ================================================================
-        // SECTION 1: The Master Key
+        // SECTION 1: Motivation
         // ================================================================
         {
             id: 'sec-motivation',
-            title: 'The Master Key',
+            title: 'Motivation',
             content: `
-<h2>The Master Key</h2>
+<h2>Why the Zeta Function?</h2>
 
 <div class="env-block intuition">
-    <div class="env-title">Why This Function?</div>
+    <div class="env-title">The Central Mystery</div>
     <div class="env-body">
-        <p>Gauss counted primes empirically and conjectured \\(\\pi(x) \\sim x/\\log x\\). Euler discovered a product formula linking the sum \\(\\sum n^{-s}\\) to all primes simultaneously. Riemann's 1859 memoir fused these threads into a single complex-analytic object whose zeros encode the finest fluctuations in the distribution of primes. The Riemann zeta function is, in this precise sense, the master key: one function controls everything.</p>
+        <p>The primes 2, 3, 5, 7, 11, 13, ... appear to be scattered chaotically among the integers. Yet their distribution hides astonishing regularity. The key to unlocking this regularity is a single function of a complex variable: the Riemann zeta function \\(\\zeta(s)\\).</p>
     </div>
 </div>
 
-<p>Define the <strong>Riemann zeta function</strong> by the Dirichlet series</p>
+<p>In Chapter 3, we saw that Dirichlet series encode arithmetic information. The most important Dirichlet series is the simplest one:</p>
 
 \\[
 \\zeta(s) = \\sum_{n=1}^{\\infty} \\frac{1}{n^s}, \\qquad \\operatorname{Re}(s) > 1.
 \\]
 
-<p>At first glance this looks like a routine sum. But \\(s\\) is a <em>complex</em> variable, \\(s = \\sigma + it\\) with \\(\\sigma, t \\in \\mathbb{R}\\), and the power \\(n^{-s} = e^{-s \\log n}\\) oscillates as \\(t\\) varies. The resulting analytic function, when extended to all of \\(\\mathbb{C}\\), contains the full arithmetic of primes encoded in its zeros.</p>
-
-<h3>The Euler Product</h3>
-
-<p>The deep connection to primes comes through the Euler product. By unique factorization in \\(\\mathbb{Z}\\), for \\(\\operatorname{Re}(s) > 1\\):</p>
+<p>This series converges absolutely for \\(\\operatorname{Re}(s) > 1\\), and its Euler product</p>
 
 \\[
-\\zeta(s) = \\prod_{p \\text{ prime}} \\frac{1}{1 - p^{-s}}.
+\\zeta(s) = \\prod_{p \\text{ prime}} \\frac{1}{1 - p^{-s}}, \\qquad \\operatorname{Re}(s) > 1,
 \\]
 
-<div class="env-block proof">
-    <div class="env-title">Proof</div>
+<p>directly connects \\(\\zeta(s)\\) to the prime numbers. As Euler already understood: <em>the product runs over primes, but the sum runs over all integers</em>. This duality is the engine of analytic number theory.</p>
+
+<div class="env-block theorem">
+    <div class="env-title">Theorem 4.1 (Euler, 1737)</div>
     <div class="env-body">
-        <p>Expand each geometric factor: \\(\\frac{1}{1-p^{-s}} = 1 + p^{-s} + p^{-2s} + \\cdots\\). Taking the product over all primes, the Fundamental Theorem of Arithmetic ensures that every positive integer \\(n\\) appears exactly once in the expansion (as \\(n = \\prod p_i^{a_i}\\) corresponds to \\(\\prod p_i^{-a_i s}\\)). Absolute convergence for \\(\\sigma > 1\\) justifies rearranging. \\(\\square\\)</p>
+        <p>The identity \\(\\zeta(s) = \\prod_p (1 - p^{-s})^{-1}\\) holds for \\(\\operatorname{Re}(s) > 1\\). In particular, \\(\\zeta(s) \\neq 0\\) in this region.</p>
     </div>
 </div>
 
-<p>The Euler product is not merely a formula—it is a <em>translation dictionary</em> between additive structure (the Dirichlet series, summing over integers) and multiplicative structure (the product, ranging over primes). Every non-trivial theorem about \\(\\zeta(s)\\) ultimately traces back to this identity.</p>
+<p>The non-vanishing is crucial: if \\(\\zeta(s)\\) never vanishes for \\(\\operatorname{Re}(s) > 1\\), then \\(\\log \\zeta(s)\\) makes sense in that half-plane, and we can take logarithmic derivatives to extract information about primes. The entire Prime Number Theorem program (Chapters 6 and 7) rests on understanding where \\(\\zeta(s)\\) can and cannot vanish.</p>
 
-<h3>The Road Map</h3>
+<h3>Riemann's 1859 Memoir</h3>
 
-<p>This chapter carries \\(\\zeta(s)\\) from its safe half-plane \\(\\operatorname{Re}(s)>1\\), across the boundary \\(\\sigma=1\\), and into the critical strip \\(0 < \\sigma < 1\\) where the action happens. Along the way we:</p>
+<p>In his only paper on number theory, Riemann made a conceptual leap that transformed the subject. He proposed studying \\(\\zeta(s)\\) as a function of a <em>complex</em> variable \\(s = \\sigma + it\\), extending it beyond the region of convergence \\(\\sigma > 1\\) to the entire complex plane (except for a single pole at \\(s = 1\\)). He showed that the distribution of primes is governed by the <em>zeros</em> of this extended function.</p>
 
-<ol>
-    <li>Establish absolute convergence and analytic continuation to \\(\\operatorname{Re}(s) > 0\\) via the eta function;</li>
-    <li>Analyze the simple pole at \\(s=1\\) (residue = 1, the arithmetic mean of all primes);</li>
-    <li>Compute special values \\(\\zeta(2) = \\pi^2/6\\), \\(\\zeta(2k)\\) in terms of Bernoulli numbers, and the trivial zeros at \\(s = -2, -4, -6, \\ldots\\);</li>
-    <li>Introduce the Gamma function \\(\\Gamma(s)\\) and the completed zeta function \\(\\xi(s)\\);</li>
-    <li>State the functional equation and set the stage for Chapter 5.</li>
-</ol>
+<div class="env-block remark">
+    <div class="env-title">Roadmap for This Chapter</div>
+    <div class="env-body">
+        <p>We will:</p>
+        <ol>
+            <li>Study \\(\\zeta(s)\\) for real \\(s > 1\\), establishing basic properties.</li>
+            <li>Extend to the strip \\(0 < \\operatorname{Re}(s) \\leq 1\\) using the Dirichlet eta function.</li>
+            <li>Examine the pole at \\(s = 1\\) and its Laurent expansion.</li>
+            <li>Compute special values: \\(\\zeta(2), \\zeta(4), \\zeta(2k)\\) and the trivial zeros.</li>
+            <li>Introduce the Gamma function and the xi function \\(\\xi(s)\\), previewing the functional equation.</li>
+        </ol>
+    </div>
+</div>
+`,
+            visualizations: [],
+            exercises: []
+        },
+
+        // ================================================================
+        // SECTION 2: The Half-Plane Re(s) > 1
+        // ================================================================
+        {
+            id: 'sec-half-plane',
+            title: 'The Half-Plane Re(s) > 1',
+            content: `
+<h2>\\(\\zeta(s)\\) for \\(\\operatorname{Re}(s) > 1\\)</h2>
+
+<p>For real \\(s > 1\\), the zeta function is an ordinary convergent series of positive terms. We can evaluate it numerically and study its behavior as \\(s \\to 1^+\\) and as \\(s \\to \\infty\\).</p>
+
+<div class="env-block definition">
+    <div class="env-title">Definition (Riemann Zeta Function, Initial Domain)</div>
+    <div class="env-body">
+        <p>For \\(\\operatorname{Re}(s) > 1\\), the <strong>Riemann zeta function</strong> is</p>
+        \\[\\zeta(s) = \\sum_{n=1}^{\\infty} \\frac{1}{n^s}.\\]
+        <p>The series converges absolutely and uniformly on compact subsets of \\(\\{s \\in \\mathbb{C} : \\operatorname{Re}(s) > 1\\}\\).</p>
+    </div>
+</div>
+
+<h3>Basic Properties on the Real Line</h3>
+
+<p>For real \\(s > 1\\):</p>
+<ul>
+    <li>\\(\\zeta(s)\\) is a strictly decreasing function of \\(s\\).</li>
+    <li>\\(\\zeta(s) \\to \\infty\\) as \\(s \\to 1^+\\) (the harmonic series diverges).</li>
+    <li>\\(\\zeta(s) \\to 1\\) as \\(s \\to \\infty\\) (only the \\(n=1\\) term survives).</li>
+</ul>
+
+<div class="env-block theorem">
+    <div class="env-title">Theorem 4.2 (Integral Comparison)</div>
+    <div class="env-body">
+        <p>For \\(s > 1\\),</p>
+        \\[\\frac{1}{s-1} < \\zeta(s) - 1 < \\frac{1}{s-1} + 1 - \\frac{1}{2^{s-1}}.\\]
+        <p>In particular, \\(\\zeta(s) \\sim \\frac{1}{s-1}\\) as \\(s \\to 1^+\\).</p>
+    </div>
+</div>
+
+<p><em>Proof sketch.</em> Compare \\(\\sum_{n=2}^{\\infty} n^{-s}\\) with the integral \\(\\int_1^{\\infty} x^{-s}\\,dx = \\frac{1}{s-1}\\). Since \\(f(x) = x^{-s}\\) is decreasing, the sum is between the integral from 1 to \\(\\infty\\) and the integral from 2 to \\(\\infty\\) plus \\(f(2)\\).</p>
 
 <div class="viz-placeholder" data-viz="viz-zeta-real-line"></div>
+
+<h3>Absolute Convergence</h3>
+
+<p>For complex \\(s = \\sigma + it\\) with \\(\\sigma > 1\\), we have \\(|n^{-s}| = n^{-\\sigma}\\), so the series converges absolutely. The convergence is <em>not</em> absolute for \\(\\sigma \\leq 1\\), and the series does not converge at all for \\(\\sigma \\leq 0\\) (the terms do not tend to zero in modulus). Extending \\(\\zeta(s)\\) beyond \\(\\sigma = 1\\) requires a different approach.</p>
 `,
             visualizations: [
                 {
                     id: 'viz-zeta-real-line',
-                    title: 'Zeta on the Real Axis',
-                    description: 'Plot of \\(\\zeta(\\sigma)\\) for real \\(\\sigma > 1\\). The function blows up as \\(\\sigma \\to 1^+\\) (simple pole) and approaches 1 from above as \\(\\sigma \\to \\infty\\). Drag the slider to see partial sums converge.',
+                    title: 'Zeta on the Real Line',
+                    description: 'The graph of zeta(s) for real s > 1. Watch the blow-up as s approaches 1 (the harmonic series diverges) and the decay toward 1 as s grows. Drag the slider to add partial sums.',
                     setup: function(body, controls) {
                         var viz = new VizEngine(body, {
-                            width: 560, height: 360,
-                            originX: 80, originY: 300, scale: 80
+                            width: 560, height: 380,
+                            originX: 80, originY: 280, scale: 80
                         });
+                        var nTerms = 200;
+                        var showPartial = 10;
 
-                        var N = 50;
-                        var slider = VizEngine.createSlider(controls, 'Terms N', 1, 200, N, 1, function(v) {
-                            N = Math.round(v);
+                        VizEngine.createSlider(controls, 'Partial sum N', 3, 200, showPartial, 1, function(v) {
+                            showPartial = Math.round(v);
                             draw();
                         });
 
-                        function zetaReal(sigma, terms) {
-                            var s = 0;
-                            for (var n = 1; n <= terms; n++) s += Math.pow(n, -sigma);
-                            return s;
+                        function zetaPartial(s, N) {
+                            var sum = 0;
+                            for (var n = 1; n <= N; n++) sum += Math.pow(n, -s);
+                            return sum;
                         }
 
                         function draw() {
                             viz.clear();
-                            viz.drawGrid(0.5);
+                            viz.drawGrid();
                             viz.drawAxes();
+                            var ctx = viz.ctx;
 
-                            // True zeta (many terms)
-                            viz.drawFunction(function(sigma) {
-                                return zetaReal(sigma, 500);
-                            }, 1.05, 5, viz.colors.blue, 2.5, 200);
+                            // Draw zeta(s) (high-N approximation)
+                            viz.drawFunction(function(s) {
+                                if (s <= 1.01) return NaN;
+                                return zetaPartial(s, 500);
+                            }, 1.01, 6, viz.colors.blue, 2.5);
 
-                            // Partial sum with N terms
-                            viz.drawFunction(function(sigma) {
-                                return zetaReal(sigma, N);
-                            }, 1.05, 5, viz.colors.orange, 1.5, 200);
+                            // Draw partial sum
+                            viz.drawFunction(function(s) {
+                                if (s <= 0.5) return NaN;
+                                return zetaPartial(s, showPartial);
+                            }, 0.5, 6, viz.colors.orange, 1.5);
 
-                            // Pole marker at s=1
-                            viz.ctx.strokeStyle = viz.colors.red;
-                            viz.ctx.lineWidth = 1;
-                            viz.ctx.setLineDash([5, 4]);
-                            var [sx] = viz.toScreen(1, 0);
-                            viz.ctx.beginPath(); viz.ctx.moveTo(sx, 0); viz.ctx.lineTo(sx, viz.height); viz.ctx.stroke();
-                            viz.ctx.setLineDash([]);
+                            // Draw asymptote 1/(s-1) + 1
+                            viz.drawFunction(function(s) {
+                                if (s <= 1.01) return NaN;
+                                return 1 / (s - 1) + 1;
+                            }, 1.01, 6, viz.colors.teal + '88', 1, true);
+
+                            // Horizontal line y=1
+                            viz.drawSegment(0, 1, 6, 1, viz.colors.text + '44', 1, true);
+
+                            // Vertical line s=1
+                            viz.drawSegment(1, -1, 1, 4, viz.colors.red + '66', 1, true);
 
                             // Labels
-                            viz.screenText('\u03b6(\u03c3) = \u03a3 n\u207b\u03c3', viz.width/2, 22, viz.colors.white, 15);
-                            viz.screenText('Blue: \u03b6(\u03c3) (500 terms)   Orange: partial sum (N=' + N + ')', viz.width/2, 42, viz.colors.text, 11);
-                            viz.screenText('pole at \u03c3=1', sx + 6, 60, viz.colors.red, 11);
-
-                            // Value readout at sigma=2
-                            var v2 = zetaReal(2, 500);
-                            viz.drawPoint(2, v2, viz.colors.teal, '\u03b6(2)\u2248' + v2.toFixed(4), 4);
-
-                            // horizontal asymptote y=1
-                            viz.drawLine(1, 1, 5, 1, viz.colors.grid, 1, true);
-                            viz.drawText('y = 1', 4.5, 1.1, viz.colors.text, 11);
+                            viz.screenText('zeta(s)', viz.width - 60, 40, viz.colors.blue, 13);
+                            viz.screenText('S_N(s), N=' + showPartial, viz.width - 90, 58, viz.colors.orange, 11);
+                            viz.screenText('1/(s-1)+1', viz.width - 80, 76, viz.colors.teal, 11);
+                            viz.screenText('s = 1 (pole)', 140, 30, viz.colors.red, 11);
+                            viz.screenText('y = 1', viz.width - 40, viz.originY - 80 - 8, viz.colors.text, 10);
                         }
                         draw();
                         return viz;
@@ -127,142 +181,196 @@ window.CHAPTERS.push({
             ],
             exercises: [
                 {
-                    question: 'Show that the Dirichlet series \\(\\sum n^{-s}\\) converges absolutely for \\(\\operatorname{Re}(s) > 1\\) by comparing with a real integral.',
-                    hint: 'Bound \\(|n^{-s}| = n^{-\\sigma}\\) and apply the integral test with \\(\\int_1^\\infty x^{-\\sigma}\\,dx\\).',
-                    solution: 'We have \\(|n^{-s}| = n^{-\\sigma}\\). For \\(\\sigma > 1\\), the series \\(\\sum n^{-\\sigma}\\) is a real \\(p\\)-series with \\(p = \\sigma > 1\\), hence convergent. The integral test gives \\(\\int_1^\\infty x^{-\\sigma}\\,dx = 1/(\\sigma-1) < \\infty\\). By the comparison test, \\(\\sum n^{-s}\\) converges absolutely for \\(\\operatorname{Re}(s)>1\\).'
+                    question: 'Show that \\(\\zeta(2) > 1 + \\frac{1}{4} + \\frac{1}{9} + \\frac{1}{16} > 1.4\\) by computing the first four terms. Can you get a tighter lower bound by including more terms?',
+                    hint: 'Just compute \\(1 + 1/4 + 1/9 + 1/16 = 1 + 0.25 + 0.1111 + 0.0625\\).',
+                    solution: '\\(1 + 1/4 + 1/9 + 1/16 = 1.4236...\\). Adding \\(1/25 + 1/36 + 1/49 + 1/64 + 1/81 + 1/100\\) gives \\(\\approx 1.5498\\). The exact value is \\(\\zeta(2) = \\pi^2/6 \\approx 1.6449\\).'
                 },
                 {
-                    question: 'Verify the Euler product for the first two prime factors. Multiply out \\((1-2^{-s})^{-1}(1-3^{-s})^{-1}\\) and identify which integers appear.',
-                    hint: 'Expand as geometric series and multiply term by term.',
-                    solution: '\\((1-2^{-s})^{-1} = 1 + 2^{-s} + 4^{-s} + \\cdots\\) and \\((1-3^{-s})^{-1} = 1 + 3^{-s} + 9^{-s} + \\cdots\\). Their product yields \\(n^{-s}\\) for every \\(n\\) whose prime factors are contained in \\(\\{2, 3\\}\\): i.e., \\(n = 2^a 3^b\\) for \\(a, b \\geq 0\\). Including more primes eventually covers all positive integers by the Fundamental Theorem of Arithmetic.'
+                    question: 'Prove that \\(\\zeta(s)\\) is strictly decreasing for real \\(s > 1\\). (Hint: differentiate term by term.)',
+                    hint: 'Compute \\(\\zeta\'(s) = -\\sum_{n=2}^{\\infty} (\\log n) / n^s\\) and note each term is negative.',
+                    solution: 'For \\(s > 1\\), \\(\\zeta\'(s) = -\\sum_{n=2}^{\\infty} \\frac{\\log n}{n^s}\\). Each term \\(-\\frac{\\log n}{n^s} < 0\\) for \\(n \\geq 2\\) (since \\(\\log n > 0\\) and \\(n^s > 0\\)). The sum of negative terms is negative, so \\(\\zeta\'(s) < 0\\) for all \\(s > 1\\). Thus \\(\\zeta\\) is strictly decreasing.'
                 }
             ]
         },
 
         // ================================================================
-        // SECTION 2: Zeta for Re(s) > 1
+        // SECTION 3: Continuation to the Strip 0 < Re(s) <= 1
         // ================================================================
         {
-            id: 'sec-half-plane',
-            title: 'Zeta for Re(s) > 1',
+            id: 'sec-continuation-strip',
+            title: 'Continuation to 0 < Re(s)',
             content: `
-<h2>The Zeta Function for \\(\\operatorname{Re}(s) > 1\\)</h2>
+<h2>The Eta Trick: Extending to \\(\\operatorname{Re}(s) > 0\\)</h2>
+
+<div class="env-block intuition">
+    <div class="env-title">The Key Idea</div>
+    <div class="env-body">
+        <p>The Dirichlet series \\(\\sum n^{-s}\\) diverges for \\(\\operatorname{Re}(s) \\leq 1\\). But the <em>alternating</em> version \\(\\sum (-1)^{n-1} n^{-s}\\) converges (conditionally) for \\(\\operatorname{Re}(s) > 0\\). Since we can express \\(\\zeta(s)\\) in terms of this alternating series, we obtain \\(\\zeta(s)\\) in the larger half-plane.</p>
+    </div>
+</div>
 
 <div class="env-block definition">
-    <div class="env-title">Definition 4.1</div>
+    <div class="env-title">Definition (Dirichlet Eta Function)</div>
     <div class="env-body">
-        <p>For \\(s \\in \\mathbb{C}\\) with \\(\\operatorname{Re}(s) > 1\\), define</p>
-        \\[\\zeta(s) = \\sum_{n=1}^{\\infty} n^{-s} = \\sum_{n=1}^{\\infty} e^{-s \\log n}.\\]
-        <p>Here \\(n^{-s}\\) is understood via the principal branch: \\(n^{-s} = e^{-s \\log n}\\) with \\(\\log n \\in \\mathbb{R}_{>0}\\).</p>
+        <p>The <strong>Dirichlet eta function</strong> (alternating zeta function) is</p>
+        \\[\\eta(s) = \\sum_{n=1}^{\\infty} \\frac{(-1)^{n-1}}{n^s} = 1 - \\frac{1}{2^s} + \\frac{1}{3^s} - \\frac{1}{4^s} + \\cdots\\]
+        <p>This series converges for \\(\\operatorname{Re}(s) > 0\\).</p>
     </div>
 </div>
-
-<h3>Uniform Convergence and Analyticity</h3>
 
 <div class="env-block theorem">
-    <div class="env-title">Theorem 4.1 (Analyticity for \\(\\sigma > 1\\))</div>
+    <div class="env-title">Theorem 4.3 (Eta-Zeta Relation)</div>
     <div class="env-body">
-        <p>The series \\(\\sum_{n=1}^\\infty n^{-s}\\) converges uniformly on any half-plane \\(\\{\\operatorname{Re}(s) \\geq 1 + \\delta\\}\\) for \\(\\delta > 0\\). Hence \\(\\zeta(s)\\) is holomorphic on \\(\\operatorname{Re}(s) > 1\\), and</p>
-        \\[\\zeta'(s) = -\\sum_{n=2}^{\\infty} \\frac{\\log n}{n^s}.\\]
+        <p>For \\(\\operatorname{Re}(s) > 0\\), \\(s \\neq 1\\),</p>
+        \\[\\zeta(s) = \\frac{\\eta(s)}{1 - 2^{1-s}}.\\]
+        <p>This extends \\(\\zeta(s)\\) meromorphically to \\(\\operatorname{Re}(s) > 0\\) with a simple pole at \\(s = 1\\).</p>
     </div>
 </div>
 
-<div class="env-block proof">
-    <div class="env-title">Proof</div>
-    <div class="env-body">
-        <p>For \\(\\operatorname{Re}(s) \\geq 1+\\delta\\) we have \\(|n^{-s}| = n^{-\\operatorname{Re}(s)} \\leq n^{-(1+\\delta)}\\). The Weierstrass M-test applies since \\(\\sum n^{-(1+\\delta)} < \\infty\\). A uniformly convergent series of holomorphic functions is holomorphic, and differentiation commutes with the sum. \\(\\square\\)</p>
-    </div>
-</div>
-
-<h3>Dirichlet Series Arithmetic</h3>
-
-<p>Because \\(\\zeta(s)\\) converges absolutely for \\(\\sigma > 1\\), products of Dirichlet series are legitimate:</p>
+<p><em>Proof.</em> For \\(\\operatorname{Re}(s) > 1\\),</p>
 
 \\[
-\\zeta(s)^2 = \\sum_{n=1}^{\\infty} \\frac{d(n)}{n^s}, \\qquad
-\\frac{1}{\\zeta(s)} = \\sum_{n=1}^{\\infty} \\frac{\\mu(n)}{n^s},
+\\zeta(s) - \\eta(s) = 2\\sum_{n=1}^{\\infty} \\frac{1}{(2n)^s} = \\frac{2}{2^s} \\zeta(s) = 2^{1-s}\\zeta(s).
 \\]
 
-<p>where \\(d(n)\\) is the divisor function and \\(\\mu(n)\\) is the Möbius function. These identities are the analytic incarnations of Dirichlet convolution: \\(d = 1 * 1\\) and \\(\\mu * 1 = \\varepsilon\\).</p>
-
-<h3>Growth Estimates</h3>
-
-<p>For fixed \\(\\sigma > 1\\):</p>
-\\[
-\\zeta(\\sigma) = \\frac{1}{\\sigma - 1} + \\gamma + O(\\sigma - 1) \\quad \\text{as } \\sigma \\to 1^+,
-\\]
-<p>where \\(\\gamma \\approx 0.5772\\) is the Euler-Mascheroni constant. This Laurent expansion near the pole is the starting point for many analytic estimates.</p>
-
-<div class="env-block remark">
-    <div class="env-title">Remark: Abscissa of Convergence</div>
-    <div class="env-body">
-        <p>For a general Dirichlet series \\(\\sum a_n n^{-s}\\), there is an <em>abscissa of convergence</em> \\(\\sigma_c\\) such that the series converges for \\(\\sigma > \\sigma_c\\) and diverges for \\(\\sigma < \\sigma_c\\). For \\(\\zeta(s)\\) itself, \\(\\sigma_c = 1\\). However \\(\\zeta(s)\\) is much more than the series: via analytic continuation it extends to all of \\(\\mathbb{C}\\) minus \\(\\{1\\}\\), a region far beyond any Dirichlet series.</p>
-    </div>
-</div>
+<p>Solving: \\(\\zeta(s)(1 - 2^{1-s}) = \\eta(s)\\), so \\(\\zeta(s) = \\eta(s)/(1 - 2^{1-s})\\). Since \\(\\eta(s)\\) converges for \\(\\operatorname{Re}(s) > 0\\), this gives \\(\\zeta(s)\\) in the larger region. The denominator \\(1 - 2^{1-s}\\) vanishes at \\(s = 1\\) (since \\(2^0 = 1\\)) and at \\(s = 1 + 2\\pi i k / \\log 2\\) for integer \\(k\\), but the latter are removable since \\(\\eta(s)\\) also vanishes there.</p>
 
 <div class="viz-placeholder" data-viz="viz-eta-alternating"></div>
+
+<h3>Numerical Evaluation: Borwein Acceleration</h3>
+
+<p>For numerical computation of \\(\\zeta(s)\\) in the critical strip \\(0 < \\operatorname{Re}(s) < 1\\), naive summation of \\(\\eta(s)\\) converges painfully slowly. The <strong>Borwein acceleration</strong> method dramatically improves convergence. It replaces the partial sums with a weighted average:</p>
+
+\\[
+\\eta(s) \\approx \\frac{-1}{d_n} \\sum_{k=0}^{n-1} \\frac{(-1)^k (d_k - d_n)}{(k+1)^s},
+\\]
+
+<p>where \\(d_k = n \\sum_{j=0}^{k} \\binom{n}{j}\\) are the Borwein coefficients. This converges like \\(O(3^{-n})\\), making it practical to evaluate \\(\\zeta(s)\\) anywhere in the critical strip to high precision.</p>
+
+<div class="env-block remark">
+    <div class="env-title">Note on Analytic Continuation</div>
+    <div class="env-body">
+        <p>The eta trick extends \\(\\zeta(s)\\) from \\(\\operatorname{Re}(s) > 1\\) to \\(\\operatorname{Re}(s) > 0\\). To go further (to the entire complex plane), we need the functional equation, which is the subject of Chapter 5. For now, the strip \\(0 < \\operatorname{Re}(s) \\leq 1\\) already contains the <em>critical strip</em> \\(0 \\leq \\operatorname{Re}(s) \\leq 1\\), where all the non-trivial zeros of \\(\\zeta(s)\\) live.</p>
+    </div>
+</div>
 `,
             visualizations: [
                 {
                     id: 'viz-eta-alternating',
-                    title: 'Convergence in the Half-Plane',
-                    description: 'The partial sums \\(S_N(\\sigma) = \\sum_{n=1}^N n^{-\\sigma}\\) for various real \\(\\sigma\\). For \\(\\sigma > 1\\) the sums converge; near \\(\\sigma = 1\\) the series diverges (harmonic series). Drag the slider for \\(N\\).',
+                    title: 'The Alternating Series eta(s)',
+                    description: 'Compare the partial sums of zeta(s) = sum 1/n^s (which diverges for s <= 1) with eta(s) = sum (-1)^(n-1)/n^s (which converges for s > 0). Slide s to see how the alternating series tames the divergence.',
                     setup: function(body, controls) {
                         var viz = new VizEngine(body, {
-                            width: 560, height: 360,
-                            originX: 60, originY: 320, scale: 40
+                            width: 560, height: 380,
+                            originX: 60, originY: 260, scale: 1
                         });
+                        var sVal = 0.7;
+                        var maxN = 80;
 
-                        var N = 30;
-                        VizEngine.createSlider(controls, 'Terms N', 2, 100, N, 1, function(v) {
-                            N = Math.round(v); draw();
+                        VizEngine.createSlider(controls, 's', 0.1, 3.0, sVal, 0.05, function(v) {
+                            sVal = v;
+                            draw();
                         });
-
-                        var sigmas = [
-                            { val: 2.0, color: '#58a6ff', label: '\u03c3=2' },
-                            { val: 1.5, color: '#3fb9a0', label: '\u03c3=1.5' },
-                            { val: 1.2, color: '#f0883e', label: '\u03c3=1.2' },
-                            { val: 1.02, color: '#f85149', label: '\u03c3=1.02' }
-                        ];
 
                         function draw() {
                             viz.clear();
                             var ctx = viz.ctx;
 
-                            // axes: x = term index, y = partial sum
-                            ctx.strokeStyle = viz.colors.axis; ctx.lineWidth = 1.5;
-                            ctx.beginPath(); ctx.moveTo(viz.originX, 0); ctx.lineTo(viz.originX, viz.height); ctx.stroke();
-                            ctx.beginPath(); ctx.moveTo(0, viz.originY); ctx.lineTo(viz.width, viz.originY); ctx.stroke();
+                            viz.screenText('Partial Sums: zeta vs eta at s = ' + sVal.toFixed(2), viz.width / 2, 20, viz.colors.white, 14);
 
-                            // x-axis labels
-                            ctx.fillStyle = viz.colors.text; ctx.font = '10px -apple-system,sans-serif';
-                            ctx.textAlign = 'center'; ctx.textBaseline = 'top';
-                            for (var x = 0; x <= N; x += 10) {
-                                var [sx] = viz.toScreen(x, 0);
-                                ctx.fillText(x, sx, viz.originY + 4);
+                            // Compute partial sums
+                            var zetaSums = [];
+                            var etaSums = [];
+                            var zs = 0, es = 0;
+                            for (var n = 1; n <= maxN; n++) {
+                                zs += Math.pow(n, -sVal);
+                                es += Math.pow(-1, n - 1) * Math.pow(n, -sVal);
+                                zetaSums.push(zs);
+                                etaSums.push(es);
                             }
 
-                            // draw partial sums for each sigma
-                            sigmas.forEach(function(sg) {
-                                ctx.strokeStyle = sg.color; ctx.lineWidth = 2;
-                                ctx.beginPath();
-                                var sum = 0;
-                                for (var n = 1; n <= N; n++) {
-                                    sum += Math.pow(n, -sg.val);
-                                    var [sx, sy] = viz.toScreen(n, Math.min(sum, 8));
-                                    if (n === 1) ctx.moveTo(sx, sy); else ctx.lineTo(sx, sy);
-                                }
-                                ctx.stroke();
+                            // Determine scale
+                            var allVals = zetaSums.concat(etaSums);
+                            var yMax = Math.max.apply(null, allVals) * 1.1;
+                            var yMin = Math.min.apply(null, allVals.concat([0])) - 0.2;
+                            var yRange = yMax - yMin;
+                            if (yRange < 1) yRange = 1;
 
-                                // label at end
-                                var [lx, ly] = viz.toScreen(N, Math.min(sum, 8));
-                                ctx.fillStyle = sg.color; ctx.font = '11px -apple-system,sans-serif';
-                                ctx.textAlign = 'left'; ctx.textBaseline = 'middle';
-                                ctx.fillText(sg.label, lx + 4, ly);
-                            });
+                            var chartL = 70, chartR = viz.width - 30;
+                            var chartT = 40, chartB = viz.height - 50;
+                            var chartW = chartR - chartL, chartH = chartB - chartT;
 
-                            viz.screenText('Partial sums S_N(\u03c3) = \u03a3\u2081^N n^{-\u03c3}', viz.width/2, 16, viz.colors.white, 14);
-                            viz.screenText('N = ' + N, viz.width/2, 36, viz.colors.text, 11);
+                            // Axes
+                            ctx.strokeStyle = viz.colors.axis; ctx.lineWidth = 1;
+                            ctx.beginPath(); ctx.moveTo(chartL, chartB); ctx.lineTo(chartR, chartB); ctx.stroke();
+                            ctx.beginPath(); ctx.moveTo(chartL, chartT); ctx.lineTo(chartL, chartB); ctx.stroke();
+
+                            // Y-axis labels
+                            ctx.fillStyle = viz.colors.text; ctx.font = '10px -apple-system,sans-serif';
+                            ctx.textAlign = 'right'; ctx.textBaseline = 'middle';
+                            var nTicks = 5;
+                            for (var t = 0; t <= nTicks; t++) {
+                                var yv = yMin + (yRange) * t / nTicks;
+                                var sy = chartB - (yv - yMin) / yRange * chartH;
+                                ctx.fillText(yv.toFixed(1), chartL - 5, sy);
+                                ctx.strokeStyle = viz.colors.grid; ctx.lineWidth = 0.5;
+                                ctx.beginPath(); ctx.moveTo(chartL, sy); ctx.lineTo(chartR, sy); ctx.stroke();
+                            }
+
+                            // X-axis labels
+                            ctx.textAlign = 'center'; ctx.textBaseline = 'top';
+                            for (var x = 10; x <= maxN; x += 10) {
+                                var sx = chartL + (x / maxN) * chartW;
+                                ctx.fillText(x.toString(), sx, chartB + 4);
+                            }
+                            ctx.fillText('N', chartR + 10, chartB + 4);
+
+                            // Plot zeta partial sums
+                            ctx.strokeStyle = viz.colors.blue; ctx.lineWidth = 2;
+                            ctx.beginPath();
+                            for (var i = 0; i < maxN; i++) {
+                                var px = chartL + ((i + 1) / maxN) * chartW;
+                                var py = chartB - (zetaSums[i] - yMin) / yRange * chartH;
+                                if (py < chartT - 20 || py > chartB + 20) { if (i > 0) ctx.stroke(); ctx.beginPath(); continue; }
+                                i === 0 ? ctx.moveTo(px, py) : ctx.lineTo(px, py);
+                            }
+                            ctx.stroke();
+
+                            // Plot eta partial sums
+                            ctx.strokeStyle = viz.colors.orange; ctx.lineWidth = 2;
+                            ctx.beginPath();
+                            for (var i = 0; i < maxN; i++) {
+                                var px = chartL + ((i + 1) / maxN) * chartW;
+                                var py = chartB - (etaSums[i] - yMin) / yRange * chartH;
+                                if (py < chartT - 20 || py > chartB + 20) { if (i > 0) ctx.stroke(); ctx.beginPath(); continue; }
+                                i === 0 ? ctx.moveTo(px, py) : ctx.lineTo(px, py);
+                            }
+                            ctx.stroke();
+
+                            // If s > 1, show true zeta value
+                            if (sVal > 1) {
+                                var trueZeta = zetaSums[maxN - 1]; // good approx
+                                var zy = chartB - (trueZeta - yMin) / yRange * chartH;
+                                ctx.strokeStyle = viz.colors.blue + '44'; ctx.lineWidth = 1; ctx.setLineDash([4, 4]);
+                                ctx.beginPath(); ctx.moveTo(chartL, zy); ctx.lineTo(chartR, zy); ctx.stroke();
+                                ctx.setLineDash([]);
+                            }
+
+                            // Eta limit line
+                            var etaLimit = etaSums[maxN - 1];
+                            var ey = chartB - (etaLimit - yMin) / yRange * chartH;
+                            ctx.strokeStyle = viz.colors.orange + '44'; ctx.lineWidth = 1; ctx.setLineDash([4, 4]);
+                            ctx.beginPath(); ctx.moveTo(chartL, ey); ctx.lineTo(chartR, ey); ctx.stroke();
+                            ctx.setLineDash([]);
+
+                            // Legend
+                            var legY = viz.height - 30;
+                            viz.screenText('sum 1/n^s', chartL + 80, legY, viz.colors.blue, 12);
+                            viz.screenText('sum (-1)^(n-1)/n^s', chartL + 250, legY, viz.colors.orange, 12);
+
+                            if (sVal <= 1) {
+                                viz.screenText('zeta series DIVERGES for s <= 1', viz.width / 2, chartT + 15, viz.colors.red, 12);
+                            }
                         }
                         draw();
                         return viz;
@@ -271,99 +379,14 @@ window.CHAPTERS.push({
             ],
             exercises: [
                 {
-                    question: 'Prove that \\(\\zeta(s)\\) is zero-free on \\(\\operatorname{Re}(s) > 1\\) using the Euler product.',
-                    hint: 'A convergent product of non-zero factors is non-zero provided the product converges absolutely.',
-                    solution: 'For \\(\\sigma > 1\\), the Euler product \\(\\zeta(s) = \\prod_p (1-p^{-s})^{-1}\\) converges absolutely. Each factor satisfies \\(|1-p^{-s}| \\geq 1 - p^{-\\sigma} > 0\\). Since \\(\\sum_p p^{-\\sigma} < \\infty\\), the product converges to a non-zero value. Hence \\(\\zeta(s) \\neq 0\\) for \\(\\sigma > 1\\).'
+                    question: 'Verify the identity \\(\\zeta(s) = \\eta(s)/(1 - 2^{1-s})\\) numerically at \\(s = 2\\) by computing both sides with enough terms.',
+                    hint: 'Compute \\(\\eta(2) = 1 - 1/4 + 1/9 - 1/16 + \\cdots\\) and check that \\(\\eta(2)/(1 - 2^{-1}) = \\eta(2) \\cdot 2 = \\pi^2/6\\).',
+                    solution: '\\(\\eta(2) = \\sum_{n=1}^\\infty (-1)^{n-1}/n^2 = \\pi^2/12\\). Then \\(\\eta(2)/(1-2^{-1}) = (\\pi^2/12)/(1/2) = \\pi^2/6 = \\zeta(2)\\). Numerically: \\(\\pi^2/12 \\approx 0.8225\\), divided by \\(0.5\\) gives \\(1.6449 \\approx \\pi^2/6\\).'
                 },
                 {
-                    question: 'Show that \\(\\frac{1}{\\zeta(s)} = \\sum_{n=1}^\\infty \\mu(n)\\,n^{-s}\\) for \\(\\operatorname{Re}(s) > 1\\), using the Möbius function definition \\(\\sum_{d|n}\\mu(d) = [n=1]\\).',
-                    hint: 'Multiply both sides by \\(\\zeta(s)\\) and compare the Dirichlet series coefficients.',
-                    solution: 'Multiply: \\(\\zeta(s) \\cdot \\sum_n \\mu(n)n^{-s} = \\sum_n \\left(\\sum_{d|n}\\mu(d)\\right)n^{-s}\\). The inner sum is \\([n=1]\\), so the product equals 1. Hence \\(\\sum_n \\mu(n) n^{-s} = 1/\\zeta(s)\\).'
-                }
-            ]
-        },
-
-        // ================================================================
-        // SECTION 3: Extending to Re(s) > 0 — eta function trick
-        // ================================================================
-        {
-            id: 'sec-continuation-strip',
-            title: 'Extending to Re(s) > 0',
-            content: `
-<h2>Extending to \\(\\operatorname{Re}(s) > 0\\): The Eta Function Trick</h2>
-
-<div class="env-block intuition">
-    <div class="env-title">The Problem</div>
-    <div class="env-body">
-        <p>The Dirichlet series \\(\\sum n^{-s}\\) diverges for \\(\\operatorname{Re}(s) \\leq 1\\). Yet the zeta function, as the unique analytic continuation, must extend across this barrier. The first step uses an alternating series whose abscissa of convergence is 0, not 1.</p>
-    </div>
-</div>
-
-<h3>The Dirichlet Eta Function</h3>
-
-<div class="env-block definition">
-    <div class="env-title">Definition 4.2 (Eta function)</div>
-    <div class="env-body">
-        <p>The <strong>Dirichlet eta function</strong> (also called the alternating zeta function) is</p>
-        \\[\\eta(s) = \\sum_{n=1}^{\\infty} \\frac{(-1)^{n+1}}{n^s} = 1 - 2^{-s} + 3^{-s} - 4^{-s} + \\cdots\\]
-        <p>By Dirichlet's test for alternating series, \\(\\eta(s)\\) converges for \\(\\operatorname{Re}(s) > 0\\) (and conditionally on the line \\(\\operatorname{Re}(s) = 0\\) except at \\(s = 0\\)).</p>
-    </div>
-</div>
-
-<h3>The Functional Relation</h3>
-
-<div class="env-block theorem">
-    <div class="env-title">Theorem 4.2</div>
-    <div class="env-body">
-        <p>For \\(\\operatorname{Re}(s) > 1\\):</p>
-        \\[\\eta(s) = (1 - 2^{1-s})\\,\\zeta(s).\\]
-        <p>Since \\(\\eta(s)\\) is holomorphic on \\(\\operatorname{Re}(s) > 0\\) and \\((1-2^{1-s})^{-1}\\) is meromorphic there, this relation extends \\(\\zeta(s)\\) to \\(\\operatorname{Re}(s) > 0\\) (except at points where \\(1 - 2^{1-s} = 0\\)).</p>
-    </div>
-</div>
-
-<div class="env-block proof">
-    <div class="env-title">Proof</div>
-    <div class="env-body">
-        <p>Group the series \\(\\zeta(s)\\) by subtracting twice the contribution from even integers:</p>
-        \\[
-        \\zeta(s) - 2\\cdot\\frac{1}{2^s}\\zeta(s)
-        = \\zeta(s)(1 - 2^{1-s})
-        = \\sum_{n=1}^\\infty n^{-s} - 2\\sum_{n=1}^\\infty (2n)^{-s}
-        = \\sum_{n=1}^\\infty \\frac{(-1)^{n+1}}{n^s} = \\eta(s). \\quad\\square
-        \\]
-    </div>
-</div>
-
-<p>Therefore, for \\(\\operatorname{Re}(s) > 0\\) with \\(1-2^{1-s} \\neq 0\\):</p>
-
-\\[
-\\zeta(s) = \\frac{\\eta(s)}{1 - 2^{1-s}}.
-\\]
-
-<h3>Where Does \\(1 - 2^{1-s} = 0\\)?</h3>
-
-<p>We need \\(2^{1-s} = 1\\), i.e., \\(e^{(1-s)\\log 2} = 1\\), which requires \\((1-s)\\log 2 = 2\\pi i k\\) for integer \\(k\\). This gives</p>
-\\[s = 1 + \\frac{2\\pi i k}{\\log 2}, \\qquad k \\in \\mathbb{Z}.\\]
-<p>These are isolated points on the vertical line \\(\\operatorname{Re}(s) = 1\\). But \\(\\eta(s)\\) also vanishes at these points (by a residue argument), so the singularities are removable. One checks that \\(k \\neq 0\\) gives \\(\\eta(s) = 0\\) there as well, and \\(k=0\\) corresponds to \\(s=1\\), the pole of \\(\\zeta\\). The continuation to \\(\\operatorname{Re}(s) > 0\\) is therefore meromorphic, with a unique pole at \\(s=1\\).</p>
-
-<div class="env-block remark">
-    <div class="env-title">Key Value: \\(\\eta(1) = \\ln 2\\)</div>
-    <div class="env-body">
-        <p>Setting \\(s=1\\) in the alternating series: \\(\\eta(1) = 1 - \\frac{1}{2} + \\frac{1}{3} - \\frac{1}{4} + \\cdots = \\ln 2 \\approx 0.6931\\). This is Leibniz's series (1674), a cornerstone of the theory.</p>
-    </div>
-</div>
-`,
-            visualizations: [],
-            exercises: [
-                {
-                    question: 'Prove that \\(\\eta(1) = \\ln 2\\). Use the Taylor series \\(\\ln(1+x) = \\sum_{n=1}^\\infty (-1)^{n+1} x^n / n\\) evaluated at \\(x = 1\\).',
-                    hint: 'Abel\'s theorem justifies passing to the boundary of the radius of convergence.',
-                    solution: 'The Taylor series \\(\\ln(1+x) = \\sum_{n=1}^\\infty (-1)^{n+1} x^n/n\\) has radius of convergence 1. At \\(x=1\\) the alternating series \\(\\sum (-1)^{n+1}/n\\) converges by the alternating series test. Abel\'s theorem (continuity of power series at a convergent boundary point) gives \\(\\eta(1) = \\ln(1+1) = \\ln 2\\).'
-                },
-                {
-                    question: 'Verify the eta-zeta relation at \\(s=2\\): compute \\(\\eta(2) = \\pi^2/12\\) and \\(\\zeta(2) = \\pi^2/6\\), then check \\(\\eta(2) = (1 - 2^{1-2})\\zeta(2)\\).',
-                    hint: 'Use the known values; compute \\(1 - 2^{-1} = 1/2\\).',
-                    solution: '\\(1 - 2^{1-2} = 1 - 2^{-1} = 1/2\\). So the relation predicts \\(\\eta(2) = \\zeta(2)/2 = (\\pi^2/6)/2 = \\pi^2/12\\). One can verify \\(\\eta(2) = \\sum_n (-1)^{n+1}/n^2 = \\pi^2/12\\) directly by splitting into odd and even terms: \\(\\eta(2) = \\zeta(2) - 2\\sum_n (2n)^{-2} = \\zeta(2) - \\zeta(2)/2 = \\pi^2/12\\). \\(\\checkmark\\)'
+                    question: 'Show that the denominator \\(1 - 2^{1-s}\\) vanishes at \\(s = 1\\) and at \\(s = 1 + 2\\pi i k/\\log 2\\) for any nonzero integer \\(k\\). Why does only \\(s = 1\\) produce a genuine pole of \\(\\zeta(s)\\)?',
+                    hint: '\\(2^{1-s} = 1\\) iff \\((1-s)\\log 2 = 2\\pi i k\\) for some integer \\(k\\). For \\(k \\neq 0\\), check that \\(\\eta(s)\\) also vanishes.',
+                    solution: '\\(2^{1-s} = e^{(1-s)\\log 2} = 1\\) iff \\((1-s)\\log 2 = 2\\pi ik\\), i.e., \\(s = 1 - 2\\pi ik/\\log 2\\). At \\(s = 1\\), \\(\\eta(1) = \\log 2 \\neq 0\\), so the zero of the denominator is not cancelled: genuine pole. For \\(k \\neq 0\\), one can show \\(\\eta(s)\\) also vanishes (the alternating series has the same periodicity), making the singularity removable.'
                 }
             ]
         },
@@ -375,67 +398,59 @@ window.CHAPTERS.push({
             id: 'sec-pole',
             title: 'The Pole at s = 1',
             content: `
-<h2>The Pole at \\(s = 1\\)</h2>
+<h2>The Pole at \\(s = 1\\) and the Laurent Expansion</h2>
 
-<div class="env-block intuition">
-    <div class="env-title">Harmonic Divergence is a Theorem</div>
-    <div class="env-body">
-        <p>The harmonic series \\(\\sum 1/n\\) diverges, but gently—like \\(\\log N\\). The simple pole of \\(\\zeta(s)\\) at \\(s=1\\) with residue 1 is the complex-analytic capture of this fact. The residue equals exactly 1, and the Laurent coefficient \\(-\\gamma\\) encodes the Euler-Mascheroni constant, measuring the deviation from the integral \\(\\int 1/x\\,dx\\).</p>
-    </div>
-</div>
-
-<h3>The Laurent Expansion at \\(s = 1\\)</h3>
+<p>The zeta function has a unique singularity in the half-plane \\(\\operatorname{Re}(s) > 0\\): a <strong>simple pole</strong> at \\(s = 1\\) with residue 1. This pole is the analytic shadow of the divergence of the harmonic series.</p>
 
 <div class="env-block theorem">
-    <div class="env-title">Theorem 4.3 (Pole and Laurent Expansion)</div>
+    <div class="env-title">Theorem 4.4 (Laurent Expansion at \\(s=1\\))</div>
     <div class="env-body">
-        <p>\\(\\zeta(s)\\) has a <strong>simple pole</strong> at \\(s=1\\) with residue 1, and the Laurent expansion begins</p>
-        \\[\\zeta(s) = \\frac{1}{s-1} + \\gamma + \\gamma_1(s-1) + \\gamma_2(s-1)^2 + \\cdots\\]
-        <p>where \\(\\gamma = \\lim_{N\\to\\infty}\\left(\\sum_{n=1}^N \\frac{1}{n} - \\log N\\right) \\approx 0.5772\\) is the Euler-Mascheroni constant, and \\(\\gamma_1, \\gamma_2, \\ldots\\) are the Stieltjes constants.</p>
+        <p>Near \\(s = 1\\), the zeta function has the Laurent expansion</p>
+        \\[\\zeta(s) = \\frac{1}{s-1} + \\gamma + O(s-1),\\]
+        <p>where \\(\\gamma = 0.57721\\ldots\\) is the <strong>Euler-Mascheroni constant</strong>, defined by</p>
+        \\[\\gamma = \\lim_{N \\to \\infty} \\left(\\sum_{n=1}^{N} \\frac{1}{n} - \\log N\\right).\\]
     </div>
 </div>
 
-<div class="env-block proof">
-    <div class="env-title">Proof sketch</div>
+<p><em>Proof sketch.</em> By the Euler-Maclaurin formula,</p>
+
+\\[
+\\zeta(s) = \\sum_{n=1}^{N} n^{-s} + \\frac{N^{1-s}}{s-1} + \\frac{1}{2}N^{-s} + \\cdots
+\\]
+
+<p>As \\(s \\to 1\\), the leading singular term is \\(\\frac{1}{s-1}\\). The regular part evaluates to \\(\\gamma\\) at \\(s = 1\\).</p>
+
+<div class="env-block definition">
+    <div class="env-title">Definition (Euler-Mascheroni Constant)</div>
     <div class="env-body">
-        <p>Use the Euler-Maclaurin formula to write</p>
-        \\[\\sum_{n=1}^N \\frac{1}{n^s} = \\int_1^N \\frac{dx}{x^s} + \\frac{1}{2}\\left(1 + N^{-s}\\right) + s\\int_1^N \\frac{\\{x\\} - 1/2}{x^{s+1}}\\,dx,\\]
-        <p>where \\(\\{x\\} = x - \\lfloor x\\rfloor\\). The first integral evaluates to \\((N^{1-s}-1)/(1-s)\\). As \\(N\\to\\infty\\) for \\(\\operatorname{Re}(s) > 0\\), the boundary term and fractional-part integral converge, yielding a meromorphic continuation with the stated pole. Expanding around \\(s=1\\) produces the Stieltjes expansion. \\(\\square\\)</p>
+        <p>The Euler-Mascheroni constant is</p>
+        \\[\\gamma = \\lim_{N \\to \\infty} \\left(\\sum_{n=1}^{N} \\frac{1}{n} - \\ln N\\right) = 0.5772156649\\ldots\\]
+        <p>It is unknown whether \\(\\gamma\\) is rational or irrational.</p>
     </div>
 </div>
 
-<h3>Residue Computation</h3>
+<h3>Why the Pole Matters</h3>
 
-<p>The residue is</p>
-\\[
-\\operatorname{Res}_{s=1}\\zeta(s) = \\lim_{s \\to 1}(s-1)\\zeta(s).
-\\]
-<p>From the Euler-Maclaurin analysis, \\((s-1)\\zeta(s) \\to 1\\) as \\(s \\to 1\\). Equivalently, from the eta-zeta relation:</p>
-\\[
-(s-1)\\zeta(s) = \\frac{(s-1)}{1-2^{1-s}}\\,\\eta(s) \\xrightarrow{s\\to 1} \\frac{1}{\\log 2}\\,\\eta(1) = \\frac{\\ln 2}{\\ln 2} = 1.
-\\]
-<p>The residue 1 implies that prime counting functions behave like \\(x/\\log x\\) to leading order—the quantitative content of the Prime Number Theorem.</p>
+<p>The simple pole of \\(\\zeta(s)\\) at \\(s = 1\\) with residue 1 is deeply connected to the Prime Number Theorem. Informally:</p>
 
-<h3>Connection to the Prime Number Theorem</h3>
+<ul>
+    <li>The Euler product \\(\\zeta(s) = \\prod_p (1 - p^{-s})^{-1}\\) diverges as \\(s \\to 1^+\\) because there are infinitely many primes. The <em>rate</em> of divergence encodes the <em>density</em> of primes.</li>
+    <li>The fact that the residue is exactly 1 (not some other constant) translates, through the machinery of Chapters 6-7, to the statement \\(\\pi(x) \\sim x/\\log x\\).</li>
+</ul>
 
-<p>The Prime Number Theorem states \\(\\pi(x) \\sim x/\\log x\\). Its proof requires two things about \\(\\zeta(s)\\):</p>
-<ol>
-    <li>\\(\\zeta(s)\\) has a simple pole of residue 1 at \\(s = 1\\) (which we have), and</li>
-    <li>\\(\\zeta(s) \\neq 0\\) on the line \\(\\operatorname{Re}(s) = 1\\) (non-trivial, proved in Chapter 6).</li>
-</ol>
-<p>Together, via a Tauberian theorem applied to the logarithmic derivative \\(-\\zeta'/\\zeta\\), they imply PNT. The pole at \\(s=1\\) is not an anomaly to be worked around—it <em>is</em> the leading term of the prime distribution.</p>
+<div class="env-block example">
+    <div class="env-title">Example: Mertens' Theorem as a Consequence</div>
+    <div class="env-body">
+        <p>The simple pole of \\(\\zeta(s)\\) at \\(s=1\\) implies \\(\\log\\zeta(s) \\sim \\log\\frac{1}{s-1}\\) as \\(s \\to 1^+\\). Since \\(\\log\\zeta(s) = -\\sum_p \\log(1-p^{-s}) \\sim \\sum_p p^{-s}\\), this gives \\(\\sum_p p^{-s} \\sim \\log\\frac{1}{s-1}\\). Converting this from the "\\(s\\)-world" back to the "\\(x\\)-world" via a Tauberian argument gives Mertens' theorem: \\(\\sum_{p \\leq x} 1/p \\sim \\log\\log x\\).</p>
+    </div>
+</div>
 `,
             visualizations: [],
             exercises: [
                 {
-                    question: 'Compute \\(\\lim_{s\\to 1}(s-1)\\zeta(s)\\) using the eta-zeta relation \\(\\zeta(s) = \\eta(s)/(1-2^{1-s})\\).',
-                    hint: 'Use L\'Hopital or Taylor expansion for \\(1-2^{1-s}\\) near \\(s=1\\).',
-                    solution: 'As \\(s \\to 1\\): \\(1 - 2^{1-s} = 1 - e^{(1-s)\\ln 2} \\approx (s-1)\\ln 2\\). So \\((s-1)/(1-2^{1-s}) \\to 1/\\ln 2\\). Since \\(\\eta(1) = \\ln 2\\), we get \\(\\lim_{s\\to 1}(s-1)\\zeta(s) = (1/\\ln 2)\\cdot \\ln 2 = 1\\). The residue is 1.'
-                },
-                {
-                    question: 'Show that \\(\\zeta(s) - 1/(s-1)\\) extends to an entire function, i.e., is holomorphic everywhere (not just for \\(\\operatorname{Re}(s) > 0\\)).',
-                    hint: 'Subtracting the principal part removes the pole. What does the Laurent expansion at \\(s=1\\) tell you?',
-                    solution: 'The Laurent expansion \\(\\zeta(s) = (s-1)^{-1} + \\gamma + \\gamma_1(s-1)+\\cdots\\) shows that \\(\\zeta(s) - 1/(s-1)\\) has a removable singularity at \\(s=1\\) (the pole is exactly cancelled). Via the functional equation (Chapter 5), \\(\\zeta(s)\\) is analytic everywhere except \\(s=1\\), so \\(\\zeta(s) - 1/(s-1)\\) is entire.'
+                    question: 'Compute \\(\\gamma\\) to three decimal places by evaluating \\(\\sum_{n=1}^{100} 1/n - \\ln 100\\).',
+                    hint: 'The harmonic sum \\(H_{100} = 1 + 1/2 + \\cdots + 1/100 \\approx 5.18738\\). And \\(\\ln 100 \\approx 4.60517\\).',
+                    solution: '\\(H_{100} \\approx 5.18738\\) and \\(\\ln 100 \\approx 4.60517\\), so \\(H_{100} - \\ln 100 \\approx 0.58221\\). The true value is \\(\\gamma \\approx 0.57722\\). The convergence is slow (error \\(\\approx 1/(2N)\\)), so \\(N = 100\\) gives only about 2 correct digits.'
                 }
             ]
         },
@@ -450,140 +465,143 @@ window.CHAPTERS.push({
 <h2>Special Values of \\(\\zeta(s)\\)</h2>
 
 <div class="env-block intuition">
-    <div class="env-title">Numbers in Unexpected Places</div>
+    <div class="env-title">Two Families of Special Values</div>
     <div class="env-body">
-        <p>Why should \\(1 + 1/4 + 1/9 + 1/16 + \\cdots = \\pi^2/6\\)? The answer is analytic: \\(\\pi\\) enters through the functional equation, through the sine product, through Fourier analysis. The appearance of \\(\\pi\\) in the values of \\(\\zeta\\) at positive even integers is one of mathematics' deepest coherences.</p>
+        <p>The zeta function takes remarkable values at certain integers. At positive even integers, Euler found explicit formulas involving \\(\\pi\\). At negative integers, the values are rational numbers related to Bernoulli numbers. At positive odd integers \\(\\geq 3\\), essentially nothing is known (Apery proved \\(\\zeta(3)\\) irrational in 1978, but no closed form is known).</p>
     </div>
 </div>
 
 <h3>The Basel Problem: \\(\\zeta(2) = \\pi^2/6\\)</h3>
 
+<p>The problem of evaluating \\(\\sum_{n=1}^{\\infty} 1/n^2\\) was posed by Pietro Mengoli in 1650 and solved by Euler in 1734. Euler's original proof used the factorization of \\(\\sin(\\pi x)/(\\pi x)\\) as an infinite product over its zeros, equating coefficients of \\(x^2\\).</p>
+
 <div class="env-block theorem">
-    <div class="env-title">Theorem 4.4 (Basel Problem, Euler 1734)</div>
+    <div class="env-title">Theorem 4.5 (Euler, 1734: Basel Problem)</div>
     <div class="env-body">
         \\[\\zeta(2) = \\sum_{n=1}^{\\infty} \\frac{1}{n^2} = \\frac{\\pi^2}{6}.\\]
     </div>
 </div>
 
-<div class="env-block proof">
-    <div class="env-title">Proof (via Parseval's identity)</div>
-    <div class="env-body">
-        <p>Consider \\(f(x) = x\\) on \\([-\\pi, \\pi]\\), extended by periodicity. Its Fourier series is</p>
-        \\[f(x) = 2\\sum_{n=1}^\\infty \\frac{(-1)^{n+1}}{n}\\sin(nx).\\]
-        <p>Parseval's theorem gives \\(\\frac{1}{\\pi}\\int_{-\\pi}^\\pi x^2\\,dx = 2\\sum_{n=1}^\\infty \\left(\\frac{2}{n}\\right)^2 / 2\\). The left side is \\(2\\pi^2/3\\). Solving: \\(\\sum 1/n^2 = \\pi^2/6\\). \\(\\square\\)</p>
-    </div>
-</div>
-
 <h3>General Even Values: \\(\\zeta(2k)\\)</h3>
 
-<p>For positive integers \\(k\\):</p>
-
-\\[
-\\zeta(2k) = \\frac{(-1)^{k+1}(2\\pi)^{2k}}{2\\,(2k)!}\\,B_{2k},
-\\]
-
-<p>where \\(B_{2k}\\) are the Bernoulli numbers (\\(B_2 = 1/6\\), \\(B_4 = -1/30\\), \\(B_6 = 1/42\\), \\(\\ldots\\)). For example:</p>
-
-\\[
-\\zeta(2) = \\frac{\\pi^2}{6}, \\quad
-\\zeta(4) = \\frac{\\pi^4}{90}, \\quad
-\\zeta(6) = \\frac{\\pi^6}{945}.
-\\]
-
-<p>This formula comes from the partial-fraction expansion of \\(\\pi\\cot(\\pi z)\\), or equivalently from the functional equation of \\(\\zeta(s)\\).</p>
-
-<h3>Odd Values: An Open Mystery</h3>
-
-<p>The values \\(\\zeta(3), \\zeta(5), \\zeta(7), \\ldots\\) at odd positive integers remain largely mysterious. Apéry proved in 1978 that \\(\\zeta(3)\\) is irrational (Apéry's constant \\(\\approx 1.202\\)), but no closed form in terms of \\(\\pi\\) is known. Whether \\(\\zeta(5)\\) is irrational is open.</p>
-
-<h3>Trivial Zeros</h3>
-
 <div class="env-block theorem">
-    <div class="env-title">Theorem 4.5 (Trivial Zeros)</div>
+    <div class="env-title">Theorem 4.6 (Euler's Formula for Even Zeta Values)</div>
     <div class="env-body">
-        <p>\\(\\zeta(s) = 0\\) at \\(s = -2, -4, -6, \\ldots\\) (negative even integers). These are the <strong>trivial zeros</strong>.</p>
+        <p>For each positive integer \\(k\\),</p>
+        \\[\\zeta(2k) = \\frac{(-1)^{k+1} (2\\pi)^{2k}}{2(2k)!} B_{2k},\\]
+        <p>where \\(B_{2k}\\) are the <strong>Bernoulli numbers</strong>, defined by the generating function</p>
+        \\[\\frac{t}{e^t - 1} = \\sum_{n=0}^{\\infty} B_n \\frac{t^n}{n!}.\\]
     </div>
 </div>
 
-<p>They arise from the functional equation (Chapter 5): the Gamma function \\(\\Gamma(s/2)\\) has poles at \\(s = 0, -2, -4, \\ldots\\), and these poles force \\(\\zeta(s)\\) to vanish at \\(s = -2, -4, \\ldots\\) so that the completed function \\(\\xi(s)\\) remains entire.</p>
+<p>The first few values:</p>
 
-<p>All other zeros of \\(\\zeta(s)\\) (the <strong>non-trivial zeros</strong>) lie in the critical strip \\(0 < \\operatorname{Re}(s) < 1\\). The Riemann Hypothesis asserts they all lie on the critical line \\(\\operatorname{Re}(s) = 1/2\\).</p>
+<table class="display-table">
+<tr><th>\\(k\\)</th><th>\\(B_{2k}\\)</th><th>\\(\\zeta(2k)\\)</th><th>Decimal</th></tr>
+<tr><td>1</td><td>\\(1/6\\)</td><td>\\(\\pi^2/6\\)</td><td>1.6449...</td></tr>
+<tr><td>2</td><td>\\(-1/30\\)</td><td>\\(\\pi^4/90\\)</td><td>1.0823...</td></tr>
+<tr><td>3</td><td>\\(1/42\\)</td><td>\\(\\pi^6/945\\)</td><td>1.0173...</td></tr>
+<tr><td>4</td><td>\\(-1/30\\)</td><td>\\(\\pi^8/9450\\)</td><td>1.0041...</td></tr>
+</table>
 
 <div class="viz-placeholder" data-viz="viz-special-values"></div>
+
+<h3>Trivial Zeros: \\(\\zeta(-2n) = 0\\)</h3>
+
+<p>The functional equation (Chapter 5) implies that \\(\\zeta(-2n) = 0\\) for \\(n = 1, 2, 3, \\ldots\\). These are called the <strong>trivial zeros</strong> because they arise from the poles of the Gamma function factor in the functional equation, not from any deep arithmetic structure.</p>
+
+<div class="env-block definition">
+    <div class="env-title">Definition (Trivial and Non-Trivial Zeros)</div>
+    <div class="env-body">
+        <p>The <strong>trivial zeros</strong> of \\(\\zeta(s)\\) are at \\(s = -2, -4, -6, \\ldots\\).</p>
+        <p>All other zeros (which lie in the critical strip \\(0 \\leq \\operatorname{Re}(s) \\leq 1\\)) are called <strong>non-trivial zeros</strong>.</p>
+        <p>The <strong>Riemann Hypothesis</strong> asserts that every non-trivial zero has \\(\\operatorname{Re}(s) = 1/2\\).</p>
+    </div>
+</div>
+
+<h3>Negative Integer Values</h3>
+
+<p>Using the functional equation (previewed below), one can show:</p>
+
+\\[
+\\zeta(0) = -\\tfrac{1}{2}, \\quad \\zeta(-1) = -\\tfrac{1}{12}, \\quad \\zeta(-3) = \\tfrac{1}{120}, \\quad \\zeta(-2n+1) = -\\frac{B_{2n}}{2n}.
+\\]
+
+<p>The value \\(\\zeta(-1) = -1/12\\) is sometimes (misleadingly) written as "\\(1 + 2 + 3 + 4 + \\cdots = -1/12\\)." This is not a convergent sum; it is the value assigned by analytic continuation.</p>
 `,
             visualizations: [
                 {
                     id: 'viz-special-values',
-                    title: 'Special Values and Convergence',
-                    description: 'Bar chart of \\(\\zeta(2k)\\) for \\(k = 1, \\ldots, 8\\), each normalized by \\(\\pi^{2k}\\). The normalized values are rational (Bernoulli numbers). Hover over bars to see exact fractions.',
+                    title: 'Special Values of Zeta',
+                    description: 'Visualize the first several values zeta(2k) and see how rapidly they approach 1. Each bar shows zeta(2k) - 1.',
                     setup: function(body, controls) {
                         var viz = new VizEngine(body, {
                             width: 560, height: 340,
-                            originX: 70, originY: 290, scale: 1
+                            originX: 80, originY: 300, scale: 1
                         });
 
-                        // zeta(2k) / pi^(2k) = |B_{2k}| / (2 * (2k)!) * 2^(2k-1) ... use exact rationals
-                        // zeta(2k) = (-1)^{k+1} (2pi)^{2k} B_{2k} / (2 (2k)!)
-                        // normalized = zeta(2k)/pi^{2k} = (-1)^{k+1} 2^{2k} B_{2k} / (2 (2k)!)
+                        // Bernoulli numbers B_{2k} for k=1..8
                         var bernoulli = [1/6, -1/30, 1/42, -1/30, 5/66, -691/2730, 7/6, -3617/510];
-                        var labels = ['1/6', '-1/30', '1/42', '-1/30', '5/66', '-691/2730', '7/6', '-3617/510'];
-                        var zetaVals = [], normalizedVals = [];
-                        for (var k = 1; k <= 8; k++) {
-                            var B = bernoulli[k-1];
-                            var fact = 1; for (var j=1; j<=2*k; j++) fact *= j;
-                            var val = Math.pow(-1, k+1) * Math.pow(2*Math.PI, 2*k) * B / (2 * fact);
-                            zetaVals.push(val);
-                            var norm = Math.pow(-1, k+1) * Math.pow(2, 2*k) * B / (2 * fact);
-                            normalizedVals.push(Math.abs(norm));
+
+                        function zetaEven(k) {
+                            var sign = Math.pow(-1, k + 1);
+                            return sign * Math.pow(2 * Math.PI, 2 * k) * bernoulli[k - 1] / (2 * factorial(2 * k));
+                        }
+
+                        function factorial(n) {
+                            var r = 1;
+                            for (var i = 2; i <= n; i++) r *= i;
+                            return r;
                         }
 
                         function draw() {
                             viz.clear();
                             var ctx = viz.ctx;
-                            var barW = 42, gap = 18;
-                            var startX = 80;
-                            var chartBottom = 270, chartTop = 40;
-                            var chartH = chartBottom - chartTop;
-                            var maxV = 0.6;
 
-                            // axes
-                            ctx.strokeStyle = viz.colors.axis; ctx.lineWidth = 1.5;
-                            ctx.beginPath(); ctx.moveTo(startX - 10, chartBottom); ctx.lineTo(viz.width - 20, chartBottom); ctx.stroke();
+                            viz.screenText('Special Values: zeta(2k)', viz.width / 2, 18, viz.colors.white, 15);
 
-                            viz.screenText('\u03b6(2k) / \u03c0\u00b2\u1d4f  (normalized Bernoulli ratios)', viz.width/2, 18, viz.colors.white, 14);
+                            var nBars = 8;
+                            var barW = 45;
+                            var gap = 12;
+                            var startX = 90;
+                            var baseY = 280;
+                            var scaleY = 180;
 
-                            for (var k = 0; k < 8; k++) {
-                                var x = startX + k * (barW + gap);
-                                var h = (normalizedVals[k] / maxV) * chartH;
-                                if (h > chartH) h = chartH;
+                            // zeta(2) is largest; scale by zeta(2) - 1
+                            var maxVal = zetaEven(1) - 1;
 
-                                var col = k % 2 === 0 ? viz.colors.blue : viz.colors.teal;
-                                ctx.fillStyle = col + 'bb';
-                                ctx.fillRect(x, chartBottom - h, barW, h);
-                                ctx.strokeStyle = col;
-                                ctx.lineWidth = 1.5;
-                                ctx.strokeRect(x, chartBottom - h, barW, h);
+                            for (var k = 1; k <= nBars; k++) {
+                                var val = zetaEven(k);
+                                var barH = (val - 1) / maxVal * scaleY;
+                                var x = startX + (k - 1) * (barW + gap);
 
-                                // k label
-                                ctx.fillStyle = viz.colors.text;
-                                ctx.font = '11px -apple-system,sans-serif';
-                                ctx.textAlign = 'center'; ctx.textBaseline = 'top';
-                                ctx.fillText('k=' + (k+1), x + barW/2, chartBottom + 4);
+                                // Bar
+                                var hue = (k - 1) / nBars;
+                                var rgb = VizEngine.hslToRgb(hue * 0.7 + 0.55, 0.7, 0.55);
+                                ctx.fillStyle = 'rgb(' + rgb[0] + ',' + rgb[1] + ',' + rgb[2] + ')';
+                                ctx.fillRect(x, baseY - barH, barW, barH);
 
-                                // zeta value
-                                ctx.fillStyle = col;
-                                ctx.font = '10px -apple-system,sans-serif';
-                                ctx.textAlign = 'center'; ctx.textBaseline = 'bottom';
-                                ctx.fillText('\u03b6(' + (2*(k+1)) + ')', x + barW/2, chartBottom - h - 14);
+                                // Value label
                                 ctx.fillStyle = viz.colors.white;
-                                ctx.fillText('\u2248' + zetaVals[k].toFixed(3), x + barW/2, chartBottom - h - 2);
+                                ctx.font = '10px -apple-system,sans-serif';
+                                ctx.textAlign = 'center';
+                                ctx.textBaseline = 'bottom';
+                                ctx.fillText(val.toFixed(4), x + barW / 2, baseY - barH - 4);
+
+                                // x-axis label
+                                ctx.fillStyle = viz.colors.text;
+                                ctx.textBaseline = 'top';
+                                ctx.fillText('zeta(' + (2 * k) + ')', x + barW / 2, baseY + 4);
                             }
 
-                            // special annotation for k=1
-                            ctx.fillStyle = viz.colors.yellow;
-                            ctx.font = '11px -apple-system,sans-serif';
-                            ctx.textAlign = 'center';
-                            ctx.fillText('\u03c0\u00b2/6', startX + barW/2, chartTop + 4);
+                            // Baseline y=1
+                            ctx.strokeStyle = viz.colors.teal + '88'; ctx.lineWidth = 1; ctx.setLineDash([4, 4]);
+                            ctx.beginPath(); ctx.moveTo(startX - 10, baseY); ctx.lineTo(viz.width - 10, baseY); ctx.stroke();
+                            ctx.setLineDash([]);
+                            ctx.fillStyle = viz.colors.teal; ctx.textAlign = 'right'; ctx.textBaseline = 'middle';
+                            ctx.fillText('1.0', startX - 15, baseY);
+
+                            viz.screenText('Values converge to 1 as k grows (each bar = zeta(2k) - 1)', viz.width / 2, viz.height - 15, viz.colors.text, 11);
                         }
                         draw();
                         return viz;
@@ -592,14 +610,14 @@ window.CHAPTERS.push({
             ],
             exercises: [
                 {
-                    question: 'Derive \\(\\zeta(2) = \\pi^2/6\\) using the product formula for \\(\\sin(\\pi z)\\): \\(\\sin(\\pi z) = \\pi z \\prod_{n=1}^\\infty (1 - z^2/n^2)\\).',
-                    hint: 'Take logarithm, differentiate, or compare coefficients in the Taylor expansion.',
-                    solution: 'Expand \\(\\ln\\sin(\\pi z) = \\ln(\\pi z) + \\sum_n \\ln(1 - z^2/n^2)\\). The Taylor expansion of \\(\\ln(1-u) = -u - u^2/2 - \\cdots\\) gives the \\(z^2\\) coefficient as \\(-\\sum_n 1/n^2\\) on one side. On the other, \\(\\ln\\sin(\\pi z) = \\ln(\\pi z) + \\sum_k c_k z^{2k}\\) and matching the \\(z^2\\) coefficient via the Taylor series of \\(\\sin\\) gives \\(-\\pi^2/6\\). Hence \\(\\sum 1/n^2 = \\pi^2/6\\).'
+                    question: 'Verify that \\(\\zeta(4) = \\pi^4/90\\) by computing \\(-(-1)^{2+1}(2\\pi)^4 B_4 / (2 \\cdot 4!)\\) with \\(B_4 = -1/30\\).',
+                    hint: 'Plug \\(k = 2\\), \\(B_4 = -1/30\\) into Euler\'s formula. Watch the signs carefully.',
+                    solution: '\\(\\zeta(4) = \\frac{(-1)^{3}(2\\pi)^4}{2 \\cdot 4!} \\cdot (-1/30) = \\frac{-(16\\pi^4)}{48} \\cdot (-1/30) = \\frac{16\\pi^4}{1440} = \\frac{\\pi^4}{90}\\).'
                 },
                 {
-                    question: 'Compute \\(\\zeta(4)\\) using \\(\\zeta(4) = (\\pi^2/6)^2 \\cdot 2/5\\) or by applying Parseval to \\(f(x) = x^2\\) on \\([-\\pi,\\pi]\\). Verify the answer is \\(\\pi^4/90\\).',
-                    hint: 'Use Parseval: \\(\\|f\\|^2 = \\pi \\sum |c_n|^2\\). Compute the Fourier coefficients of \\(x^2\\).',
-                    solution: 'The Fourier series of \\(f(x)=x^2\\) is \\(\\pi^2/3 + 4\\sum_{n=1}^\\infty (-1)^n n^{-2}\\cos(nx)\\). Parseval: \\((1/\\pi)\\int_{-\\pi}^\\pi x^4\\,dx = (2\\pi^4/5)/\\pi = 2\\pi^4/5\\) on the left; the right gives \\((\\pi^2/3)^2 \\cdot 2/\\pi + 2\\sum_{n=1}^\\infty 16/n^4\\). Solving yields \\(\\sum 1/n^4 = \\pi^4/90\\).'
+                    question: 'Explain informally why \\(\\zeta(2k) \\to 1\\) rapidly as \\(k \\to \\infty\\).',
+                    hint: 'What is the largest term in the sum \\(\\sum 1/n^{2k}\\) after \\(n = 1\\)?',
+                    solution: 'The \\(n = 1\\) term contributes 1. The next term is \\(1/2^{2k}\\), which shrinks exponentially in \\(k\\). All remaining terms are even smaller. So \\(\\zeta(2k) = 1 + 2^{-2k} + 3^{-2k} + \\cdots \\to 1\\) exponentially fast.'
                 }
             ]
         },
@@ -609,154 +627,151 @@ window.CHAPTERS.push({
         // ================================================================
         {
             id: 'sec-gamma-xi',
-            title: 'Gamma Function and Xi Function',
+            title: 'Gamma, Xi, and the Functional Equation',
             content: `
-<h2>The Gamma Function and the \\(\\xi\\) Function</h2>
+<h2>The Gamma Function and the Functional Equation</h2>
 
 <div class="env-block intuition">
-    <div class="env-title">Completing the Picture</div>
+    <div class="env-title">Why Gamma?</div>
     <div class="env-body">
-        <p>The functional equation (Chapter 5) relates \\(\\zeta(s)\\) and \\(\\zeta(1-s)\\). To state it cleanly, one multiplies \\(\\zeta(s)\\) by a Gamma factor, forming the <em>completed</em> zeta function \\(\\xi(s)\\). The Gamma function provides the archimedean factor—the contribution of the "prime at infinity"—that makes the functional equation symmetric.</p>
+        <p>The functional equation of \\(\\zeta(s)\\) relates \\(\\zeta(s)\\) to \\(\\zeta(1-s)\\), connecting the right half-plane to the left. The "glue" that makes this work is the Gamma function \\(\\Gamma(s)\\), which appears naturally through Mellin transforms of exponential functions.</p>
     </div>
 </div>
 
 <h3>The Gamma Function</h3>
 
 <div class="env-block definition">
-    <div class="env-title">Definition 4.3</div>
+    <div class="env-title">Definition (Gamma Function)</div>
     <div class="env-body">
-        <p>For \\(\\operatorname{Re}(s) > 0\\):</p>
-        \\[\\Gamma(s) = \\int_0^\\infty t^{s-1}\\,e^{-t}\\,dt.\\]
-        <p>Key properties: \\(\\Gamma(s+1) = s\\,\\Gamma(s)\\), \\(\\Gamma(1) = 1\\), \\(\\Gamma(n) = (n-1)!\\) for \\(n \\in \\mathbb{Z}_{>0}\\), and \\(\\Gamma(1/2) = \\sqrt{\\pi}\\).</p>
+        <p>For \\(\\operatorname{Re}(s) > 0\\),</p>
+        \\[\\Gamma(s) = \\int_0^{\\infty} t^{s-1} e^{-t}\\,dt.\\]
+        <p>Key properties:</p>
+        <ul>
+            <li>\\(\\Gamma(n) = (n-1)!\\) for positive integers \\(n\\).</li>
+            <li>Functional equation: \\(\\Gamma(s+1) = s\\,\\Gamma(s)\\).</li>
+            <li>\\(\\Gamma(1/2) = \\sqrt{\\pi}\\).</li>
+            <li>\\(\\Gamma(s)\\) extends meromorphically to all of \\(\\mathbb{C}\\) with simple poles at \\(s = 0, -1, -2, \\ldots\\).</li>
+        </ul>
     </div>
 </div>
 
-<p>The Gamma function is meromorphic on all of \\(\\mathbb{C}\\) with simple poles at \\(0, -1, -2, \\ldots\\) and no zeros. Its reciprocal \\(1/\\Gamma(s)\\) is entire. These poles, combined with the functional equation, are responsible for the trivial zeros of \\(\\zeta\\).</p>
-
-<h3>Weierstrass Product and Reflection Formula</h3>
-
-<p>Two key identities:</p>
-
-\\[
-\\frac{1}{\\Gamma(s)} = s\\,e^{\\gamma s} \\prod_{n=1}^\\infty \\left(1 + \\frac{s}{n}\\right)e^{-s/n}, \\qquad
-\\Gamma(s)\\,\\Gamma(1-s) = \\frac{\\pi}{\\sin(\\pi s)}.
-\\]
-
-<p>The reflection formula \\(\\Gamma(s)\\Gamma(1-s) = \\pi/\\sin(\\pi s)\\) will be crucial: at integer arguments it relates to the trivial zeros, and it appears inside the functional equation of \\(\\zeta\\).</p>
+<div class="viz-placeholder" data-viz="viz-gamma-function"></div>
 
 <h3>The Completed Zeta Function \\(\\xi(s)\\)</h3>
 
-<div class="env-block definition">
-    <div class="env-title">Definition 4.4 (Xi function)</div>
+<p>Riemann defined the <strong>xi function</strong></p>
+
+\\[
+\\xi(s) = \\frac{1}{2} s(s-1) \\pi^{-s/2} \\Gamma(s/2)\\, \\zeta(s).
+\\]
+
+<p>The factors are chosen so that:</p>
+<ul>
+    <li>The pole of \\(\\zeta(s)\\) at \\(s = 1\\) is cancelled by the \\((s-1)\\) factor.</li>
+    <li>The trivial zeros of \\(\\zeta(s)\\) (from \\(\\Gamma(s/2)\\) poles) are removed.</li>
+    <li>The resulting function is <strong>entire</strong> (no poles) and satisfies a beautifully symmetric functional equation.</li>
+</ul>
+
+<div class="env-block theorem">
+    <div class="env-title">Theorem 4.7 (Functional Equation)</div>
     <div class="env-body">
-        <p>Define</p>
-        \\[\\xi(s) = \\frac{1}{2}s(s-1)\\,\\pi^{-s/2}\\,\\Gamma\\!\\left(\\frac{s}{2}\\right)\\,\\zeta(s).\\]
-        <p>Equivalently, \\(\\xi(s) = \\frac{1}{2}s(s-1)\\Lambda(s)\\) where \\(\\Lambda(s) = \\pi^{-s/2}\\Gamma(s/2)\\zeta(s)\\) is the <em>completed zeta function</em>.</p>
+        <p>The xi function satisfies</p>
+        \\[\\xi(s) = \\xi(1 - s)\\]
+        <p>for all \\(s \\in \\mathbb{C}\\). Equivalently,</p>
+        \\[\\pi^{-s/2}\\,\\Gamma(s/2)\\,\\zeta(s) = \\pi^{-(1-s)/2}\\,\\Gamma\\!\\left(\\frac{1-s}{2}\\right)\\zeta(1-s).\\]
     </div>
 </div>
 
-<p>The factors \\(s\\) and \\((s-1)\\) are included precisely to cancel the pole of \\(\\Gamma(s/2)\\) at \\(s=0\\) and the pole of \\(\\zeta(s)\\) at \\(s=1\\), making \\(\\xi(s)\\) an <strong>entire function</strong>.</p>
+<p>The full proof uses the Jacobi theta function and Poisson summation; we defer it to Chapter 5. For now, note the key consequence:</p>
 
-<h3>Symmetry of \\(\\xi\\)</h3>
-
-<p>The functional equation (Theorem 5.1, Chapter 5) will tell us:</p>
-\\[\\xi(s) = \\xi(1-s).\\]
-<p>This reflects the symmetry \\(s \\leftrightarrow 1-s\\) of the critical strip about the line \\(\\operatorname{Re}(s) = 1/2\\). The non-trivial zeros of \\(\\zeta(s)\\) are exactly the zeros of \\(\\xi(s)\\), and the functional equation forces them to be symmetric about both the real axis (complex conjugation) and the critical line.</p>
-
-<div class="viz-placeholder" data-viz="viz-gamma-function"></div>
+<div class="env-block remark">
+    <div class="env-title">Symmetry of Zeros</div>
+    <div class="env-body">
+        <p>Since \\(\\xi(s) = \\xi(1 - s)\\), the non-trivial zeros of \\(\\zeta(s)\\) are symmetric about the line \\(\\operatorname{Re}(s) = 1/2\\). If \\(\\rho\\) is a zero, so is \\(1 - \\rho\\). (Combined with the fact that \\(\\overline{\\zeta(s)} = \\zeta(\\bar{s})\\), the zeros are also symmetric about the real axis.)</p>
+        <p>The Riemann Hypothesis states that in fact all non-trivial zeros lie <em>on</em> the line \\(\\operatorname{Re}(s) = 1/2\\), not merely symmetric about it.</p>
+    </div>
+</div>
 `,
             visualizations: [
                 {
                     id: 'viz-gamma-function',
                     title: 'The Gamma Function',
-                    description: 'Plot of \\(\\Gamma(x)\\) for real \\(x\\). Observe the simple poles at non-positive integers and the rapid growth for large \\(x\\). Drag the slider to zoom into the poles.',
+                    description: 'The real Gamma function Gamma(s), generalizing the factorial. It has poles at 0, -1, -2, ... and interpolates (n-1)! at positive integers.',
                     setup: function(body, controls) {
                         var viz = new VizEngine(body, {
-                            width: 560, height: 360,
-                            originX: 240, originY: 200, scale: 55
+                            width: 560, height: 380,
+                            originX: 260, originY: 200, scale: 30
                         });
 
-                        var yMax = 5;
-                        VizEngine.createSlider(controls, 'Y-range', 1, 15, yMax, 0.5, function(v) {
-                            yMax = v; draw();
-                        });
-
-                        // Lanczos approximation of Gamma for real x
+                        // Lanczos approximation for Gamma(x) for real x
                         function gammaReal(x) {
-                            if (x <= 0 && x === Math.floor(x)) return Infinity;
+                            if (x <= 0 && x === Math.floor(x)) return NaN; // poles
                             if (x < 0.5) {
                                 return Math.PI / (Math.sin(Math.PI * x) * gammaReal(1 - x));
                             }
-                            var g = 7;
-                            var c = [0.99999999999980993,676.5203681218851,-1259.1392167224028,
-                                771.32342877765313,-176.61502916214059,12.507343278686905,
-                                -0.13857109526572012,9.9843695780195716e-6,1.5056327351493116e-7];
                             x -= 1;
-                            var a = c[0];
+                            var g = 7;
+                            var c = [
+                                0.99999999999980993,
+                                676.5203681218851,
+                                -1259.1392167224028,
+                                771.32342877765313,
+                                -176.61502916214059,
+                                12.507343278686905,
+                                -0.13857109526572012,
+                                9.9843695780195716e-6,
+                                1.5056327351493116e-7
+                            ];
                             var t = x + g + 0.5;
-                            for (var i = 1; i < g + 2; i++) a += c[i] / (x + i);
-                            return Math.sqrt(2*Math.PI) * Math.pow(t, x+0.5) * Math.exp(-t) * a;
+                            var sum = c[0];
+                            for (var i = 1; i < g + 2; i++) {
+                                sum += c[i] / (x + i);
+                            }
+                            return Math.sqrt(2 * Math.PI) * Math.pow(t, x + 0.5) * Math.exp(-t) * sum;
                         }
 
                         function draw() {
                             viz.clear();
-                            viz.drawGrid(1);
+                            viz.drawGrid();
                             viz.drawAxes();
 
-                            // clamp helper
-                            function clamp(y) { return Math.max(-yMax, Math.min(yMax, y)); }
+                            // Draw Gamma(x) in segments to handle poles
+                            var segments = [[-4.99, -4.01], [-3.99, -3.01], [-2.99, -2.01], [-1.99, -1.01], [-0.99, -0.01], [0.01, 8]];
+                            for (var seg = 0; seg < segments.length; seg++) {
+                                viz.drawFunction(function(x) {
+                                    var val = gammaReal(x);
+                                    if (Math.abs(val) > 8) return NaN;
+                                    return val;
+                                }, segments[seg][0], segments[seg][1], viz.colors.blue, 2, 400);
+                            }
 
-                            // Draw Gamma in segments (skip across poles)
-                            var poles = [-5,-4,-3,-2,-1,0];
-                            var segments = [[-5.95,-4.05],[-3.95,-2.05],[-1.95,-0.05],[0.05, 4.5]];
-
-                            segments.forEach(function(seg) {
-                                viz.ctx.strokeStyle = viz.colors.blue;
-                                viz.ctx.lineWidth = 2;
-                                viz.ctx.beginPath();
-                                var started = false;
-                                var steps = 200;
-                                for (var i = 0; i <= steps; i++) {
-                                    var x = seg[0] + (seg[1]-seg[0]) * i / steps;
-                                    var y = gammaReal(x);
-                                    if (!isFinite(y) || Math.abs(y) > yMax * 1.5) { started = false; continue; }
-                                    var [sx, sy] = viz.toScreen(x, y);
-                                    if (!started) { viz.ctx.moveTo(sx, sy); started = true; } else { viz.ctx.lineTo(sx, sy); }
+                            // Mark integer values: Gamma(n) = (n-1)!
+                            var factorials = [1, 1, 2, 6, 24]; // 0!, 1!, 2!, 3!, 4!
+                            for (var n = 1; n <= 5; n++) {
+                                var y = factorials[n - 1];
+                                if (y <= 8) {
+                                    viz.drawPoint(n, y, viz.colors.orange, '(' + n + ', ' + y + ')', 4);
                                 }
-                                viz.ctx.stroke();
-                            });
-
-                            // Mark poles
-                            poles.forEach(function(p) {
-                                if (p >= -5) {
-                                    var [sx] = viz.toScreen(p, 0);
-                                    viz.ctx.strokeStyle = viz.colors.red + '88';
-                                    viz.ctx.lineWidth = 1;
-                                    viz.ctx.setLineDash([4,3]);
-                                    viz.ctx.beginPath(); viz.ctx.moveTo(sx, 0); viz.ctx.lineTo(sx, viz.height); viz.ctx.stroke();
-                                    viz.ctx.setLineDash([]);
-                                }
-                            });
+                            }
 
                             // Mark Gamma(1/2) = sqrt(pi)
-                            var gHalf = Math.sqrt(Math.PI);
-                            viz.drawPoint(0.5, gHalf, viz.colors.orange, '\u0393(1/2)=\u221a\u03c0', 4);
-                            // Mark Gamma(1) = 1
-                            viz.drawPoint(1, 1, viz.colors.teal, '\u0393(1)=1', 4);
+                            viz.drawPoint(0.5, Math.sqrt(Math.PI), viz.colors.teal, 'Gamma(1/2)=sqrt(pi)', 4);
 
-                            viz.screenText('\u0393(x): poles at x = 0, -1, -2, \u2026', viz.width/2, 16, viz.colors.white, 14);
+                            // Mark poles
+                            for (var p = 0; p >= -4; p--) {
+                                var sx = viz.toScreen(p, 0);
+                                viz.ctx.strokeStyle = viz.colors.red + '66';
+                                viz.ctx.lineWidth = 1;
+                                viz.ctx.setLineDash([3, 3]);
+                                viz.ctx.beginPath();
+                                viz.ctx.moveTo(sx[0], 0);
+                                viz.ctx.lineTo(sx[0], viz.height);
+                                viz.ctx.stroke();
+                                viz.ctx.setLineDash([]);
+                            }
 
-                            // y-axis limits
-                            viz.ctx.save();
-                            viz.ctx.fillStyle = viz.colors.text;
-                            viz.ctx.font = '10px -apple-system,sans-serif';
-                            viz.ctx.textAlign = 'right';
-                            viz.ctx.textBaseline = 'middle';
-                            var [,syMax] = viz.toScreen(0, yMax);
-                            var [,syMin] = viz.toScreen(0, -yMax);
-                            viz.ctx.fillText('+'+yMax.toFixed(1), viz.originX-6, syMax);
-                            viz.ctx.fillText('-'+yMax.toFixed(1), viz.originX-6, syMin);
-                            viz.ctx.restore();
+                            viz.screenText('Gamma(s)', viz.width - 70, 25, viz.colors.blue, 14);
+                            viz.screenText('Poles at 0, -1, -2, ...', 80, viz.height - 20, viz.colors.red, 11);
                         }
                         draw();
                         return viz;
@@ -765,175 +780,216 @@ window.CHAPTERS.push({
             ],
             exercises: [
                 {
-                    question: 'Verify that \\(\\Gamma(1/2) = \\sqrt{\\pi}\\) using the Gaussian integral \\(\\int_{-\\infty}^\\infty e^{-x^2}\\,dx = \\sqrt{\\pi}\\).',
-                    hint: 'Substitute \\(t = x^2\\) in the definition \\(\\Gamma(1/2) = \\int_0^\\infty t^{-1/2}e^{-t}\\,dt\\).',
-                    solution: 'Set \\(t = x^2\\), \\(dt = 2x\\,dx\\): \\(\\Gamma(1/2) = \\int_0^\\infty x^{-1}e^{-x^2}\\cdot 2x\\,dx = 2\\int_0^\\infty e^{-x^2}\\,dx = \\int_{-\\infty}^\\infty e^{-x^2}\\,dx = \\sqrt{\\pi}\\).'
+                    question: 'Prove that \\(\\Gamma(1/2) = \\sqrt{\\pi}\\) by computing \\(\\int_0^\\infty t^{-1/2} e^{-t}\\,dt\\) via the substitution \\(t = u^2\\).',
+                    hint: 'With \\(t = u^2\\), \\(dt = 2u\\,du\\), and \\(t^{-1/2} = 1/u\\), so the integral becomes \\(2\\int_0^\\infty e^{-u^2}\\,du\\).',
+                    solution: '\\(\\Gamma(1/2) = \\int_0^\\infty t^{-1/2}e^{-t}\\,dt\\). Let \\(t = u^2\\), \\(dt = 2u\\,du\\): \\(\\Gamma(1/2) = \\int_0^\\infty u^{-1} e^{-u^2} \\cdot 2u\\,du = 2\\int_0^\\infty e^{-u^2}\\,du = 2 \\cdot \\frac{\\sqrt{\\pi}}{2} = \\sqrt{\\pi}\\), using the Gaussian integral \\(\\int_0^\\infty e^{-u^2}\\,du = \\sqrt{\\pi}/2\\).'
                 },
                 {
-                    question: 'Using \\(\\Gamma(s+1) = s\\,\\Gamma(s)\\) repeatedly, express \\(\\Gamma(s/2)\\) near \\(s = 0\\) as a simple pole with residue 2. Hence show the factor \\(\\pi^{-s/2}\\Gamma(s/2)\\zeta(s)\\) is regular at \\(s=0\\).',
-                    hint: 'Near \\(s=0\\): \\(\\Gamma(s/2) \\approx 2/s\\). Also compute \\(\\zeta(0) = -1/2\\).',
-                    solution: '\\(\\Gamma(s/2) = (2/s)\\Gamma(1+s/2) \\to 2/s\\) as \\(s\\to 0\\). Meanwhile \\(\\pi^{-s/2} \\to 1\\) and \\(\\zeta(0) = -1/2\\) (from the functional equation or Bernoulli number: \\(\\zeta(0) = -B_1 = -(-1/2) = -1/2\\)). So \\(\\pi^{-s/2}\\Gamma(s/2)\\zeta(s) \\approx (2/s)\\cdot(-1/2) = -1/s\\). The additional factor \\((1/2)s(s-1)\\) in \\(\\xi\\) then cancels this pole.'
+                    question: 'Use the functional equation \\(\\xi(s) = \\xi(1-s)\\) and the formula for \\(\\xi\\) to show that the trivial zeros \\(\\zeta(-2n) = 0\\) arise from the poles of \\(\\Gamma(s/2)\\) at \\(s = -2, -4, \\ldots\\).',
+                    hint: 'At \\(s = -2n\\), \\(\\Gamma(s/2) = \\Gamma(-n)\\) which has a pole. For \\(\\xi(s)\\) to be entire, \\(\\zeta(s)\\) must have a zero to cancel this pole.',
+                    solution: '\\(\\xi(s) = \\frac{1}{2}s(s-1)\\pi^{-s/2}\\Gamma(s/2)\\zeta(s)\\) is entire. At \\(s = -2n\\) (\\(n \\geq 1\\)), \\(\\Gamma(s/2) = \\Gamma(-n)\\) has a simple pole. The factors \\(s\\), \\((s-1)\\), and \\(\\pi^{-s/2}\\) are finite and nonzero. For \\(\\xi(s)\\) to remain finite, \\(\\zeta(s)\\) must have a zero to cancel the pole of \\(\\Gamma(s/2)\\). Hence \\(\\zeta(-2n) = 0\\).'
                 }
             ]
         },
 
         // ================================================================
-        // SECTION 7: The Functional Equation Awaits
+        // SECTION 7: Bridge to What Comes Next
         // ================================================================
         {
             id: 'sec-bridge',
-            title: 'The Functional Equation Awaits',
+            title: 'The Critical Line',
             content: `
-<h2>The Functional Equation Awaits</h2>
+<h2>The Critical Line and What Lies Ahead</h2>
 
-<div class="env-block intuition">
-    <div class="env-title">What We Have Built</div>
-    <div class="env-body">
-        <p>We have defined \\(\\zeta(s)\\) for \\(\\operatorname{Re}(s) > 1\\), extended it to \\(\\operatorname{Re}(s) > 0\\) via \\(\\eta(s)\\), located its pole at \\(s=1\\) with residue 1, evaluated it at positive even integers, identified the trivial zeros, and introduced the completed function \\(\\xi(s)\\). The final step—extending \\(\\zeta\\) to all of \\(\\mathbb{C}\\) and revealing the symmetry \\(\\xi(s) = \\xi(1-s)\\)—is the functional equation.</p>
-    </div>
-</div>
+<p>We have now established the zeta function in the half-plane \\(\\operatorname{Re}(s) > 0\\), identified its pole, computed its special values, and glimpsed the functional equation. The stage is set for the deeper developments of Chapters 5-8.</p>
 
-<h3>Statement of the Functional Equation</h3>
+<h3>The Critical Line \\(\\operatorname{Re}(s) = 1/2\\)</h3>
 
-<div class="env-block theorem">
-    <div class="env-title">Theorem 4.6 (Functional Equation, Riemann 1859)</div>
-    <div class="env-body">
-        <p>The completed zeta function \\(\\xi(s) = \\frac{1}{2}s(s-1)\\pi^{-s/2}\\Gamma(s/2)\\zeta(s)\\) extends to an <strong>entire function</strong> satisfying</p>
-        \\[\\xi(s) = \\xi(1-s).\\]
-        <p>Equivalently, \\(\\zeta(s) = 2^s \\pi^{s-1}\\sin\\!\\left(\\frac{\\pi s}{2}\\right)\\Gamma(1-s)\\,\\zeta(1-s).\\]</p>
-    </div>
-</div>
-
-<p>The proof (Chapter 5) uses the theta function \\(\\vartheta(t) = \\sum_{n=-\\infty}^\\infty e^{-\\pi n^2 t}\\) and the Poisson summation formula, which transforms the sum over integers at scale \\(t\\) into a sum at scale \\(1/t\\). This is deep: the functional equation encodes the automorphic symmetry of \\(\\mathbb{Z}\\) inside \\(\\mathbb{R}\\).</p>
-
-<h3>Consequences</h3>
-
-<p><strong>1. Global meromorphic continuation.</strong> The functional equation, combined with the continuation to \\(\\operatorname{Re}(s) > 0\\), yields \\(\\zeta(s)\\) meromorphic on all of \\(\\mathbb{C}\\) with a single pole at \\(s=1\\).</p>
-
-<p><strong>2. Trivial zeros confirmed.</strong> For \\(s = -2k\\) (\\(k \\geq 1\\)), the factor \\(\\sin(\\pi s/2) = \\sin(-k\\pi) = 0\\) makes the right side vanish (while \\(\\zeta(1-s) = \\zeta(1+2k)\\) is finite and non-zero), so \\(\\zeta(-2k) = 0\\).</p>
-
-<p><strong>3. Values at negative integers.</strong> The functional equation gives</p>
-\\[\\zeta(-m) = \\frac{(-1)^m B_{m+1}}{m+1}, \\qquad m \\geq 1.\\]
-<p>In particular \\(\\zeta(0) = -1/2\\), \\(\\zeta(-1) = -1/12\\), \\(\\zeta(-3) = 1/120\\). The famously provocative "\\(1+2+3+\\cdots = -1/12\\)" is the statement \\(\\zeta(-1) = -1/12\\) in disguise: a regularization of a divergent series via analytic continuation, not a literal equality.</p>
-
-<p><strong>4. The critical strip.</strong> The only non-trivial zeros lie in \\(0 < \\operatorname{Re}(s) < 1\\), symmetric about \\(\\operatorname{Re}(s)=1/2\\) and about the real axis. The Riemann Hypothesis conjectures they all lie on \\(\\operatorname{Re}(s)=1/2\\).</p>
+<p>The functional equation \\(\\xi(s) = \\xi(1 - s)\\) makes the line \\(\\sigma = 1/2\\) a natural axis of symmetry. The values \\(|\\zeta(1/2 + it)|\\) oscillate as \\(t\\) increases, and the zeros of \\(\\zeta\\) on this line (i.e., the values of \\(t\\) where \\(\\zeta(1/2 + it) = 0\\)) are the subject of the Riemann Hypothesis.</p>
 
 <div class="viz-placeholder" data-viz="viz-critical-line"></div>
 
-<h3>The Road Ahead</h3>
+<div class="env-block theorem">
+    <div class="env-title">Theorem 4.8 (Hardy, 1914)</div>
+    <div class="env-body">
+        <p>The function \\(\\zeta(1/2 + it)\\) has infinitely many real zeros. That is, there are infinitely many non-trivial zeros on the critical line.</p>
+    </div>
+</div>
 
-<p>Chapter 5 proves the functional equation via theta functions. Chapter 6 establishes the zero-free region \\(\\{\\operatorname{Re}(s) > 1 - c/\\log|t|\\}\\) which is the quantitative heart of the Prime Number Theorem with error term. The interplay between the zeros of \\(\\zeta\\) and the distribution of primes—made precise by the Explicit Formula (Chapter 8)—is the central subject of analytic number theory.</p>
+<p>Hardy's result was strengthened by Selberg (1942), who showed that a positive proportion of all non-trivial zeros lie on the critical line. Computations by van de Lune, te Riele, and others have verified that the first \\(10^{13}\\) non-trivial zeros all lie on the critical line, with no exceptions found.</p>
+
+<h3>What Comes Next</h3>
 
 <div class="env-block remark">
-    <div class="env-title">The Riemann Hypothesis</div>
+    <div class="env-title">Preview of Chapters 5-8</div>
     <div class="env-body">
-        <p>Riemann's 1859 memoir computed the first few non-trivial zeros numerically and conjectured that all lie on \\(\\operatorname{Re}(s) = 1/2\\). This remains unproven. It is equivalent to the best possible error bound in the Prime Number Theorem: \\(\\pi(x) = \\operatorname{Li}(x) + O(\\sqrt{x}\\log x)\\). Every approach to understanding primes eventually runs into the zeros of \\(\\zeta(s)\\), and the Riemann Hypothesis is the master question about those zeros.</p>
+        <ul>
+            <li><strong>Chapter 5</strong>: Full analytic continuation to \\(\\mathbb{C}\\) via Jacobi's theta function and Poisson summation. Proof of the functional equation.</li>
+            <li><strong>Chapter 6</strong>: Zero-free regions for \\(\\zeta(s)\\) near \\(\\operatorname{Re}(s) = 1\\). The de la Vallee-Poussin region.</li>
+            <li><strong>Chapter 7</strong>: The Prime Number Theorem as a consequence of the zero-free region.</li>
+            <li><strong>Chapter 8</strong>: The explicit formula connecting \\(\\psi(x)\\) to the zeros of \\(\\zeta(s)\\).</li>
+        </ul>
     </div>
 </div>
 `,
             visualizations: [
                 {
                     id: 'viz-critical-line',
-                    title: 'Zeta on the Critical Line',
-                    description: 'Plot of \\(|\\zeta(1/2 + it)|\\) for real \\(t\\). The zeros appear where the curve touches zero. Drag the slider to explore the range of \\(t\\). The first zero is near \\(t \\approx 14.134\\).',
+                    title: '|zeta(1/2 + it)| on the Critical Line',
+                    description: 'The modulus of zeta along the critical line Re(s) = 1/2, plotted as a function of t (the imaginary part). Zeros of zeta(1/2 + it) appear where the curve touches zero. The first few non-trivial zeros are visible near t = 14.13, 21.02, 25.01, ...',
                     setup: function(body, controls) {
                         var viz = new VizEngine(body, {
-                            width: 560, height: 320,
-                            originX: 60, originY: 270, scale: 1
+                            width: 560, height: 380,
+                            originX: 60, originY: 340, scale: 1
+                        });
+                        var tMax = 50;
+
+                        VizEngine.createSlider(controls, 't_max', 20, 100, tMax, 5, function(v) {
+                            tMax = v;
+                            draw();
                         });
 
-                        var tMin = 0, tMax = 50;
-                        VizEngine.createSlider(controls, 't-min', 0, 100, tMin, 1, function(v) {
-                            tMin = v; if (tMin >= tMax - 5) tMax = tMin + 10; draw();
-                        });
-                        VizEngine.createSlider(controls, 't-max', 10, 150, tMax, 1, function(v) {
-                            tMax = v; if (tMax <= tMin + 5) tMin = Math.max(0, tMax - 10); draw();
-                        });
+                        // Complex arithmetic helpers
+                        function cmul(a, b) { return [a[0]*b[0] - a[1]*b[1], a[0]*b[1] + a[1]*b[0]]; }
+                        function cdiv(a, b) { var d = b[0]*b[0]+b[1]*b[1]; return [(a[0]*b[0]+a[1]*b[1])/d, (a[1]*b[0]-a[0]*b[1])/d]; }
+                        function cexp(a) { var r = Math.exp(a[0]); return [r*Math.cos(a[1]), r*Math.sin(a[1])]; }
+                        function cpow(base, s) {
+                            // base^s = exp(s * log(base)), base > 0 real
+                            var logb = Math.log(base);
+                            return cexp([s[0]*logb, s[1]*logb]);
+                        }
 
-                        // Borwein algorithm for zeta(1/2 + it)
-                        function zetaHalfIt(t) {
-                            var s_re = 0.5, s_im = t;
-                            var N = 60;
-                            // eta via alternating series
-                            var re = 0, im = 0;
-                            for (var n = 1; n <= N; n++) {
-                                // n^{-s} = exp(-s ln n) = exp(-0.5 ln n - it ln n)
-                                var logn = Math.log(n);
-                                var mag = Math.exp(-s_re * logn);
-                                var arg = -s_im * logn;
-                                var sign = (n % 2 === 1) ? 1 : -1;
-                                re += sign * mag * Math.cos(arg);
-                                im += sign * mag * Math.sin(arg);
+                        // Borwein-accelerated eta for complex s
+                        function zetaComplex(sr, si) {
+                            var n = 20;
+                            // Compute Borwein d_k coefficients
+                            var d = new Array(n + 1);
+                            d[0] = 1;
+                            for (var k = 1; k <= n; k++) {
+                                d[k] = d[k-1] + n * factorial(n + k - 1) / (factorial(n - k) * factorial(2 * k));
                             }
-                            // divide by (1 - 2^{1-s})
-                            var logTwo = Math.log(2);
-                            var a = 1 - Math.exp((1 - s_re) * logTwo) * Math.cos((1 - s_re) * 0 - s_im * logTwo);
-                            // 2^{1-s} = exp((1-s) log 2) where 1-s = (0.5 - it)
-                            var pow2_re = Math.exp((1 - s_re) * logTwo) * Math.cos(-s_im * logTwo);
-                            var pow2_im = Math.exp((1 - s_re) * logTwo) * Math.sin(-s_im * logTwo);
-                            var denom_re = 1 - pow2_re, denom_im = -pow2_im;
-                            var denom2 = denom_re * denom_re + denom_im * denom_im;
-                            if (denom2 < 1e-30) return 0;
-                            var res_re = (re * denom_re + im * denom_im) / denom2;
-                            var res_im = (im * denom_re - re * denom_im) / denom2;
-                            return Math.sqrt(res_re * res_re + res_im * res_im);
+                            // Simplify: use standard Borwein coefficients
+                            // Actually use the Chebyshev-like formula
+                            d = borweinCoeffs(n);
+                            var dn = d[n];
+
+                            var sumR = 0, sumI = 0;
+                            for (var k = 0; k < n; k++) {
+                                var sign = (k % 2 === 0) ? 1 : -1;
+                                var coeff = sign * (d[k] - dn);
+                                var term = cpow(k + 1, [sr, si]);
+                                var invTerm = cdiv([1, 0], term);
+                                sumR += coeff * invTerm[0];
+                                sumI += coeff * invTerm[1];
+                            }
+                            var etaR = -sumR / dn;
+                            var etaI = -sumI / dn;
+
+                            // zeta = eta / (1 - 2^{1-s})
+                            var pow2 = cpow(2, [1 - sr, -si]);
+                            var denomR = 1 - pow2[0];
+                            var denomI = -pow2[1];
+                            return cdiv([etaR, etaI], [denomR, denomI]);
+                        }
+
+                        function borweinCoeffs(n) {
+                            var d = new Array(n + 1);
+                            d[0] = 1;
+                            for (var k = 1; k <= n; k++) {
+                                d[k] = d[k-1] * (n + k - 1) * (n - k + 1) / ((2*k - 1) * k);
+                                // Accumulate: d[k] = sum_{j=0}^{k} C(n,j)
+                                // Simpler: just use partial sums of binomials
+                            }
+                            // Recompute properly
+                            d[0] = 0;
+                            var binom = 1;
+                            for (var j = 0; j <= n; j++) {
+                                if (j > 0) binom = binom * (n - j + 1) / j;
+                                d[j] = (j === 0) ? binom : d[j-1] + binom;
+                            }
+                            return d;
+                        }
+
+                        function factorial(m) {
+                            if (m <= 1) return 1;
+                            var r = 1;
+                            for (var i = 2; i <= m; i++) r *= i;
+                            return r;
                         }
 
                         function draw() {
                             viz.clear();
                             var ctx = viz.ctx;
-                            var left = 60, right = viz.width - 20;
-                            var bottom = 260, top = 30;
-                            var chartH = bottom - top;
-                            var maxMag = 5;
-                            var tRange = tMax - tMin;
 
-                            // axes
-                            ctx.strokeStyle = viz.colors.axis; ctx.lineWidth = 1.5;
-                            ctx.beginPath(); ctx.moveTo(left, bottom); ctx.lineTo(right, bottom); ctx.stroke();
-                            ctx.beginPath(); ctx.moveTo(left, top); ctx.lineTo(left, bottom); ctx.stroke();
+                            var chartL = 60, chartR = viz.width - 20;
+                            var chartT = 30, chartB = viz.height - 40;
+                            var chartW = chartR - chartL, chartH = chartB - chartT;
 
-                            // t-axis labels
+                            viz.screenText('|zeta(1/2 + it)|', viz.width / 2, 15, viz.colors.white, 14);
+
+                            // Compute values
+                            var nPts = 400;
+                            var vals = [];
+                            var maxVal = 0;
+                            for (var i = 0; i <= nPts; i++) {
+                                var t = tMax * i / nPts;
+                                var z = zetaComplex(0.5, t);
+                                var mag = Math.sqrt(z[0]*z[0] + z[1]*z[1]);
+                                if (!isFinite(mag)) mag = 0;
+                                vals.push(mag);
+                                if (mag > maxVal) maxVal = mag;
+                            }
+                            if (maxVal < 1) maxVal = 1;
+                            maxVal *= 1.1;
+
+                            // Axes
+                            ctx.strokeStyle = viz.colors.axis; ctx.lineWidth = 1;
+                            ctx.beginPath(); ctx.moveTo(chartL, chartB); ctx.lineTo(chartR, chartB); ctx.stroke();
+                            ctx.beginPath(); ctx.moveTo(chartL, chartT); ctx.lineTo(chartL, chartB); ctx.stroke();
+
+                            // Y-axis labels
                             ctx.fillStyle = viz.colors.text; ctx.font = '10px -apple-system,sans-serif';
-                            ctx.textAlign = 'center'; ctx.textBaseline = 'top';
-                            var tStep = tRange > 40 ? 10 : 5;
-                            for (var tt = Math.ceil(tMin/tStep)*tStep; tt <= tMax; tt += tStep) {
-                                var px = left + (tt - tMin) / tRange * (right - left);
-                                ctx.fillText(tt, px, bottom + 4);
-                                ctx.strokeStyle = viz.colors.grid; ctx.lineWidth = 0.5;
-                                ctx.beginPath(); ctx.moveTo(px, top); ctx.lineTo(px, bottom); ctx.stroke();
-                            }
-
-                            // y-axis labels
                             ctx.textAlign = 'right'; ctx.textBaseline = 'middle';
-                            for (var y = 0; y <= maxMag; y++) {
-                                var py = bottom - (y / maxMag) * chartH;
-                                ctx.fillStyle = viz.colors.text;
-                                ctx.fillText(y, left - 4, py);
+                            for (var yt = 0; yt <= 4; yt++) {
+                                var yv = (maxVal / 4) * yt;
+                                var sy = chartB - (yv / maxVal) * chartH;
+                                ctx.fillText(yv.toFixed(1), chartL - 5, sy);
+                                ctx.strokeStyle = viz.colors.grid; ctx.lineWidth = 0.3;
+                                ctx.beginPath(); ctx.moveTo(chartL, sy); ctx.lineTo(chartR, sy); ctx.stroke();
                             }
 
-                            // Draw |zeta(1/2 + it)|
-                            var steps = 400;
+                            // X-axis labels
+                            ctx.textAlign = 'center'; ctx.textBaseline = 'top';
+                            for (var xt = 0; xt <= tMax; xt += 10) {
+                                var sx = chartL + (xt / tMax) * chartW;
+                                ctx.fillStyle = viz.colors.text;
+                                ctx.fillText(xt.toString(), sx, chartB + 4);
+                            }
+                            viz.screenText('t', chartR + 10, chartB + 8, viz.colors.text, 11);
+
+                            // Plot
                             ctx.strokeStyle = viz.colors.blue; ctx.lineWidth = 2;
                             ctx.beginPath();
-                            var started = false;
-                            for (var i = 0; i <= steps; i++) {
-                                var t = tMin + (tMax - tMin) * i / steps;
-                                var mag = zetaHalfIt(t);
-                                var py2 = bottom - Math.min(mag / maxMag, 1.05) * chartH;
-                                var px2 = left + (t - tMin) / tRange * (right - left);
-                                if (!started) { ctx.moveTo(px2, py2); started = true; } else { ctx.lineTo(px2, py2); }
+                            for (var i = 0; i <= nPts; i++) {
+                                var px = chartL + (i / nPts) * chartW;
+                                var py = chartB - (vals[i] / maxVal) * chartH;
+                                i === 0 ? ctx.moveTo(px, py) : ctx.lineTo(px, py);
                             }
                             ctx.stroke();
 
-                            // Zero line
-                            ctx.strokeStyle = viz.colors.red + '66'; ctx.lineWidth = 1;
-                            ctx.setLineDash([4,3]);
-                            ctx.beginPath(); ctx.moveTo(left, bottom); ctx.lineTo(right, bottom); ctx.stroke();
-                            ctx.setLineDash([]);
+                            // Mark approximate zeros
+                            var knownZeros = [14.134, 21.022, 25.011, 30.425, 32.935, 37.586, 40.919, 43.327, 48.005, 49.774];
+                            for (var zi = 0; zi < knownZeros.length; zi++) {
+                                if (knownZeros[zi] > tMax) break;
+                                var zx = chartL + (knownZeros[zi] / tMax) * chartW;
+                                ctx.fillStyle = viz.colors.red;
+                                ctx.beginPath(); ctx.arc(zx, chartB, 4, 0, Math.PI * 2); ctx.fill();
+                                ctx.fillStyle = viz.colors.red; ctx.font = '9px -apple-system,sans-serif';
+                                ctx.textAlign = 'center'; ctx.textBaseline = 'top';
+                                ctx.fillText(knownZeros[zi].toFixed(1), zx, chartB + 14);
+                            }
 
-                            viz.screenText('|\u03b6(1/2 + it)|  —  zeros touch the axis', viz.width/2, 14, viz.colors.white, 14);
-                            viz.screenText('First zero near t \u2248 14.134', viz.width/2, 32, viz.colors.text, 11);
+                            viz.screenText('Red dots = non-trivial zeros on the critical line', viz.width / 2, viz.height - 10, viz.colors.text, 10);
                         }
                         draw();
                         return viz;
@@ -942,22 +998,11 @@ window.CHAPTERS.push({
             ],
             exercises: [
                 {
-                    question: 'Use the functional equation to compute \\(\\zeta(-1)\\). Show that it gives \\(-1/12\\).',
-                    hint: 'Set \\(s = -1\\) in \\(\\zeta(s) = 2^s\\pi^{s-1}\\sin(\\pi s/2)\\Gamma(1-s)\\zeta(1-s)\\). Evaluate \\(\\sin(-\\pi/2)\\), \\(\\Gamma(2) = 1\\), \\(\\zeta(2) = \\pi^2/6\\).',
-                    solution: '\\(\\zeta(-1) = 2^{-1}\\pi^{-2}\\sin(-\\pi/2)\\,\\Gamma(2)\\,\\zeta(2) = \\frac{1}{2}\\cdot\\frac{1}{\\pi^2}\\cdot(-1)\\cdot 1\\cdot\\frac{\\pi^2}{6} = -\\frac{1}{12}\\). \\(\\checkmark\\)'
-                },
-                {
-                    question: 'Verify that \\(\\xi(s) = \\xi(1-s)\\) implies non-trivial zeros come in pairs \\(\\{\\rho, 1-\\rho\\}\\). Show also that complex conjugation gives pairs \\(\\{\\rho, \\bar{\\rho}\\}\\).',
-                    hint: 'If \\(\\xi(\\rho) = 0\\), apply the symmetry \\(\\xi(s)=\\xi(1-s)\\) and the reality condition \\(\\overline{\\xi(s)} = \\xi(\\bar{s})\\).',
-                    solution: 'If \\(\\xi(\\rho)=0\\), then \\(\\xi(1-\\rho) = \\xi(\\rho) = 0\\), so \\(1-\\rho\\) is also a zero. For conjugation: \\(\\zeta(s)\\) has real coefficients, so \\(\\overline{\\zeta(s)} = \\zeta(\\bar{s})\\); the same holds for \\(\\xi\\). Hence \\(\\xi(\\bar{\\rho}) = \\overline{\\xi(\\rho)} = 0\\). Combining: zeros come in quadruples \\(\\{\\rho, 1-\\rho, \\bar\\rho, 1-\\bar\\rho\\}\\), collapsing to pairs when \\(\\rho\\) is real or on the critical line.'
-                },
-                {
-                    question: 'Compute \\(\\zeta(0)\\) two ways: (a) directly from the eta relation and \\(\\eta(0) = 1/2\\); (b) from the functional equation setting \\(s \\to 0\\).',
-                    hint: 'For (a): \\(1 - 2^{1-0} = -1\\), so \\(\\zeta(0) = \\eta(0)/(-1)\\). For (b): use \\(\\sin(0) = 0\\) and L\'Hopital.',
-                    solution: '(a) \\(\\eta(0) = 1 - 1 + 1 - \\cdots = 1/2\\) (Cesaro/Abel sum). \\(\\zeta(0) = \\eta(0)/(1-2) = (1/2)/(-1) = -1/2\\). (b) As \\(s\\to 0\\): \\(\\sin(\\pi s/2) \\approx \\pi s/2\\), \\(2^s \\to 1\\), \\(\\pi^{s-1} \\to 1/\\pi\\), \\(\\Gamma(1-s) \\to 1\\), \\(\\zeta(1-s) = \\zeta(1) \\sim 1/s\\). So \\(\\zeta(s) \\approx 1 \\cdot (1/\\pi) \\cdot (\\pi s/2) \\cdot 1 \\cdot (1/s) = 1/2\\). Wait—we get \\(\\zeta(0) = -1/2\\) by this limit, noting care with signs: \\(\\zeta(1-s)\\) near \\(s=0\\) is \\(\\zeta(1-s) \\approx 1/(1-s-1) = -1/s\\) (pole of \\(\\zeta\\) at 1). So \\(\\zeta(s) \\approx (1/\\pi)(\\pi s/2)\\cdot(-1/s) = -1/2\\).'
+                    question: 'The Riemann Hypothesis predicts that ALL non-trivial zeros have \\(\\operatorname{Re}(s) = 1/2\\). Explain why any zero off the critical line would come in a group of four: \\(\\rho, \\bar{\\rho}, 1-\\rho, 1-\\bar{\\rho}\\).',
+                    hint: 'Use two symmetries: (1) \\(\\overline{\\zeta(s)} = \\zeta(\\bar{s})\\) (conjugation symmetry), and (2) \\(\\xi(s) = \\xi(1-s)\\) (functional equation symmetry).',
+                    solution: 'If \\(\\zeta(\\rho) = 0\\), then \\(\\zeta(\\bar{\\rho}) = \\overline{\\zeta(\\rho)} = 0\\) (conjugation). From the functional equation \\(\\xi(s) = \\xi(1-s)\\) and the fact that \\(\\xi\\) vanishes exactly at non-trivial zeros of \\(\\zeta\\), \\(\\zeta(1-\\rho) = 0\\) and \\(\\zeta(1-\\bar{\\rho}) = 0\\). If \\(\\operatorname{Re}(\\rho) = 1/2\\), these four coincide in pairs. If \\(\\operatorname{Re}(\\rho) \\neq 1/2\\), they are four distinct points, forming a quadruplet.'
                 }
             ]
         }
-
-    ]  // end sections
+    ]
 });
