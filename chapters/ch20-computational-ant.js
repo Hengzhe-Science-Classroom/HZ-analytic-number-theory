@@ -6,167 +6,163 @@ window.CHAPTERS.push({
     subtitle: 'Theory meets machine',
     sections: [
         // ================================================================
-        // SECTION 1: Theory Meets Machine
+        // SECTION 1: Motivation — Why Compute?
         // ================================================================
         {
             id: 'sec-motivation',
-            title: 'Theory Meets Machine',
+            title: 'Why Compute?',
             content: `
-<h2>Theory Meets Machine</h2>
+<h2>Why Compute?</h2>
 
 <div class="env-block intuition">
-    <div class="env-title">Why Computation Changed Everything</div>
+    <div class="env-title">Computation as a Telescope</div>
     <div class="env-body">
-        <p>In 1936, Alan Turing proved that the Entscheidungsproblem is undecidable. Three years later, he used pencil-and-paper computation to verify the first 1,041 non-trivial zeros of the Riemann zeta function. In 2004, Xavier Gourdon and Patrick Demichel verified the first 10<sup>13</sup> zeros. The journey from 1,041 to ten trillion zeros is not just a story about faster computers. It is a story about new mathematics developed in service of computation.</p>
-        <p>Computational analytic number theory asks: how do you actually <em>evaluate</em> the objects of analytic number theory, and what do those evaluations tell us?</p>
+        <p>Mathematics is often imagined as pure thought, pen and paper. But analytic number theory has always been intertwined with large-scale calculation. Euler computed zeta values by hand. Riemann calculated the first few zeros of \\(\\zeta(s)\\) to formulate his hypothesis. Littlewood proved that \\(\\pi(x) - \\mathrm{li}(x)\\) changes sign, but could not exhibit an explicit crossover. Computation extends our mathematical senses, revealing structure that pure proof cannot yet explain.</p>
     </div>
 </div>
 
-<h3>The Two Directions</h3>
+<p>This chapter surveys the major computational problems of analytic number theory: evaluating the Riemann-Siegel formula for \\(\\zeta(1/2 + it)\\), verifying the Riemann Hypothesis for trillions of zeros, computing \\(\\pi(x)\\) for astronomically large \\(x\\), and testing primality of enormous numbers. These are not merely engineering feats; they provide evidence for (and occasionally against) deep conjectures, and the algorithms themselves reveal mathematical structure.</p>
 
-<p>The interplay between theory and computation in analytic number theory runs in two directions:</p>
+<h3>Three Pillars</h3>
 
-<ul>
-    <li><strong>Theory enabling computation.</strong> The Riemann-Siegel formula replaced a slowly converging Euler product with an expression computable in \\(O(t^{1/2})\\) operations at height \\(t\\). Meissel and Lehmer turned the prime counting function from a sieve problem into a combinatorial recursion. AKS turned primality from a probabilistic matter into a deterministic polynomial-time algorithm.</li>
-    <li><strong>Computation enabling theory.</strong> Numerical exploration of zeros suggested the GUE (random matrix) connection before any theoretical explanation existed. Computational searches have bounded exceptional zeros, located large prime gaps, and produced data that drives conjectures.</li>
-</ul>
+<p>Computational analytic number theory rests on three pillars:</p>
 
-<h3>Complexity in Number Theory</h3>
-
-<p>A recurring theme is the tension between the <em>size</em> of an arithmetic object (typically \\(\\log N\\) bits for an integer \\(N\\)) and the <em>cost</em> of a computation. Primality testing requires \\(O((\\log N)^k)\\) operations for various \\(k\\); factoring requires exponential time in \\(\\log N\\) under current algorithms. Computing \\(\\pi(x)\\) naively requires sieving up to \\(x\\), but analytic methods reduce this to \\(O(x^{2/3})\\).</p>
+<ol>
+    <li><strong>Evaluation:</strong> Computing number-theoretic functions (\\(\\zeta(s)\\), \\(\\pi(x)\\), \\(L(s, \\chi)\\)) to high precision.</li>
+    <li><strong>Verification:</strong> Checking conjectures (RH, GRH, BSD) for vast ranges of parameters.</li>
+    <li><strong>Discovery:</strong> Using computation to formulate new conjectures or find counterexamples.</li>
+</ol>
 
 <div class="env-block remark">
-    <div class="env-title">What This Chapter Covers</div>
+    <div class="env-title">Historical Milestones</div>
     <div class="env-body">
-        <p>We tour four major computations at the heart of modern analytic number theory:</p>
-        <ol>
-            <li>The <strong>Riemann-Siegel formula</strong> for evaluating \\(\\zeta(1/2 + it)\\).</li>
-            <li><strong>Turing's method</strong> for verifying the Riemann Hypothesis up to a height \\(T\\).</li>
-            <li>The <strong>Meissel-Lehmer algorithm</strong> for computing \\(\\pi(x)\\) efficiently.</li>
-            <li><strong>Miller-Rabin and AKS</strong> for primality testing.</li>
-        </ol>
+        <p><strong>1859:</strong> Riemann computed zeros of \\(\\zeta(s)\\) by hand, finding them all on the critical line. <strong>1903:</strong> Gram computed the first 15 zeros. <strong>1936:</strong> Titchmarsh and Comrie used a mechanical desk calculator to verify RH for the first 1041 zeros. <strong>1953:</strong> Turing used the Manchester Mark I to push to 1104 zeros. <strong>2004:</strong> Gourdon verified RH for the first \\(10^{13}\\) zeros. <strong>2020:</strong> Platt and Trudgian extended this to beyond \\(3 \\times 10^{12}\\) with rigorous error bounds.</p>
     </div>
 </div>
+
+<h3>The Interplay of Theory and Computation</h3>
+
+<p>The relationship between proof and computation is symbiotic. Theory provides:</p>
+<ul>
+    <li><strong>Efficient algorithms:</strong> The Riemann-Siegel formula evaluates \\(\\zeta(1/2 + it)\\) in \\(O(t^{1/2})\\) operations, compared to \\(O(t)\\) for the definition. Without it, large-scale zero verification would be impossible.</li>
+    <li><strong>Correctness guarantees:</strong> Turing's method (Section 3) proves that no zeros were missed, not merely that observed zeros lie on the critical line.</li>
+    <li><strong>Complexity bounds:</strong> The AKS primality test (Section 5) shows that primality is in P, settling a fundamental question.</li>
+</ul>
+
+<p>Computation provides:</p>
+<ul>
+    <li><strong>Evidence:</strong> Verifying RH for \\(10^{13}\\) zeros is not a proof, but it is powerful evidence.</li>
+    <li><strong>Counterexample hunting:</strong> The first counterexample to the Mertens conjecture (\\(|M(x)| \\leq \\sqrt{x}\\)) was found computationally (Odlyzko and te Riele, 1985), though indirectly.</li>
+    <li><strong>Conjectures:</strong> Numerical patterns in zero spacings led to the Montgomery-Dyson connection with random matrix theory.</li>
+</ul>
 
 <div class="viz-placeholder" data-viz="viz-record-timeline"></div>
 `,
             visualizations: [
                 {
                     id: 'viz-record-timeline',
-                    title: 'Computational Records in Analytic Number Theory',
-                    description: 'A timeline of major computational milestones: verified zeros of zeta, largest known primes, and pi(x) computations. Click a dot to see details.',
+                    title: 'Milestones in Computational Number Theory',
+                    description: 'A timeline of computational records: zeros of zeta verified, digits of \\(\\pi(x)\\) computed, and largest known primes.',
                     setup: function(body, controls) {
-                        var viz = new VizEngine(body, { width: 680, height: 360, originX: 80, originY: 300, scale: 1 });
+                        var viz = new VizEngine(body, {
+                            width: 560, height: 400,
+                            originX: 0, originY: 0, scale: 1
+                        });
 
-                        var records = [
-                            { year: 1903, label: 'Gram: 15 zeros', value: Math.log10(15), category: 'zeros', detail: 'J.-P. Gram verified 15 zeros by hand calculation.' },
-                            { year: 1936, label: 'Titchmarsh: 1041 zeros', value: Math.log10(1041), category: 'zeros', detail: 'E.C. Titchmarsh used a differential analyzer, 1,041 zeros.' },
-                            { year: 1956, label: 'Lehmer: ~25000 zeros', value: Math.log10(25000), category: 'zeros', detail: 'D.H. Lehmer used early computers, ~25,000 zeros.' },
-                            { year: 1968, label: 'Rosser et al.: 3.5M zeros', value: Math.log10(3500000), category: 'zeros', detail: 'Rosser, Yohe, Schoenfeld: 3.5 million zeros.' },
-                            { year: 1986, label: 'Van de Lune et al.: 1.5B zeros', value: Math.log10(1.5e9), category: 'zeros', detail: 'van de Lune, te Riele, Winter: 1.5 billion zeros.' },
-                            { year: 2004, label: 'Gourdon: 10\u00B3 zeros', value: 13, category: 'zeros', detail: 'Xavier Gourdon & Patrick Demichel: 10\u00B9\u00B3 zeros verified.' },
-                            { year: 1951, label: '\u03C0(10\u2076)', value: 6, category: 'pi', detail: 'Mapes computed \u03C0(10\u2076) = 78,498.' },
-                            { year: 1985, label: '\u03C0(4\u00D710\u00B9\u00B6)', value: 16.6, category: 'pi', detail: 'Lagarias & Odlyzko analytic method, O(x^(1/2+\u03B5)).' },
-                            { year: 2007, label: '\u03C0(10\u00B2\u00B4)', value: 24, category: 'pi', detail: 'Oliveira e Silva: \u03C0(10\u00B2\u00B4) computed.' },
+                        var milestones = [
+                            {year: 1859, label: 'Riemann: first zeros by hand', color: viz.colors.blue},
+                            {year: 1903, label: 'Gram: 15 zeros', color: viz.colors.blue},
+                            {year: 1936, label: 'Titchmarsh: 1041 zeros', color: viz.colors.blue},
+                            {year: 1953, label: 'Turing: 1104 zeros (computer)', color: viz.colors.teal},
+                            {year: 1968, label: 'Rosser+: 3.5M zeros', color: viz.colors.blue},
+                            {year: 1979, label: 'Brent: 81M zeros', color: viz.colors.blue},
+                            {year: 1985, label: 'Mertens conj. disproved', color: viz.colors.orange},
+                            {year: 1986, label: 'van de Lune: 1.5B zeros', color: viz.colors.blue},
+                            {year: 2002, label: 'AKS: primality in P', color: viz.colors.green},
+                            {year: 2004, label: 'Gourdon: 10^13 zeros', color: viz.colors.purple},
+                            {year: 2018, label: 'Mersenne prime M82589933', color: viz.colors.green},
+                            {year: 2020, label: 'Platt-Trudgian: rigorous RH verification', color: viz.colors.pink}
                         ];
-
-                        var minYear = 1895, maxYear = 2015;
-                        var minVal = 0, maxVal = 25;
-                        var padL = 80, padR = 30, padT = 40, padB = 50;
-                        var W = viz.width - padL - padR;
-                        var H = viz.height - padT - padB;
-
-                        function xPx(year) { return padL + (year - minYear) / (maxYear - minYear) * W; }
-                        function yPx(val) { return padT + H - (val / maxVal) * H; }
-
-                        var selected = null;
 
                         function draw() {
                             viz.clear();
                             var ctx = viz.ctx;
+                            var pad = 50;
+                            var lineY = 200;
+                            var yearMin = 1850;
+                            var yearMax = 2030;
 
-                            // Axes
-                            ctx.strokeStyle = viz.colors.axis; ctx.lineWidth = 1.5;
-                            ctx.beginPath(); ctx.moveTo(padL, padT); ctx.lineTo(padL, padT + H); ctx.lineTo(padL + W, padT + H); ctx.stroke();
+                            viz.screenText('Milestones in Computational Number Theory', viz.width / 2, 20, viz.colors.white, 14);
 
-                            // Y-axis labels (log10 scale)
-                            ctx.fillStyle = viz.colors.text; ctx.font = '10px -apple-system,sans-serif';
-                            ctx.textAlign = 'right'; ctx.textBaseline = 'middle';
-                            for (var v = 0; v <= 24; v += 4) {
-                                var yy = yPx(v);
-                                ctx.fillText('10\u207F'.replace('n', v), padL - 6, yy);
-                                ctx.strokeStyle = viz.colors.grid; ctx.lineWidth = 0.5;
-                                ctx.beginPath(); ctx.moveTo(padL, yy); ctx.lineTo(padL + W, yy); ctx.stroke();
-                            }
+                            // Timeline axis
+                            ctx.strokeStyle = viz.colors.axis;
+                            ctx.lineWidth = 2;
+                            ctx.beginPath();
+                            ctx.moveTo(pad, lineY);
+                            ctx.lineTo(viz.width - pad, lineY);
+                            ctx.stroke();
 
-                            // X-axis labels
-                            ctx.fillStyle = viz.colors.text; ctx.textAlign = 'center'; ctx.textBaseline = 'top';
-                            for (var yr = 1910; yr <= 2010; yr += 20) {
-                                var xx = xPx(yr);
-                                ctx.fillText(yr, xx, padT + H + 6);
-                                ctx.strokeStyle = viz.colors.grid; ctx.lineWidth = 0.5;
-                                ctx.beginPath(); ctx.moveTo(xx, padT); ctx.lineTo(xx, padT + H); ctx.stroke();
-                            }
-
-                            // Axis labels
-                            ctx.fillStyle = viz.colors.white; ctx.font = '12px -apple-system,sans-serif';
+                            // Decade ticks
+                            ctx.fillStyle = viz.colors.text;
+                            ctx.font = '10px -apple-system,sans-serif';
                             ctx.textAlign = 'center';
-                            ctx.fillText('Year', padL + W / 2, padT + H + 30);
-                            ctx.save(); ctx.translate(18, padT + H / 2); ctx.rotate(-Math.PI / 2);
-                            ctx.fillText('log\u2081\u2080(count)', 0, 0); ctx.restore();
+                            ctx.textBaseline = 'top';
+                            for (var d = 1860; d <= 2020; d += 20) {
+                                var dx = pad + (d - yearMin) / (yearMax - yearMin) * (viz.width - 2 * pad);
+                                ctx.strokeStyle = viz.colors.grid;
+                                ctx.lineWidth = 0.5;
+                                ctx.beginPath(); ctx.moveTo(dx, lineY - 5); ctx.lineTo(dx, lineY + 5); ctx.stroke();
+                                ctx.fillText(d.toString(), dx, lineY + 8);
+                            }
 
-                            // Title
-                            viz.screenText('Computational Records in Analytic Number Theory', viz.width / 2, 16, viz.colors.white, 13);
+                            // Milestones
+                            for (var i = 0; i < milestones.length; i++) {
+                                var m = milestones[i];
+                                var mx = pad + (m.year - yearMin) / (yearMax - yearMin) * (viz.width - 2 * pad);
+                                var above = (i % 2 === 0);
+                                var stemH = 30 + (i % 3) * 20;
+                                var my = above ? lineY - stemH : lineY + stemH;
 
-                            // Legend
-                            ctx.font = '11px -apple-system,sans-serif'; ctx.textAlign = 'left'; ctx.textBaseline = 'middle';
-                            ctx.fillStyle = viz.colors.blue;
-                            ctx.beginPath(); ctx.arc(padL + W - 130, padT + 12, 5, 0, Math.PI * 2); ctx.fill();
-                            ctx.fillText('Zeros verified', padL + W - 120, padT + 12);
-                            ctx.fillStyle = viz.colors.orange;
-                            ctx.beginPath(); ctx.arc(padL + W - 130, padT + 28, 5, 0, Math.PI * 2); ctx.fill();
-                            ctx.fillText('\u03C0(x) computed', padL + W - 120, padT + 28);
+                                // Stem
+                                ctx.strokeStyle = m.color + '88';
+                                ctx.lineWidth = 1;
+                                ctx.beginPath();
+                                ctx.moveTo(mx, lineY);
+                                ctx.lineTo(mx, my);
+                                ctx.stroke();
 
-                            // Points
-                            records.forEach(function(r, i) {
-                                var rx = xPx(r.year);
-                                var ry = yPx(r.value);
-                                var col = r.category === 'zeros' ? viz.colors.blue : viz.colors.orange;
-                                var radius = selected === i ? 9 : 6;
-                                ctx.beginPath(); ctx.arc(rx, ry, radius, 0, Math.PI * 2);
-                                ctx.fillStyle = col; ctx.fill();
-                                if (selected === i) {
-                                    ctx.strokeStyle = viz.colors.white; ctx.lineWidth = 2; ctx.stroke();
+                                // Dot
+                                ctx.fillStyle = m.color;
+                                ctx.beginPath();
+                                ctx.arc(mx, lineY, 4, 0, Math.PI * 2);
+                                ctx.fill();
+
+                                // Label
+                                ctx.fillStyle = m.color;
+                                ctx.font = '9px -apple-system,sans-serif';
+                                ctx.textAlign = 'center';
+                                ctx.textBaseline = above ? 'bottom' : 'top';
+                                // Wrap long labels
+                                var words = m.label.split(' ');
+                                var line1 = '';
+                                var line2 = '';
+                                for (var w = 0; w < words.length; w++) {
+                                    if (line1.length < 18) line1 += (line1 ? ' ' : '') + words[w];
+                                    else line2 += (line2 ? ' ' : '') + words[w];
                                 }
-                            });
-
-                            // Detail box for selected
-                            if (selected !== null) {
-                                var r = records[selected];
-                                var bx = padL + 10, by = padT + 10, bw = 300, bh = 52;
-                                ctx.fillStyle = '#1a1a40ee';
-                                ctx.fillRect(bx, by, bw, bh);
-                                ctx.strokeStyle = viz.colors.blue; ctx.lineWidth = 1;
-                                ctx.strokeRect(bx, by, bw, bh);
-                                ctx.fillStyle = viz.colors.white; ctx.font = 'bold 12px -apple-system,sans-serif';
-                                ctx.textAlign = 'left'; ctx.textBaseline = 'top';
-                                ctx.fillText(r.year + ': ' + r.label, bx + 8, by + 8);
-                                ctx.fillStyle = viz.colors.text; ctx.font = '11px -apple-system,sans-serif';
-                                ctx.fillText(r.detail, bx + 8, by + 28);
+                                if (above) {
+                                    if (line2) {
+                                        ctx.fillText(line1, mx, my - 10);
+                                        ctx.fillText(line2, mx, my);
+                                    } else {
+                                        ctx.fillText(line1, mx, my);
+                                    }
+                                } else {
+                                    ctx.fillText(line1, mx, my);
+                                    if (line2) ctx.fillText(line2, mx, my + 12);
+                                }
                             }
                         }
-
-                        viz.canvas.addEventListener('click', function(e) {
-                            var rect = viz.canvas.getBoundingClientRect();
-                            var mx = e.clientX - rect.left, my = e.clientY - rect.top;
-                            selected = null;
-                            records.forEach(function(r, i) {
-                                var rx = xPx(r.year), ry = yPx(r.value);
-                                if (Math.sqrt((mx - rx) * (mx - rx) + (my - ry) * (my - ry)) < 12) selected = i;
-                            });
-                            draw();
-                        });
-
                         draw();
                         return viz;
                     }
@@ -174,9 +170,9 @@ window.CHAPTERS.push({
             ],
             exercises: [
                 {
-                    question: 'Computing \\(\\zeta(1/2 + it)\\) naively by truncating the Dirichlet series at \\(N\\) terms requires \\(N \\approx t/(2\\pi)\\) terms for accuracy. The Riemann-Siegel formula uses \\(N \\approx \\sqrt{t/(2\\pi)}\\) terms. How much faster is this when \\(t = 10^6\\)?',
-                    hint: 'Compute the ratio \\(N_{\\text{naive}} / N_{\\text{RS}}\\).',
-                    solution: 'With \\(t = 10^6\\), \\(N_{\\text{naive}} \\approx 10^6/(2\\pi) \\approx 159{,}155\\) while \\(N_{\\text{RS}} \\approx \\sqrt{10^6/(2\\pi)} \\approx 399\\). The ratio is about 399, so the Riemann-Siegel formula is roughly 400 times faster at this height. At \\(t = 10^{13}\\), the ratio is \\(\\sqrt{t/(2\\pi)} \\approx 1.26 \\times 10^6\\).'
+                    question: 'Explain why evaluating \\(\\zeta(1/2 + it)\\) from its definition \\(\\sum_{n=1}^{\\infty} n^{-s}\\) is impractical for large \\(t\\). What is the computational complexity, and why does convergence fail on the critical line?',
+                    hint: 'The Dirichlet series \\(\\sum n^{-s}\\) only converges absolutely for \\(\\operatorname{Re}(s) > 1\\). On the critical line \\(\\sigma = 1/2\\), it does not converge at all.',
+                    solution: 'The Dirichlet series \\(\\sum_{n=1}^{\\infty} n^{-s}\\) converges absolutely only for \\(\\operatorname{Re}(s) > 1\\). At \\(s = 1/2 + it\\), the terms \\(n^{-1/2 - it}\\) have magnitude \\(n^{-1/2}\\), so the series diverges. Even using approximate functional equations or smoothing, one needs \\(O(t)\\) terms for \\(O(1)\\) accuracy. The Riemann-Siegel formula reduces this to \\(O(\\sqrt{t})\\) terms, a square-root savings that makes computation feasible for \\(t \\sim 10^{13}\\).'
                 }
             ]
         },
@@ -190,69 +186,102 @@ window.CHAPTERS.push({
             content: `
 <h2>The Riemann-Siegel Formula</h2>
 
-<p>To verify the Riemann Hypothesis computationally, we need to evaluate \\(\\zeta(1/2 + it)\\) for real \\(t\\). The Dirichlet series converges only for \\(\\text{Re}(s) > 1\\), so on the critical line we need a different representation.</p>
+<div class="env-block intuition">
+    <div class="env-title">The Key Idea</div>
+    <div class="env-body">
+        <p>To study zeros on the critical line \\(\\operatorname{Re}(s) = 1/2\\), we work with the Hardy function \\(Z(t)\\), a real-valued function whose sign changes correspond to zeros of \\(\\zeta(1/2 + it)\\). The Riemann-Siegel formula gives an efficient way to compute \\(Z(t)\\), requiring only \\(O(\\sqrt{t})\\) terms instead of \\(O(t)\\).</p>
+    </div>
+</div>
 
-<h3>The Hardy Z-Function</h3>
+<h3>The Hardy Function</h3>
 
-<p>It is convenient to work with a real-valued function. Define</p>
+<p>Define the <em>Riemann-Siegel theta function</em>:</p>
 \\[
-Z(t) = e^{i\\theta(t)} \\zeta\\!\\left(\\tfrac{1}{2} + it\\right),
+\\theta(t) = \\arg\\left(\\pi^{-it/2} \\Gamma\\!\\left(\\frac{1/4 + it/2}{1}\\right)\\right) \\approx \\frac{t}{2}\\ln\\frac{t}{2\\pi e} - \\frac{\\pi}{8} + O(1/t).
 \\]
-<p>where \\(\\theta(t)\\) is chosen so that \\(Z(t)\\) is real. The phase is</p>
+
+<p>The <em>Hardy function</em> (or Hardy's \\(Z\\)-function) is:</p>
 \\[
-\\theta(t) = \\arg \\Gamma\\!\\left(\\tfrac{1}{4} + \\tfrac{it}{2}\\right) - \\frac{t}{2} \\ln \\pi.
+Z(t) = e^{i\\theta(t)} \\zeta(1/2 + it).
 \\]
-<p>The functional equation for \\(\\zeta\\) implies \\(Z(t) \\in \\mathbb{R}\\) and \\(|Z(t)| = |\\zeta(1/2+it)|\\). Zeros of \\(\\zeta\\) on the critical line correspond exactly to sign changes of \\(Z(t)\\).</p>
 
 <div class="env-block theorem">
-    <div class="env-title">Theorem (Riemann-Siegel Formula)</div>
+    <div class="env-title">Theorem 20.1 (Properties of Z(t))</div>
     <div class="env-body">
-        <p>For \\(t > 0\\), let \\(N = \\lfloor\\sqrt{t/(2\\pi)}\\rfloor\\) and \\(u = \\sqrt{t/(2\\pi)} - N\\). Then</p>
-        \\[
-        Z(t) = 2\\sum_{n=1}^{N} \\frac{\\cos(\\theta(t) - t\\ln n)}{\\sqrt{n}} + R(t),
-        \\]
-        <p>where the remainder \\(R(t) = O(t^{-1/4})\\) and can be expressed as an asymptotic series in powers of \\(t^{-1/2}\\) involving the function \\(\\Psi(u) = \\cos(2\\pi(u^2 - u - 1/16))/\\cos(2\\pi u)\\).</p>
+        <p>The function \\(Z(t)\\) satisfies:</p>
+        <ol>
+            <li>\\(Z(t)\\) is <strong>real-valued</strong> for real \\(t\\).</li>
+            <li>\\(|Z(t)| = |\\zeta(1/2 + it)|\\).</li>
+            <li>The zeros of \\(Z(t)\\) on the real line correspond exactly to zeros of \\(\\zeta(s)\\) on the critical line.</li>
+            <li>Sign changes of \\(Z(t)\\) certify simple zeros on the critical line.</li>
+        </ol>
     </div>
 </div>
 
-<p>The Stirling approximation gives a practical formula for \\(\\theta(t)\\):</p>
+<h3>The Formula</h3>
+
+<div class="env-block theorem">
+    <div class="env-title">Theorem 20.2 (Riemann-Siegel Formula)</div>
+    <div class="env-body">
+        <p>Let \\(N = \\lfloor \\sqrt{t/(2\\pi)} \\rfloor\\). Then</p>
+        \\[
+        Z(t) = 2 \\sum_{n=1}^{N} \\frac{\\cos(\\theta(t) - t\\ln n)}{\\sqrt{n}} + R(t)
+        \\]
+        <p>where \\(R(t) = O(t^{-1/4})\\) is a remainder term. The leading correction term involves</p>
+        \\[
+        R_0(t) = (-1)^{N-1} \\left(\\frac{t}{2\\pi}\\right)^{-1/4} \\frac{\\cos(2\\pi(p^2 - p - 1/16))}{\\cos(2\\pi p)}
+        \\]
+        <p>where \\(p = \\sqrt{t/(2\\pi)} - N\\) is the fractional part.</p>
+    </div>
+</div>
+
+<p>The main sum has only \\(N = O(\\sqrt{t})\\) terms, each requiring \\(O(1)\\) arithmetic operations. For \\(t \\sim 10^{12}\\), this means about \\(10^6\\) terms instead of \\(10^{12}\\).</p>
+
+<div class="env-block remark">
+    <div class="env-title">Historical Note</div>
+    <div class="env-body">
+        <p>Riemann discovered this formula around 1859, but it was found only posthumously in his unpublished notes, decoded by Siegel in 1932. Riemann had used it to compute zeros, a remarkable feat given that he worked entirely by hand. The formula was Riemann's secret weapon for empirical investigation of his hypothesis.</p>
+    </div>
+</div>
+
+<h3>Computing \\(\\theta(t)\\)</h3>
+
+<p>For practical computation, \\(\\theta(t)\\) is evaluated using the Stirling series:</p>
 \\[
-\\theta(t) \\approx \\frac{t}{2}\\ln\\frac{t}{2\\pi e} - \\frac{\\pi}{8} + \\frac{1}{48t} + \\cdots
+\\theta(t) = \\frac{t}{2}\\ln\\frac{t}{2\\pi} - \\frac{t}{2} - \\frac{\\pi}{8} + \\frac{1}{48t} + \\frac{7}{5760t^3} + \\cdots
 \\]
 
-<h3>Gram Points</h3>
-
-<p>Gram points are the values \\(g_n\\) defined by \\(\\theta(g_n) = n\\pi\\). Between consecutive Gram points \\(g_n\\) and \\(g_{n+1}\\), the factor \\(e^{i\\theta(t)}\\) rotates by \\(\\pi\\), so \\(Z(t)\\) changes sign pattern predictably. <em>Gram's law</em> states that \\((-1)^n Z(g_n) > 0\\), which holds for most but not all \\(n\\) (Gram violations occur but are sparse).</p>
-
-<div class="env-block definition">
-    <div class="env-title">Definition (Gram Block)</div>
-    <div class="env-body">
-        <p>A <em>Gram block</em> \\([g_n, g_{n+m})\\) is a union of consecutive Gram intervals \\([g_j, g_{j+1})\\) that begins and ends where \\((-1)^j Z(g_j) > 0\\). A Gram block of length \\(m\\) is said to be <em>good</em> if it contains exactly \\(m\\) zeros. Turing's method uses good Gram blocks to certify zero counts.</p>
-    </div>
-</div>
+<p>This asymptotic expansion converges rapidly for \\(t > 10\\), and a few terms give double-precision accuracy.</p>
 
 <div class="viz-placeholder" data-viz="viz-riemann-siegel-z"></div>
 `,
             visualizations: [
                 {
                     id: 'viz-riemann-siegel-z',
-                    title: 'Hardy Z-Function: Z(t) for t in [0, 50]',
-                    description: 'Animated plot of Z(t) computed via the Riemann-Siegel formula. Watch it sweep, then use the slider to zoom to any t. Sign changes mark zeros of zeta on the critical line.',
+                    title: 'The Hardy Z-Function',
+                    description: 'Plot of \\(Z(t)\\) computed via the Riemann-Siegel formula. Each sign change (crossing of zero) corresponds to a zero of \\(\\zeta(s)\\) on the critical line. Drag the range to explore different heights.',
                     setup: function(body, controls) {
-                        var viz = new VizEngine(body, { width: 680, height: 340, originX: 60, originY: 170, scale: 1 });
+                        var viz = new VizEngine(body, {
+                            width: 560, height: 380,
+                            originX: 50, originY: 190, scale: 1
+                        });
 
-                        var tMin = 0, tMax = 50;
-                        var animating = false;
-                        var animT = 0;
-                        var steps = 600;
+                        var tMin = 0;
+                        var tMax = 50;
+
+                        VizEngine.createSlider(controls, 't-start', 0, 200, tMin, 5, function(v) {
+                            tMin = v;
+                            tMax = tMin + 50;
+                            draw();
+                        });
 
                         function theta(t) {
-                            if (t <= 0) return 0;
-                            return t / 2 * Math.log(t / (2 * Math.PI * Math.E)) - Math.PI / 8;
+                            if (t < 1) return 0;
+                            return (t / 2) * Math.log(t / (2 * Math.PI)) - t / 2 - Math.PI / 8 + 1 / (48 * t);
                         }
 
-                        function computeZ(t) {
-                            if (t <= 0) return 0;
+                        function Z(t) {
+                            if (t < 2) return 0;
                             var N = Math.floor(Math.sqrt(t / (2 * Math.PI)));
                             if (N < 1) N = 1;
                             var th = theta(t);
@@ -263,186 +292,183 @@ Z(t) = e^{i\\theta(t)} \\zeta\\!\\left(\\tfrac{1}{2} + it\\right),
                             return 2 * sum;
                         }
 
-                        var tSlider = VizEngine.createSlider(controls, 't range start', 0, 200, 0, 1, function(v) {
-                            tMin = v;
-                            tMax = v + 50;
-                            if (!animating) draw(1);
-                        });
-
-                        var animBtn = VizEngine.createButton(controls, 'Animate sweep', function() {
-                            if (animating) {
-                                viz.stopAnimation();
-                                animating = false;
-                                animBtn.textContent = 'Animate sweep';
-                            } else {
-                                animating = true;
-                                animBtn.textContent = 'Stop';
-                                animT = 0;
-                                viz.animate(function() {
-                                    animT = (animT + 0.5) % steps;
-                                    draw(animT / steps);
-                                });
-                            }
-                        });
-
-                        function draw(progress) {
+                        function draw() {
                             viz.clear();
                             var ctx = viz.ctx;
-                            var padL = 60, padR = 20, padT = 30, padB = 40;
-                            var W = viz.width - padL - padR;
-                            var H = viz.height - padT - padB;
+                            var pad = 50;
+                            var plotW = viz.width - pad - 20;
+                            var plotH = viz.height - 60;
+                            var plotTop = 40;
+                            var plotLeft = pad;
 
-                            // Axis
-                            ctx.strokeStyle = viz.colors.axis; ctx.lineWidth = 1.5;
-                            ctx.beginPath();
-                            ctx.moveTo(padL, padT + H / 2);
-                            ctx.lineTo(padL + W, padT + H / 2);
-                            ctx.stroke();
-                            ctx.beginPath();
-                            ctx.moveTo(padL, padT);
-                            ctx.lineTo(padL, padT + H);
-                            ctx.stroke();
+                            viz.screenText('Z(t) via Riemann-Siegel Formula', viz.width / 2, 15, viz.colors.white, 14);
 
-                            // Y labels
-                            ctx.fillStyle = viz.colors.text; ctx.font = '10px -apple-system,sans-serif';
-                            ctx.textAlign = 'right'; ctx.textBaseline = 'middle';
-                            var yScale = 3;
-                            for (var yv = -6; yv <= 6; yv += 2) {
-                                var yy = padT + H / 2 - yv * yScale * H / 12;
-                                ctx.fillText(yv, padL - 4, yy);
-                                ctx.strokeStyle = viz.colors.grid; ctx.lineWidth = 0.4;
-                                ctx.beginPath(); ctx.moveTo(padL, yy); ctx.lineTo(padL + W, yy); ctx.stroke();
-                            }
-
-                            // X labels
-                            ctx.textAlign = 'center'; ctx.textBaseline = 'top'; ctx.fillStyle = viz.colors.text;
-                            for (var tv = tMin; tv <= tMax; tv += 10) {
-                                var xx = padL + (tv - tMin) / (tMax - tMin) * W;
-                                ctx.fillText(tv.toFixed(0), xx, padT + H + 4);
-                                ctx.strokeStyle = viz.colors.grid; ctx.lineWidth = 0.4;
-                                ctx.beginPath(); ctx.moveTo(xx, padT); ctx.lineTo(xx, padT + H); ctx.stroke();
-                            }
-
-                            // Title
-                            viz.screenText('Hardy Z-Function: Z(t) via Riemann-Siegel', viz.width / 2, 12, viz.colors.white, 13);
-                            viz.screenText('t', padL + W + 8, padT + H / 2, viz.colors.text, 11);
-                            viz.screenText('Z(t)', padL - 50, padT + 8, viz.colors.text, 11);
-
-                            // Compute and draw curve up to progress
-                            var n = Math.round(progress * steps);
-                            var prevX = null, prevY = null;
-                            var zeroMarked = false;
-                            var prevZ = null;
-
-                            ctx.strokeStyle = viz.colors.blue; ctx.lineWidth = 2;
-                            ctx.beginPath();
-                            for (var i = 0; i <= n && i <= steps; i++) {
+                            // Evaluate Z(t) over range
+                            var pts = [];
+                            var steps = 500;
+                            var yMin = Infinity, yMax = -Infinity;
+                            for (var i = 0; i <= steps; i++) {
                                 var t = tMin + (tMax - tMin) * i / steps;
-                                var z = computeZ(t);
-                                var cx = padL + (t - tMin) / (tMax - tMin) * W;
-                                var cy = padT + H / 2 - z * (H / 12) * yScale;
-                                cy = Math.max(padT, Math.min(padT + H, cy));
+                                var z = Z(t);
+                                if (Math.abs(z) > 100) z = z > 0 ? 100 : -100;
+                                pts.push({t: t, z: z});
+                                if (z < yMin) yMin = z;
+                                if (z > yMax) yMax = z;
+                            }
+                            var yRange = Math.max(Math.abs(yMin), Math.abs(yMax), 2);
+                            yMin = -yRange; yMax = yRange;
 
-                                if (i === 0) {
-                                    ctx.moveTo(cx, cy);
-                                } else {
-                                    ctx.lineTo(cx, cy);
-                                    // Mark sign change (zero)
-                                    if (prevZ !== null && prevZ * z < 0) {
-                                        // draw tick at axis crossing
-                                        ctx.stroke();
-                                        ctx.beginPath();
-                                        var zeroX = prevX + (cx - prevX) * Math.abs(prevZ) / (Math.abs(prevZ) + Math.abs(z));
-                                        ctx.strokeStyle = viz.colors.orange; ctx.lineWidth = 1.5;
-                                        ctx.moveTo(zeroX, padT + H / 2 - 8);
-                                        ctx.lineTo(zeroX, padT + H / 2 + 8);
-                                        ctx.stroke();
-                                        ctx.strokeStyle = viz.colors.blue; ctx.lineWidth = 2;
-                                        ctx.beginPath(); ctx.moveTo(cx, cy);
-                                    }
+                            // Axes
+                            var zeroY = plotTop + plotH / 2;
+                            ctx.strokeStyle = viz.colors.axis;
+                            ctx.lineWidth = 1;
+                            ctx.beginPath();
+                            ctx.moveTo(plotLeft, zeroY);
+                            ctx.lineTo(plotLeft + plotW, zeroY);
+                            ctx.stroke();
+
+                            // t-axis labels
+                            ctx.fillStyle = viz.colors.text;
+                            ctx.font = '10px -apple-system,sans-serif';
+                            ctx.textAlign = 'center';
+                            ctx.textBaseline = 'top';
+                            var tStep = Math.ceil((tMax - tMin) / 10);
+                            for (var t = Math.ceil(tMin / tStep) * tStep; t <= tMax; t += tStep) {
+                                var tx = plotLeft + (t - tMin) / (tMax - tMin) * plotW;
+                                ctx.fillText(t.toFixed(0), tx, zeroY + 4);
+                                ctx.strokeStyle = viz.colors.grid;
+                                ctx.lineWidth = 0.3;
+                                ctx.beginPath(); ctx.moveTo(tx, plotTop); ctx.lineTo(tx, plotTop + plotH); ctx.stroke();
+                            }
+
+                            // y-axis labels
+                            ctx.textAlign = 'right';
+                            ctx.textBaseline = 'middle';
+                            for (var y = -Math.floor(yRange); y <= Math.floor(yRange); y++) {
+                                if (y === 0) continue;
+                                var sy = zeroY - (y / yRange) * (plotH / 2);
+                                ctx.fillStyle = viz.colors.text;
+                                ctx.fillText(y.toFixed(0), plotLeft - 5, sy);
+                            }
+
+                            // Zero band highlight
+                            ctx.fillStyle = viz.colors.teal + '11';
+                            ctx.fillRect(plotLeft, zeroY - 2, plotW, 4);
+
+                            // Plot Z(t)
+                            ctx.strokeStyle = viz.colors.blue;
+                            ctx.lineWidth = 1.5;
+                            ctx.beginPath();
+                            var started = false;
+                            var zeroCrossings = [];
+                            for (var i = 0; i <= steps; i++) {
+                                var px = plotLeft + (pts[i].t - tMin) / (tMax - tMin) * plotW;
+                                var py = zeroY - (pts[i].z / yRange) * (plotH / 2);
+                                py = Math.max(plotTop, Math.min(plotTop + plotH, py));
+                                if (!started) { ctx.moveTo(px, py); started = true; }
+                                else ctx.lineTo(px, py);
+
+                                // Detect zero crossings
+                                if (i > 0 && pts[i].z * pts[i-1].z < 0) {
+                                    var tCross = pts[i-1].t + (pts[i].t - pts[i-1].t) * Math.abs(pts[i-1].z) / (Math.abs(pts[i-1].z) + Math.abs(pts[i].z));
+                                    zeroCrossings.push(tCross);
                                 }
-                                prevX = cx; prevY = cy; prevZ = z;
                             }
                             ctx.stroke();
+
+                            // Mark zero crossings
+                            for (var j = 0; j < zeroCrossings.length; j++) {
+                                var cx = plotLeft + (zeroCrossings[j] - tMin) / (tMax - tMin) * plotW;
+                                ctx.fillStyle = viz.colors.red;
+                                ctx.beginPath();
+                                ctx.arc(cx, zeroY, 3, 0, Math.PI * 2);
+                                ctx.fill();
+                            }
 
                             // Legend
-                            ctx.font = '11px -apple-system,sans-serif'; ctx.textAlign = 'left'; ctx.textBaseline = 'middle';
-                            ctx.fillStyle = viz.colors.blue;
-                            ctx.fillRect(padL + W - 160, padT + 4, 18, 3);
-                            ctx.fillText('Z(t)', padL + W - 138, padT + 6);
-                            ctx.fillStyle = viz.colors.orange;
-                            ctx.beginPath(); ctx.arc(padL + W - 149, padT + 18, 4, 0, Math.PI * 2); ctx.fill();
-                            ctx.fillStyle = viz.colors.orange;
-                            ctx.fillText('zero of \u03B6(1/2+it)', padL + W - 138, padT + 18);
+                            viz.screenText('t', plotLeft + plotW + 10, zeroY, viz.colors.text, 11);
+                            viz.screenText('Z(t)', plotLeft + 5, plotTop - 5, viz.colors.blue, 11, 'left');
+                            viz.screenText(zeroCrossings.length + ' zeros detected', viz.width / 2, viz.height - 10, viz.colors.red, 11);
                         }
-
-                        draw(1);
+                        draw();
                         return viz;
                     }
                 }
             ],
             exercises: [
                 {
-                    question: 'At \\(t = 14.134725\\ldots\\), the function \\(Z(t)\\) changes sign. This corresponds to the first non-trivial zero of \\(\\zeta(s)\\) on the critical line. Using the approximation \\(\\theta(t) \\approx \\frac{t}{2}\\ln\\frac{t}{2\\pi e} - \\frac{\\pi}{8}\\), compute \\(\\theta(14.135)\\) and verify that it is near 0.',
-                    hint: 'Plug \\(t = 14.135\\) directly into the formula. The answer should be close to \\(-\\pi/8\\).',
-                    solution: '\\(\\theta(14.135) \\approx \\frac{14.135}{2}\\ln\\frac{14.135}{2\\pi e} - \\frac{\\pi}{8} \\approx 7.068 \\times \\ln(0.824) - 0.393 \\approx 7.068 \\times (-0.194) - 0.393 \\approx -1.37 - 0.393 \\approx -1.76 \\approx -\\pi/2\\) (approximately). The exact value is \\(\\theta(14.1347) \\approx -\\pi/2 + \\pi = \\pi/2\\) up to the choice of branch, which is consistent with a zero at this \\(t\\).'
+                    question: 'Show that \\(Z(t)\\) is real-valued. (Hint: use the functional equation \\(\\zeta(s) = \\chi(s)\\zeta(1-s)\\) and the fact that \\(e^{2i\\theta(t)} = \\chi(1/2 + it)\\).)',
+                    hint: 'Write \\(Z(t) = e^{i\\theta(t)}\\zeta(1/2+it)\\). The functional equation gives \\(\\zeta(1/2+it) = \\chi(1/2+it)\\zeta(1/2-it)\\). Since \\(\\overline{\\zeta(1/2+it)} = \\zeta(1/2-it)\\), show \\(\\overline{Z(t)} = Z(t)\\).',
+                    solution: 'We have \\(Z(t) = e^{i\\theta(t)}\\zeta(1/2 + it)\\). Taking the conjugate: \\(\\overline{Z(t)} = e^{-i\\theta(t)}\\zeta(1/2 - it)\\). From the functional equation, \\(\\zeta(1/2+it) = \\chi(1/2+it)\\zeta(1/2-it)\\) where \\(\\chi(1/2+it) = e^{-2i\\theta(t)}\\). So \\(\\zeta(1/2-it) = e^{2i\\theta(t)}\\zeta(1/2+it)\\), giving \\(\\overline{Z(t)} = e^{-i\\theta(t)} \\cdot e^{2i\\theta(t)}\\zeta(1/2+it) = e^{i\\theta(t)}\\zeta(1/2+it) = Z(t)\\).'
                 },
                 {
-                    question: 'How many terms does the Riemann-Siegel sum need at height \\(t = 10^4\\)? At \\(t = 10^{10}\\)?',
-                    hint: 'The number of terms is \\(N = \\lfloor\\sqrt{t/(2\\pi)}\\rfloor\\).',
-                    solution: 'At \\(t = 10^4\\): \\(N = \\lfloor\\sqrt{10^4/(2\\pi)}\\rfloor = \\lfloor\\sqrt{1591.5}\\rfloor = \\lfloor 39.9 \\rfloor = 39\\). At \\(t = 10^{10}\\): \\(N = \\lfloor\\sqrt{10^{10}/(2\\pi)}\\rfloor \\approx \\lfloor 39894 \\rfloor = 39894\\). The number of terms grows as \\(t^{1/2}\\), versus \\(t\\) for the naive Dirichlet truncation.'
+                    question: 'Verify numerically that the Riemann-Siegel formula with \\(N = \\lfloor\\sqrt{t/(2\\pi)}\\rfloor\\) terms gives a good approximation to \\(Z(t)\\) for \\(t = 100\\). How many terms are needed?',
+                    hint: 'For \\(t = 100\\): \\(N = \\lfloor\\sqrt{100/(2\\pi)}\\rfloor = \\lfloor\\sqrt{15.92}\\rfloor = \\lfloor 3.99\\rfloor = 3\\). Compute each of the 3 terms.',
+                    solution: 'For \\(t = 100\\): \\(N = 3\\). We compute \\(\\theta(100) \\approx 50\\ln(100/(2\\pi e)) - \\pi/8 \\approx 50 \\times 1.7668 - 0.3927 \\approx 87.95\\). The three terms are \\(2\\cos(87.95 - 0)/1 + 2\\cos(87.95 - 100\\ln 2)/\\sqrt{2} + 2\\cos(87.95 - 100\\ln 3)/\\sqrt{3}\\). Only 3 terms suffice for reasonable accuracy, compared to hundreds needed from the direct definition.'
                 }
             ]
         },
 
         // ================================================================
-        // SECTION 3: Verifying RH (Turing's Method)
+        // SECTION 3: Zero Verification — Turing's Method
         // ================================================================
         {
             id: 'sec-zero-verification',
-            title: 'Verifying RH to Height T',
+            title: "Zero Verification: Turing's Method",
             content: `
-<h2>Verifying the Riemann Hypothesis to Height T</h2>
+<h2>Zero Verification: Turing's Method</h2>
 
-<p>No counterexample to the Riemann Hypothesis has ever been found computationally, but this is not an accident of luck. Turing devised a rigorous method to verify, with mathematical certainty, that all zeros up to some height \\(T\\) lie on the critical line.</p>
+<div class="env-block intuition">
+    <div class="env-title">The Verification Problem</div>
+    <div class="env-body">
+        <p>Finding sign changes of \\(Z(t)\\) tells us there are zeros on the critical line. But how do we know we haven't <em>missed</em> any? A zero could lie on the critical line between two evaluation points without causing a sign change (if two zeros are very close), or worse, a zero could lie off the critical line entirely. We need a method to certify completeness.</p>
+    </div>
+</div>
 
 <h3>Counting Zeros: The Argument Principle</h3>
 
-<p>The key tool is the <em>argument principle</em>. Define</p>
-\\[
-N(T) = \\#\\{\\rho = \\sigma + i\\gamma : \\zeta(\\rho) = 0,\\; 0 < \\gamma \\leq T\\}.
-\\]
-<p>Using the argument principle on a rectangle with corners at \\(2\\), \\(2+iT\\), \\(-1+iT\\), \\(-1\\), one derives the exact formula:</p>
+<p>Let \\(N(T)\\) count the number of zeros of \\(\\zeta(s)\\) with \\(0 < \\operatorname{Im}(s) < T\\) (counting multiplicity). The Riemann-von Mangoldt formula gives:</p>
 
 <div class="env-block theorem">
-    <div class="env-title">Theorem (Backlund, 1914)</div>
+    <div class="env-title">Theorem 20.3 (Riemann-von Mangoldt)</div>
     <div class="env-body">
-        \\[N(T) = \\frac{\\theta(T)}{\\pi} + 1 + S(T),\\]
-        <p>where \\(S(T) = \\frac{1}{\\pi}\\arg\\zeta\\!\\left(\\tfrac{1}{2} + iT\\right)\\) (the argument increment along the critical segment). The term \\(\\theta(T)/\\pi + 1\\) can be computed from Stirling's formula; \\(S(T)\\) is bounded on average but can be \\(O(\\log T / \\log\\log T)\\) in the worst case.</p>
+        \\[
+        N(T) = \\frac{T}{2\\pi}\\ln\\frac{T}{2\\pi} - \\frac{T}{2\\pi} + \\frac{7}{8} + S(T) + O(1/T)
+        \\]
+        <p>where \\(S(T) = \\frac{1}{\\pi}\\arg\\zeta(1/2 + iT)\\) satisfies \\(S(T) = O(\\log T)\\).</p>
     </div>
 </div>
+
+<p>The smooth part \\(\\frac{T}{2\\pi}\\ln\\frac{T}{2\\pi} - \\frac{T}{2\\pi} + \\frac{7}{8}\\) is computable; the oscillatory part \\(S(T)\\) is bounded but hard to evaluate precisely.</p>
+
+<h3>Gram Points and Gram's Law</h3>
+
+<div class="env-block definition">
+    <div class="env-title">Definition (Gram Point)</div>
+    <div class="env-body">
+        <p>The \\(n\\)-th <strong>Gram point</strong> \\(g_n\\) is the unique solution to \\(\\theta(g_n) = n\\pi\\) for \\(n \\geq 0\\).</p>
+    </div>
+</div>
+
+<p><strong>Gram's law</strong> (an empirical observation, not a theorem) states that \\((-1)^n Z(g_n) > 0\\) for "most" \\(n\\). When Gram's law holds at \\(g_n\\), the sign of \\(Z\\) at consecutive Gram points alternates, guaranteeing at least one zero in each Gram interval \\([g_n, g_{n+1}]\\).</p>
+
+<p>Gram's law fails for about 27% of Gram points, and the failure rate is believed to increase slowly. Violations do not imply RH failure; they just mean the simple counting argument needs reinforcement.</p>
 
 <h3>Turing's Method</h3>
 
-<p>To certify that all zeros up to \\(T\\) are simple and on the critical line, Turing (1953) observed:</p>
-
-<ol>
-    <li><strong>Gram blocks.</strong> Partition the imaginary axis into Gram blocks \\([g_n, g_{n+m})\\). Within a <em>good</em> Gram block, the number of sign changes of \\(Z(t)\\) equals the number of zeros (by the intermediate value theorem and analyticity).</li>
-    <li><strong>Counting sign changes.</strong> Evaluate \\(Z(t)\\) at enough points to detect all sign changes in each good Gram block. If the total number of detected sign changes from \\(0\\) to \\(T\\) equals the theoretical count \\(N(T)\\), then all zeros are accounted for.</li>
-    <li><strong>Backlund's formula as a check.</strong> Since \\(N(T)\\) is known exactly from the argument principle, any missing zeros would leave a discrepancy. No discrepancy has ever been found.</li>
-</ol>
-
-<div class="env-block remark">
-    <div class="env-title">What "Verifying RH" Means</div>
+<div class="env-block theorem">
+    <div class="env-title">Theorem 20.4 (Turing's Method, simplified)</div>
     <div class="env-body">
-        <p>The computational verification does not prove RH for all \\(T\\). What it proves is: every zero \\(\\rho\\) with \\(0 < \\text{Im}(\\rho) \\leq T\\) satisfies \\(\\text{Re}(\\rho) = 1/2\\). The current record (Platt and Trudgian, 2021) is \\(T \\approx 3 \\times 10^{12}\\), covering the first \\(1.2 \\times 10^{13}\\) zeros.</p>
+        <p>Suppose we find exactly \\(N\\) sign changes of \\(Z(t)\\) in \\([0, T]\\), and the Riemann-von Mangoldt formula gives \\(N(T) = N\\) (to sufficient precision). Then all \\(N\\) zeros with \\(0 < \\operatorname{Im}(\\rho) < T\\) lie on the critical line and are simple.</p>
     </div>
 </div>
 
-<div class="env-block theorem">
-    <div class="env-title">Theorem (Turing 1953; Lehmer 1956)</div>
+<p>The logic is elegant: the argument principle counts <em>all</em> zeros in the critical strip (on or off the line), while sign changes count only those on the line. If these counts agree, every zero must be on the line.</p>
+
+<div class="env-block remark">
+    <div class="env-title">Practical Refinement</div>
     <div class="env-body">
-        <p>The algorithm terminates in \\(O(T^{3/2+\\varepsilon})\\) operations (using the Riemann-Siegel formula) and certifies RH up to height \\(T\\) with mathematical rigor, assuming exact arithmetic in the final sign checks.</p>
+        <p>In practice, one works with <em>Gram blocks</em>: maximal sequences of consecutive Gram intervals where the sign-change count matches the expected zero count. Turing showed that if a "Gram block" of length \\(k\\) contains exactly \\(k\\) sign changes, then it contains exactly \\(k\\) zeros on the critical line. Modern implementations (Gourdon, Platt) use refined versions with careful error analysis in the Riemann-von Mangoldt remainder.</p>
     </div>
 </div>
 
@@ -451,178 +477,153 @@ N(T) = \\#\\{\\rho = \\sigma + i\\gamma : \\zeta(\\rho) = 0,\\; 0 < \\gamma \\le
             visualizations: [
                 {
                     id: 'viz-zero-verification',
-                    title: "Turing's Method: Step by Step",
-                    description: 'Watch how Gram blocks and sign changes of Z(t) are used to verify that all zeros lie on the critical line. Click Next Step to advance through the algorithm.',
+                    title: "Gram Points and Turing's Verification",
+                    description: 'Gram points (vertical lines) partition the t-axis. At each Gram point, we check the sign of \\(Z(t)\\). Alternating signs (Gram\'s law) guarantee zeros between them. Green ticks = Gram\'s law holds; red crosses = violations.',
                     setup: function(body, controls) {
-                        var viz = new VizEngine(body, { width: 680, height: 340, originX: 60, originY: 170, scale: 1 });
-
-                        var step = 0;
-                        var maxSteps = 5;
-
-                        // Gram points for t near 14 (first few zeros)
-                        // g_n: theta(g_n) = n*pi
-                        // Approximate: g_0 ~ 0, g_1 ~ 9.7, g_2 ~ 17.8, g_3 ~ 23.2, g_4 ~ 28, g_5 ~ 32.9
-                        var gramPts = [0, 9.72, 17.84, 23.17, 27.96, 32.92, 37.59, 42.13, 46.56];
+                        var viz = new VizEngine(body, {
+                            width: 560, height: 380,
+                            originX: 0, originY: 0, scale: 1
+                        });
 
                         function theta(t) {
-                            if (t <= 0) return 0;
-                            return t / 2 * Math.log(t / (2 * Math.PI * Math.E)) - Math.PI / 8;
+                            if (t < 1) return 0;
+                            return (t / 2) * Math.log(t / (2 * Math.PI)) - t / 2 - Math.PI / 8 + 1 / (48 * t);
                         }
-                        function computeZ(t) {
-                            if (t <= 0) return 0;
-                            var N = Math.max(1, Math.floor(Math.sqrt(t / (2 * Math.PI))));
+
+                        function Z(t) {
+                            if (t < 2) return 0;
+                            var N = Math.floor(Math.sqrt(t / (2 * Math.PI)));
+                            if (N < 1) N = 1;
                             var th = theta(t);
                             var sum = 0;
-                            for (var n = 1; n <= N; n++) sum += Math.cos(th - t * Math.log(n)) / Math.sqrt(n);
+                            for (var n = 1; n <= N; n++) {
+                                sum += Math.cos(th - t * Math.log(n)) / Math.sqrt(n);
+                            }
                             return 2 * sum;
                         }
 
-                        var tMin = 0, tMax = 50;
-                        var padL = 60, padR = 20, padT = 40, padB = 40;
-                        var W = viz.width - padL - padR;
-                        var H = viz.height - padT - padB;
+                        // Find Gram points by solving theta(g) = n*pi
+                        function findGramPoint(n) {
+                            // Newton's method
+                            var t = 2 * Math.PI * Math.exp(1) * Math.exp(2 * n * Math.PI / (2 * Math.PI));
+                            // Better initial guess for small n
+                            if (n < 20) t = 10 + n * 2.5;
+                            for (var iter = 0; iter < 50; iter++) {
+                                var th = theta(t);
+                                var target = n * Math.PI;
+                                var dthetadt = 0.5 * Math.log(t / (2 * Math.PI));
+                                if (Math.abs(dthetadt) < 1e-10) break;
+                                t = t - (th - target) / dthetadt;
+                                if (t < 2) t = 2;
+                                if (Math.abs(th - target) < 1e-8) break;
+                            }
+                            return t;
+                        }
 
-                        function txPx(t) { return padL + (t - tMin) / (tMax - tMin) * W; }
-                        function zyPx(z) { return padT + H / 2 - z * H / 16; }
+                        var tMin = 10;
+                        var tMax = 60;
 
-                        var stepLabels = [
-                            'Step 1: Plot Z(t) and identify sign changes (zeros)',
-                            'Step 2: Mark Gram points where \u03B8(g\u2099) = n\u03C0',
-                            'Step 3: Form Gram blocks (intervals between Gram points)',
-                            'Step 4: Count sign changes of Z(t) in each Gram block',
-                            'Step 5: Compare count with N(T) from the argument principle. If equal: RH verified to this height!'
-                        ];
+                        VizEngine.createSlider(controls, 't-start', 0, 150, tMin, 10, function(v) {
+                            tMin = v;
+                            tMax = tMin + 50;
+                            draw();
+                        });
 
                         function draw() {
                             viz.clear();
                             var ctx = viz.ctx;
+                            var pad = 50;
+                            var plotW = viz.width - pad - 20;
+                            var plotH = viz.height - 80;
+                            var plotTop = 40;
+                            var plotLeft = pad;
+                            var zeroY = plotTop + plotH / 2;
 
-                            // Axes
-                            ctx.strokeStyle = viz.colors.axis; ctx.lineWidth = 1.5;
-                            ctx.beginPath(); ctx.moveTo(padL, padT + H / 2); ctx.lineTo(padL + W, padT + H / 2); ctx.stroke();
-                            ctx.beginPath(); ctx.moveTo(padL, padT); ctx.lineTo(padL, padT + H); ctx.stroke();
+                            viz.screenText("Gram Points & Turing's Method", viz.width / 2, 15, viz.colors.white, 14);
 
-                            // X labels
-                            ctx.fillStyle = viz.colors.text; ctx.font = '10px -apple-system,sans-serif';
-                            ctx.textAlign = 'center'; ctx.textBaseline = 'top';
-                            for (var tv = 0; tv <= 50; tv += 10) {
-                                var xx = txPx(tv);
-                                ctx.fillText(tv, xx, padT + H + 4);
+                            // Plot Z(t)
+                            var pts = [];
+                            var steps = 500;
+                            var yRange = 0;
+                            for (var i = 0; i <= steps; i++) {
+                                var t = tMin + (tMax - tMin) * i / steps;
+                                var z = Z(t);
+                                if (Math.abs(z) > 50) z = z > 0 ? 50 : -50;
+                                pts.push({t: t, z: z});
+                                yRange = Math.max(yRange, Math.abs(z));
+                            }
+                            yRange = Math.max(yRange, 2);
+
+                            // Zero line
+                            ctx.strokeStyle = viz.colors.axis;
+                            ctx.lineWidth = 1;
+                            ctx.beginPath();
+                            ctx.moveTo(plotLeft, zeroY);
+                            ctx.lineTo(plotLeft + plotW, zeroY);
+                            ctx.stroke();
+
+                            // Find Gram points in range
+                            var gramPoints = [];
+                            for (var n = 0; n < 100; n++) {
+                                var g = findGramPoint(n);
+                                if (g < tMin - 5) continue;
+                                if (g > tMax + 5) break;
+                                gramPoints.push({n: n, t: g, z: Z(g)});
                             }
 
-                            // Step label
-                            viz.screenText(stepLabels[step] || '', viz.width / 2, 16, viz.colors.yellow, 12);
+                            // Draw Gram point lines and check Gram's law
+                            for (var j = 0; j < gramPoints.length; j++) {
+                                var gp = gramPoints[j];
+                                if (gp.t < tMin || gp.t > tMax) continue;
+                                var gx = plotLeft + (gp.t - tMin) / (tMax - tMin) * plotW;
 
-                            // Always draw Z(t) curve (step >= 0)
-                            ctx.strokeStyle = viz.colors.blue; ctx.lineWidth = 1.5;
+                                ctx.strokeStyle = viz.colors.grid;
+                                ctx.lineWidth = 0.5;
+                                ctx.setLineDash([3, 3]);
+                                ctx.beginPath();
+                                ctx.moveTo(gx, plotTop);
+                                ctx.lineTo(gx, plotTop + plotH);
+                                ctx.stroke();
+                                ctx.setLineDash([]);
+
+                                // Check Gram's law: (-1)^n Z(g_n) > 0
+                                var gramLaw = (gp.n % 2 === 0 ? gp.z > 0 : gp.z < 0);
+                                var gy = plotTop + plotH + 12;
+                                ctx.fillStyle = gramLaw ? viz.colors.green : viz.colors.red;
+                                ctx.font = '12px -apple-system,sans-serif';
+                                ctx.textAlign = 'center';
+                                ctx.fillText(gramLaw ? '\u2713' : '\u2717', gx, gy);
+                                ctx.fillStyle = viz.colors.text;
+                                ctx.font = '8px -apple-system,sans-serif';
+                                ctx.fillText('g' + gp.n, gx, gy + 12);
+                            }
+
+                            // Plot Z(t)
+                            ctx.strokeStyle = viz.colors.blue;
+                            ctx.lineWidth = 1.5;
                             ctx.beginPath();
-                            var prevZ = null;
-                            for (var i = 0; i <= 500; i++) {
-                                var t = tMin + (tMax - tMin) * i / 500;
-                                var z = computeZ(t);
-                                var cx = txPx(t);
-                                var cy = Math.max(padT, Math.min(padT + H, zyPx(z)));
-                                i === 0 ? ctx.moveTo(cx, cy) : ctx.lineTo(cx, cy);
-                                if (step >= 0 && prevZ !== null && prevZ * z < 0) {
-                                    // mark zero crossing
-                                    ctx.stroke();
-                                    var zeroX = txPx(t - (tMax - tMin) / 500 * Math.abs(prevZ) / (Math.abs(prevZ) + Math.abs(z)));
-                                    ctx.strokeStyle = viz.colors.orange; ctx.lineWidth = 2;
-                                    ctx.beginPath(); ctx.moveTo(zeroX, padT + H / 2 - 7); ctx.lineTo(zeroX, padT + H / 2 + 7); ctx.stroke();
-                                    ctx.strokeStyle = viz.colors.blue; ctx.lineWidth = 1.5;
-                                    ctx.beginPath(); ctx.moveTo(cx, cy);
-                                }
-                                prevZ = z;
+                            var started = false;
+                            for (var i = 0; i <= steps; i++) {
+                                var px = plotLeft + (pts[i].t - tMin) / (tMax - tMin) * plotW;
+                                var py = zeroY - (pts[i].z / yRange) * (plotH / 2);
+                                py = Math.max(plotTop, Math.min(plotTop + plotH, py));
+                                if (!started) { ctx.moveTo(px, py); started = true; }
+                                else ctx.lineTo(px, py);
                             }
                             ctx.stroke();
 
-                            // Step 2+: Mark Gram points
-                            if (step >= 1) {
-                                gramPts.forEach(function(g, idx) {
-                                    if (g > tMax) return;
-                                    var gx = txPx(g);
-                                    ctx.strokeStyle = viz.colors.purple; ctx.lineWidth = 1; ctx.setLineDash([3, 3]);
-                                    ctx.beginPath(); ctx.moveTo(gx, padT); ctx.lineTo(gx, padT + H); ctx.stroke();
-                                    ctx.setLineDash([]);
-                                    ctx.fillStyle = viz.colors.purple; ctx.font = '9px -apple-system,sans-serif';
-                                    ctx.textAlign = 'center'; ctx.textBaseline = 'bottom';
-                                    ctx.fillText('g\u2080'.replace('0', idx), gx, padT - 2);
-                                });
-                            }
-
-                            // Step 3+: Shade Gram blocks alternately
-                            if (step >= 2) {
-                                for (var k = 0; k + 1 < gramPts.length; k++) {
-                                    var g0 = gramPts[k], g1 = gramPts[k + 1];
-                                    if (g1 > tMax) break;
-                                    ctx.fillStyle = k % 2 === 0 ? viz.colors.teal + '18' : viz.colors.purple + '18';
-                                    ctx.fillRect(txPx(g0), padT, txPx(g1) - txPx(g0), H);
+                            // Mark zero crossings
+                            for (var i = 1; i <= steps; i++) {
+                                if (pts[i].z * pts[i-1].z < 0) {
+                                    var tCross = pts[i-1].t + (pts[i].t - pts[i-1].t) * Math.abs(pts[i-1].z) / (Math.abs(pts[i-1].z) + Math.abs(pts[i].z));
+                                    var cx = plotLeft + (tCross - tMin) / (tMax - tMin) * plotW;
+                                    ctx.fillStyle = viz.colors.orange;
+                                    ctx.beginPath();
+                                    ctx.arc(cx, zeroY, 4, 0, Math.PI * 2);
+                                    ctx.fill();
                                 }
                             }
-
-                            // Step 4+: Count sign changes per Gram block
-                            if (step >= 3) {
-                                for (var k = 0; k + 1 < gramPts.length; k++) {
-                                    var g0 = gramPts[k], g1 = Math.min(gramPts[k + 1], tMax);
-                                    var crosses = 0;
-                                    var pz = computeZ(g0);
-                                    var nSub = 40;
-                                    for (var j = 1; j <= nSub; j++) {
-                                        var tt = g0 + (g1 - g0) * j / nSub;
-                                        var zz = computeZ(tt);
-                                        if (pz * zz < 0) crosses++;
-                                        pz = zz;
-                                    }
-                                    var midX = (txPx(g0) + txPx(gramPts[Math.min(k+1, gramPts.length-1)])) / 2;
-                                    ctx.fillStyle = viz.colors.white; ctx.font = 'bold 12px -apple-system,sans-serif';
-                                    ctx.textAlign = 'center'; ctx.textBaseline = 'bottom';
-                                    ctx.fillText(crosses, midX, padT + H / 2 - 10);
-                                }
-                            }
-
-                            // Step 5: Show match summary
-                            if (step >= 4) {
-                                var totalCrosses = 0;
-                                for (var k = 0; k + 1 < gramPts.length; k++) {
-                                    var g0 = gramPts[k], g1 = Math.min(gramPts[k + 1], tMax);
-                                    var pz = computeZ(g0);
-                                    var nSub = 40;
-                                    for (var j = 1; j <= nSub; j++) {
-                                        var tt = g0 + (g1 - g0) * j / nSub;
-                                        var zz = computeZ(tt);
-                                        if (pz * zz < 0) totalCrosses++;
-                                        pz = zz;
-                                    }
-                                }
-                                var NT = Math.round(theta(tMax) / Math.PI + 1);
-                                ctx.fillStyle = '#1a1a40ee';
-                                ctx.fillRect(padL + W - 220, padT + 4, 214, 58);
-                                ctx.strokeStyle = viz.colors.green; ctx.lineWidth = 1;
-                                ctx.strokeRect(padL + W - 220, padT + 4, 214, 58);
-                                ctx.fillStyle = viz.colors.white; ctx.font = '11px -apple-system,sans-serif';
-                                ctx.textAlign = 'left'; ctx.textBaseline = 'top';
-                                ctx.fillText('Detected sign changes: ' + totalCrosses, padL + W - 214, padT + 10);
-                                ctx.fillText('N(T) from Backlund: ~' + NT, padL + W - 214, padT + 26);
-                                ctx.fillStyle = totalCrosses >= NT - 1 ? viz.colors.green : viz.colors.red;
-                                ctx.font = 'bold 12px -apple-system,sans-serif';
-                                ctx.fillText(totalCrosses >= NT - 1 ? 'RH verified to T = 50!' : 'Discrepancy -- check!', padL + W - 214, padT + 44);
-                            }
-
-                            // Step indicator
-                            ctx.fillStyle = viz.colors.text; ctx.font = '11px -apple-system,sans-serif';
-                            ctx.textAlign = 'right'; ctx.textBaseline = 'bottom';
-                            ctx.fillText('Step ' + (step + 1) + ' / ' + maxSteps, viz.width - padR, viz.height - 4);
                         }
-
-                        VizEngine.createButton(controls, 'Next Step', function() {
-                            step = Math.min(step + 1, maxSteps - 1);
-                            draw();
-                        });
-                        VizEngine.createButton(controls, 'Reset', function() {
-                            step = 0;
-                            draw();
-                        });
-
                         draw();
                         return viz;
                     }
@@ -630,161 +631,234 @@ N(T) = \\#\\{\\rho = \\sigma + i\\gamma : \\zeta(\\rho) = 0,\\; 0 < \\gamma \\le
             ],
             exercises: [
                 {
-                    question: 'The Backlund formula gives \\(N(T) = \\theta(T)/\\pi + 1 + S(T)\\). Using \\(\\theta(T) \\approx \\frac{T}{2}\\ln\\frac{T}{2\\pi e} - \\frac{\\pi}{8}\\) and \\(S(T) \\approx 0\\) on average, estimate \\(N(100)\\).',
-                    hint: 'Plug \\(T = 100\\) into the approximate Stirling formula for \\(\\theta\\).',
-                    solution: '\\(\\theta(100) \\approx 50\\ln(100/(2\\pi e)) - \\pi/8 \\approx 50\\ln(5.854) - 0.393 \\approx 50 \\times 1.767 - 0.393 \\approx 87.9 - 0.393 \\approx 87.5\\). Then \\(N(100) \\approx 87.5/\\pi + 1 \\approx 27.8 + 1 \\approx 29\\). The actual count is 29, confirming the formula.'
+                    question: 'Explain the logic of Turing\'s method: why does agreement between the sign-change count and \\(N(T)\\) imply that all zeros up to height \\(T\\) lie on the critical line?',
+                    hint: 'The argument principle counts all zeros in the critical strip, regardless of their real part. Sign changes of \\(Z(t)\\) count only zeros on the critical line.',
+                    solution: 'The Riemann-von Mangoldt formula counts the total number \\(N(T)\\) of zeros with \\(0 < \\operatorname{Im}(\\rho) < T\\) in the entire critical strip \\(0 < \\operatorname{Re}(s) < 1\\). Sign changes of \\(Z(t)\\) detect zeros on the critical line \\(\\operatorname{Re}(s) = 1/2\\). If we find exactly \\(N(T)\\) sign changes, then all zeros must be on the line: any off-line zero would mean fewer sign changes than \\(N(T)\\). Moreover, each sign change detects at least one zero, so the zeros must be simple (a double zero would not cause a sign change).'
                 },
                 {
-                    question: 'Explain why it is not sufficient to observe that \\(Z(t)\\) has 29 sign changes in \\([0, 100]\\) to conclude that all 29 zeros lie on the critical line.',
-                    hint: 'Think about what happens if a zero is off the critical line but \\(Z(t)\\) still changes sign nearby for a different reason.',
-                    solution: 'A sign change of \\(Z(t)\\) corresponds to a zero of \\(\\zeta(1/2+it)\\) only when the zero is simple and on the critical line. If there were a pair of zeros symmetrically placed off the line (say at \\(\\sigma \\pm it\\) with \\(\\sigma \\neq 1/2\\)), the function \\(Z(t)\\) would not necessarily change sign at those heights. Conversely, \\(Z(t)\\) could change sign an even number of times near a zero off the critical line without that zero being on the line. Turing\'s method closes this gap by using the exact count \\(N(T)\\) from the argument principle: if the number of sign changes of \\(Z(t)\\) equals \\(N(T)\\), then there can be no missing zeros (which would increase \\(N(T)\\)) and no off-line zeros (which would not be counted by the sign changes).'
+                    question: 'The first Gram point where Gram\'s law fails is \\(g_{126}\\). Look up or compute the approximate value of \\(g_{126}\\). What does this failure mean, and does it contradict RH?',
+                    hint: 'Gram\'s law is an empirical pattern, not a consequence of RH. Its failure means the simple counting heuristic (one zero per Gram interval) breaks down locally, requiring Turing\'s more sophisticated block analysis.',
+                    solution: 'The first failure of Gram\'s law occurs at \\(g_{126} \\approx 282.45\\), where \\((-1)^{126}Z(g_{126}) < 0\\) instead of being positive. This means the Gram interval \\([g_{126}, g_{127}]\\) may contain 0 or 2 zeros instead of exactly 1. It does not contradict RH. Turing\'s method handles this by grouping consecutive Gram intervals into "Gram blocks" and checking that the total zero count matches across the block.'
                 }
             ]
         },
 
         // ================================================================
-        // SECTION 4: Computing pi(x) — Meissel-Lehmer
+        // SECTION 4: Computing pi(x) — The Meissel-Lehmer Method
         // ================================================================
         {
             id: 'sec-computing-pi',
-            title: 'Computing π(x): Meissel-Lehmer',
+            title: 'Computing pi(x): Meissel-Lehmer',
             content: `
-<h2>Computing \\(\\pi(x)\\): The Meissel-Lehmer Algorithm</h2>
+<h2>Computing \\(\\pi(x)\\): The Meissel-Lehmer Method</h2>
 
-<p>The prime counting function \\(\\pi(x) = \\#\\{p \\leq x : p \\text{ prime}\\}\\) is central to analytic number theory, but actually computing it is a nontrivial problem. The sieve of Eratosthenes computes \\(\\pi(x)\\) in \\(O(x)\\) time and \\(O(x)\\) memory, which is feasible for \\(x \\leq 10^8\\) but impractical for \\(x = 10^{24}\\).</p>
+<div class="env-block intuition">
+    <div class="env-title">The Challenge</div>
+    <div class="env-body">
+        <p>How do you compute \\(\\pi(10^{24})\\), the number of primes up to \\(10^{24}\\)? Sieving all integers up to \\(10^{24}\\) is out of the question: there is not enough memory in the world. Yet we know \\(\\pi(10^{24}) = 18{,}435{,}599{,}767{,}349{,}200{,}867{,}866\\). The trick is an inclusion-exclusion identity that computes \\(\\pi(x)\\) in \\(O(x^{2/3})\\) time without listing any individual primes near \\(x\\).</p>
+    </div>
+</div>
 
-<h3>Legendre's Formula</h3>
+<h3>The Legendre Identity</h3>
 
-<p>The starting point is Legendre's sieve. Define \\(\\phi(x, a)\\) as the count of integers in \\([1, x]\\) not divisible by any of the first \\(a\\) primes \\(p_1, p_2, \\ldots, p_a\\). Then</p>
+<p>Define \\(\\phi(x, a)\\) as the number of integers \\(\\leq x\\) not divisible by any of the first \\(a\\) primes. Then by inclusion-exclusion:</p>
+
 \\[
-\\pi(x) = \\phi(x, \\pi(\\sqrt{x})) + \\pi(\\sqrt{x}) - 1,
+\\phi(x, a) = \\lfloor x \\rfloor - \\sum_{i=1}^{a} \\left\\lfloor \\frac{x}{p_i} \\right\\rfloor + \\sum_{i<j} \\left\\lfloor \\frac{x}{p_i p_j} \\right\\rfloor - \\cdots
 \\]
-<p>and \\(\\phi\\) satisfies the recursion \\(\\phi(x, a) = \\phi(x, a-1) - \\phi(x/p_a, a-1)\\), which allows computation without listing all primes.</p>
 
-<h3>The Meissel-Lehmer Improvement</h3>
+<p>If \\(a = \\pi(\\sqrt{x})\\), then every composite \\(\\leq x\\) has a prime factor \\(\\leq \\sqrt{x}\\), so:</p>
 
-<p>Lehmer (1959) refined the approach by decomposing \\(\\phi(x, a)\\) into three pieces based on the number of prime factors of the integers counted:</p>
+\\[
+\\pi(x) = \\phi(x, a) + a - 1.
+\\]
+
+<p>This is Legendre's identity (1808). It is correct but impractical for large \\(x\\): the inclusion-exclusion sum has \\(2^a\\) terms.</p>
+
+<h3>Meissel's Simplification</h3>
+
+<p>Meissel (1870) found a crucial decomposition. Define:</p>
+<ul>
+    <li>\\(P_2(x, a)\\) = number of integers \\(\\leq x\\) with exactly 2 prime factors, both \\(> p_a\\).</li>
+</ul>
+
+<p>Then for \\(a = \\pi(x^{1/3})\\):</p>
+
+\\[
+\\pi(x) = \\phi(x, a) + a - 1 - P_2(x, a).
+\\]
+
+<p>The term \\(P_2(x, a)\\) can be computed as:</p>
+\\[
+P_2(x, a) = \\sum_{\\substack{p_a < p \\leq \\sqrt{x}}} \\left(\\pi(x/p) - \\pi(p) + 1\\right).
+\\]
+
+<h3>The Lehmer Extension</h3>
+
+<p>Lehmer (1959) extended this to handle \\(P_3\\) (numbers with exactly 3 prime factors above \\(p_a\\)), choosing \\(a = \\pi(x^{1/4})\\):</p>
+
+\\[
+\\pi(x) = \\phi(x, a) + \\frac{(a-2)(a-1)}{2} - 1 - P_2(x, a) - P_3(x, a).
+\\]
 
 <div class="env-block theorem">
-    <div class="env-title">Meissel-Lehmer Decomposition</div>
+    <div class="env-title">Theorem 20.5 (Meissel-Lehmer Complexity)</div>
     <div class="env-body">
-        \\[
-        \\pi(x) = \\phi(x, a) + a - 1 - \\frac{1}{2}(P_2(x, a) + 1)(P_2(x, a) - 2) - P_3(x, a),
-        \\]
-        <p>where \\(a = \\pi(x^{1/4})\\), \\(P_2(x, a)\\) counts integers \\(\\leq x\\) with exactly 2 prime factors both \\(> p_a\\), and \\(P_3(x, a)\\) counts those with exactly 3 such prime factors.</p>
+        <p>The Meissel-Lehmer algorithm (with Lagarias-Miller-Odlyzko refinements) computes \\(\\pi(x)\\) exactly in:</p>
+        <ul>
+            <li>Time: \\(O(x^{2/3} / \\ln x)\\).</li>
+            <li>Space: \\(O(x^{1/3} \\ln^2 x)\\).</li>
+        </ul>
+        <p>Further improvements by Deleglise-Rivat (1996) and more recently by Platt achieve \\(O(x^{2/3}/\\ln^2 x)\\).</p>
     </div>
 </div>
 
-<p>The key terms can be evaluated as sums over primes up to \\(x^{1/2}\\) or \\(x^{1/3}\\), so the dominant term is a sum over roughly \\(x^{1/2}/\\ln x\\) primes, each requiring a call to \\(\\phi\\). The \\(\\phi\\) values can be computed via a sieve up to \\(x^{1/3}\\). The overall complexity is \\(O(x^{2/3}/(\\log x)^2)\\) with careful implementation.</p>
+<h3>Computational Records</h3>
 
-<div class="env-block remark">
-    <div class="env-title">Modern Variants</div>
-    <div class="env-body">
-        <p>The Lucy-Hedgehog algorithm (posted on Project Euler forums, 2012) achieves \\(O(x^{2/3})\\) time and \\(O(x^{1/3})\\) space using a radically different approach: it maintains a table of \\(\\phi\\)-values at all "smooth points" \\(\\lfloor x/k \\rfloor\\) and updates them in a single pass. Kim Walisch's <tt>primecount</tt> library implements this and extensions, and has computed \\(\\pi(10^{28})\\).</p>
-    </div>
-</div>
+<table style="width:100%;border-collapse:collapse;margin:12px 0;">
+<tr style="border-bottom:1px solid #333;"><th style="text-align:left;padding:4px;">Year</th><th style="text-align:left;">\\(x\\)</th><th style="text-align:left;">\\(\\pi(x)\\)</th><th style="text-align:left;">Who</th></tr>
+<tr><td style="padding:4px;">1870</td><td>\\(10^8\\)</td><td>5,761,455</td><td>Meissel</td></tr>
+<tr><td style="padding:4px;">1959</td><td>\\(10^{10}\\)</td><td>455,052,511</td><td>Lehmer</td></tr>
+<tr><td style="padding:4px;">1987</td><td>\\(10^{16}\\)</td><td>~2.79 \\times 10^{14}\\)</td><td>Lagarias-Odlyzko</td></tr>
+<tr><td style="padding:4px;">2001</td><td>\\(10^{20}\\)</td><td>~2.22 \\times 10^{18}\\)</td><td>Platt</td></tr>
+<tr><td style="padding:4px;">2015</td><td>\\(10^{25}\\)</td><td>~1.70 \\times 10^{23}\\)</td><td>Staple</td></tr>
+</table>
 
 <div class="viz-placeholder" data-viz="viz-meissel-lehmer"></div>
 `,
             visualizations: [
                 {
                     id: 'viz-meissel-lehmer',
-                    title: 'Meissel-Lehmer: Decomposition Tree',
-                    description: 'The Legendre-Meissel-Lehmer algorithm decomposes pi(x) into phi(x/p, a) subproblems. Explore the recursion tree and see how it avoids listing all primes.',
+                    title: 'Sieve vs. Meissel-Lehmer: Operation Count',
+                    description: 'Compare the number of operations to compute \\(\\pi(x)\\) by direct sieving (\\(O(x)\\)) versus the Meissel-Lehmer algorithm (\\(O(x^{2/3})\\)). The gap grows dramatically with \\(x\\).',
                     setup: function(body, controls) {
-                        var viz = new VizEngine(body, { width: 680, height: 380, originX: 340, originY: 20, scale: 1 });
-
-                        var xVal = 100;
-                        var nodes = [];
-                        var edges = [];
-
-                        function buildTree(x, a, depth, parentId) {
-                            if (depth > 3 || nodes.length > 40) return;
-                            var id = nodes.length;
-                            nodes.push({ id: id, x: x, a: a, depth: depth, px: 0, py: 0 });
-                            if (parentId !== null) edges.push({ from: parentId, to: id });
-                            if (a <= 0 || x < 2 || depth >= 3) return;
-                            // phi(x, a) = phi(x, a-1) - phi(x/pa, a-1)
-                            var pa = VizEngine.sievePrimes(50)[a - 1] || a + 1;
-                            buildTree(x, a - 1, depth + 1, id);
-                            buildTree(Math.floor(x / pa), a - 1, depth + 1, id);
-                        }
-
-                        function rebuild() {
-                            nodes = []; edges = [];
-                            var a = VizEngine.sievePrimes(Math.floor(Math.sqrt(xVal))).length;
-                            a = Math.min(a, 4);
-                            buildTree(xVal, a, 0, null);
-                        }
-
-                        function layoutNodes() {
-                            // BFS layout by depth
-                            var byDepth = {};
-                            nodes.forEach(function(n) {
-                                if (!byDepth[n.depth]) byDepth[n.depth] = [];
-                                byDepth[n.depth].push(n);
-                            });
-                            var maxDepth = 0;
-                            nodes.forEach(function(n) { maxDepth = Math.max(maxDepth, n.depth); });
-                            var padT = 50, padL = 40, padR = 40;
-                            var W = viz.width - padL - padR;
-                            var levelH = (viz.height - padT - 40) / (maxDepth + 1);
-                            for (var d = 0; d <= maxDepth; d++) {
-                                var level = byDepth[d] || [];
-                                var n = level.length;
-                                level.forEach(function(node, i) {
-                                    node.px = padL + (n === 1 ? W / 2 : W * i / (n - 1));
-                                    node.py = padT + d * levelH;
-                                });
-                            }
-                        }
-
-                        function draw() {
-                            rebuild();
-                            layoutNodes();
-                            viz.clear();
-                            var ctx = viz.ctx;
-
-                            viz.screenText('Legendre Recursion Tree for \u03C6(' + xVal + ', a)', viz.width / 2, 16, viz.colors.white, 13);
-                            viz.screenText('\u03C6(x, a) = \u03C6(x, a-1) \u2212 \u03C6(x/p_a, a-1)', viz.width / 2, 32, viz.colors.text, 11);
-
-                            // Edges
-                            edges.forEach(function(e) {
-                                var from = nodes[e.from], to = nodes[e.to];
-                                ctx.strokeStyle = viz.colors.grid; ctx.lineWidth = 1;
-                                ctx.beginPath(); ctx.moveTo(from.px, from.py); ctx.lineTo(to.px, to.py); ctx.stroke();
-                            });
-
-                            // Nodes
-                            nodes.forEach(function(n) {
-                                var col = [viz.colors.blue, viz.colors.teal, viz.colors.orange, viz.colors.purple][n.depth % 4];
-                                ctx.fillStyle = col + '33';
-                                ctx.beginPath(); ctx.arc(n.px, n.py, 22, 0, Math.PI * 2); ctx.fill();
-                                ctx.strokeStyle = col; ctx.lineWidth = 1.5;
-                                ctx.beginPath(); ctx.arc(n.px, n.py, 22, 0, Math.PI * 2); ctx.stroke();
-                                ctx.fillStyle = viz.colors.white; ctx.font = '10px -apple-system,sans-serif';
-                                ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
-                                ctx.fillText('\u03C6(' + n.x + ',' + n.a + ')', n.px, n.py);
-                            });
-
-                            // Legend
-                            ctx.fillStyle = viz.colors.text; ctx.font = '10px -apple-system,sans-serif';
-                            ctx.textAlign = 'left'; ctx.textBaseline = 'top';
-                            var legend = ['Depth 0: \u03C6(x,a)', 'Depth 1', 'Depth 2', 'Depth 3 (leaf)'];
-                            var cols = [viz.colors.blue, viz.colors.teal, viz.colors.orange, viz.colors.purple];
-                            legend.forEach(function(l, i) {
-                                ctx.fillStyle = cols[i];
-                                ctx.fillRect(8, viz.height - 80 + i * 16, 10, 10);
-                                ctx.fillStyle = viz.colors.text;
-                                ctx.fillText(l, 22, viz.height - 80 + i * 16);
-                            });
-                        }
-
-                        VizEngine.createSlider(controls, 'x', 20, 300, xVal, 10, function(v) {
-                            xVal = Math.round(v);
-                            draw();
+                        var viz = new VizEngine(body, {
+                            width: 560, height: 380,
+                            originX: 0, originY: 0, scale: 1
                         });
 
+                        function draw() {
+                            viz.clear();
+                            var ctx = viz.ctx;
+                            var pad = 70;
+                            var plotW = viz.width - pad - 30;
+                            var plotH = viz.height - 80;
+                            var plotTop = 40;
+                            var plotLeft = pad;
+                            var plotBottom = plotTop + plotH;
+
+                            viz.screenText('Sieve O(x) vs Meissel-Lehmer O(x^{2/3})', viz.width / 2, 15, viz.colors.white, 14);
+
+                            // Log-log plot: x from 10^4 to 10^24
+                            var logMin = 4, logMax = 24;
+
+                            // Axes
+                            ctx.strokeStyle = viz.colors.axis;
+                            ctx.lineWidth = 1;
+                            ctx.beginPath();
+                            ctx.moveTo(plotLeft, plotBottom);
+                            ctx.lineTo(plotLeft + plotW, plotBottom);
+                            ctx.stroke();
+                            ctx.beginPath();
+                            ctx.moveTo(plotLeft, plotTop);
+                            ctx.lineTo(plotLeft, plotBottom);
+                            ctx.stroke();
+
+                            // x-axis: log10(x)
+                            ctx.fillStyle = viz.colors.text;
+                            ctx.font = '10px -apple-system,sans-serif';
+                            ctx.textAlign = 'center';
+                            ctx.textBaseline = 'top';
+                            for (var e = logMin; e <= logMax; e += 4) {
+                                var px = plotLeft + (e - logMin) / (logMax - logMin) * plotW;
+                                ctx.fillText('10^' + e, px, plotBottom + 5);
+                                ctx.strokeStyle = viz.colors.grid;
+                                ctx.lineWidth = 0.3;
+                                ctx.beginPath(); ctx.moveTo(px, plotTop); ctx.lineTo(px, plotBottom); ctx.stroke();
+                            }
+                            viz.screenText('x', plotLeft + plotW + 15, plotBottom, viz.colors.text, 11);
+
+                            // y-axis: log10(operations)
+                            var opsMin = 3, opsMax = 25;
+                            ctx.textAlign = 'right';
+                            ctx.textBaseline = 'middle';
+                            for (var o = 4; o <= 24; o += 4) {
+                                var py = plotBottom - (o - opsMin) / (opsMax - opsMin) * plotH;
+                                ctx.fillStyle = viz.colors.text;
+                                ctx.fillText('10^' + o, plotLeft - 5, py);
+                                ctx.strokeStyle = viz.colors.grid;
+                                ctx.lineWidth = 0.3;
+                                ctx.beginPath(); ctx.moveTo(plotLeft, py); ctx.lineTo(plotLeft + plotW, py); ctx.stroke();
+                            }
+                            viz.screenText('ops', plotLeft - 5, plotTop - 10, viz.colors.text, 10, 'center');
+
+                            // Plot sieve: O(x) => log10(ops) = log10(x)
+                            ctx.strokeStyle = viz.colors.red;
+                            ctx.lineWidth = 2;
+                            ctx.beginPath();
+                            for (var i = 0; i <= 200; i++) {
+                                var logx = logMin + (logMax - logMin) * i / 200;
+                                var logOps = logx; // O(x)
+                                var px = plotLeft + (logx - logMin) / (logMax - logMin) * plotW;
+                                var py = plotBottom - (logOps - opsMin) / (opsMax - opsMin) * plotH;
+                                py = Math.max(plotTop, Math.min(plotBottom, py));
+                                i === 0 ? ctx.moveTo(px, py) : ctx.lineTo(px, py);
+                            }
+                            ctx.stroke();
+
+                            // Plot M-L: O(x^{2/3}) => log10(ops) = (2/3)*log10(x)
+                            ctx.strokeStyle = viz.colors.teal;
+                            ctx.lineWidth = 2;
+                            ctx.beginPath();
+                            for (var i = 0; i <= 200; i++) {
+                                var logx = logMin + (logMax - logMin) * i / 200;
+                                var logOps = (2 / 3) * logx;
+                                var px = plotLeft + (logx - logMin) / (logMax - logMin) * plotW;
+                                var py = plotBottom - (logOps - opsMin) / (opsMax - opsMin) * plotH;
+                                py = Math.max(plotTop, Math.min(plotBottom, py));
+                                i === 0 ? ctx.moveTo(px, py) : ctx.lineTo(px, py);
+                            }
+                            ctx.stroke();
+
+                            // Shade savings region
+                            ctx.fillStyle = viz.colors.teal + '15';
+                            ctx.beginPath();
+                            for (var i = 0; i <= 200; i++) {
+                                var logx = logMin + (logMax - logMin) * i / 200;
+                                var logOps = logx;
+                                var px = plotLeft + (logx - logMin) / (logMax - logMin) * plotW;
+                                var py = plotBottom - (logOps - opsMin) / (opsMax - opsMin) * plotH;
+                                py = Math.max(plotTop, Math.min(plotBottom, py));
+                                i === 0 ? ctx.moveTo(px, py) : ctx.lineTo(px, py);
+                            }
+                            for (var i = 200; i >= 0; i--) {
+                                var logx = logMin + (logMax - logMin) * i / 200;
+                                var logOps = (2 / 3) * logx;
+                                var px = plotLeft + (logx - logMin) / (logMax - logMin) * plotW;
+                                var py = plotBottom - (logOps - opsMin) / (opsMax - opsMin) * plotH;
+                                py = Math.max(plotTop, Math.min(plotBottom, py));
+                                ctx.lineTo(px, py);
+                            }
+                            ctx.closePath();
+                            ctx.fill();
+
+                            // Legend
+                            var lx = plotLeft + 30;
+                            ctx.fillStyle = viz.colors.red;
+                            ctx.fillRect(lx, plotTop + 10, 20, 3);
+                            ctx.fillStyle = viz.colors.red;
+                            ctx.font = '11px -apple-system,sans-serif';
+                            ctx.textAlign = 'left';
+                            ctx.fillText('Sieve: O(x)', lx + 25, plotTop + 14);
+
+                            ctx.fillStyle = viz.colors.teal;
+                            ctx.fillRect(lx, plotTop + 28, 20, 3);
+                            ctx.fillStyle = viz.colors.teal;
+                            ctx.fillText('Meissel-Lehmer: O(x^{2/3})', lx + 25, plotTop + 32);
+
+                            // Annotation
+                            viz.screenText('At x = 10^24: sieve needs 10^24 ops,  M-L needs 10^16', viz.width / 2, viz.height - 10, viz.colors.white, 11);
+                        }
                         draw();
                         return viz;
                     }
@@ -792,14 +866,9 @@ N(T) = \\#\\{\\rho = \\sigma + i\\gamma : \\zeta(\\rho) = 0,\\; 0 < \\gamma \\le
             ],
             exercises: [
                 {
-                    question: "Compute \\(\\phi(12, 2)\\) by hand using the recursion \\(\\phi(x, a) = \\phi(x, a-1) - \\phi(\\lfloor x/p_a\\rfloor, a-1)\\), where \\(p_1 = 2, p_2 = 3\\).",
-                    hint: 'Start with \\(\\phi(12, 1)\\), which counts integers in \\([1,12]\\) not divisible by 2.',
-                    solution: '\\(\\phi(12, 1)\\) = integers in [1,12] not divisible by 2 = {1,3,5,7,9,11} = 6. Then \\(\\phi(12, 2) = \\phi(12, 1) - \\phi(\\lfloor 12/3\\rfloor, 1) = \\phi(12, 1) - \\phi(4, 1)\\). \\(\\phi(4,1)\\) = integers in [1,4] not divisible by 2 = {1,3} = 2. So \\(\\phi(12,2) = 6 - 2 = 4\\). These are {1,5,7,11}: integers in [1,12] not divisible by 2 or 3.'
-                },
-                {
-                    question: 'The naive sieve computes \\(\\pi(x)\\) in \\(O(x \\log\\log x)\\) time. The Meissel-Lehmer algorithm achieves \\(O(x^{2/3} / (\\log x)^2)\\). At what value of \\(x\\) do the two cross over (i.e., when does ML become faster)? Give a rough estimate.',
-                    hint: 'Set \\(x \\log\\log x \\approx x^{2/3}/(\\log x)^2\\) and solve for \\(x\\).',
-                    solution: 'We want \\(x^{1/3} \\approx \\log x \\cdot \\log\\log x / (\\log x)^2 \\cdot (\\log x)^2 = (\\log x)^2 \\log\\log x\\) roughly, i.e., \\(x^{1/3} \\approx (\\log x)^3\\). Taking both sides to the third power: \\(x \\approx (\\log x)^9\\). For \\(x = 10^6\\): \\((\\log 10^6)^9 = (6 \\ln 10)^9 \\approx 13.8^9 \\approx 10^{10}\\). So the crossover is roughly around \\(x \\approx 10^{10}\\) to \\(10^{12}\\), where the ML algorithm clearly wins.'
+                    question: 'Use Legendre\'s identity to compute \\(\\pi(30)\\). Take \\(a = \\pi(\\sqrt{30}) = \\pi(5) = 3\\), so the first 3 primes are 2, 3, 5.',
+                    hint: 'Compute \\(\\phi(30, 3)\\) by inclusion-exclusion: integers \\(\\leq 30\\) not divisible by 2, 3, or 5. Then \\(\\pi(30) = \\phi(30, 3) + 3 - 1\\).',
+                    solution: '\\(\\phi(30, 3) = 30 - \\lfloor 30/2 \\rfloor - \\lfloor 30/3 \\rfloor - \\lfloor 30/5 \\rfloor + \\lfloor 30/6 \\rfloor + \\lfloor 30/10 \\rfloor + \\lfloor 30/15 \\rfloor - \\lfloor 30/30 \\rfloor = 30 - 15 - 10 - 6 + 5 + 3 + 2 - 1 = 8\\). So \\(\\pi(30) = 8 + 3 - 1 = 10\\). Indeed, the primes \\(\\leq 30\\) are 2, 3, 5, 7, 11, 13, 17, 19, 23, 29.'
                 }
             ]
         },
@@ -811,48 +880,59 @@ N(T) = \\#\\{\\rho = \\sigma + i\\gamma : \\zeta(\\rho) = 0,\\; 0 < \\gamma \\le
             id: 'sec-primality',
             title: 'Primality Testing',
             content: `
-<h2>Primality Testing: From Probabilistic to Deterministic</h2>
+<h2>Primality Testing</h2>
 
-<p>Given an \\(n\\)-bit integer \\(N\\), how quickly can we decide if \\(N\\) is prime? Trial division requires \\(O(N^{1/2}) = O(2^{n/2})\\) time, exponential in the bit size. Modern methods do far better.</p>
-
-<h3>Fermat's Little Theorem and Witnesses</h3>
-
-<p>If \\(p\\) is prime, Fermat's little theorem gives \\(a^{p-1} \\equiv 1 \\pmod{p}\\) for all \\(a \\not\\equiv 0\\). If \\(N\\) is composite, most choices of \\(a\\) will violate this. This suggests a probabilistic test: pick random \\(a\\) and check \\(a^{N-1} \\pmod{N}\\). The trouble is Carmichael numbers, composites satisfying Fermat for all \\(a\\) coprime to \\(N\\). The Miller-Rabin test fixes this.</p>
-
-<h3>Miller-Rabin</h3>
-
-<p>Write \\(N - 1 = 2^s \\cdot d\\) with \\(d\\) odd. A <em>Miller-Rabin witness</em> for the compositeness of \\(N\\) is an \\(a\\) such that</p>
-\\[
-a^d \\not\\equiv 1 \\pmod{N} \\quad\\text{and}\\quad a^{2^r d} \\not\\equiv -1 \\pmod{N} \\text{ for all } r = 0, 1, \\ldots, s-1.
-\\]
-
-<div class="env-block theorem">
-    <div class="env-title">Theorem (Miller, Rabin)</div>
+<div class="env-block intuition">
+    <div class="env-title">Testing vs. Factoring</div>
     <div class="env-body">
-        <p>If \\(N\\) is composite, at least \\(3/4\\) of all bases \\(a \\in \\{2, \\ldots, N-2\\}\\) are Miller-Rabin witnesses. Therefore, after \\(k\\) random trials with no witness found, the probability of \\(N\\) being composite is at most \\(4^{-k}\\).</p>
-        <p>Moreover, under GRH, testing only bases \\(a \\leq 2(\\ln N)^2\\) is sufficient to decide primality deterministically.</p>
+        <p>An important distinction: <em>primality testing</em> asks "is \\(n\\) prime?" while <em>factoring</em> asks "what are \\(n\\)'s prime factors?" Testing is much easier. We can certify that a 1000-digit number is prime in seconds, but factoring a 600-digit composite remains beyond current capability. This gap is the basis of RSA cryptography.</p>
     </div>
 </div>
 
-<p>For practical use, testing the bases \\(\\{2, 3, 5, 7, 11, 13, 17, 19, 23, 29, 31, 37\\}\\) is sufficient to certify all \\(N < 3.3 \\times 10^{24}\\) unconditionally (Bach & Sorenson 1993, Pomerance et al.).</p>
+<h3>Fermat's Test and Pseudoprimes</h3>
 
-<h3>AKS: The First Polynomial-Time Deterministic Test</h3>
+<p>Fermat's little theorem states: if \\(p\\) is prime and \\(\\gcd(a, p) = 1\\), then \\(a^{p-1} \\equiv 1 \\pmod{p}\\). The contrapositive gives a compositeness test: if \\(a^{n-1} \\not\\equiv 1 \\pmod{n}\\) for some \\(a\\), then \\(n\\) is composite.</p>
 
-<p>In 2002, Agrawal, Kayal, and Saxena proved:</p>
+<p>However, some composites \\(n\\) satisfy \\(a^{n-1} \\equiv 1 \\pmod{n}\\) for all \\(a\\) coprime to \\(n\\). These are <em>Carmichael numbers</em> (e.g., 561 = 3 \\times 11 \\times 17). The Fermat test cannot detect them.</p>
+
+<h3>Miller-Rabin Test</h3>
 
 <div class="env-block theorem">
-    <div class="env-title">Theorem (AKS, 2002)</div>
+    <div class="env-title">Theorem 20.6 (Miller-Rabin Test)</div>
     <div class="env-body">
-        <p>There exists a deterministic primality test running in \\(O((\\log N)^{12})\\) time (later improved to \\(O((\\log N)^{6})\\) by Lenstra and Pomerance). The algorithm tests: for a suitable \\(r\\) and all \\(a \\leq \\lfloor\\sqrt{\\phi(r)}\\log N\\rfloor\\),</p>
-        \\[(X + a)^N \\equiv X^N + a \\pmod{X^r - 1, N}.\\]
-        <p>\\(N\\) is prime if and only if all these congruences hold (and \\(N\\) is not a perfect power and has no small prime factor).</p>
+        <p>Write \\(n - 1 = 2^s \\cdot d\\) with \\(d\\) odd. Then \\(n\\) is a <strong>strong pseudoprime</strong> to base \\(a\\) if either:</p>
+        <ol>
+            <li>\\(a^d \\equiv 1 \\pmod{n}\\), or</li>
+            <li>\\(a^{2^r d} \\equiv -1 \\pmod{n}\\) for some \\(0 \\leq r < s\\).</li>
+        </ol>
+        <p>If \\(n\\) is an odd prime, both conditions hold for every \\(a\\) coprime to \\(n\\). If \\(n\\) is composite, at most \\(1/4\\) of bases \\(1 < a < n\\) are strong liars. So \\(k\\) independent random bases give error probability \\(\\leq 4^{-k}\\).</p>
     </div>
 </div>
+
+<p>The Miller-Rabin test runs in \\(O(k \\log^2 n \\cdot \\log \\log n)\\) bit operations using fast modular exponentiation. With \\(k = 40\\) rounds, the false positive probability is \\(< 2^{-80}\\), negligible for any practical purpose.</p>
 
 <div class="env-block remark">
-    <div class="env-title">AKS in Practice</div>
+    <div class="env-title">Deterministic Variants</div>
     <div class="env-body">
-        <p>AKS was a theoretical breakthrough (PRIMES is in P), but in practice Miller-Rabin with fixed witnesses is faster by many orders of magnitude. AKS requires polynomial arithmetic modulo \\(X^r - 1\\) for \\(r = O((\\log N)^2)\\), which is much more expensive than the modular exponentiations in Miller-Rabin.</p>
+        <p>Under GRH, Miller (1976) showed that testing bases \\(a \\leq 2(\\ln n)^2\\) suffices to determine primality deterministically. For numbers below specific bounds, fixed sets of bases are known to be sufficient: for \\(n < 3.3 \\times 10^{24}\\), the bases \\(\\{2, 3, 5, 7, 11, 13, 17, 19, 23, 29, 31, 37\\}\\) suffice.</p>
+    </div>
+</div>
+
+<h3>The AKS Algorithm</h3>
+
+<div class="env-block theorem">
+    <div class="env-title">Theorem 20.7 (Agrawal-Kayal-Saxena, 2002)</div>
+    <div class="env-body">
+        <p>There exists a deterministic polynomial-time algorithm for primality testing. Specifically, PRIMES \\(\\in\\) P: one can determine whether \\(n\\) is prime in \\(O(\\log^{6+\\varepsilon} n)\\) bit operations (unconditionally).</p>
+    </div>
+</div>
+
+<p>The AKS test is based on a generalization of Fermat's little theorem to polynomials: \\(n\\) is prime if and only if \\((x + a)^n \\equiv x^n + a \\pmod{n}\\) in \\(\\mathbb{Z}[x]\\). Checking this identity directly takes \\(O(n)\\) time, but working modulo \\(x^r - 1\\) for suitable \\(r\\) reduces it to polynomial time.</p>
+
+<div class="env-block remark">
+    <div class="env-title">Practice vs. Theory</div>
+    <div class="env-body">
+        <p>Despite its theoretical importance (resolving a decades-old question), AKS is rarely used in practice. Miller-Rabin with enough rounds is faster and sufficient for all practical purposes. The significance of AKS is <em>complexity-theoretic</em>: it proves PRIMES \\(\\in\\) P unconditionally, without reliance on any unproved hypothesis.</p>
     </div>
 </div>
 
@@ -861,179 +941,207 @@ a^d \\not\\equiv 1 \\pmod{N} \\quad\\text{and}\\quad a^{2^r d} \\not\\equiv -1 \
             visualizations: [
                 {
                     id: 'viz-miller-rabin',
-                    title: 'Miller-Rabin Test: Animated',
-                    description: 'Step through the Miller-Rabin primality test for a candidate N with chosen base a. Watch how the squaring sequence either certifies primality or exposes a witness to compositeness.',
+                    title: 'Miller-Rabin Primality Test',
+                    description: 'Enter a number and watch the Miller-Rabin test in action. The test checks multiple random bases. Green = probably prime; red = definitely composite.',
                     setup: function(body, controls) {
-                        var viz = new VizEngine(body, { width: 680, height: 360, originX: 340, originY: 20, scale: 1 });
+                        var viz = new VizEngine(body, {
+                            width: 560, height: 380,
+                            originX: 0, originY: 0, scale: 1
+                        });
 
-                        var N = 561; // Carmichael number for interesting demo
-                        var a = 2;
-                        var stepIdx = 0;
-                        var sequence = [];
-                        var result = '';
+                        var testN = 561; // Carmichael number
+                        var results = [];
+                        var numBases = 10;
+
+                        // Simple slider for n
+                        VizEngine.createSlider(controls, 'n', 3, 1000, testN, 1, function(v) {
+                            testN = Math.round(v);
+                            runTest();
+                        });
 
                         function modPow(base, exp, mod) {
-                            var result = 1n;
+                            var result = 1;
                             base = base % mod;
-                            while (exp > 0n) {
-                                if (exp % 2n === 1n) result = (result * base) % mod;
-                                exp = exp / 2n;
+                            while (exp > 0) {
+                                if (exp % 2 === 1) result = (result * base) % mod;
+                                exp = Math.floor(exp / 2);
                                 base = (base * base) % mod;
                             }
                             return result;
                         }
 
-                        function runMillerRabin(N, a) {
-                            var BN = BigInt(N), Ba = BigInt(a);
-                            var d = BN - 1n, s = 0;
-                            while (d % 2n === 0n) { d /= 2n; s++; }
+                        function millerRabinSingle(n, a) {
+                            if (n < 2) return {prime: false, reason: 'n < 2'};
+                            if (n === 2 || n === 3) return {prime: true, reason: 'small prime'};
+                            if (n % 2 === 0) return {prime: false, reason: 'even'};
 
-                            var steps = [];
-                            steps.push({ label: 'Start: N=' + N + ', write N-1 = 2^' + s + ' * ' + d, type: 'info', value: null });
+                            // Write n-1 = 2^s * d
+                            var d = n - 1;
+                            var s = 0;
+                            while (d % 2 === 0) { d /= 2; s++; }
 
-                            var x = modPow(Ba, d, BN);
-                            steps.push({ label: 'Compute a^d mod N = ' + a + '^' + d + ' mod ' + N + ' = ' + x, type: 'compute', value: Number(x) });
+                            // Compute a^d mod n
+                            var x = modPow(a, d, n);
+                            if (x === 1 || x === n - 1) return {prime: true, reason: 'a^d = ' + (x === 1 ? '1' : '-1')};
 
-                            if (x === 1n || x === BN - 1n) {
-                                steps.push({ label: 'x = ' + x + ' is \u00B11 mod N. N is probably prime (no witness found yet)', type: 'pass', value: null });
-                                return { steps: steps, result: 'probably prime' };
+                            for (var r = 1; r < s; r++) {
+                                x = (x * x) % n;
+                                if (x === n - 1) return {prime: true, reason: 'a^(2^' + r + 'd) = -1'};
+                                if (x === 1) return {prime: false, reason: 'non-trivial sqrt of 1'};
                             }
-
-                            for (var r = 0; r < s - 1; r++) {
-                                x = (x * x) % BN;
-                                steps.push({ label: 'Square: x = x\u00B2 mod N = ' + x + ' (r=' + r + ')', type: 'compute', value: Number(x) });
-                                if (x === BN - 1n) {
-                                    steps.push({ label: 'x = N-1 found. N is probably prime with this base.', type: 'pass', value: null });
-                                    return { steps: steps, result: 'probably prime' };
-                                }
-                            }
-                            steps.push({ label: 'No -1 found. a=' + a + ' is a WITNESS: N=' + N + ' is COMPOSITE!', type: 'fail', value: null });
-                            return { steps: steps, result: 'composite' };
+                            return {prime: false, reason: 'failed all rounds'};
                         }
 
-                        function rebuild() {
-                            var res = runMillerRabin(N, a);
-                            sequence = res.steps;
-                            result = res.result;
-                            stepIdx = 0;
+                        function isPrimeDirect(n) {
+                            if (n < 2) return false;
+                            if (n < 4) return true;
+                            if (n % 2 === 0 || n % 3 === 0) return false;
+                            for (var i = 5; i * i <= n; i += 6) {
+                                if (n % i === 0 || n % (i + 2) === 0) return false;
+                            }
+                            return true;
+                        }
+
+                        function runTest() {
+                            results = [];
+                            var bases = [2, 3, 5, 7, 11, 13, 17, 19, 23, 29];
+                            for (var i = 0; i < numBases && i < bases.length; i++) {
+                                if (bases[i] >= testN) continue;
+                                var r = millerRabinSingle(testN, bases[i]);
+                                r.base = bases[i];
+                                results.push(r);
+                            }
+                            draw();
                         }
 
                         function draw() {
                             viz.clear();
                             var ctx = viz.ctx;
-                            var padL = 30, padT = 50;
+                            var actual = isPrimeDirect(testN);
 
-                            viz.screenText('Miller-Rabin Primality Test', viz.width / 2, 16, viz.colors.white, 14);
-                            viz.screenText('N = ' + N + ', base a = ' + a, viz.width / 2, 34, viz.colors.text, 12);
+                            viz.screenText('Miller-Rabin Test for n = ' + testN, viz.width / 2, 20, viz.colors.white, 14);
+                            viz.screenText('(Actually ' + (actual ? 'PRIME' : 'COMPOSITE') + ')', viz.width / 2, 38, actual ? viz.colors.green : viz.colors.red, 11);
 
-                            var visible = sequence.slice(0, stepIdx + 1);
-                            var yStart = padT + 20;
-                            var lineH = 36;
+                            // Draw results as a table
+                            var startY = 65;
+                            var rowH = 28;
+                            ctx.font = '11px -apple-system,sans-serif';
+                            ctx.textAlign = 'left';
 
-                            visible.forEach(function(s, i) {
-                                var y = yStart + i * lineH;
-                                var col = s.type === 'fail' ? viz.colors.red :
-                                          s.type === 'pass' ? viz.colors.green :
-                                          s.type === 'info' ? viz.colors.yellow : viz.colors.blue;
+                            // Header
+                            ctx.fillStyle = viz.colors.text;
+                            ctx.fillText('Base a', 30, startY);
+                            ctx.fillText('Verdict', 120, startY);
+                            ctx.fillText('Reason', 230, startY);
 
-                                // Box
-                                ctx.fillStyle = col + '22';
-                                ctx.fillRect(padL, y, viz.width - 2 * padL, lineH - 4);
-                                ctx.strokeStyle = col; ctx.lineWidth = 1;
-                                ctx.strokeRect(padL, y, viz.width - 2 * padL, lineH - 4);
+                            ctx.strokeStyle = viz.colors.grid;
+                            ctx.lineWidth = 0.5;
+                            ctx.beginPath();
+                            ctx.moveTo(20, startY + 8);
+                            ctx.lineTo(540, startY + 8);
+                            ctx.stroke();
 
-                                // Text
-                                ctx.fillStyle = col; ctx.font = '12px -apple-system,sans-serif';
-                                ctx.textAlign = 'left'; ctx.textBaseline = 'middle';
-                                ctx.fillText('\u2192 ' + s.label, padL + 10, y + (lineH - 4) / 2);
-                            });
+                            var composite = false;
+                            for (var i = 0; i < results.length; i++) {
+                                var r = results[i];
+                                var ry = startY + (i + 1) * rowH;
 
-                            // Result
-                            if (stepIdx === sequence.length - 1) {
-                                var col = result === 'composite' ? viz.colors.red : viz.colors.green;
-                                viz.screenText('Result: N = ' + N + ' is ' + result.toUpperCase(), viz.width / 2, viz.height - 20, col, 14);
+                                ctx.fillStyle = viz.colors.white;
+                                ctx.fillText('a = ' + r.base, 30, ry);
+
+                                if (r.prime) {
+                                    ctx.fillStyle = viz.colors.green;
+                                    ctx.fillText('Prob. Prime', 120, ry);
+                                } else {
+                                    ctx.fillStyle = viz.colors.red;
+                                    ctx.fillText('COMPOSITE', 120, ry);
+                                    composite = true;
+                                }
+
+                                ctx.fillStyle = viz.colors.text;
+                                ctx.fillText(r.reason, 230, ry);
+                            }
+
+                            // Summary
+                            var summY = startY + (results.length + 2) * rowH;
+                            if (composite) {
+                                viz.screenText('Verdict: COMPOSITE (detected by at least one base)', viz.width / 2, summY, viz.colors.red, 13);
+                            } else if (results.length > 0) {
+                                viz.screenText('Verdict: Probably prime (passed all ' + results.length + ' bases)', viz.width / 2, summY, viz.colors.green, 13);
+                            }
+
+                            // Note for Carmichael numbers
+                            if (testN === 561 || testN === 1105 || testN === 1729) {
+                                viz.screenText('Note: ' + testN + ' is a Carmichael number (passes Fermat, fails Miller-Rabin)', viz.width / 2, summY + 20, viz.colors.orange, 10);
                             }
                         }
-
-                        rebuild();
-
-                        var NInput = document.createElement('input');
-                        NInput.type = 'number'; NInput.value = N; NInput.min = 3; NInput.max = 99999;
-                        NInput.style.cssText = 'width:90px;padding:3px 6px;border:1px solid #30363d;border-radius:4px;background:#0c0c20;color:#c9d1d9;font-size:0.78rem;';
-                        var aInput = document.createElement('input');
-                        aInput.type = 'number'; aInput.value = a; aInput.min = 2; aInput.max = 99;
-                        aInput.style.cssText = 'width:60px;padding:3px 6px;border:1px solid #30363d;border-radius:4px;background:#0c0c20;color:#c9d1d9;font-size:0.78rem;margin-left:8px;';
-                        var span = document.createElement('span');
-                        span.style.cssText = 'font-size:0.78rem;color:#8b949e;';
-                        span.textContent = ' N: ';
-                        var span2 = document.createElement('span');
-                        span2.style.cssText = 'font-size:0.78rem;color:#8b949e;margin-left:8px;';
-                        span2.textContent = ' a: ';
-                        controls.appendChild(span); controls.appendChild(NInput);
-                        controls.appendChild(span2); controls.appendChild(aInput);
-
-                        VizEngine.createButton(controls, 'Set', function() {
-                            var nv = parseInt(NInput.value);
-                            var av = parseInt(aInput.value);
-                            if (nv >= 3 && av >= 2 && av < nv) {
-                                N = nv; a = av;
-                                rebuild(); draw();
-                            }
-                        });
-
-                        VizEngine.createButton(controls, 'Next Step', function() {
-                            if (stepIdx < sequence.length - 1) { stepIdx++; draw(); }
-                        });
-                        VizEngine.createButton(controls, 'Reset', function() {
-                            stepIdx = 0; draw();
-                        });
-
-                        draw();
+                        runTest();
                         return viz;
                     }
                 }
             ],
             exercises: [
                 {
-                    question: 'Show that \\(N = 341 = 11 \\times 31\\) passes the Fermat test to base 2 (i.e., \\(2^{340} \\equiv 1 \\pmod{341}\\)) but fails the Miller-Rabin test to base 2.',
-                    hint: 'Write \\(340 = 4 \\times 85\\). Compute \\(2^{85} \\pmod{341}\\), then square repeatedly.',
-                    solution: 'Since \\(2^{10} = 1024 = 3 \\times 341 + 1\\), we have \\(2^{10} \\equiv 1 \\pmod{341}\\). Then \\(2^{340} = (2^{10})^{34} \\equiv 1 \\pmod{341}\\), so 341 passes Fermat. For Miller-Rabin: \\(340 = 2^2 \\times 85\\). Compute \\(2^{85} \\pmod{341}\\): \\(85 = 64 + 16 + 4 + 1\\), so \\(2^{85} = 2^{64} \\cdot 2^{16} \\cdot 2^4 \\cdot 2\\). Since \\(2^{10} \\equiv 1\\), \\(2^{16} \\equiv 2^6 = 64\\), \\(2^{64} \\equiv 2^4 = 16\\), \\(2^{85} \\equiv 16 \\cdot 64 \\cdot 16 \\cdot 2 = 32768 \\equiv 32768 - 96\\times341 = 32768 - 32736 = 32 \\pmod{341}\\). Since \\(32 \\neq \\pm 1 \\pmod{341}\\), we square: \\(32^2 = 1024 \\equiv 1 \\pmod{341}\\). We got \\(1\\) without passing through \\(-1\\), so 2 is a Miller-Rabin witness and 341 is exposed as composite.'
+                    question: 'Verify that 561 is a Carmichael number by checking (a) it is composite, and (b) \\(a^{560} \\equiv 1 \\pmod{561}\\) for \\(a = 2\\). Then show the Miller-Rabin test with base 2 correctly identifies 561 as composite.',
+                    hint: '\\(561 = 3 \\times 11 \\times 17\\). For Miller-Rabin: \\(560 = 2^4 \\times 35\\). Compute \\(2^{35} \\pmod{561}\\), then square repeatedly.',
+                    solution: '(a) \\(561 = 3 \\times 11 \\times 17\\), so it is composite. (b) By CRT, \\(2^{560} \\equiv (2^2)^{280} \\equiv 1^{280} \\equiv 1 \\pmod{3}\\), and similarly mod 11 and 17, so \\(2^{560} \\equiv 1 \\pmod{561}\\) (Carmichael). For Miller-Rabin: \\(560 = 2^4 \\times 35\\). We compute \\(2^{35} \\equiv 263 \\pmod{561}\\). Then \\(263^2 \\equiv 166 \\pmod{561}\\), \\(166^2 \\equiv 67 \\pmod{561}\\), \\(67^2 \\equiv 1 \\pmod{561}\\). Since \\(67 \\not\\equiv \\pm 1 \\pmod{561}\\) but \\(67^2 \\equiv 1\\), we found a non-trivial square root of 1, proving 561 is composite.'
                 },
                 {
-                    question: 'The AKS algorithm runs in \\(O((\\log N)^6)\\) time. If checking a 1000-bit number takes 1 second, estimate how long it would take for a 10000-bit number.',
-                    hint: 'The ratio of times is \\((\\log N_2 / \\log N_1)^6\\).',
-                    solution: 'The ratio of log-sizes is \\(10000/1000 = 10\\). The time ratio is \\(10^6\\). So the 10000-bit number takes \\(10^6\\) seconds \\(\\approx 11.6\\) days. In contrast, Miller-Rabin with \\(k\\) rounds runs in \\(O(k (\\log N)^2 \\log\\log N)\\) time (for each modular exponentiation), so the same ratio is about \\(100\\times\\) slower, taking roughly 100 seconds. This illustrates why Miller-Rabin dominates in practice.'
+                    question: 'Explain the key idea behind AKS: how does reducing \\((x+a)^n \\pmod{x^r - 1, n}\\) make the test polynomial-time?',
+                    hint: 'The identity \\((x+a)^n = x^n + a\\) in \\(\\mathbb{Z}_n[x]\\) has \\(n+1\\) coefficients. Working modulo \\(x^r - 1\\) reduces this to \\(r\\) coefficients.',
+                    solution: 'The identity \\((x+a)^n \\equiv x^n + a \\pmod{n}\\) characterizes primes but checking it requires computing a polynomial of degree \\(n\\), which is exponential in \\(\\log n\\). Working modulo \\(x^r - 1\\) for \\(r = O(\\log^5 n)\\) reduces all polynomials to degree \\(< r\\), making each arithmetic operation take \\(O(r \\log n)\\) time. AKS shows that checking \\(O(\\sqrt{r} \\log n)\\) values of \\(a\\) suffices, giving total complexity \\(O(r^{3/2} \\log^3 n) = O(\\log^{10.5} n)\\), later improved to \\(\\tilde{O}(\\log^6 n)\\).'
                 }
             ]
         },
 
         // ================================================================
-        // SECTION 6: What Remains Open
+        // SECTION 6: Bridge — Computation and Conjecture
         // ================================================================
         {
             id: 'sec-bridge',
-            title: 'What Remains Open',
+            title: 'Bridge: Computation & Conjecture',
             content: `
-<h2>What Remains Open: The Bridge Between Machine and Proof</h2>
+<h2>Bridge: Computation and Conjecture</h2>
 
-<p>Computation has verified the Riemann Hypothesis for the first \\(10^{13}\\) zeros, established the twin prime conjecture for all primes up to \\(10^{15}\\) (in the weak sense of gaps), and computed \\(\\pi(x)\\) for \\(x\\) up to \\(10^{28}\\). Yet none of these computations constitutes a proof. What is the relationship between what machines can do and what we can prove?</p>
+<div class="env-block intuition">
+    <div class="env-title">The Role of Computation</div>
+    <div class="env-body">
+        <p>We have seen computation as verification (checking RH for \\(10^{13}\\) zeros), as evaluation (computing \\(\\pi(10^{25})\\)), and as classification (testing primality). But computation also plays a creative role: it discovers patterns, suggests conjectures, and occasionally shatters them.</p>
+    </div>
+</div>
 
-<h3>Three Open Problems at the Interface</h3>
+<h3>Computation as Discovery: Zero Spacings and Random Matrices</h3>
 
-<p><strong>1. The Riemann Hypothesis.</strong> Computational evidence is overwhelming: no counterexample has been found among the first \\(10^{13}\\) zeros, the zeros show the predicted GUE spacing statistics, and every analytic number theory theorem with an RH-conditional form has been numerically confirmed. Yet the problem remains open. The computational evidence changes our beliefs but not the mathematical status.</p>
+<p>In the 1970s, Montgomery studied the pair correlation of zeta zeros: the statistical distribution of gaps between consecutive zeros \\(\\gamma_n - \\gamma_m\\). He found (conditionally on RH) that the pair correlation function is:</p>
+\\[
+1 - \\left(\\frac{\\sin \\pi u}{\\pi u}\\right)^2
+\\]
+<p>for test functions supported in \\((-1, 1)\\). At a famous tea-time encounter, Freeman Dyson recognized this as the pair correlation of eigenvalues of large random unitary matrices (GUE). This unexpected connection, discovered through numerical computation, revolutionized the field.</p>
 
-<p><strong>2. Factoring and the P vs. NP Question.</strong> The best known factoring algorithm (the Number Field Sieve) runs in \\(L(1/3, c) = \\exp(c(\\log N)^{1/3}(\\log\\log N)^{2/3})\\) time, subexponential but not polynomial. Whether integer factorization is in P is unknown. The security of RSA encryption depends on factoring being hard. Shor's quantum algorithm factors in polynomial time on a quantum computer, but building a large-scale quantum computer is an engineering problem not yet solved.</p>
+<p>Odlyzko's monumental computations of zeros near the \\(10^{20}\\)-th zero confirmed the GUE prediction with stunning precision, far beyond what Montgomery's conditional theorem covered. The data is so compelling that the random matrix connection is now a central paradigm in number theory, despite remaining largely unproved.</p>
 
-<p><strong>3. The Integer Factorization of \\(\\pi(x)\\) Formula.</strong> Computing \\(\\pi(10^{28})\\) requires algorithms whose correctness rests on the output of sieves that are themselves not rigorously certified. The Lucy-Hedgehog method and Deleglise-Rivat algorithm have been verified to \\(10^{23}\\) with independent checks, but formal verification (in the sense of a proof assistant like Lean or Coq) has not been achieved.</p>
+<h3>Computation as Destruction: The Mertens Conjecture</h3>
 
-<h3>Computational Complexity as Analytic Number Theory</h3>
+<p>The Mertens conjecture asserted that \\(|M(x)| \\leq \\sqrt{x}\\) for all \\(x \\geq 1\\), where \\(M(x) = \\sum_{n \\leq x} \\mu(n)\\). If true, it would imply RH. Odlyzko and te Riele (1985) disproved it computationally, showing (via the oscillation of \\(M(x)\\) related to zeta zeros) that \\(|M(x)| > \\sqrt{x}\\) for some \\(x < e^{1.59 \\times 10^{40}}\\). The counterexample is far too large to exhibit directly, but the proof is rigorous.</p>
 
-<p>A deep theme: many complexity questions in number theory reduce to the distribution of primes. The Generalized Riemann Hypothesis implies deterministic Miller-Rabin (in \\(O((\\log N)^4)\\) with \\(O((\\log N)^2)\\) witnesses). The prime number theorem for arithmetic progressions controls the runtime of sieving algorithms. The Bateman-Horn conjecture predicts the density of prime values of polynomials, which would determine the expected running time of certain randomized algorithms. Analytic number theory and computational complexity are not separate disciplines.</p>
+<h3>The Skewes Number and \\(\\pi(x) > \\mathrm{li}(x)\\)</h3>
+
+<p>Littlewood (1914) proved that \\(\\pi(x) - \\mathrm{li}(x)\\) changes sign infinitely often, but his proof was non-constructive. The search for the first crossover point, the "Skewes number," has been a long computational quest. Current bounds place the first sign change below \\(e^{727.95} \\approx 1.4 \\times 10^{316}\\).</p>
+
+<h3>Open Computational Frontiers</h3>
+
+<ol>
+    <li><strong>Extend RH verification:</strong> Beyond \\(10^{13}\\) zeros, with rigorous error bounds.</li>
+    <li><strong>Compute \\(\\pi(x)\\) for \\(x > 10^{25}\\):</strong> Improving the Deleglise-Rivat algorithm.</li>
+    <li><strong>Zero spacings at extreme heights:</strong> Testing GUE predictions at \\(t \\sim 10^{30}\\).</li>
+    <li><strong>GRH verification:</strong> Extending zero verification to Dirichlet \\(L\\)-functions systematically.</li>
+    <li><strong>Maass forms and beyond:</strong> Computing eigenvalues and L-function zeros for automorphic forms.</li>
+</ol>
 
 <div class="env-block remark">
-    <div class="env-title">A Challenge for the Reader</div>
+    <div class="env-title">A Philosophical Note</div>
     <div class="env-body">
-        <p>The function \\(Z(t)\\) has been observed to have very small values (near-misses with zero) at points not on the critical line. These are called "near-zeros" and their distribution tells us about the spacing of zeta zeros. Write a program to evaluate \\(Z(t)\\) via the Riemann-Siegel formula for \\(t \\in [0, 200]\\) and find all local minima of \\(|Z(t)|\\). How many zeros do you find? Do any look anomalous?</p>
+        <p>None of these computations prove the Riemann Hypothesis. But as Polya said, "if you want to climb a mountain, look at it from afar before you try to climb it." Large-scale computation gives us a panoramic view of the landscape, revealing structure and suggesting paths that pure thought alone might miss. The history of analytic number theory shows that theory and computation advance together, each inspiring the other.</p>
     </div>
 </div>
 
@@ -1043,160 +1151,142 @@ a^d \\not\\equiv 1 \\pmod{N} \\quad\\text{and}\\quad a^{2^r d} \\not\\equiv -1 \
                 {
                     id: 'viz-z-interactive',
                     title: 'Interactive Z(t) Explorer',
-                    description: 'Type any value of t and compute Z(t) using the Riemann-Siegel formula. The panel shows the partial sums, the Gram index, and whether the point is near a zero.',
+                    description: 'Drag the blue point along the t-axis to explore \\(Z(t)\\) interactively. The panel shows the current value, nearby zeros, and the Gram point structure. Explore the first Gram law violation near t = 282.',
                     setup: function(body, controls) {
-                        var viz = new VizEngine(body, { width: 680, height: 360, originX: 340, originY: 20, scale: 1 });
-
-                        var tVal = 14.134725;
+                        var viz = new VizEngine(body, {
+                            width: 560, height: 380,
+                            originX: 0, originY: 0, scale: 1
+                        });
 
                         function theta(t) {
-                            if (t <= 0) return 0;
-                            return t / 2 * Math.log(t / (2 * Math.PI * Math.E)) - Math.PI / 8;
+                            if (t < 1) return 0;
+                            return (t / 2) * Math.log(t / (2 * Math.PI)) - t / 2 - Math.PI / 8 + 1 / (48 * t);
                         }
 
-                        function computeZDetailed(t) {
-                            if (t <= 0) return { z: 0, N: 0, terms: [], theta: 0 };
-                            var N = Math.max(1, Math.floor(Math.sqrt(t / (2 * Math.PI))));
+                        function Z(t) {
+                            if (t < 2) return 0;
+                            var N = Math.floor(Math.sqrt(t / (2 * Math.PI)));
+                            if (N < 1) N = 1;
                             var th = theta(t);
                             var sum = 0;
-                            var terms = [];
                             for (var n = 1; n <= N; n++) {
-                                var term = Math.cos(th - t * Math.log(n)) / Math.sqrt(n);
-                                sum += term;
-                                terms.push({ n: n, term: term, partial: 2 * sum });
+                                sum += Math.cos(th - t * Math.log(n)) / Math.sqrt(n);
                             }
-                            return { z: 2 * sum, N: N, terms: terms, theta: th };
+                            return 2 * sum;
                         }
 
-                        function gramIndex(t) {
-                            var th = theta(t);
-                            return Math.floor(th / Math.PI);
-                        }
+                        var tCenter = 25;
+                        var windowSize = 30;
+
+                        VizEngine.createSlider(controls, 't-center', 5, 300, tCenter, 1, function(v) {
+                            tCenter = v;
+                            draw();
+                        });
+
+                        VizEngine.createSlider(controls, 'window', 10, 80, windowSize, 5, function(v) {
+                            windowSize = v;
+                            draw();
+                        });
 
                         function draw() {
                             viz.clear();
                             var ctx = viz.ctx;
-                            var info = computeZDetailed(tVal);
-                            var padL = 60, padR = 30, padT = 45, padB = 50;
-                            var W = viz.width - padL - padR;
-                            var H = viz.height - padT - padB;
+                            var tMin = Math.max(2, tCenter - windowSize / 2);
+                            var tMax = tCenter + windowSize / 2;
+                            var pad = 50;
+                            var plotW = viz.width - pad - 20;
+                            var plotH = viz.height - 100;
+                            var plotTop = 50;
+                            var plotLeft = pad;
+                            var zeroY = plotTop + plotH / 2;
 
-                            viz.screenText('Z(t) Interactive Explorer', viz.width / 2, 14, viz.colors.white, 14);
+                            viz.screenText('Z(t) Explorer', viz.width / 2, 15, viz.colors.white, 14);
 
-                            // Draw partial sum convergence
-                            var termH = H * 0.6;
-                            var termW = W;
-                            var maxAbs = 1;
-                            info.terms.forEach(function(t) { maxAbs = Math.max(maxAbs, Math.abs(t.partial)); });
-                            maxAbs *= 1.2;
+                            // Evaluate Z(t)
+                            var pts = [];
+                            var steps = 400;
+                            var yRange = 0;
+                            for (var i = 0; i <= steps; i++) {
+                                var t = tMin + (tMax - tMin) * i / steps;
+                                var z = Z(t);
+                                if (Math.abs(z) > 50) z = z > 0 ? 50 : -50;
+                                pts.push({t: t, z: z});
+                                yRange = Math.max(yRange, Math.abs(z));
+                            }
+                            yRange = Math.max(yRange, 1);
 
-                            // Partial sum axis
-                            ctx.strokeStyle = viz.colors.axis; ctx.lineWidth = 1.5;
-                            ctx.beginPath(); ctx.moveTo(padL, padT + termH / 2); ctx.lineTo(padL + termW, padT + termH / 2); ctx.stroke();
-                            ctx.beginPath(); ctx.moveTo(padL, padT); ctx.lineTo(padL, padT + termH); ctx.stroke();
+                            // Zero line
+                            ctx.strokeStyle = viz.colors.axis;
+                            ctx.lineWidth = 1;
+                            ctx.beginPath();
+                            ctx.moveTo(plotLeft, zeroY);
+                            ctx.lineTo(plotLeft + plotW, zeroY);
+                            ctx.stroke();
 
-                            // Y grid
-                            ctx.fillStyle = viz.colors.text; ctx.font = '10px -apple-system,sans-serif';
-                            ctx.textAlign = 'right'; ctx.textBaseline = 'middle';
-                            var gridVals = [-Math.round(maxAbs), 0, Math.round(maxAbs)];
-                            gridVals.forEach(function(v) {
-                                var yy = padT + termH / 2 - v / maxAbs * termH / 2;
-                                ctx.fillText(v.toFixed(1), padL - 4, yy);
-                                ctx.strokeStyle = viz.colors.grid; ctx.lineWidth = 0.4;
-                                ctx.beginPath(); ctx.moveTo(padL, yy); ctx.lineTo(padL + termW, yy); ctx.stroke();
-                            });
+                            // Plot
+                            ctx.strokeStyle = viz.colors.blue;
+                            ctx.lineWidth = 2;
+                            ctx.beginPath();
+                            var started = false;
+                            var zeros = [];
+                            for (var i = 0; i <= steps; i++) {
+                                var px = plotLeft + (pts[i].t - tMin) / (tMax - tMin) * plotW;
+                                var py = zeroY - (pts[i].z / yRange) * (plotH / 2);
+                                py = Math.max(plotTop, Math.min(plotTop + plotH, py));
+                                if (!started) { ctx.moveTo(px, py); started = true; }
+                                else ctx.lineTo(px, py);
 
-                            // Partial sum line
-                            if (info.terms.length > 0) {
-                                ctx.strokeStyle = viz.colors.blue; ctx.lineWidth = 2;
-                                ctx.beginPath();
-                                info.terms.forEach(function(pt, i) {
-                                    var cx = padL + (i + 1) / info.N * termW;
-                                    var cy = padT + termH / 2 - pt.partial / maxAbs * termH / 2;
-                                    cy = Math.max(padT, Math.min(padT + termH, cy));
-                                    i === 0 ? ctx.moveTo(cx, cy) : ctx.lineTo(cx, cy);
-                                });
-                                ctx.stroke();
+                                if (i > 0 && pts[i].z * pts[i-1].z < 0) {
+                                    var tCross = pts[i-1].t + (pts[i].t - pts[i-1].t) * Math.abs(pts[i-1].z) / (Math.abs(pts[i-1].z) + Math.abs(pts[i].z));
+                                    zeros.push(tCross);
+                                }
+                            }
+                            ctx.stroke();
 
-                                // Final value dot
-                                var finalX = padL + termW;
-                                var finalY = padT + termH / 2 - info.z / maxAbs * termH / 2;
-                                finalY = Math.max(padT, Math.min(padT + termH, finalY));
+                            // Zero markers
+                            for (var j = 0; j < zeros.length; j++) {
+                                var zx = plotLeft + (zeros[j] - tMin) / (tMax - tMin) * plotW;
                                 ctx.fillStyle = viz.colors.orange;
-                                ctx.beginPath(); ctx.arc(finalX - 4, finalY, 6, 0, Math.PI * 2); ctx.fill();
+                                ctx.beginPath();
+                                ctx.arc(zx, zeroY, 4, 0, Math.PI * 2);
+                                ctx.fill();
                             }
 
-                            // X label
-                            ctx.fillStyle = viz.colors.text; ctx.font = '10px -apple-system,sans-serif';
-                            ctx.textAlign = 'center'; ctx.textBaseline = 'top';
-                            ctx.fillText('term index n (1 to N=' + info.N + ')', padL + termW / 2, padT + termH + 6);
+                            // Current t marker
+                            var curX = plotLeft + (tCenter - tMin) / (tMax - tMin) * plotW;
+                            var curZ = Z(tCenter);
+                            var curY = zeroY - (curZ / yRange) * (plotH / 2);
+                            curY = Math.max(plotTop, Math.min(plotTop + plotH, curY));
+
+                            ctx.strokeStyle = viz.colors.teal;
+                            ctx.lineWidth = 1;
+                            ctx.setLineDash([4, 3]);
+                            ctx.beginPath();
+                            ctx.moveTo(curX, plotTop);
+                            ctx.lineTo(curX, plotTop + plotH);
+                            ctx.stroke();
+                            ctx.setLineDash([]);
+
+                            ctx.fillStyle = viz.colors.teal;
+                            ctx.beginPath();
+                            ctx.arc(curX, curY, 5, 0, Math.PI * 2);
+                            ctx.fill();
 
                             // Info panel
-                            var infoY = padT + termH + 28;
-                            var items = [
-                                { label: 't =', val: tVal.toFixed(6) },
-                                { label: '\u03B8(t) =', val: info.theta.toFixed(4) },
-                                { label: 'N = \u230Asqrt(t/2\u03C0)\u230B =', val: info.N },
-                                { label: 'Z(t) =', val: info.z.toFixed(6) },
-                                { label: 'Gram index =', val: gramIndex(tVal) },
-                                { label: '|Z(t)| =', val: Math.abs(info.z).toFixed(6) }
-                            ];
+                            var infoY = viz.height - 35;
+                            viz.screenText('t = ' + tCenter.toFixed(1) + '    Z(t) = ' + curZ.toFixed(4) + '    Zeros in view: ' + zeros.length, viz.width / 2, infoY, viz.colors.white, 11);
 
-                            var col = Math.abs(info.z) < 0.5 ? viz.colors.orange : (Math.abs(info.z) < 0.01 ? viz.colors.red : viz.colors.green);
-                            var colLabel = Math.abs(info.z) < 0.01 ? 'ZERO' : Math.abs(info.z) < 0.5 ? 'near zero' : 'non-zero';
-
-                            var ix = padL;
-                            var iw = (W - 20) / 3;
-                            items.forEach(function(item, i) {
-                                var col2 = i >= 4 ? viz.colors.teal : viz.colors.text;
-                                ctx.fillStyle = '#1a1a40';
-                                ctx.fillRect(ix + (i % 3) * (iw + 10), infoY + Math.floor(i / 3) * 28, iw, 22);
-                                ctx.strokeStyle = viz.colors.grid; ctx.lineWidth = 0.5;
-                                ctx.strokeRect(ix + (i % 3) * (iw + 10), infoY + Math.floor(i / 3) * 28, iw, 22);
-                                ctx.fillStyle = col2; ctx.font = '11px -apple-system,sans-serif';
-                                ctx.textAlign = 'left'; ctx.textBaseline = 'middle';
-                                ctx.fillText(item.label + ' ' + item.val, ix + (i % 3) * (iw + 10) + 6, infoY + Math.floor(i / 3) * 28 + 11);
-                            });
-
-                            // Status badge
-                            ctx.fillStyle = col;
-                            ctx.font = 'bold 12px -apple-system,sans-serif';
-                            ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
-                            viz.screenText(colLabel, padL + W - 50, infoY + 22, col, 12);
-
-                            // Title for partial sum
-                            viz.screenText('Partial sums of Riemann-Siegel formula (building Z(t))', viz.width / 2, padT - 6, viz.colors.text, 11);
+                            // t-axis labels
+                            ctx.fillStyle = viz.colors.text;
+                            ctx.font = '10px -apple-system,sans-serif';
+                            ctx.textAlign = 'center';
+                            ctx.textBaseline = 'top';
+                            var tStep = Math.max(1, Math.ceil(windowSize / 10));
+                            for (var t = Math.ceil(tMin / tStep) * tStep; t <= tMax; t += tStep) {
+                                var tx = plotLeft + (t - tMin) / (tMax - tMin) * plotW;
+                                ctx.fillText(t.toFixed(0), tx, zeroY + plotH / 2 + 5);
+                            }
                         }
-
-                        var tInput = document.createElement('input');
-                        tInput.type = 'number'; tInput.value = tVal; tInput.step = 0.1; tInput.min = 1; tInput.max = 1000;
-                        tInput.style.cssText = 'width:120px;padding:3px 8px;border:1px solid #30363d;border-radius:4px;background:#0c0c20;color:#c9d1d9;font-size:0.78rem;';
-                        var span = document.createElement('span');
-                        span.style.cssText = 'font-size:0.78rem;color:#8b949e;margin-right:6px;';
-                        span.textContent = 't = ';
-                        controls.appendChild(span); controls.appendChild(tInput);
-
-                        VizEngine.createButton(controls, 'Compute Z(t)', function() {
-                            var v = parseFloat(tInput.value);
-                            if (v > 0) { tVal = v; draw(); }
-                        });
-
-                        // Quick-jump buttons for known zeros
-                        var knownZeros = [14.135, 21.022, 25.011, 30.425, 32.935];
-                        var quickDiv = document.createElement('span');
-                        quickDiv.style.cssText = 'font-size:0.75rem;color:#8b949e;margin-left:10px;';
-                        quickDiv.textContent = 'Zeros: ';
-                        controls.appendChild(quickDiv);
-                        knownZeros.forEach(function(z) {
-                            var btn = document.createElement('button');
-                            btn.textContent = z.toFixed(3);
-                            btn.style.cssText = 'margin:0 2px;padding:2px 6px;font-size:0.72rem;border:1px solid #30363d;border-radius:3px;background:#0c0c20;color:#58a6ff;cursor:pointer;';
-                            btn.addEventListener('click', function() {
-                                tVal = z; tInput.value = z; draw();
-                            });
-                            controls.appendChild(btn);
-                        });
-
                         draw();
                         return viz;
                     }
@@ -1204,19 +1294,19 @@ a^d \\not\\equiv 1 \\pmod{N} \\quad\\text{and}\\quad a^{2^r d} \\not\\equiv -1 \
             ],
             exercises: [
                 {
-                    question: 'The first zero of \\(\\zeta(s)\\) on the critical line is at \\(t_1 \\approx 14.134725\\). Use the formula \\(N(T) \\approx \\frac{T}{2\\pi}\\ln\\frac{T}{2\\pi e} + 7/8\\) to estimate how many zeros have imaginary part less than \\(T = 1000\\).',
-                    hint: 'Plug \\(T = 1000\\) into the formula.',
-                    solution: '\\(N(1000) \\approx \\frac{1000}{2\\pi}\\ln\\frac{1000}{2\\pi e} + \\frac{7}{8} \\approx 159.15 \\times \\ln(58.7) + 0.875 \\approx 159.15 \\times 4.073 + 0.875 \\approx 648.4 + 0.875 \\approx 649\\). The actual count is 649, so the formula is remarkably accurate even at this modest height.'
+                    question: 'The Montgomery-Dyson pair correlation conjecture predicts that the normalized spacings between consecutive zeta zeros follow GUE statistics. What is the predicted probability of a normalized gap \\(\\delta < 0.5\\) between consecutive zeros?',
+                    hint: 'Under GUE, very small gaps are highly unlikely; the probability density vanishes as \\(\\delta^2\\) for small \\(\\delta\\). This is "level repulsion." Numerically, \\(P(\\delta < 0.5) \\approx 0.11\\).',
+                    solution: 'Under GUE statistics, the nearest-neighbor spacing distribution has density approximately \\(p(s) = (32/\\pi^2) s^2 e^{-4s^2/\\pi}\\) (the Wigner surmise). This gives \\(P(\\delta < 0.5) \\approx 0.11\\), reflecting level repulsion: zeros of \\(\\zeta\\) resist clustering, unlike Poisson-distributed points where \\(P(\\delta < 0.5) \\approx 0.39\\). Odlyzko\'s computation of \\(10^6\\) zeros near \\(\\gamma_{10^{20}}\\) confirmed this with striking accuracy.'
                 },
                 {
-                    question: "The Number Field Sieve factors an \\(n\\)-bit integer in time \\(\\exp(O(n^{1/3}(\\log n)^{2/3}))\\). For a 2048-bit RSA modulus, this is roughly \\(\\exp(2^{11} \\cdot 7.3) \\approx \\exp(1490)\\) operations. If a computer performs \\(10^{15}\\) operations per second, how long would this take?",
-                    hint: 'Convert operations to seconds: time = operations / speed.',
-                    solution: '\\(\\exp(1490)\\) operations at \\(10^{15}\\) per second takes \\(\\exp(1490) / 10^{15}\\) seconds. Converting: \\(\\exp(1490) = 10^{1490/\\ln 10} = 10^{647}\\). So time \\(= 10^{647-15} = 10^{632}\\) seconds. The age of the universe is roughly \\(4 \\times 10^{17}\\) seconds, so this is \\(10^{614}\\) times the age of the universe. This is why 2048-bit RSA is considered secure against classical computers. A quantum computer running Shor\'s algorithm would factor the same number in polynomial time (roughly \\(O((2048)^3) \\approx 10^{10}\\) operations), taking about 10 seconds.'
+                    question: 'Why does the disproof of the Mertens conjecture not disprove the Riemann Hypothesis, even though the Mertens conjecture implies RH?',
+                    hint: 'Implication goes one way: Mertens \\(\\Rightarrow\\) RH. The contrapositive is: not-RH \\(\\Rightarrow\\) not-Mertens. So disproving Mertens tells us nothing about RH.',
+                    solution: 'The logical relationship is: Mertens conjecture \\(\\Rightarrow\\) RH. The contrapositive is \\(\\neg\\)RH \\(\\Rightarrow\\) \\(\\neg\\)Mertens. Disproving Mertens (\\(\\neg\\)Mertens) does not yield \\(\\neg\\)RH by any valid logical deduction. It simply means the Mertens bound was too strong. RH could still hold even though \\(|M(x)|/\\sqrt{x}\\) occasionally exceeds 1. In fact, current belief is that \\(|M(x)| = O(x^{1/2+\\varepsilon})\\) for every \\(\\varepsilon > 0\\) (which follows from RH), but the implied constant can exceed 1.'
                 },
                 {
-                    question: 'Explain in plain terms why verifying RH for the first \\(10^{13}\\) zeros is not sufficient to prove it for all zeros.',
-                    hint: 'Think about the structure of the set of all zeros.',
-                    solution: 'The zeros of \\(\\zeta(s)\\) form a countably infinite set with imaginary parts growing without bound. Verifying RH for the first \\(10^{13}\\) zeros establishes that \\(\\text{Re}(\\rho) = 1/2\\) for all \\(\\rho\\) with \\(0 < \\text{Im}(\\rho) \\leq T_0\\) for some \\(T_0 \\approx 3 \\times 10^{12}\\). But a counterexample could lie at any height \\(t > T_0\\). There are infinitely many zeros yet to check, and no pattern argument currently available allows extrapolation: the distribution of zeros could conceivably change character at some very large height. In fact, zeros grow harder to compute as \\(t \\to \\infty\\) (the Riemann-Siegel formula requires more terms), and the density of zeros grows as \\(\\frac{1}{2\\pi}\\log t\\), so each unit interval contains more zeros at larger heights.'
+                    question: 'Summarize the computational evidence for RH as of 2020. What has been verified, and what remains unproven?',
+                    hint: 'Distinguish between numerical verification (checking zeros) and theoretical status.',
+                    solution: 'As of 2020: (1) All nontrivial zeros of \\(\\zeta(s)\\) with \\(|\\operatorname{Im}(s)| < T\\) for \\(T \\approx 3 \\times 10^{12}\\) have been verified to lie on the critical line (Platt-Trudgian, with rigorous error bounds). This accounts for over \\(10^{13}\\) zeros. (2) Zero spacings near \\(\\gamma_{10^{20}}\\) match GUE predictions (Odlyzko). (3) No theoretical proof of RH exists, not even for a single non-trivial zero. The gap between "verified for \\(10^{13}\\) zeros" and "proved for all zeros" remains as wide as ever. Analytic number theory has made RH plausible but not proved it.'
                 }
             ]
         }
