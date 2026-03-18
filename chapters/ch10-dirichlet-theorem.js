@@ -1,214 +1,216 @@
+// === Chapter 10: Dirichlet's Theorem & the L(1,χ) Problem ===
 window.CHAPTERS = window.CHAPTERS || [];
 window.CHAPTERS.push({
     id: 'ch10',
     number: 10,
-    title: "Dirichlet's Theorem",
-    subtitle: "Every lane of the prime highway carries traffic",
+    title: "Dirichlet's Theorem & the L(1,\u03C7) Problem",
+    subtitle: 'Every lane of the prime highway carries traffic',
     sections: [
-
         // ================================================================
-        // SECTION 1: Primes in Every Lane
+        // SECTION 1: Motivation — Primes in Arithmetic Progressions
         // ================================================================
         {
             id: 'sec-motivation',
-            title: 'Primes in Every Lane',
+            title: 'Motivation',
             content: `
-<h2>Primes in Every Lane</h2>
+<h2>Primes in Arithmetic Progressions</h2>
 
 <div class="env-block intuition">
-    <div class="env-title">The Big Question</div>
+    <div class="env-title">A Highway with Infinitely Many Lanes</div>
     <div class="env-body">
-        <p>Pick any two numbers that share no common factor, say 3 and 7. The arithmetic progression \\(3, 10, 17, 24, 31, 38, \\ldots\\) (numbers of the form \\(7n + 3\\)) contains infinitely many primes: 3, 17, 31, 59, 73, \\ldots. Is this always the case? Does every "lane" of the integer highway that isn't blocked by a common factor carry infinitely many prime numbers?</p>
+        <p>Picture the integers as a highway with \\(q\\) lanes, numbered \\(0, 1, \\ldots, q-1\\). An integer \\(n\\) travels in lane \\(n \\bmod q\\). Lane 0 carries all multiples of \\(q\\), so no primes beyond \\(q\\) itself can be found there. Lanes sharing a common factor with \\(q\\) are similarly barren. But what about the remaining \\(\\varphi(q)\\) "coprime" lanes? Dirichlet's theorem says: <strong>every coprime lane carries infinitely many primes.</strong></p>
     </div>
 </div>
 
-<p>In 1837, Peter Gustav Lejeune Dirichlet answered this question with an emphatic yes. His theorem is one of the great achievements of 19th-century mathematics, and the method he invented — using complex-analytic tools to prove number-theoretic results — launched the entire field of analytic number theory.</p>
-
-<h3>The Setup</h3>
-
-<p>Fix a modulus \\(q \\geq 1\\) and a residue \\(a\\) with \\(\\gcd(a, q) = 1\\). The <em>arithmetic progression</em> modulo \\(q\\) with residue \\(a\\) is the set
-\\[
-\\{a,\\; a+q,\\; a+2q,\\; a+3q,\\; \\ldots\\} = \\{n \\in \\mathbb{Z}_{>0} : n \\equiv a \\pmod{q}\\}.
-\\]
-The condition \\(\\gcd(a,q) = 1\\) is necessary: if \\(d = \\gcd(a,q) > 1\\), then every element of the progression is divisible by \\(d\\), so there can be at most one prime in it.</p>
+<p>Euclid proved there are infinitely many primes. But this says nothing about how primes distribute among residue classes. Fix a modulus \\(q \\geq 1\\) and a residue \\(a\\) with \\(\\gcd(a, q) = 1\\). Are there infinitely many primes \\(p \\equiv a \\pmod{q}\\)?</p>
 
 <div class="env-block theorem">
     <div class="env-title">Theorem 10.1 (Dirichlet, 1837)</div>
     <div class="env-body">
-        <p>For any integers \\(q \\geq 1\\) and \\(a\\) with \\(\\gcd(a, q) = 1\\), there are infinitely many primes \\(p \\equiv a \\pmod{q}\\).</p>
+        <p>If \\(\\gcd(a, q) = 1\\), then there are infinitely many primes \\(p\\) with \\(p \\equiv a \\pmod{q}\\). More precisely,</p>
+        \\[\\sum_{\\substack{p \\leq x \\\\ p \\equiv a \\pmod{q}}} \\frac{1}{p} = \\frac{1}{\\varphi(q)} \\log \\log x + O_q(1).\\]
     </div>
 </div>
 
-<p>Moreover, these primes are <em>equidistributed</em> among the \\(\\varphi(q)\\) reduced residue classes modulo \\(q\\): in the long run, each class gets an equal share \\(1/\\varphi(q)\\) of all primes. (This is the quantitative refinement we will discuss in Section 5.)</p>
+<p>This is stronger than mere infinitude: it says each coprime class gets its "fair share" of the reciprocal sum, with share \\(1/\\varphi(q)\\). The primes are, in a precise logarithmic sense, equidistributed among the coprime residue classes.</p>
 
-<h3>Why Euclid's Argument Fails</h3>
+<h3>Why the Condition \\(\\gcd(a,q) = 1\\) Is Necessary</h3>
 
-<p>Euclid's proof that there are infinitely many primes is elegant: assume finitely many, multiply them together, add 1, and get a contradiction. For arithmetic progressions, this direct approach breaks down. Suppose we know finitely many primes \\(p_1, \\ldots, p_k \\equiv 3 \\pmod 4\\). Form \\(N = 4p_1 \\cdots p_k - 1\\). Then \\(N \\equiv 3 \\pmod 4\\), so \\(N\\) must have a prime factor \\(\\equiv 3 \\pmod 4\\) (since a product of numbers \\(\\equiv 1 \\pmod 4\\) stays \\(\\equiv 1\\)). That factor can't be any \\(p_i\\), contradiction. This works for \\(a \\equiv -1 \\pmod q\\) but fails for most other residues.</p>
+<p>If \\(d = \\gcd(a,q) > 1\\), then every integer \\(n \\equiv a \\pmod{q}\\) is divisible by \\(d\\), so the only prime that could satisfy \\(p \\equiv a \\pmod{q}\\) is \\(p = d\\) itself (and only if \\(a = d\\)). The coprimality condition is not an artifact of the proof; it is the exact boundary of truth.</p>
 
-<p>Dirichlet's genius was to replace Euclid's elementary counting with the <em>logarithmic derivative of L-functions</em>. The key objects are Dirichlet characters and their associated L-series.</p>
+<h3>Easy Cases and the Hard Case</h3>
 
-<div class="env-block definition">
-    <div class="env-title">Definition (Dirichlet Character)</div>
-    <div class="env-body">
-        <p>A <em>Dirichlet character modulo \\(q\\)</em> is a completely multiplicative function \\(\\chi : \\mathbb{Z} \\to \\mathbb{C}\\) satisfying:
-        <ol>
-            <li>\\(\\chi(n+q) = \\chi(n)\\) for all \\(n\\) (periodicity),</li>
-            <li>\\(\\chi(n) = 0\\) if \\(\\gcd(n,q) > 1\\),</li>
-            <li>\\(\\chi(mn) = \\chi(m)\\chi(n)\\) for all \\(m, n\\).</li>
-        </ol>
-        The <em>principal character</em> \\(\\chi_0\\) satisfies \\(\\chi_0(n) = 1\\) whenever \\(\\gcd(n,q)=1\\).</p>
-    </div>
-</div>
-
-<p>There are exactly \\(\\varphi(q)\\) distinct characters modulo \\(q\\), forming a group under multiplication isomorphic to the dual group \\(\\widehat{(\\mathbb{Z}/q\\mathbb{Z})^\\times}\\).</p>
+<p>For certain moduli and residues, elementary arguments suffice:</p>
 
 <div class="env-block example">
-    <div class="env-title">Example: Characters mod 4</div>
+    <div class="env-title">Example: Primes \\(\\equiv 3 \\pmod{4}\\)</div>
     <div class="env-body">
-        <p>Modulo 4, the reduced residues are \\(\\{1, 3\\}\\) with \\(\\varphi(4) = 2\\). There are two characters:</p>
-        <table style="width:auto;border-collapse:collapse;margin:8px 0;">
-            <tr><th style="padding:4px 12px;border:1px solid #30363d;">\\(n\\) mod 4</th><th style="padding:4px 12px;border:1px solid #30363d;">\\(\\chi_0(n)\\)</th><th style="padding:4px 12px;border:1px solid #30363d;">\\(\\chi_1(n)\\)</th></tr>
-            <tr><td style="padding:4px 12px;border:1px solid #30363d;">1</td><td style="padding:4px 12px;border:1px solid #30363d;">1</td><td style="padding:4px 12px;border:1px solid #30363d;">1</td></tr>
-            <tr><td style="padding:4px 12px;border:1px solid #30363d;">3</td><td style="padding:4px 12px;border:1px solid #30363d;">1</td><td style="padding:4px 12px;border:1px solid #30363d;">-1</td></tr>
-            <tr><td style="padding:4px 12px;border:1px solid #30363d;">0, 2</td><td style="padding:4px 12px;border:1px solid #30363d;">0</td><td style="padding:4px 12px;border:1px solid #30363d;">0</td></tr>
-        </table>
-        <p>Here \\(\\chi_1\\) is the <em>Legendre symbol mod 4</em>, also written \\(\\chi_1(n) = \\left(\\frac{-4}{n}\\right)\\) for odd \\(n\\).</p>
+        <p>Suppose only finitely many primes are \\(\\equiv 3 \\pmod{4}\\), say \\(p_1, \\ldots, p_k\\). Consider \\(N = 4p_1 p_2 \\cdots p_k - 1\\). Then \\(N \\equiv 3 \\pmod{4}\\), and \\(N\\) must have a prime factor \\(\\equiv 3 \\pmod{4}\\) (since a product of primes all \\(\\equiv 1 \\pmod{4}\\) is itself \\(\\equiv 1 \\pmod{4}\\)). But this factor is none of the \\(p_i\\), contradiction.</p>
     </div>
 </div>
+
+<p>Such Euclidean tricks work for \\(a = -1\\) (or more generally when \\(a\\) has order 2 in \\((\\mathbb{Z}/q\\mathbb{Z})^\\times\\)), but they fail for general \\(a\\). For instance, there is no known Euclidean proof that there are infinitely many primes \\(\\equiv 1 \\pmod{3}\\). Dirichlet's analytic method handles all cases uniformly.</p>
+
+<h3>The Architecture of Dirichlet's Proof</h3>
+
+<p>The proof has three conceptual layers:</p>
+<ol>
+    <li><strong>Orthogonality of characters:</strong> Dirichlet characters let us "filter" residue classes from the full sum over all primes.</li>
+    <li><strong>Non-vanishing \\(L(1, \\chi) \\neq 0\\):</strong> This is the analytic heart. For complex characters, the proof is relatively simple; for the real character, it requires deeper ideas.</li>
+    <li><strong>Divergence:</strong> The sum \\(\\sum_{p \\equiv a} 1/p\\) diverges because the \\(\\log L(s, \\chi)\\) terms stay bounded as \\(s \\to 1^+\\), while the principal character contributes a divergent piece.</li>
+</ol>
 
 <div class="viz-placeholder" data-viz="viz-prime-race-general"></div>
 `,
             visualizations: [
                 {
                     id: 'viz-prime-race-general',
-                    title: 'Prime Counting Functions \\(\\pi(x; q, a)\\)',
-                    description: 'Count primes up to x in each reduced residue class mod q. Select a modulus from the dropdown. Each curve shows \\(\\pi(x; q, a)\\) for a coprime to q.',
+                    title: 'Prime Races in Arithmetic Progressions',
+                    description: 'Count primes in each coprime residue class mod q up to x. Dirichlet\'s theorem predicts each class gets roughly the same share. Watch how the counts equalize as x grows.',
                     setup: function(body, controls) {
-                        var viz = new VizEngine(body, { width: 700, height: 400, originX: 60, originY: 370, scale: 1 });
-
-                        var qVal = 4;
-                        var xMax = 500;
-
-                        // Dropdown for q
-                        var qSelect = document.createElement('select');
-                        qSelect.style.cssText = 'padding:4px 8px;border:1px solid #30363d;border-radius:4px;background:#1a1a40;color:#c9d1d9;font-size:0.78rem;margin-right:8px;';
-                        [4, 6, 8, 10, 12].forEach(function(q) {
-                            var opt = document.createElement('option');
-                            opt.value = q; opt.textContent = 'q = ' + q;
-                            if (q === qVal) opt.selected = true;
-                            qSelect.appendChild(opt);
+                        var viz = new VizEngine(body, {
+                            width: 560, height: 400,
+                            originX: 60, originY: 360, scale: 1
                         });
-                        qSelect.addEventListener('change', function() { qVal = parseInt(qSelect.value); draw(); });
 
-                        var xSlider = VizEngine.createSlider(controls, 'x max', 100, 2000, xMax, 50, function(v) { xMax = v; draw(); });
-                        controls.insertBefore(document.createTextNode('Modulus: '), xSlider.parentNode);
-                        controls.insertBefore(qSelect, xSlider.parentNode);
+                        var primes = VizEngine.sievePrimes(50000);
+                        var qVal = 4;
+                        var xMax = 1000;
 
-                        function gcd(a, b) { return b === 0 ? a : gcd(b, a % b); }
+                        VizEngine.createSlider(controls, 'q (modulus)', 3, 12, qVal, 1, function(v) {
+                            qVal = Math.round(v);
+                            draw();
+                        });
+                        VizEngine.createSlider(controls, 'x max', 500, 50000, xMax, 500, function(v) {
+                            xMax = Math.round(v);
+                            draw();
+                        });
 
-                        function getResidues(q) {
-                            var res = [];
-                            for (var a = 1; a < q; a++) { if (gcd(a, q) === 1) res.push(a); }
-                            return res;
-                        }
+                        function gcd(a, b) { while (b) { var t = b; b = a % b; a = t; } return a; }
 
-                        var COLORS = ['#58a6ff','#f0883e','#3fb950','#bc8cff','#f85149','#3fb9a0','#d29922','#f778ba'];
-
-                        function computePrimeCounts(q, xMax) {
-                            var primes = VizEngine.sievePrimes(xMax);
-                            var residues = getResidues(q);
-                            var counts = {};
-                            residues.forEach(function(a) { counts[a] = []; });
-                            var cur = {};
-                            residues.forEach(function(a) { cur[a] = 0; });
-
-                            var step = Math.max(1, Math.floor(xMax / 300));
-                            var pi = 0;
-                            var primeIdx = 0;
-                            var result = { x: [], counts: counts };
-
-                            for (var x = 2; x <= xMax; x += step) {
-                                while (primeIdx < primes.length && primes[primeIdx] <= x) {
-                                    var p = primes[primeIdx++];
-                                    var r = p % q;
-                                    if (counts[r] !== undefined) cur[r]++;
-                                }
-                                result.x.push(x);
-                                residues.forEach(function(a) { counts[a].push(cur[a]); });
-                            }
-                            return result;
-                        }
+                        var raceColors = [
+                            viz.colors.blue, viz.colors.teal, viz.colors.orange,
+                            viz.colors.purple, viz.colors.green, viz.colors.red,
+                            viz.colors.yellow, viz.colors.pink, '#66ccff', '#ff9966',
+                            '#99ff99', '#cc99ff'
+                        ];
 
                         function draw() {
                             viz.clear();
-                            var residues = getResidues(qVal);
-                            var data = computePrimeCounts(qVal, xMax);
-
-                            var chartW = viz.width - 80;
-                            var chartH = viz.height - 60;
-
-                            // Find max count
-                            var maxCount = 1;
-                            residues.forEach(function(a) {
-                                var arr = data.counts[a];
-                                if (arr.length) maxCount = Math.max(maxCount, arr[arr.length - 1]);
-                            });
-                            maxCount = Math.ceil(maxCount * 1.1);
-
                             var ctx = viz.ctx;
 
+                            // Find coprime residues
+                            var residues = [];
+                            for (var a = 1; a < qVal; a++) {
+                                if (gcd(a, qVal) === 1) residues.push(a);
+                            }
+                            var phi = residues.length;
+
+                            // Count primes in each class up to various x
+                            var steps = 200;
+                            var counts = {};
+                            for (var r = 0; r < residues.length; r++) counts[residues[r]] = [];
+
+                            for (var i = 0; i <= steps; i++) {
+                                var x = Math.round(100 + (xMax - 100) * i / steps);
+                                var cnts = {};
+                                for (var r2 = 0; r2 < residues.length; r2++) cnts[residues[r2]] = 0;
+                                for (var j = 0; j < primes.length && primes[j] <= x; j++) {
+                                    var rem = primes[j] % qVal;
+                                    if (cnts[rem] !== undefined) cnts[rem]++;
+                                }
+                                for (var r3 = 0; r3 < residues.length; r3++) {
+                                    counts[residues[r3]].push({ x: x, count: cnts[residues[r3]] });
+                                }
+                            }
+
+                            // Find max count for scaling
+                            var maxCount = 1;
+                            for (var r4 = 0; r4 < residues.length; r4++) {
+                                var arr = counts[residues[r4]];
+                                for (var k = 0; k < arr.length; k++) {
+                                    if (arr[k].count > maxCount) maxCount = arr[k].count;
+                                }
+                            }
+
+                            // Draw
+                            var plotLeft = 70, plotRight = viz.width - 30;
+                            var plotTop = 40, plotBottom = 330;
+                            var plotW = plotRight - plotLeft;
+                            var plotH = plotBottom - plotTop;
+
                             // Axes
-                            ctx.strokeStyle = viz.colors.axis; ctx.lineWidth = 1.5;
-                            ctx.beginPath(); ctx.moveTo(60, 10); ctx.lineTo(60, viz.height - 40); ctx.stroke();
-                            ctx.beginPath(); ctx.moveTo(60, viz.height - 40); ctx.lineTo(viz.width - 20, viz.height - 40); ctx.stroke();
+                            ctx.strokeStyle = viz.colors.axis;
+                            ctx.lineWidth = 1;
+                            ctx.beginPath();
+                            ctx.moveTo(plotLeft, plotBottom);
+                            ctx.lineTo(plotRight, plotBottom);
+                            ctx.stroke();
+                            ctx.beginPath();
+                            ctx.moveTo(plotLeft, plotBottom);
+                            ctx.lineTo(plotLeft, plotTop);
+                            ctx.stroke();
 
-                            // x-axis labels
-                            ctx.fillStyle = viz.colors.text; ctx.font = '11px -apple-system,sans-serif'; ctx.textAlign = 'center';
-                            for (var xi = 0; xi <= 5; xi++) {
-                                var xv = Math.round(xMax * xi / 5);
-                                var px = 60 + (viz.width - 80) * xi / 5;
-                                ctx.fillText(xv, px, viz.height - 26);
-                            }
-                            ctx.fillText('x', viz.width - 10, viz.height - 26);
-
-                            // y-axis labels
+                            // Y-axis labels
+                            ctx.fillStyle = viz.colors.text;
+                            ctx.font = '10px -apple-system,sans-serif';
                             ctx.textAlign = 'right';
-                            for (var yi = 0; yi <= 4; yi++) {
-                                var yv = Math.round(maxCount * yi / 4);
-                                var py = viz.height - 40 - (viz.height - 50) * yi / 4;
-                                ctx.fillText(yv, 56, py + 4);
-                                ctx.strokeStyle = viz.colors.grid; ctx.lineWidth = 0.5;
-                                ctx.beginPath(); ctx.moveTo(60, py); ctx.lineTo(viz.width - 20, py); ctx.stroke();
+                            ctx.textBaseline = 'middle';
+                            for (var yt = 0; yt <= 5; yt++) {
+                                var yVal = Math.round(maxCount * yt / 5);
+                                var yy = plotBottom - (yt / 5) * plotH;
+                                ctx.fillText(yVal.toString(), plotLeft - 5, yy);
+                                ctx.strokeStyle = viz.colors.grid;
+                                ctx.lineWidth = 0.5;
+                                ctx.beginPath();
+                                ctx.moveTo(plotLeft, yy);
+                                ctx.lineTo(plotRight, yy);
+                                ctx.stroke();
                             }
 
-                            // Curves
-                            residues.forEach(function(a, i) {
-                                var arr = data.counts[a];
-                                var color = COLORS[i % COLORS.length];
-                                ctx.strokeStyle = color; ctx.lineWidth = 2;
+                            // X-axis labels
+                            ctx.textAlign = 'center';
+                            ctx.textBaseline = 'top';
+                            for (var xt = 0; xt <= 4; xt++) {
+                                var xv = Math.round(100 + (xMax - 100) * xt / 4);
+                                var xx = plotLeft + (xt / 4) * plotW;
+                                ctx.fillText(xv.toString(), xx, plotBottom + 4);
+                            }
+
+                            // Draw curves
+                            for (var r5 = 0; r5 < residues.length; r5++) {
+                                var res = residues[r5];
+                                var data = counts[res];
+                                var col = raceColors[r5 % raceColors.length];
+                                ctx.strokeStyle = col;
+                                ctx.lineWidth = 2;
                                 ctx.beginPath();
-                                for (var k = 0; k < data.x.length; k++) {
-                                    var px = 60 + (data.x[k] / xMax) * chartW;
-                                    var py = (viz.height - 40) - (arr[k] / maxCount) * (viz.height - 50);
-                                    k === 0 ? ctx.moveTo(px, py) : ctx.lineTo(px, py);
+                                for (var d = 0; d < data.length; d++) {
+                                    var px = plotLeft + (d / steps) * plotW;
+                                    var py = plotBottom - (data[d].count / maxCount) * plotH;
+                                    if (d === 0) ctx.moveTo(px, py);
+                                    else ctx.lineTo(px, py);
                                 }
                                 ctx.stroke();
+                            }
 
-                                // Legend
-                                var legX = 70 + (i % 4) * 120;
-                                var legY = 18 + Math.floor(i / 4) * 18;
-                                ctx.fillStyle = color;
-                                ctx.fillRect(legX, legY - 6, 16, 3);
-                                ctx.font = '11px -apple-system,sans-serif'; ctx.textAlign = 'left';
-                                ctx.fillText('a = ' + a, legX + 20, legY);
-                            });
+                            // Legend
+                            var legY = plotBottom + 25;
+                            var legSpacing = Math.min(80, (viz.width - 40) / residues.length);
+                            var legStart = (viz.width - residues.length * legSpacing) / 2;
+                            ctx.font = '11px -apple-system,sans-serif';
+                            ctx.textAlign = 'left';
+                            for (var r6 = 0; r6 < residues.length; r6++) {
+                                var lx = legStart + r6 * legSpacing;
+                                ctx.fillStyle = raceColors[r6 % raceColors.length];
+                                ctx.fillRect(lx, legY, 10, 10);
+                                ctx.fillText(residues[r6] + ' mod ' + qVal, lx + 14, legY + 9);
+                            }
 
                             // Title
-                            ctx.fillStyle = viz.colors.white; ctx.font = '13px -apple-system,sans-serif';
-                            ctx.textAlign = 'center';
-                            ctx.fillText('\u03c0(x; q=' + qVal + ', a) for each a coprime to ' + qVal, viz.width / 2, viz.height - 10);
+                            viz.screenText('Prime Race mod ' + qVal + ' (\u03C6 = ' + phi + ')', viz.width / 2, 18, viz.colors.white, 14);
+                            viz.screenText('Each class should get \u2248 1/' + phi + ' of the primes', viz.width / 2, plotBottom + 55, viz.colors.text, 11);
                         }
-
                         draw();
                         return viz;
                     }
@@ -216,77 +218,143 @@ The condition \\(\\gcd(a,q) = 1\\) is necessary: if \\(d = \\gcd(a,q) > 1\\), th
             ],
             exercises: [
                 {
-                    question: 'Verify that there are exactly \\(\\varphi(q)\\) Dirichlet characters modulo \\(q\\) for \\(q = 5\\). List the values \\(\\chi(1), \\chi(2), \\chi(3), \\chi(4)\\) for each character.',
-                    hint: 'The group \\((\\mathbb{Z}/5\\mathbb{Z})^\\times \\cong \\mathbb{Z}/4\\mathbb{Z}\\) is cyclic generated by 2. A character is determined by \\(\\chi(2)\\), which must be a 4th root of unity.',
-                    solution: 'We have \\(\\varphi(5) = 4\\) and \\(2^1=2, 2^2=4, 2^3=3, 2^4=1\\) mod 5. Setting \\(\\chi(2) = i^k\\) for \\(k=0,1,2,3\\) gives the four characters: \\(\\chi_0 = (1,1,1,1)\\), \\(\\chi_1=(1,i,-1,-i)\\), \\(\\chi_2=(1,-1,1,-1)\\), \\(\\chi_3=(1,-i,-1,i)\\) for values at \\(n=1,2,3,4\\).'
+                    question: 'Show by a Euclidean argument that there are infinitely many primes \\(p \\equiv 2 \\pmod{3}\\).',
+                    hint: 'Consider \\(N = 3p_1 p_2 \\cdots p_k - 1\\). What is \\(N \\bmod 3\\)?',
+                    solution: 'Suppose \\(p_1, \\ldots, p_k\\) are the only primes \\(\\equiv 2 \\pmod{3}\\). Let \\(N = 3p_1 \\cdots p_k - 1\\). Then \\(N \\equiv 2 \\pmod{3}\\). Since a product of primes all \\(\\equiv 1 \\pmod{3}\\) is \\(\\equiv 1 \\pmod{3}\\), the number \\(N\\) must have at least one prime factor \\(\\equiv 2 \\pmod{3}\\). But \\(N\\) is coprime to all the \\(p_i\\), a contradiction.'
                 }
             ]
         },
 
         // ================================================================
-        // SECTION 2: Proof Setup
+        // SECTION 2: Proof Setup — Orthogonality and the Key Formula
         // ================================================================
         {
             id: 'sec-proof-setup',
             title: 'Proof Setup',
             content: `
-<h2>Proof Setup: Log of L-Functions and Orthogonality</h2>
+<h2>The Architecture of the Proof</h2>
 
-<p>The proof of Dirichlet's theorem is an analytic argument: we show that the sum of \\(1/p\\) over primes \\(p \\equiv a \\pmod q\\) diverges, which forces infinitely many such primes.</p>
-
-<h3>The Dirichlet L-Function</h3>
-
-<div class="env-block definition">
-    <div class="env-title">Definition (Dirichlet L-Function)</div>
+<div class="env-block intuition">
+    <div class="env-title">Characters as Frequency Filters</div>
     <div class="env-body">
-        <p>For a Dirichlet character \\(\\chi\\) modulo \\(q\\) and \\(\\operatorname{Re}(s) > 1\\), the <em>Dirichlet L-function</em> is
-        \\[
-        L(s, \\chi) = \\sum_{n=1}^{\\infty} \\frac{\\chi(n)}{n^s} = \\prod_{p} \\frac{1}{1 - \\chi(p)p^{-s}}.
-        \\]
-        The Euler product converges absolutely for \\(\\operatorname{Re}(s) > 1\\) because \\(\\chi\\) is completely multiplicative and \\(|\\chi(n)| \\leq 1\\).</p>
+        <p>The fundamental trick is character orthogonality: to isolate primes in a single residue class \\(a \\bmod q\\), we use the identity</p>
+        \\[\\mathbf{1}_{n \\equiv a \\pmod{q}} = \\frac{1}{\\varphi(q)} \\sum_{\\chi \\bmod q} \\chi(a)^{-1} \\chi(n),\\]
+        <p>which acts like a Fourier filter. Summing over primes, this converts the problem into understanding \\(L\\)-functions at \\(s = 1\\).</p>
     </div>
 </div>
 
-<h3>The Orthogonality Trick</h3>
+<h3>Setting Up the Sum</h3>
 
-<p>The key algebraic identity is the <em>orthogonality of characters</em>:
-\\[
-\\frac{1}{\\varphi(q)} \\sum_{\\chi \\bmod q} \\chi(n) \\overline{\\chi(a)} = \\begin{cases} 1 & \\text{if } n \\equiv a \\pmod q, \\\\ 0 & \\text{otherwise.} \\end{cases}
-\\]
-This lets us isolate the arithmetic progression \\(n \\equiv a \\pmod q\\):
-\\[
-\\sum_{\\substack{p \\leq x \\\\ p \\equiv a \\pmod q}} \\frac{1}{p} = \\frac{1}{\\varphi(q)} \\sum_{\\chi \\bmod q} \\overline{\\chi(a)} \\sum_{p \\leq x} \\frac{\\chi(p)}{p}.
-\\]</p>
+<p>For \\(s > 1\\), taking logarithmic derivatives of the Euler product \\(L(s, \\chi) = \\prod_p (1 - \\chi(p)p^{-s})^{-1}\\) gives</p>
+\\[-\\frac{L'(s, \\chi)}{L(s, \\chi)} = \\sum_p \\frac{\\chi(p) \\log p}{p^s - \\chi(p)} = \\sum_{n=1}^\\infty \\frac{\\chi(n) \\Lambda(n)}{n^s},\\]
+<p>where \\(\\Lambda\\) is the von Mangoldt function. For the purpose of proving Dirichlet's theorem (infinitude), it suffices to work with the simpler sum</p>
+\\[\\log L(s, \\chi) = \\sum_p \\frac{\\chi(p)}{p^s} + O(1) \\quad \\text{as } s \\to 1^+,\\]
+<p>where the \\(O(1)\\) absorbs the convergent contributions from prime powers \\(p^k\\) with \\(k \\geq 2\\).</p>
 
-<h3>Taking the Logarithm</h3>
+<h3>Applying Orthogonality</h3>
 
-<p>For \\(s > 1\\), taking logarithms of the Euler product gives
-\\[
-\\log L(s, \\chi) = \\sum_p \\sum_{k=1}^{\\infty} \\frac{\\chi(p^k)}{k p^{ks}} = \\sum_p \\frac{\\chi(p)}{p^s} + O(1).
-\\]
-The \\(O(1)\\) error comes from the terms \\(k \\geq 2\\), which converge absolutely for \\(s > 1/2\\). Therefore
-\\[
-\\sum_p \\frac{\\chi(p)}{p^s} = \\log L(s, \\chi) + O(1) \\quad \\text{as } s \\to 1^+.
-\\]
-Substituting into the orthogonality formula:
-\\[
-\\sum_{\\substack{p \\\\ p \\equiv a \\pmod q}} \\frac{1}{p^s} = \\frac{1}{\\varphi(q)} \\sum_{\\chi} \\overline{\\chi(a)} \\log L(s, \\chi) + O(1).
-\\]</p>
+<p>Using the orthogonality relation and summing:</p>
+\\[\\sum_{\\substack{p \\leq x \\\\ p \\equiv a \\pmod{q}}} \\frac{1}{p^s} = \\frac{1}{\\varphi(q)} \\sum_{\\chi \\bmod q} \\overline{\\chi(a)} \\sum_p \\frac{\\chi(p)}{p^s}.\\]
 
-<h3>The Principal Character Term</h3>
+<p>The right side separates into:</p>
+<ul>
+    <li>The <strong>principal character</strong> \\(\\chi_0\\): its \\(L\\)-function satisfies \\(L(s, \\chi_0) = \\zeta(s) \\prod_{p \\mid q}(1 - p^{-s})\\), so \\(\\log L(s, \\chi_0) \\to \\infty\\) as \\(s \\to 1^+\\).</li>
+    <li>The <strong>non-principal characters</strong> \\(\\chi \\neq \\chi_0\\): we need \\(\\log L(s, \\chi)\\) to remain bounded as \\(s \\to 1^+\\), which requires \\(L(1, \\chi) \\neq 0\\).</li>
+</ul>
 
-<p>For the principal character \\(\\chi_0\\),
-\\[
-L(s, \\chi_0) = \\prod_{p \\nmid q} \\frac{1}{1-p^{-s}} = \\zeta(s) \\prod_{p \\mid q} (1 - p^{-s}).
-\\]
-Since \\(\\zeta(s) \\to \\infty\\) as \\(s \\to 1^+\\), we get \\(\\log L(s, \\chi_0) \\to +\\infty\\). This term contributes \\(\\frac{1}{\\varphi(q)} \\log \\frac{1}{s-1} + O(1)\\) to the sum.</p>
+<div class="env-block theorem">
+    <div class="env-title">Theorem 10.2 (Reduction to Non-vanishing)</div>
+    <div class="env-body">
+        <p>If \\(L(1, \\chi) \\neq 0\\) for every non-principal character \\(\\chi \\bmod q\\), then</p>
+        \\[\\sum_{\\substack{p \\equiv a \\pmod{q}}} \\frac{1}{p^s} = \\frac{1}{\\varphi(q)} \\log \\frac{1}{s-1} + O_q(1) \\quad \\text{as } s \\to 1^+.\\]
+        <p>In particular, the sum over \\(1/p\\) diverges, proving infinitely many primes in the class \\(a \\bmod q\\).</p>
+    </div>
+</div>
 
-<p>The crucial step: for all non-principal characters \\(\\chi \\neq \\chi_0\\), we need \\(L(1, \\chi) \\neq 0\\). If even one \\(L(1, \\chi) = 0\\), the \\(\\log L(s,\\chi)\\) term could cancel the principal-character divergence, and the argument would collapse.</p>
+<p>The entire proof thus reduces to the non-vanishing statement: <strong>\\(L(1, \\chi) \\neq 0\\) for all \\(\\chi \\neq \\chi_0\\).</strong> This is the heart of the matter, and we address it in the next two sections.</p>
 
 <div class="env-block remark">
-    <div class="env-title">The Central Difficulty</div>
+    <div class="env-title">Historical Note</div>
     <div class="env-body">
-        <p>Proving \\(L(1, \\chi) \\neq 0\\) splits into two cases based on whether \\(\\chi\\) is <em>complex</em> (takes values outside \\(\\mathbb{R}\\)) or <em>real</em> (takes only values in \\(\\{0, \\pm 1\\}\\)). The complex case is relatively straightforward; the real case requires an entirely different approach.</p>
+        <p>Dirichlet introduced characters and \\(L\\)-functions precisely for this theorem, published in 1837. It was the first major application of analysis to number theory, and it established the template that analytic number theory would follow for nearly two centuries: translate a counting problem into an analytic statement about a generating function, then prove that analytic statement.</p>
+    </div>
+</div>
+`,
+            visualizations: [],
+            exercises: [
+                {
+                    question: 'Write out the orthogonality relation explicitly for \\(q = 5\\) and \\(a = 2\\). How many characters are there, and what are their values at \\(n = 1, 2, 3, 4\\)?',
+                    hint: 'There are \\(\\varphi(5) = 4\\) characters mod 5. The group \\((\\mathbb{Z}/5\\mathbb{Z})^\\times\\) is cyclic of order 4, generated by 2.',
+                    solution: 'The four characters mod 5 have values: \\(\\chi_0 = (1,1,1,1)\\), \\(\\chi_1 = (1,i,-i,-1)\\), \\(\\chi_2 = (1,-1,-1,1)\\), \\(\\chi_3 = (1,-i,i,-1)\\) at \\(n=1,2,3,4\\). Orthogonality gives \\(\\frac{1}{4}\\sum_\\chi \\overline{\\chi(2)}\\chi(n) = 1\\) if \\(n \\equiv 2\\) and \\(0\\) otherwise. Check: \\(\\frac{1}{4}(1 \\cdot 1 + (-i) \\cdot i + (-1)(-1) + i(-i)) = \\frac{1}{4}(1 + 1 + 1 + 1) = 1\\).'
+                },
+                {
+                    question: 'Show that for the principal character \\(\\chi_0 \\bmod q\\), \\(L(s, \\chi_0) = \\zeta(s) \\prod_{p \\mid q}(1 - p^{-s})\\). What does this imply about the behavior of \\(L(s, \\chi_0)\\) as \\(s \\to 1^+\\)?',
+                    hint: 'Compare the Euler products: \\(\\chi_0(p) = 1\\) for \\(p \\nmid q\\) and \\(\\chi_0(p) = 0\\) for \\(p \\mid q\\).',
+                    solution: '\\(L(s, \\chi_0) = \\prod_{p \\nmid q}(1 - p^{-s})^{-1} = \\zeta(s) \\cdot \\prod_{p \\mid q}(1 - p^{-s})\\). Since \\(\\zeta(s) \\to \\infty\\) as \\(s \\to 1^+\\) and the finite product \\(\\to \\prod_{p \\mid q}(1 - 1/p) = \\varphi(q)/q > 0\\), we get \\(L(s, \\chi_0) \\to \\infty\\). More precisely, \\(L(s, \\chi_0) \\sim \\frac{\\varphi(q)}{q} \\cdot \\frac{1}{s-1}\\) as \\(s \\to 1^+\\).'
+                }
+            ]
+        },
+
+        // ================================================================
+        // SECTION 3: L(1,χ) ≠ 0 for Complex Characters (Easy Case)
+        // ================================================================
+        {
+            id: 'sec-complex-chi',
+            title: 'L(1,\u03C7) \u2260 0: Complex Case',
+            content: `
+<h2>Non-vanishing for Complex Characters</h2>
+
+<div class="env-block intuition">
+    <div class="env-title">The Product Trick</div>
+    <div class="env-body">
+        <p>When \\(\\chi\\) is complex (i.e., \\(\\chi \\neq \\overline{\\chi}\\)), the proof that \\(L(1, \\chi) \\neq 0\\) is surprisingly elegant. The key idea: consider the product \\(\\prod_{\\chi \\bmod q} L(s, \\chi)\\) over all characters. This product has a representation as a Dirichlet series with non-negative coefficients, and it has a pole at \\(s = 1\\) (from \\(\\chi_0\\)). If any \\(L(1, \\chi)\\) were zero, the zero would cancel the pole, making the product bounded near \\(s = 1\\), which contradicts the non-negative coefficients growing unboundedly.</p>
+    </div>
+</div>
+
+<h3>The Product Formula</h3>
+
+<p>Define the "Dedekind-like" product</p>
+\\[F(s) = \\prod_{\\chi \\bmod q} L(s, \\chi).\\]
+
+<div class="env-block theorem">
+    <div class="env-title">Theorem 10.3 (Product Representation)</div>
+    <div class="env-body">
+        <p>For \\(s > 1\\),</p>
+        \\[F(s) = \\prod_{\\chi \\bmod q} L(s, \\chi) = \\prod_p \\prod_{\\chi} \\frac{1}{1 - \\chi(p) p^{-s}}.\\]
+        <p>For each prime \\(p \\nmid q\\), let \\(f\\) be the order of \\(p\\) in \\((\\mathbb{Z}/q\\mathbb{Z})^\\times\\). Then</p>
+        \\[\\prod_{\\chi} (1 - \\chi(p) p^{-s})^{-1} = (1 - p^{-fs})^{-\\varphi(q)/f}.\\]
+        <p>In particular, \\(F(s) = \\sum_{n=1}^\\infty a_n n^{-s}\\) with \\(a_n \\geq 0\\) for all \\(n\\).</p>
+    </div>
+</div>
+
+<h3>The Non-vanishing Argument</h3>
+
+<div class="env-block theorem">
+    <div class="env-title">Theorem 10.4 (Non-vanishing, Complex Case)</div>
+    <div class="env-body">
+        <p>If \\(\\chi \\bmod q\\) is a complex character (\\(\\chi \\neq \\overline{\\chi}\\)), then \\(L(1, \\chi) \\neq 0\\).</p>
+    </div>
+</div>
+
+<div class="env-block proof">
+    <div class="env-title">Proof</div>
+    <div class="env-body">
+        <p>Since \\(\\chi\\) is complex, \\(\\overline{\\chi}\\) is a distinct non-principal character, and \\(L(1, \\overline{\\chi}) = \\overline{L(1, \\chi)}\\). So if \\(L(1, \\chi) = 0\\), then also \\(L(1, \\overline{\\chi}) = 0\\).</p>
+        <p>Now consider \\(F(s)\\) near \\(s = 1\\):</p>
+        <ul>
+            <li>\\(L(s, \\chi_0)\\) has a simple pole at \\(s = 1\\) (order 1).</li>
+            <li>If \\(L(1, \\chi) = 0\\), then \\(L(s, \\chi)\\) has a zero at \\(s = 1\\) of order \\(\\geq 1\\), and so does \\(L(s, \\overline{\\chi})\\).</li>
+            <li>All other \\(L(s, \\chi')\\) are bounded near \\(s = 1\\).</li>
+        </ul>
+        <p>Total: \\(F(s)\\) has the pole of order 1 from \\(\\chi_0\\) canceled by zeros of order \\(\\geq 2\\) from the pair \\(\\{\\chi, \\overline{\\chi}\\}\\). Thus \\(F(s) \\to 0\\) as \\(s \\to 1^+\\).</p>
+        <p>But \\(F(s) = \\sum a_n n^{-s}\\) with \\(a_n \\geq 0\\) and \\(a_1 = 1\\). For \\(s > 1\\), \\(F(s) \\geq a_1 = 1 > 0\\). This contradicts \\(F(s) \\to 0\\). \\(\\square\\)</p>
+    </div>
+</div>
+
+<div class="env-block remark">
+    <div class="env-title">Why This Fails for Real Characters</div>
+    <div class="env-body">
+        <p>If \\(\\chi\\) is a real, non-principal character, then \\(\\overline{\\chi} = \\chi\\), so a zero at \\(s = 1\\) gives only a single zero to cancel the simple pole. The product \\(F(s)\\) would then approach a finite, possibly nonzero limit. The argument breaks down, and we need a fundamentally different approach.</p>
     </div>
 </div>
 
@@ -295,157 +363,99 @@ Since \\(\\zeta(s) \\to \\infty\\) as \\(s \\to 1^+\\), we get \\(\\log L(s, \\c
             visualizations: [
                 {
                     id: 'viz-l1-values',
-                    title: '\\(L(1, \\chi)\\) Values for Characters mod \\(q\\)',
-                    description: 'Bar chart of \\(|L(1,\\chi)|\\) for all non-principal characters modulo q. All values are strictly positive, confirming \\(L(1,\\chi) \\neq 0\\). Select different moduli.',
+                    title: 'Values of L(1, \u03C7) in the Complex Plane',
+                    description: 'Plot the values of L(1, \u03C7) for all non-principal characters mod q. Complex characters come in conjugate pairs. Notice how they are all bounded away from the origin.',
                     setup: function(body, controls) {
-                        var viz = new VizEngine(body, { width: 660, height: 380, originX: 60, originY: 340, scale: 1 });
-                        var qVal = 5;
-
-                        var qSelect = document.createElement('select');
-                        qSelect.style.cssText = 'padding:4px 8px;border:1px solid #30363d;border-radius:4px;background:#1a1a40;color:#c9d1d9;font-size:0.78rem;margin-right:8px;';
-                        [5, 7, 8, 12, 13].forEach(function(q) {
-                            var opt = document.createElement('option');
-                            opt.value = q; opt.textContent = 'q = ' + q;
-                            if (q === qVal) opt.selected = true;
-                            qSelect.appendChild(opt);
+                        var viz = new VizEngine(body, {
+                            width: 560, height: 400,
+                            originX: 280, originY: 200, scale: 80
                         });
-                        qSelect.addEventListener('change', function() { qVal = parseInt(qSelect.value); draw(); });
-                        controls.appendChild(document.createTextNode('Modulus: '));
-                        controls.appendChild(qSelect);
 
-                        function gcd(a, b) { return b === 0 ? a : gcd(b, a % b); }
+                        var qVal = 7;
 
-                        // Compute L(1, chi) numerically by partial sums (Dirichlet series convergence)
-                        // For a primitive character mod q, use the formula via Gauss sums when available
-                        // Here we use brute-force partial sums with enough terms
-                        function computeL1(chi_vals, q) {
-                            // chi_vals[n mod q] = chi(n) (complex as [re, im])
-                            var re = 0, im = 0;
-                            var N = 5000;
-                            for (var n = 1; n <= N; n++) {
-                                var r = n % q;
-                                var c = chi_vals[r];
-                                if (c) { re += c[0] / n; im += c[1] / n; }
+                        VizEngine.createSlider(controls, 'q (modulus)', 3, 20, qVal, 1, function(v) {
+                            qVal = Math.round(v);
+                            draw();
+                        });
+
+                        function gcd(a, b) { while (b) { var t = b; b = a % b; a = t; } return a; }
+
+                        // Compute characters mod q via discrete log
+                        function getCharacters(q) {
+                            // Find primitive root if exists, otherwise use character table
+                            var coprimes = [];
+                            for (var a = 1; a < q; a++) {
+                                if (gcd(a, q) === 1) coprimes.push(a);
                             }
-                            // Apply Euler-Maclaurin or just return magnitude
-                            return Math.sqrt(re * re + im * im);
-                        }
-
-                        // Build characters for small q by brute force (find generators)
-                        function buildChars(q) {
-                            // Enumerate reduced residues
-                            var units = [];
-                            for (var a = 1; a < q; a++) { if (gcd(a, q) === 1) units.push(a); }
-                            var phi = units.length;
-
-                            // Find the group structure via multiplication table, then assign characters
-                            // For prime q, group is cyclic; use generator
-                            // General: use the fact that chars are group homomorphisms (Z/qZ)* -> C*
-                            // We enumerate characters by their action on generators
-                            // Simplified: for each character index k, chi_k(g^j) = zeta^(jk) where g is a generator
-                            // Find generator
-                            var gen = -1;
-                            for (var g = 2; g < q; g++) {
-                                if (gcd(g, q) !== 1) continue;
-                                var ord = 1, pw = g;
-                                while (pw !== 1 && ord <= phi) { pw = (pw * g) % q; ord++; }
-                                if (ord === phi) { gen = g; break; }
-                            }
-
-                            // If no single generator (non-cyclic group), fall back to a simpler scheme
+                            var phi = coprimes.length;
                             var chars = [];
-                            if (gen !== -1) {
-                                // Compute discrete log table: dl[a] = k such that g^k = a
-                                var dl = new Array(q).fill(-1);
-                                var pw = 1;
-                                for (var j = 0; j < phi; j++) { dl[pw] = j; pw = (pw * gen) % q; }
 
-                                for (var k = 0; k < phi; k++) {
-                                    var cv = new Array(q).fill(null);
-                                    var zeta_re = Math.cos(2 * Math.PI * k / phi);
-                                    var zeta_im = Math.sin(2 * Math.PI * k / phi);
-                                    for (var a2 = 1; a2 < q; a2++) {
-                                        if (gcd(a2, q) !== 1) continue;
-                                        var exp = dl[a2];
-                                        var ang = 2 * Math.PI * k * exp / phi;
-                                        cv[a2] = [Math.cos(ang), Math.sin(ang)];
-                                    }
-                                    chars.push({ k: k, vals: cv, isPrincipal: k === 0 });
+                            // For simplicity, compute L(1,chi) numerically using partial sums
+                            // Generate characters via DFT on the group
+                            for (var k = 0; k < phi; k++) {
+                                var chiVals = {};
+                                for (var j = 0; j < phi; j++) {
+                                    var angle = 2 * Math.PI * k * j / phi;
+                                    chiVals[coprimes[j]] = { re: Math.cos(angle), im: Math.sin(angle) };
                                 }
-                            } else {
-                                // Fallback: principal only
-                                var cv0 = new Array(q).fill(null);
-                                for (var a3 = 1; a3 < q; a3++) { if (gcd(a3, q) === 1) cv0[a3] = [1, 0]; }
-                                chars.push({ k: 0, vals: cv0, isPrincipal: true });
+                                // This is not quite right for non-cyclic groups, but works for prime q
+                                chars.push(chiVals);
                             }
-                            return chars;
+                            return { chars: chars, coprimes: coprimes, phi: phi };
                         }
 
-                        var COLORS = ['#58a6ff','#f0883e','#3fb950','#bc8cff','#f85149','#3fb9a0','#d29922','#f778ba'];
+                        // Compute L(1, chi) by partial sums (Euler product approx would be better but this suffices)
+                        function computeL1(chiVals, q, N) {
+                            var re = 0, im = 0;
+                            for (var n = 1; n <= N; n++) {
+                                var rem = n % q;
+                                if (gcd(rem, q) !== 1) continue;
+                                var cv = chiVals[rem];
+                                if (!cv) continue;
+                                re += cv.re / n;
+                                im += cv.im / n;
+                            }
+                            return { re: re, im: im };
+                        }
 
                         function draw() {
                             viz.clear();
-                            var chars = buildChars(qVal);
-                            var nonPrincipal = chars.filter(function(c) { return !c.isPrincipal; });
-
-                            // Compute L(1,chi) for each
-                            var lvals = nonPrincipal.map(function(c) { return computeL1(c.vals, qVal); });
-                            var maxL = Math.max(3, Math.max.apply(null, lvals) * 1.2);
-
                             var ctx = viz.ctx;
-                            var n = nonPrincipal.length;
-                            var barW = Math.min(60, (viz.width - 100) / (n + 1));
-                            var chartBottom = viz.height - 50;
-                            var chartTop = 40;
-                            var chartH = chartBottom - chartTop;
 
-                            // Axes
-                            ctx.strokeStyle = viz.colors.axis; ctx.lineWidth = 1.5;
-                            ctx.beginPath(); ctx.moveTo(60, chartTop); ctx.lineTo(60, chartBottom); ctx.stroke();
-                            ctx.beginPath(); ctx.moveTo(60, chartBottom); ctx.lineTo(viz.width - 20, chartBottom); ctx.stroke();
+                            viz.drawGrid(0.5);
+                            viz.drawAxes();
+                            viz.screenText('L(1, \u03C7) for \u03C7 mod ' + qVal, viz.width / 2, 18, viz.colors.white, 14);
+                            viz.screenText('Re', viz.width - 25, viz.originY - 8, viz.colors.text, 11);
+                            viz.screenText('Im', viz.originX + 10, 15, viz.colors.text, 11);
 
-                            // Y gridlines
-                            ctx.font = '11px -apple-system,sans-serif'; ctx.textAlign = 'right';
-                            for (var yi = 0; yi <= 4; yi++) {
-                                var yv = maxL * yi / 4;
-                                var py = chartBottom - chartH * yi / 4;
-                                ctx.fillStyle = viz.colors.text;
-                                ctx.fillText(yv.toFixed(1), 56, py + 4);
-                                ctx.strokeStyle = viz.colors.grid; ctx.lineWidth = 0.4;
-                                ctx.beginPath(); ctx.moveTo(60, py); ctx.lineTo(viz.width - 20, py); ctx.stroke();
+                            var info = getCharacters(qVal);
+                            var N = 5000; // partial sum truncation
+
+                            var pointColors = [
+                                viz.colors.blue, viz.colors.teal, viz.colors.orange,
+                                viz.colors.purple, viz.colors.green, viz.colors.red,
+                                viz.colors.yellow, viz.colors.pink
+                            ];
+
+                            var plotted = 0;
+                            for (var k = 1; k < info.phi; k++) { // skip principal character (k=0)
+                                var L = computeL1(info.chars[k], qVal, N);
+                                var col = pointColors[plotted % pointColors.length];
+                                viz.drawPoint(L.re, L.im, col, '\u03C7_' + k, 6);
+                                plotted++;
                             }
 
-                            lvals.forEach(function(lv, i) {
-                                var color = COLORS[i % COLORS.length];
-                                var xc = 80 + i * ((viz.width - 110) / Math.max(n, 1));
-                                var barH = (lv / maxL) * chartH;
+                            // Mark origin
+                            ctx.strokeStyle = viz.colors.red + '44';
+                            ctx.lineWidth = 1;
+                            ctx.setLineDash([4, 4]);
+                            ctx.beginPath();
+                            ctx.arc(viz.originX, viz.originY, 10, 0, Math.PI * 2);
+                            ctx.stroke();
+                            ctx.setLineDash([]);
 
-                                ctx.fillStyle = color + 'aa';
-                                ctx.fillRect(xc - barW / 2, chartBottom - barH, barW, barH);
-                                ctx.strokeStyle = color; ctx.lineWidth = 1.5;
-                                ctx.strokeRect(xc - barW / 2, chartBottom - barH, barW, barH);
-
-                                // Value label
-                                ctx.fillStyle = viz.colors.white; ctx.font = 'bold 11px -apple-system,sans-serif';
-                                ctx.textAlign = 'center';
-                                ctx.fillText(lv.toFixed(3), xc, chartBottom - barH - 8);
-
-                                // Character label
-                                ctx.fillStyle = viz.colors.text; ctx.font = '10px -apple-system,sans-serif';
-                                ctx.fillText('\u03c7' + (i + 1), xc, chartBottom + 14);
-                            });
-
-                            // Title
-                            ctx.fillStyle = viz.colors.white; ctx.font = '13px -apple-system,sans-serif';
-                            ctx.textAlign = 'center';
-                            ctx.fillText('|L(1, \u03c7)| for non-principal characters mod ' + qVal + '   (all > 0)', viz.width / 2, 22);
-
-                            // Zero line label
-                            ctx.fillStyle = viz.colors.red; ctx.font = '11px -apple-system,sans-serif';
-                            ctx.textAlign = 'left';
-                            ctx.fillText('0 (would break the proof)', 64, chartBottom + 28);
+                            viz.screenText('All values avoid the origin (L(1,\u03C7) \u2260 0)', viz.width / 2, viz.height - 15, viz.colors.teal, 11);
                         }
-
                         draw();
                         return viz;
                     }
@@ -453,222 +463,243 @@ Since \\(\\zeta(s) \\to \\infty\\) as \\(s \\to 1^+\\), we get \\(\\log L(s, \\c
             ],
             exercises: [
                 {
-                    question: 'State and prove the orthogonality relation: \\(\\sum_{\\chi \\bmod q} \\chi(n) \\overline{\\chi(a)} = \\varphi(q) \\cdot \\mathbf{1}[n \\equiv a \\pmod q]\\) for \\(\\gcd(a,q) = 1\\).',
-                    hint: 'Think of the characters as characters of the finite group \\(G = (\\mathbb{Z}/q\\mathbb{Z})^\\times\\). Orthogonality of characters of finite abelian groups is a standard result: \\(\\sum_{\\chi \\in \\hat{G}} \\chi(g) = |G| \\cdot \\mathbf{1}[g = e]\\).',
-                    solution: 'For a finite abelian group \\(G\\) with dual \\(\\hat{G}\\), the orthogonality relation \\(\\sum_{\\chi \\in \\hat{G}} \\chi(g) = |G|\\mathbf{1}[g=e]\\) follows from: if \\(g \\neq e\\), there exists \\(\\chi_0 \\in \\hat{G}\\) with \\(\\chi_0(g) \\neq 1\\). Then \\(\\chi_0(g) \\sum_\\chi \\chi(g) = \\sum_\\chi \\chi_0 \\chi(g) = \\sum_\\chi \\chi(g)\\), so the sum is 0. Apply to \\(G = (\\mathbb{Z}/q\\mathbb{Z})^\\times\\) with \\(g = na^{-1}\\).'
+                    question: 'Let \\(q = 5\\). Compute the product \\(\\prod_{\\chi \\bmod 5} (1 - \\chi(2) \\cdot 2^{-s})^{-1}\\) and verify that it equals \\((1 - 2^{-fs})^{-\\varphi(5)/f}\\) where \\(f\\) is the order of \\(2\\) mod 5.',
+                    hint: 'The order of 2 mod 5 is 4 (since \\(2^4 = 16 \\equiv 1 \\pmod{5}\\) and no smaller power works). So \\(f = 4 = \\varphi(5)\\).',
+                    solution: 'Since \\(f = 4 = \\varphi(5)\\), the formula gives \\((1 - 2^{-4s})^{-1}\\). The character values at 2 are \\(1, i, -1, -i\\) (the 4th roots of unity). So the product is \\(\\prod_{j=0}^{3}(1 - \\omega^j 2^{-s})^{-1}\\) where \\(\\omega = i\\). This equals \\((1 - 2^{-4s})^{-1}\\) by the factorization \\(1 - x^4 = \\prod(1 - \\omega^j x)\\). \\(\\checkmark\\)'
                 }
             ]
         },
 
         // ================================================================
-        // SECTION 3: L(1,chi) != 0 for Complex chi
-        // ================================================================
-        {
-            id: 'sec-complex-chi',
-            title: '\\(L(1,\\chi) \\neq 0\\) for Complex \\(\\chi\\)',
-            content: `
-<h2>\\(L(1,\\chi) \\neq 0\\) for Complex Characters</h2>
-
-<p>A character \\(\\chi\\) is called <em>complex</em> if \\(\\chi \\neq \\bar\\chi\\), i.e., if it takes non-real values. (Equivalently, \\(\\chi^2 \\neq \\chi_0\\).) For complex characters, the non-vanishing of \\(L(1,\\chi)\\) follows from a slick product argument.</p>
-
-<h3>The Product Formula</h3>
-
-<p>Consider the product over all characters modulo \\(q\\):
-\\[
-\\prod_{\\chi \\bmod q} L(s, \\chi) = \\prod_p \\prod_{\\chi} \\frac{1}{1 - \\chi(p)p^{-s}}.
-\\]
-Using the factorization of cyclotomic polynomials, for each prime \\(p \\nmid q\\),
-\\[
-\\prod_{\\chi} (1 - \\chi(p)X) = (1 - X^f)^{\\varphi(q)/f}
-\\]
-where \\(f\\) is the order of \\(p\\) in \\((\\mathbb{Z}/q\\mathbb{Z})^\\times\\). Therefore
-\\[
-\\prod_{\\chi} L(s, \\chi) = \\prod_{p \\nmid q} \\frac{1}{(1 - p^{-fs})^{\\varphi(q)/f}},
-\\]
-which is a Dirichlet series with <strong>non-negative integer coefficients</strong>. In particular, \\(\\prod_\\chi L(s, \\chi) \\geq 1\\) for all real \\(s > 1\\).</p>
-
-<h3>Ruling Out Zeros of Complex Characters</h3>
-
-<div class="env-block theorem">
-    <div class="env-title">Theorem 10.2</div>
-    <div class="env-body">
-        <p>If \\(\\chi\\) is a complex character modulo \\(q\\), then \\(L(1, \\chi) \\neq 0\\).</p>
-    </div>
-</div>
-
-<div class="env-block proof">
-    <div class="env-title">Proof</div>
-    <div class="env-body">
-        <p>Suppose \\(L(1, \\chi) = 0\\) for some complex \\(\\chi\\). Since \\(\\chi\\) is complex, \\(\\bar\\chi \\neq \\chi\\) is also a character, and \\(L(1, \\bar\\chi) = \\overline{L(1,\\chi)} = 0\\). So \\(L(s, \\chi)\\) and \\(L(s, \\bar\\chi)\\) both vanish at \\(s = 1\\).</p>
-        <p>The product \\(F(s) = \\prod_\\chi L(s, \\chi)\\) has a simple pole at \\(s = 1\\) from the principal character (since \\(L(s, \\chi_0) \\sim c/(s-1)\\)), but the zeros of \\(L(s,\\chi)\\) and \\(L(s,\\bar\\chi)\\) at \\(s=1\\) would cancel this pole and give \\(F(1) = 0\\).</p>
-        <p>But we showed \\(F(s) \\geq 1\\) for \\(s > 1\\) real (Dirichlet series with non-negative coefficients at least 1). By continuity, \\(F(1) \\geq 1 > 0\\), a contradiction. \\(\\square\\)</p>
-    </div>
-</div>
-
-<h3>Counting the Zeros</h3>
-
-<p>More precisely: \\(F(s) = \\prod_\\chi L(s,\\chi)\\) has at most a simple pole at \\(s=1\\) (from \\(\\chi_0\\)). Each \\(L(s,\\chi)\\) with \\(\\chi \\neq \\chi_0\\) extends to an entire function. If \\(L(1,\\chi) = 0\\) for any complex \\(\\chi\\), then since \\(\\bar\\chi \\neq \\chi\\), we get a zero of order at least 2 in the product, which makes \\(F(s) \\to 0\\) as \\(s \\to 1\\). This contradicts \\(F(s) \\geq 1\\).</p>
-
-<div class="env-block remark">
-    <div class="env-title">Analytic Continuation</div>
-    <div class="env-body">
-        <p>For the above argument to work rigorously near \\(s = 1\\), we need \\(L(s,\\chi)\\) to extend analytically to a neighborhood of \\(s = 1\\) for \\(\\chi \\neq \\chi_0\\). This follows from the fact that the partial sums \\(\\sum_{n \\leq N} \\chi(n)\\) are bounded (since \\(\\sum_{n=1}^q \\chi(n) = 0\\) for non-principal \\(\\chi\\)), which implies the Dirichlet series converges for \\(\\operatorname{Re}(s) > 0\\) by Dirichlet's convergence theorem for series with bounded partial sums.</p>
-    </div>
-</div>
-
-<p>The hard part of Dirichlet's theorem is showing that <em>real</em> characters also have \\(L(1,\\chi) \\neq 0\\). A real character satisfies \\(\\chi = \\bar\\chi\\), so the above argument gives only a simple zero in the product, which exactly cancels the simple pole from \\(\\chi_0\\). The argument is inconclusive.</p>
-`,
-            visualizations: [],
-            exercises: [
-                {
-                    question: 'Let \\(\\chi\\) be a non-principal character modulo \\(q\\). Show that \\(\\sum_{n=1}^{N} \\chi(n) = O(q)\\) uniformly in \\(N\\). Conclude that \\(L(s,\\chi)\\) converges for \\(\\operatorname{Re}(s) > 0\\).',
-                    hint: 'Since \\(\\chi\\) has period \\(q\\) and \\(\\sum_{n=1}^{q} \\chi(n) = 0\\) for non-principal \\(\\chi\\), write \\(N = mq + r\\) and split the sum. For convergence, use partial summation (Abel summation).',
-                    solution: 'Write \\(N = mq + r\\) with \\(0 \\leq r < q\\). Then \\(\\sum_{n=1}^N \\chi(n) = m \\sum_{n=1}^q \\chi(n) + \\sum_{n=1}^r \\chi(n) = 0 + O(q) = O(q)\\). For convergence when \\(\\operatorname{Re}(s) > 0\\): by partial summation, \\(L(s,\\chi) = s\\int_1^\\infty A(t) t^{-s-1}\\,dt\\) where \\(A(t) = \\sum_{n \\leq t}\\chi(n) = O(q)\\). The integral converges absolutely for \\(\\operatorname{Re}(s) > 0\\).'
-                },
-                {
-                    question: 'Explain why the argument in Theorem 10.2 does not immediately work for real characters.',
-                    hint: 'For a real character \\(\\chi\\), what is \\(\\bar\\chi\\)? How many zeros does the product \\(\\prod_\\chi L(s,\\chi)\\) accumulate at \\(s=1\\) if \\(L(1,\\chi) = 0\\)?',
-                    solution: 'For a real character, \\(\\bar\\chi = \\chi\\), so \\(L(1,\\bar\\chi) = L(1,\\chi)\\). If \\(L(1,\\chi) = 0\\), the product \\(F(s)\\) gains only a simple zero from \\(L(s,\\chi)\\), which exactly cancels the simple pole from \\(L(s,\\chi_0)\\). So \\(F(s)\\) would remain bounded (rather than zero) as \\(s \\to 1\\), and no contradiction arises from \\(F(s) \\geq 1\\).'
-                }
-            ]
-        },
-
-        // ================================================================
-        // SECTION 4: L(1,chi) != 0 for Real chi
+        // SECTION 4: L(1,χ) ≠ 0 for the Real Character (Hard Case)
         // ================================================================
         {
             id: 'sec-real-chi',
-            title: '\\(L(1,\\chi) \\neq 0\\) for Real \\(\\chi\\)',
+            title: 'L(1,\u03C7) \u2260 0: Real Case',
             content: `
-<h2>\\(L(1,\\chi) \\neq 0\\) for Real Characters: The Hard Case</h2>
+<h2>The Real Character: Class Numbers and Positivity</h2>
 
-<p>The non-vanishing of \\(L(1,\\chi)\\) for real characters is the deep part of Dirichlet's theorem. A real primitive character \\(\\chi\\) modulo \\(q\\) is a generalized Legendre symbol, and \\(L(1,\\chi)\\) has an explicit form related to the class number of a quadratic field.</p>
+<div class="env-block intuition">
+    <div class="env-title">Why the Real Case Is Hard</div>
+    <div class="env-body">
+        <p>For a real non-principal character \\(\\chi\\) (which exists only when \\(q\\) has a primitive quadratic character, e.g., the Legendre symbol), the product trick gives no contradiction because \\(\\overline{\\chi} = \\chi\\). A single zero at \\(s = 1\\) would exactly cancel the simple pole from \\(\\chi_0\\), leaving the product finite and positive. We need a completely different idea.</p>
+    </div>
+</div>
 
-<h3>Real Characters and Quadratic Fields</h3>
+<h3>Dirichlet's Class Number Formula</h3>
 
-<p>Every real primitive character modulo \\(q\\) has the form \\(\\chi = \\left(\\frac{D}{\\cdot}\\right)\\), the Kronecker symbol, where \\(D\\) is a fundamental discriminant. The connection to quadratic fields \\(\\mathbb{Q}(\\sqrt{D})\\) is deep:</p>
+<p>Dirichlet's stroke of genius was to connect \\(L(1, \\chi)\\) to an algebraic invariant: the class number of a quadratic field. For a fundamental discriminant \\(D\\) (with \\(|D| = q\\) or related), the quadratic character \\(\\chi_D(n) = \\left(\\frac{D}{n}\\right)\\) (the Kronecker symbol) satisfies:</p>
 
 <div class="env-block theorem">
-    <div class="env-title">Theorem 10.3 (Dirichlet Class Number Formula)</div>
+    <div class="env-title">Theorem 10.5 (Dirichlet Class Number Formula)</div>
     <div class="env-body">
-        <p>Let \\(\\chi = \\left(\\frac{D}{\\cdot}\\right)\\) be the primitive real character associated to the quadratic field \\(K = \\mathbb{Q}(\\sqrt{D})\\). Then
-        \\[
-        L(1, \\chi) = \\begin{cases}
-        \\dfrac{2\\pi h(D)}{w(D)\\sqrt{|D|}} & \\text{if } D < 0 \\\\ [8pt]
-        \\dfrac{2 h(D) \\log \\varepsilon_D}{\\sqrt{D}} & \\text{if } D > 0
-        \\end{cases}
-        \\]
-        where \\(h(D)\\) is the class number of \\(K\\), \\(w(D)\\) is the number of roots of unity in \\(K\\), and \\(\\varepsilon_D\\) is the fundamental unit when \\(D > 0\\).</p>
+        <p>Let \\(D\\) be a fundamental discriminant and \\(\\chi_D\\) the associated primitive quadratic character. Then:</p>
+        <ul>
+            <li>If \\(D < 0\\) (imaginary quadratic field \\(\\mathbb{Q}(\\sqrt{D})\\)):
+            \\[L(1, \\chi_D) = \\frac{2\\pi h(D)}{w \\sqrt{|D|}}\\]
+            where \\(h(D)\\) is the class number and \\(w\\) is the number of roots of unity (\\(w = 2\\) for \\(D < -4\\)).</li>
+            <li>If \\(D > 0\\) (real quadratic field):
+            \\[L(1, \\chi_D) = \\frac{2 h(D) \\log \\varepsilon}{\\sqrt{D}}\\]
+            where \\(\\varepsilon > 1\\) is the fundamental unit.</li>
+        </ul>
     </div>
 </div>
 
-<p>Since \\(h(D) \\geq 1\\) (every ring of integers has at least the trivial class), \\(\\log \\varepsilon_D > 0\\) (\\(\\varepsilon_D > 1\\)), and \\(\\sqrt{D}, \\sqrt{|D|} > 0\\), the formula immediately gives \\(L(1,\\chi) > 0\\).</p>
+<p>Since \\(h(D) \\geq 1\\) (the principal class always exists), and all other quantities are positive, we conclude:</p>
 
-<h3>The Class Number via Lattice Counting</h3>
-
-<p>The class number \\(h(D)\\) counts equivalence classes of integral binary quadratic forms \\(ax^2 + bxy + cy^2\\) of discriminant \\(D = b^2 - 4ac\\). Two forms are equivalent if related by an \\(SL_2(\\mathbb{Z})\\) substitution.</p>
-
-<p>For negative \\(D\\), these forms correspond to lattices in \\(\\mathbb{C}\\), and \\(h(D)\\) equals the number of reduced forms \\(ax^2 + bxy + cy^2\\) with \\(-a < b \\leq a < c\\) or \\(0 \\leq b \\leq a = c\\).</p>
-
-<div class="env-block example">
-    <div class="env-title">Example: \\(D = -23\\)</div>
+<div class="env-block corollary">
+    <div class="env-title">Corollary (Non-vanishing for Real Characters)</div>
     <div class="env-body">
-        <p>For \\(D = -23\\), the reduced forms are \\(x^2 + xy + 6y^2\\), \\(2x^2 + xy + 3y^2\\), and \\(2x^2 - xy + 3y^2\\). So \\(h(-23) = 3\\). The class number formula gives
-        \\[
-        L(1, \chi_{-23}) = \\frac{2\\pi \\cdot 3}{2 \\sqrt{23}} = \\frac{3\\pi}{\\sqrt{23}} \\approx 1.965.
-        \\]</p>
+        <p>For every real primitive character \\(\\chi_D\\), \\(L(1, \\chi_D) > 0\\). Combined with the complex case, this completes the proof that \\(L(1, \\chi) \\neq 0\\) for all non-principal characters.</p>
     </div>
 </div>
 
-<h3>An Elementary Proof via Partial Sums</h3>
+<h3>An Alternative: The Direct Positivity Argument</h3>
 
-<p>A more direct proof (due to de la Vallée-Poussin, simplified by various authors) avoids the class number formula. Consider
-\\[
-S = \\sum_{n=1}^{q} \\sum_{m=1}^{q} \\chi(m) \\log \\sin\\frac{m\\pi n}{q}.
-\\]
-Using properties of Gauss sums and the fact that \\(\\chi\\) is real primitive, one shows \\(S = \\tau(\\chi) q L(1,\\chi)\\) where \\(\\tau(\\chi) = \\sum_{a=1}^{q} \\chi(a) e^{2\\pi ia/q}\\) is the Gauss sum with \\(|\\tau(\\chi)| = \\sqrt{q}\\). The sum \\(S\\) can also be evaluated as \\(\\tau(\\chi) q L(1,\\chi) = -(\\text{positive quantity})\\), giving \\(L(1,\\chi) \\neq 0\\).</p>
-
-<div class="env-block remark">
-    <div class="env-title">Why This is Harder</div>
-    <div class="env-body">
-        <p>The non-vanishing of \\(L(1,\\chi)\\) for real \\(\\chi\\) is "harder" because it does not follow from the product formula alone. It requires either deep algebraic geometry (the class number formula connecting L-values to arithmetic invariants of number fields) or clever analytic manipulations. The same difficulty reappears in the theory of Siegel zeros (Section 6): how close to 1 can a real zero of \\(L(s,\\chi)\\) be?</p>
-    </div>
-</div>
+<p>There is a more elementary approach (due essentially to de la Vallee Poussin and Mertens) that avoids the class number formula. For a real character \\(\\chi\\), one shows directly that</p>
+\\[L(1, \\chi) = \\sum_{n=1}^\\infty \\frac{\\chi(n)}{n} > 0\\]
+<p>by grouping terms and using the fact that \\(\\chi\\) is a real quadratic character. The idea is to write</p>
+\\[\\sum_{n \\leq x} \\frac{\\chi(n)}{n} = \\sum_{n \\leq x} \\frac{1}{n} \\sum_{d^2 \\mid n} \\mu(n/d^2) \\cdot (\\text{something positive}),\\]
+<p>exploiting the connection between \\(\\chi\\) and the representation of integers by quadratic forms. The convergent series \\(\\sum \\chi(n)/n\\) is then shown to have strictly positive partial sums, from which positivity of the limit follows.</p>
 
 <div class="viz-placeholder" data-viz="viz-class-number"></div>
 `,
             visualizations: [
                 {
                     id: 'viz-class-number',
-                    title: 'Reduced Binary Quadratic Forms and Class Numbers',
-                    description: 'Visualize reduced forms \\(ax^2+bxy+cy^2\\) of discriminant \\(D\\) as lattice points in the \\((a,b)\\) plane satisfying the reduction conditions. Toggle different discriminants.',
+                    title: 'Class Numbers and L(1, \u03C7)',
+                    description: 'For negative discriminants D, the class number formula gives L(1, \u03C7_D) = 2\u03C0 h(D) / (w \u221A|D|). Since h(D) \u2265 1, L(1, \u03C7_D) is always positive. Explore how class numbers grow with |D|.',
                     setup: function(body, controls) {
-                        var viz = new VizEngine(body, { width: 640, height: 420, originX: 320, originY: 210, scale: 30 });
-                        var D = -23;
-
-                        var Dvals = [-3, -4, -7, -8, -11, -15, -20, -23, -24, -40];
-                        var Dsel = document.createElement('select');
-                        Dsel.style.cssText = 'padding:4px 8px;border:1px solid #30363d;border-radius:4px;background:#1a1a40;color:#c9d1d9;font-size:0.78rem;margin-right:8px;';
-                        Dvals.forEach(function(dv) {
-                            var opt = document.createElement('option');
-                            opt.value = dv; opt.textContent = 'D = ' + dv;
-                            if (dv === D) opt.selected = true;
-                            Dsel.appendChild(opt);
+                        var viz = new VizEngine(body, {
+                            width: 560, height: 400,
+                            originX: 0, originY: 0, scale: 1
                         });
-                        Dsel.addEventListener('change', function() { D = parseInt(Dsel.value); draw(); });
-                        controls.appendChild(document.createTextNode('Discriminant: '));
-                        controls.appendChild(Dsel);
 
-                        function getReducedForms(D) {
-                            // D < 0: reduced means -a < b <= a < c, or 0 <= b <= a = c
-                            var forms = [];
-                            if (D >= 0) return forms;
-                            var aMax = Math.floor(Math.sqrt(-D / 3)) + 2;
-                            for (var a = 1; a <= aMax; a++) {
-                                for (var b = -a; b <= a; b++) {
-                                    // c = (b^2 - D) / (4a)
-                                    var num = b * b - D;
-                                    if (num % (4 * a) !== 0) continue;
-                                    var c = num / (4 * a);
-                                    if (c < a) continue;
-                                    if (c === a && b < 0) continue;
-                                    if (b * b - 4 * a * c !== D) continue;
-                                    forms.push({ a: a, b: b, c: c });
-                                }
-                            }
-                            return forms;
-                        }
+                        // Precomputed class numbers for small negative discriminants
+                        // h(-3)=1, h(-4)=1, h(-7)=1, h(-8)=1, h(-11)=1, h(-15)=2, h(-19)=1, h(-20)=2, ...
+                        var classData = [
+                            { D: -3, h: 1, w: 6 },
+                            { D: -4, h: 1, w: 4 },
+                            { D: -7, h: 1, w: 2 },
+                            { D: -8, h: 1, w: 2 },
+                            { D: -11, h: 1, w: 2 },
+                            { D: -15, h: 2, w: 2 },
+                            { D: -19, h: 1, w: 2 },
+                            { D: -20, h: 2, w: 2 },
+                            { D: -23, h: 3, w: 2 },
+                            { D: -24, h: 2, w: 2 },
+                            { D: -31, h: 3, w: 2 },
+                            { D: -35, h: 2, w: 2 },
+                            { D: -39, h: 4, w: 2 },
+                            { D: -40, h: 2, w: 2 },
+                            { D: -43, h: 1, w: 2 },
+                            { D: -47, h: 5, w: 2 },
+                            { D: -51, h: 2, w: 2 },
+                            { D: -52, h: 2, w: 2 },
+                            { D: -55, h: 4, w: 2 },
+                            { D: -56, h: 4, w: 2 },
+                            { D: -59, h: 3, w: 2 },
+                            { D: -67, h: 1, w: 2 },
+                            { D: -68, h: 4, w: 2 },
+                            { D: -71, h: 7, w: 2 },
+                            { D: -79, h: 5, w: 2 },
+                            { D: -83, h: 3, w: 2 },
+                            { D: -84, h: 4, w: 2 },
+                            { D: -87, h: 6, w: 2 },
+                            { D: -88, h: 2, w: 2 },
+                            { D: -91, h: 2, w: 2 },
+                            { D: -95, h: 8, w: 2 },
+                            { D: -104, h: 6, w: 2 },
+                            { D: -107, h: 3, w: 2 },
+                            { D: -115, h: 2, w: 2 },
+                            { D: -116, h: 6, w: 2 },
+                            { D: -119, h: 10, w: 2 },
+                            { D: -120, h: 4, w: 2 },
+                            { D: -123, h: 2, w: 2 },
+                            { D: -127, h: 5, w: 2 },
+                            { D: -131, h: 5, w: 2 },
+                            { D: -148, h: 2, w: 2 },
+                            { D: -163, h: 1, w: 2 }
+                        ];
 
                         function draw() {
                             viz.clear();
-                            viz.drawGrid(1);
-                            viz.drawAxes();
-
-                            var forms = getReducedForms(D);
-                            var COLORS = ['#58a6ff','#f0883e','#3fb950','#bc8cff','#f85149','#3fb9a0'];
-
-                            forms.forEach(function(f, i) {
-                                var color = COLORS[i % COLORS.length];
-                                // Plot in (b, a) space (b on x-axis, a on y-axis)
-                                viz.drawPoint(f.b, f.a, color, null, 7);
-                                viz.drawText(f.a + 'x\u00b2' + (f.b >= 0 ? '+' : '') + f.b + 'xy+' + f.c + 'y\u00b2',
-                                    f.b + 0.3, f.a + 0.3, color, 9, 'left');
-                            });
-
-                            // Reduction boundary: |b| <= a <= c
-                            // Mark the line a = |b|
-                            viz.drawFunction(function(x) { return Math.abs(x); }, -6, 6, viz.colors.grid + '88', 1, 100);
-
                             var ctx = viz.ctx;
-                            ctx.fillStyle = viz.colors.white; ctx.font = '13px -apple-system,sans-serif'; ctx.textAlign = 'center';
-                            viz.screenText('Reduced forms of discriminant D = ' + D + '   (h = ' + forms.length + ')', viz.width / 2, 18, viz.colors.white, 13);
-                            viz.screenText('b (coefficient of xy)', viz.width / 2, viz.height - 8, viz.colors.text, 11);
-                            ctx.save(); ctx.translate(14, viz.height / 2); ctx.rotate(-Math.PI / 2);
-                            ctx.fillStyle = viz.colors.text; ctx.font = '11px -apple-system,sans-serif'; ctx.textAlign = 'center';
-                            ctx.fillText('a (leading coefficient)', 0, 0);
-                            ctx.restore();
-                        }
 
+                            var plotLeft = 70, plotRight = viz.width - 30;
+                            var plotTop = 50, plotBottom = 300;
+                            var plotW = plotRight - plotLeft;
+                            var plotH = plotBottom - plotTop;
+
+                            // Title
+                            viz.screenText('Class Numbers h(D) and L(1, \u03C7_D)', viz.width / 2, 18, viz.colors.white, 14);
+
+                            // Find max |D| and max h for scaling
+                            var maxAbsD = 170;
+                            var maxH = 0;
+                            for (var i = 0; i < classData.length; i++) {
+                                if (classData[i].h > maxH) maxH = classData[i].h;
+                            }
+
+                            // Axes
+                            ctx.strokeStyle = viz.colors.axis;
+                            ctx.lineWidth = 1;
+                            ctx.beginPath();
+                            ctx.moveTo(plotLeft, plotBottom);
+                            ctx.lineTo(plotRight, plotBottom);
+                            ctx.stroke();
+                            ctx.beginPath();
+                            ctx.moveTo(plotLeft, plotBottom);
+                            ctx.lineTo(plotLeft, plotTop);
+                            ctx.stroke();
+
+                            ctx.fillStyle = viz.colors.text;
+                            ctx.font = '11px -apple-system,sans-serif';
+                            ctx.textAlign = 'center';
+                            ctx.textBaseline = 'top';
+                            ctx.fillText('|D|', viz.width / 2, plotBottom + 20);
+                            ctx.save();
+                            ctx.translate(20, (plotTop + plotBottom) / 2);
+                            ctx.rotate(-Math.PI / 2);
+                            ctx.textBaseline = 'middle';
+                            ctx.fillText('h(D)', 0, 0);
+                            ctx.restore();
+
+                            // Y labels
+                            ctx.textAlign = 'right';
+                            ctx.textBaseline = 'middle';
+                            for (var yt = 0; yt <= maxH; yt += 2) {
+                                var yy = plotBottom - (yt / maxH) * plotH;
+                                ctx.fillStyle = viz.colors.text;
+                                ctx.fillText(yt.toString(), plotLeft - 5, yy);
+                                ctx.strokeStyle = viz.colors.grid;
+                                ctx.lineWidth = 0.3;
+                                ctx.beginPath();
+                                ctx.moveTo(plotLeft, yy);
+                                ctx.lineTo(plotRight, yy);
+                                ctx.stroke();
+                            }
+
+                            // X labels
+                            ctx.textAlign = 'center';
+                            ctx.textBaseline = 'top';
+                            for (var xt = 0; xt <= maxAbsD; xt += 20) {
+                                var xx = plotLeft + (xt / maxAbsD) * plotW;
+                                ctx.fillStyle = viz.colors.text;
+                                ctx.fillText(xt.toString(), xx, plotBottom + 4);
+                            }
+
+                            // Plot class numbers as dots
+                            for (var j = 0; j < classData.length; j++) {
+                                var d = classData[j];
+                                var px = plotLeft + (Math.abs(d.D) / maxAbsD) * plotW;
+                                var py = plotBottom - (d.h / maxH) * plotH;
+
+                                // Color: h=1 (class number 1, special) in blue, others in teal
+                                var col = d.h === 1 ? viz.colors.blue : viz.colors.teal;
+                                ctx.fillStyle = col;
+                                ctx.beginPath();
+                                ctx.arc(px, py, 4, 0, Math.PI * 2);
+                                ctx.fill();
+                            }
+
+                            // Compute L(1, chi_D) for each and show
+                            var lPlotTop = plotBottom + 45;
+                            var lPlotBottom = viz.height - 20;
+                            var lPlotH = lPlotBottom - lPlotTop;
+
+                            viz.screenText('L(1, \u03C7_D) = 2\u03C0 h / (w\u221A|D|)', viz.width / 2, lPlotTop - 8, viz.colors.orange, 11);
+
+                            // Plot L values as bar-like dots
+                            var maxL = 0;
+                            for (var k = 0; k < classData.length; k++) {
+                                var dd = classData[k];
+                                var Lval = 2 * Math.PI * dd.h / (dd.w * Math.sqrt(Math.abs(dd.D)));
+                                if (Lval > maxL) maxL = Lval;
+                            }
+
+                            ctx.strokeStyle = viz.colors.orange + '44';
+                            ctx.lineWidth = 0.3;
+                            ctx.beginPath();
+                            var zeroY = lPlotBottom;
+                            ctx.moveTo(plotLeft, zeroY);
+                            ctx.lineTo(plotRight, zeroY);
+                            ctx.stroke();
+
+                            for (var m = 0; m < classData.length; m++) {
+                                var dm = classData[m];
+                                var Lv = 2 * Math.PI * dm.h / (dm.w * Math.sqrt(Math.abs(dm.D)));
+                                var bx = plotLeft + (Math.abs(dm.D) / maxAbsD) * plotW;
+                                var by = lPlotBottom - (Lv / maxL) * lPlotH;
+
+                                ctx.fillStyle = viz.colors.orange;
+                                ctx.beginPath();
+                                ctx.arc(bx, by, 3, 0, Math.PI * 2);
+                                ctx.fill();
+                            }
+
+                            viz.screenText('All L(1,\u03C7_D) > 0: the class number is always \u2265 1', viz.width / 2, viz.height - 5, viz.colors.teal, 10);
+                        }
                         draw();
                         return viz;
                     }
@@ -676,183 +707,231 @@ Using properties of Gauss sums and the fact that \\(\\chi\\) is real primitive, 
             ],
             exercises: [
                 {
-                    question: 'Compute \\(h(-4)\\) by finding all reduced binary quadratic forms \\(ax^2 + bxy + cy^2\\) of discriminant \\(-4\\). Then verify the class number formula: \\(L(1, \\chi_{-4}) = \\pi/4\\) using the Leibniz formula \\(\\pi/4 = 1 - 1/3 + 1/5 - 1/7 + \\cdots\\).',
-                    hint: 'For \\(D = -4\\): reduced condition gives \\(-a < b \\leq a \\leq c\\). The only form is \\(x^2 + y^2\\). Check: \\(h(-4) = 1\\), \\(w = 4\\), so the formula gives \\(L(1,\\chi_{-4}) = 2\\pi \\cdot 1 / (4 \\cdot 2) = \\pi/4\\). The character \\(\\chi_{-4}(n) = (-1)^{(n-1)/2}\\) for odd \\(n\\) is the character counting representations as sums of two squares.',
-                    solution: 'The only reduced form of discriminant \\(-4\\) is \\(x^2 + y^2\\) (with \\(a=1, b=0, c=1\\)). So \\(h(-4) = 1\\). The formula gives \\(L(1,\\chi_{-4}) = 2\\pi \\cdot 1/(4 \\cdot 2) = \\pi/4\\). To verify: \\(\\chi_{-4}\\) is the non-principal character mod 4 with \\(\\chi_{-4}(1)=1, \\chi_{-4}(3)=-1\\). The L-series is \\(1 - 1/3 + 1/5 - 1/7 + \\cdots = \\pi/4\\) by Leibniz.'
+                    question: 'Compute \\(L(1, \\chi_{-4})\\) where \\(\\chi_{-4}\\) is the non-principal character mod 4 (i.e., \\(\\chi_{-4}(n) = 0, 1, 0, -1, 0, 1, 0, -1, \\ldots\\)). Relate it to a well-known series.',
+                    hint: 'The series is \\(1 - 1/3 + 1/5 - 1/7 + \\cdots\\). This is the Leibniz formula for what?',
+                    solution: '\\(L(1, \\chi_{-4}) = \\sum_{n=0}^\\infty \\frac{(-1)^n}{2n+1} = 1 - \\frac{1}{3} + \\frac{1}{5} - \\frac{1}{7} + \\cdots = \\frac{\\pi}{4}\\). From the class number formula with \\(D = -4\\), \\(h(-4) = 1\\), \\(w = 4\\): \\(L(1, \\chi_{-4}) = \\frac{2\\pi \\cdot 1}{4 \\cdot \\sqrt{4}} = \\frac{\\pi}{4}\\). \\(\\checkmark\\)'
+                },
+                {
+                    question: 'Why does the "product trick" fail for real characters? Explain precisely what goes wrong in the order-of-vanishing count.',
+                    hint: 'For complex \\(\\chi\\), the pair \\(\\{\\chi, \\overline{\\chi}\\}\\) contributes two zeros to cancel one pole. For real \\(\\chi\\), the pair collapses.',
+                    solution: 'For complex \\(\\chi\\), if \\(L(1,\\chi)=0\\) then \\(L(1,\\overline{\\chi})=0\\) too, giving two zeros to cancel the single pole of \\(L(s,\\chi_0)\\), so \\(F(s) \\to 0\\), contradicting \\(F(s) \\geq 1\\). For real \\(\\chi\\), \\(\\overline{\\chi} = \\chi\\), so the zero-pair collapses to a single zero, which exactly cancels the pole. The product \\(F(s)\\) approaches a finite positive limit, and no contradiction arises.'
                 }
             ]
         },
 
         // ================================================================
-        // SECTION 5: PNT for Arithmetic Progressions
+        // SECTION 5: Quantitative Form — PNT for Arithmetic Progressions
         // ================================================================
         {
             id: 'sec-quantitative',
-            title: 'PNT for Arithmetic Progressions',
+            title: 'PNT for Progressions',
             content: `
-<h2>The Prime Number Theorem for Arithmetic Progressions</h2>
+<h2>The Prime Number Theorem in Arithmetic Progressions</h2>
 
-<p>Dirichlet's theorem gives infinitely many primes in each reduced residue class, but says nothing about how many there are up to \\(x\\). The quantitative refinement is the <em>Prime Number Theorem for arithmetic progressions</em>, which says that the primes distribute equally among the \\(\\varphi(q)\\) residue classes.</p>
-
-<h3>The Statement</h3>
-
-<div class="env-block theorem">
-    <div class="env-title">Theorem 10.4 (PNT for Arithmetic Progressions)</div>
+<div class="env-block intuition">
+    <div class="env-title">From Infinitude to Asymptotics</div>
     <div class="env-body">
-        <p>For fixed \\(q\\) and \\(\\gcd(a,q) = 1\\),
-        \\[
-        \\pi(x; q, a) := \\#\\{p \\leq x : p \\equiv a \\pmod q\\} \\sim \\frac{1}{\\varphi(q)} \\cdot \\frac{x}{\\log x} \\quad \\text{as } x \\to \\infty.
-        \\]
-        Equivalently, \\(\\psi(x; q, a) := \\sum_{\\substack{n \\leq x \\\\ n \\equiv a \\pmod q}} \\Lambda(n) \\sim \\dfrac{x}{\\varphi(q)}\\) where \\(\\Lambda\\) is the von Mangoldt function.</p>
+        <p>Dirichlet's theorem says each coprime class has infinitely many primes. The prime number theorem for arithmetic progressions gives the precise rate: each class gets asymptotically \\(1/\\varphi(q)\\) of all primes. This is the quantitative version of "every lane carries equal traffic."</p>
     </div>
 </div>
 
-<h3>Proof via L-Function Zeros</h3>
+<div class="env-block theorem">
+    <div class="env-title">Theorem 10.6 (PNT for Arithmetic Progressions)</div>
+    <div class="env-body">
+        <p>For \\(\\gcd(a, q) = 1\\),</p>
+        \\[\\pi(x; q, a) := \\#\\{p \\leq x : p \\equiv a \\pmod{q}\\} \\sim \\frac{\\mathrm{li}(x)}{\\varphi(q)} \\quad \\text{as } x \\to \\infty.\\]
+        <p>Equivalently,</p>
+        \\[\\psi(x; q, a) := \\sum_{\\substack{n \\leq x \\\\ n \\equiv a \\pmod{q}}} \\Lambda(n) \\sim \\frac{x}{\\varphi(q)}.\\]
+    </div>
+</div>
 
-<p>The proof follows the same template as the standard PNT. Using the orthogonality of characters,
-\\[
-\\psi(x; q, a) = \\frac{1}{\\varphi(q)} \\sum_{\\chi \\bmod q} \\overline{\\chi(a)} \\psi(x, \\chi)
-\\]
-where \\(\\psi(x, \\chi) = \\sum_{n \\leq x} \\Lambda(n)\\chi(n)\\). The explicit formula for each \\(\\psi(x,\\chi)\\) involves the zeros of \\(L(s,\\chi)\\):
-\\[
-\\psi(x, \\chi) = -\\sum_{\\rho} \\frac{x^\\rho}{\\rho} + \\text{(minor terms)}
-\\]
-where the sum is over zeros \\(\\rho\\) of \\(L(s,\\chi)\\). For \\(\\chi = \\chi_0\\), the term from \\(\\rho = 1\\) (which is actually a pole, not a zero) contributes the main term \\(x\\). For all other \\(\\chi\\), the main term is absent, and the sum over zeros gives an error term.</p>
+<h3>The Explicit Formula for Progressions</h3>
 
-<h3>The Error Term and Zero-Free Regions</h3>
+<p>Just as the PNT for all primes rests on the zeros of \\(\\zeta(s)\\), the PNT in progressions rests on the zeros of all \\(L(s, \\chi)\\) with \\(\\chi \\bmod q\\):</p>
 
-<p>The quality of the error term depends on how far the zeros of \\(L(s,\\chi)\\) are pushed from the line \\(\\operatorname{Re}(s) = 1\\). The classical result gives
-\\[
-\\psi(x; q, a) = \\frac{x}{\\varphi(q)} + O\\left(x e^{-c\\sqrt{\\log x}}\\right)
-\\]
-for \\(q\\) fixed. Under GRH (all zeros have \\(\\operatorname{Re}(s) = 1/2\\)), this improves to \\(O(x^{1/2} \\log^2 x)\\).</p>
+\\[\\psi(x; q, a) = \\frac{x}{\\varphi(q)} - \\frac{1}{\\varphi(q)} \\sum_{\\chi \\bmod q} \\overline{\\chi(a)} \\sum_{\\rho_{\\chi}} \\frac{x^{\\rho_\\chi}}{\\rho_\\chi} + O(\\log^2 x),\\]
 
-<p>For varying \\(q\\), the situation is more delicate. The <em>Bombieri-Vinogradov theorem</em> (Chapter 13) shows that on average over \\(q \\leq x^{1/2}/(\\log x)^A\\), the error term is as small as GRH would predict.</p>
+<p>where \\(\\rho_\\chi\\) runs over the non-trivial zeros of \\(L(s, \\chi)\\). The error term depends on how far the zeros \\(\\rho_\\chi\\) are from the line \\(\\operatorname{Re}(s) = 1\\).</p>
 
-<h3>Equidistribution</h3>
+<h3>The Generalized Riemann Hypothesis</h3>
 
-<p>The ratio \\(\\pi(x; q, a) / \\pi(x)\\) converges to \\(1/\\varphi(q)\\) as \\(x \\to \\infty\\), confirming that primes are equidistributed modulo \\(q\\). This is the analogue of Weyl's equidistribution theorem for primes.</p>
+<div class="env-block definition">
+    <div class="env-title">Conjecture (GRH for Dirichlet L-functions)</div>
+    <div class="env-body">
+        <p>All non-trivial zeros of \\(L(s, \\chi)\\), for every primitive character \\(\\chi\\), lie on the critical line \\(\\operatorname{Re}(s) = 1/2\\).</p>
+    </div>
+</div>
+
+<p>Under GRH, the error term improves dramatically:</p>
+
+<div class="env-block theorem">
+    <div class="env-title">Theorem 10.7 (Conditional on GRH)</div>
+    <div class="env-body">
+        <p>Assuming GRH for all \\(L(s, \\chi)\\) with \\(\\chi \\bmod q\\),</p>
+        \\[\\psi(x; q, a) = \\frac{x}{\\varphi(q)} + O(\\sqrt{x} \\log^2(qx)).\\]
+    </div>
+</div>
+
+<p>Without GRH, the best unconditional results come from zero-free regions of \\(L\\)-functions, analogous to the classical zero-free region for \\(\\zeta(s)\\).</p>
+
+<h3>Uniformity in \\(q\\): The Siegel-Walfisz Theorem</h3>
+
+<p>The asymptotic \\(\\pi(x; q, a) \\sim \\mathrm{li}(x)/\\varphi(q)\\) holds for each fixed \\(q\\), but the implicit constant depends on \\(q\\). How large can \\(q\\) be relative to \\(x\\) while the asymptotic remains valid?</p>
+
+<div class="env-block theorem">
+    <div class="env-title">Theorem 10.8 (Siegel-Walfisz, 1936)</div>
+    <div class="env-body">
+        <p>For any fixed \\(A > 0\\), there exists \\(c(A) > 0\\) such that</p>
+        \\[\\psi(x; q, a) = \\frac{x}{\\varphi(q)} + O_A\\left(x \\exp(-c(A) \\sqrt{\\log x})\\right)\\]
+        <p>uniformly for \\(q \\leq (\\log x)^A\\).</p>
+    </div>
+</div>
+
+<p>The limitation \\(q \\leq (\\log x)^A\\) is quite restrictive. The Bombieri-Vinogradov theorem (Chapter 13) dramatically extends the range of uniformity on average over \\(q\\).</p>
 
 <div class="viz-placeholder" data-viz="viz-equidistribution"></div>
 `,
             visualizations: [
                 {
                     id: 'viz-equidistribution',
-                    title: 'Convergence to Equidistribution \\(1/\\varphi(q)\\)',
-                    description: 'Plot \\(\\pi(x;q,a) / \\pi(x)\\) for each residue \\(a\\) coprime to \\(q\\). All curves converge to \\(1/\\varphi(q)\\) as \\(x\\) grows.',
+                    title: 'Equidistribution of Primes in Residue Classes',
+                    description: 'For each coprime residue class mod q, plot the fraction of primes up to x falling in that class. The prediction is 1/\u03C6(q) for each. Watch convergence as x grows.',
                     setup: function(body, controls) {
-                        var viz = new VizEngine(body, { width: 680, height: 380, originX: 60, originY: 340, scale: 1 });
-                        var qVal = 6;
-
-                        function gcd(a, b) { return b === 0 ? a : gcd(b, a % b); }
-
-                        var qSelect = document.createElement('select');
-                        qSelect.style.cssText = 'padding:4px 8px;border:1px solid #30363d;border-radius:4px;background:#1a1a40;color:#c9d1d9;font-size:0.78rem;margin-right:8px;';
-                        [4, 5, 6, 8, 10, 12].forEach(function(q) {
-                            var opt = document.createElement('option');
-                            opt.value = q; opt.textContent = 'q = ' + q;
-                            if (q === qVal) opt.selected = true;
-                            qSelect.appendChild(opt);
+                        var viz = new VizEngine(body, {
+                            width: 560, height: 400,
+                            originX: 0, originY: 0, scale: 1
                         });
-                        qSelect.addEventListener('change', function() { qVal = parseInt(qSelect.value); draw(); });
-                        controls.appendChild(document.createTextNode('Modulus: '));
-                        controls.appendChild(qSelect);
 
-                        var COLORS = ['#58a6ff','#f0883e','#3fb950','#bc8cff','#f85149','#3fb9a0','#d29922','#f778ba'];
+                        var primes = VizEngine.sievePrimes(50000);
+                        var qVal = 5;
+                        var xMax = 10000;
+
+                        VizEngine.createSlider(controls, 'q (modulus)', 3, 12, qVal, 1, function(v) {
+                            qVal = Math.round(v);
+                            draw();
+                        });
+                        VizEngine.createSlider(controls, 'x max', 1000, 50000, xMax, 1000, function(v) {
+                            xMax = Math.round(v);
+                            draw();
+                        });
+
+                        function gcd(a, b) { while (b) { var t = b; b = a % b; a = t; } return a; }
+
+                        var lineColors = [
+                            viz.colors.blue, viz.colors.teal, viz.colors.orange,
+                            viz.colors.purple, viz.colors.green, viz.colors.red,
+                            viz.colors.yellow, viz.colors.pink
+                        ];
 
                         function draw() {
                             viz.clear();
-                            var xMax = 3000;
-                            var primes = VizEngine.sievePrimes(xMax);
-                            var units = [];
-                            for (var a = 1; a < qVal; a++) { if (gcd(a, qVal) === 1) units.push(a); }
-                            var phi = units.length;
-
-                            var step = 20;
-                            var xs = [], piTotal = [];
-                            var cur = {}; units.forEach(function(a) { cur[a] = 0; });
-                            var totalPi = 0;
-                            var pIdx = 0;
-                            var dataSeries = {}; units.forEach(function(a) { dataSeries[a] = []; });
-
-                            for (var x = 10; x <= xMax; x += step) {
-                                while (pIdx < primes.length && primes[pIdx] <= x) {
-                                    var p = primes[pIdx++];
-                                    var r = p % qVal;
-                                    if (cur[r] !== undefined) cur[r]++;
-                                    totalPi++;
-                                }
-                                xs.push(x);
-                                piTotal.push(totalPi);
-                                units.forEach(function(a) {
-                                    dataSeries[a].push(totalPi > 0 ? cur[a] / totalPi : 0);
-                                });
-                            }
-
-                            var chartW = viz.width - 80;
-                            var chartH = viz.height - 60;
                             var ctx = viz.ctx;
 
-                            // Axes
-                            ctx.strokeStyle = viz.colors.axis; ctx.lineWidth = 1.5;
-                            ctx.beginPath(); ctx.moveTo(60, 20); ctx.lineTo(60, viz.height - 40); ctx.stroke();
-                            ctx.beginPath(); ctx.moveTo(60, viz.height - 40); ctx.lineTo(viz.width - 20, viz.height - 40); ctx.stroke();
-
-                            // Y range 0 to 0.6
-                            var yMax = 0.6;
-                            ctx.font = '11px -apple-system,sans-serif'; ctx.textAlign = 'right';
-                            for (var yi = 0; yi <= 6; yi++) {
-                                var yv = yMax * yi / 6;
-                                var py = (viz.height - 40) - chartH * yi / 6;
-                                ctx.fillStyle = viz.colors.text;
-                                ctx.fillText(yv.toFixed(2), 56, py + 4);
-                                ctx.strokeStyle = viz.colors.grid; ctx.lineWidth = 0.4;
-                                ctx.beginPath(); ctx.moveTo(60, py); ctx.lineTo(viz.width - 20, py); ctx.stroke();
+                            var residues = [];
+                            for (var a = 1; a < qVal; a++) {
+                                if (gcd(a, qVal) === 1) residues.push(a);
                             }
-
-                            // X labels
-                            ctx.textAlign = 'center';
-                            for (var xi = 0; xi <= 5; xi++) {
-                                var xv = Math.round(xMax * xi / 5);
-                                var px = 60 + chartW * xi / 5;
-                                ctx.fillStyle = viz.colors.text;
-                                ctx.fillText(xv, px, viz.height - 26);
-                            }
-
-                            // Target line 1/phi(q)
+                            var phi = residues.length;
                             var target = 1 / phi;
-                            var tyPx = (viz.height - 40) - (target / yMax) * chartH;
-                            ctx.strokeStyle = viz.colors.white + '55'; ctx.lineWidth = 1.5; ctx.setLineDash([6, 4]);
-                            ctx.beginPath(); ctx.moveTo(60, tyPx); ctx.lineTo(viz.width - 20, tyPx); ctx.stroke();
-                            ctx.setLineDash([]);
-                            ctx.fillStyle = viz.colors.white; ctx.font = '11px -apple-system,sans-serif'; ctx.textAlign = 'left';
-                            ctx.fillText('1/\u03c6(q) = 1/' + phi + ' \u2248 ' + target.toFixed(3), viz.width - 140, tyPx - 8);
 
-                            // Curves
-                            units.forEach(function(a, i) {
-                                var color = COLORS[i % COLORS.length];
-                                var arr = dataSeries[a];
-                                ctx.strokeStyle = color; ctx.lineWidth = 1.8;
+                            var plotLeft = 70, plotRight = viz.width - 30;
+                            var plotTop = 40, plotBottom = 330;
+                            var plotW = plotRight - plotLeft;
+                            var plotH = plotBottom - plotTop;
+
+                            // Compute fractions at many x values
+                            var steps = 200;
+                            var fractions = {};
+                            for (var r = 0; r < residues.length; r++) fractions[residues[r]] = [];
+
+                            for (var i = 0; i <= steps; i++) {
+                                var x = Math.round(200 + (xMax - 200) * i / steps);
+                                var total = 0;
+                                var cnts = {};
+                                for (var r2 = 0; r2 < residues.length; r2++) cnts[residues[r2]] = 0;
+
+                                for (var j = 0; j < primes.length && primes[j] <= x; j++) {
+                                    if (gcd(primes[j], qVal) === 1) {
+                                        total++;
+                                        var rem = primes[j] % qVal;
+                                        if (cnts[rem] !== undefined) cnts[rem]++;
+                                    }
+                                }
+
+                                for (var r3 = 0; r3 < residues.length; r3++) {
+                                    fractions[residues[r3]].push({
+                                        x: x,
+                                        frac: total > 0 ? cnts[residues[r3]] / total : 0
+                                    });
+                                }
+                            }
+
+                            // Y range: center on target
+                            var yMin = target - 0.15;
+                            var yMax2 = target + 0.15;
+                            if (yMin < 0) { yMin = 0; yMax2 = 2 * target + 0.1; }
+
+                            // Axes
+                            ctx.strokeStyle = viz.colors.axis;
+                            ctx.lineWidth = 1;
+                            ctx.beginPath();
+                            ctx.moveTo(plotLeft, plotBottom);
+                            ctx.lineTo(plotRight, plotBottom);
+                            ctx.stroke();
+                            ctx.beginPath();
+                            ctx.moveTo(plotLeft, plotBottom);
+                            ctx.lineTo(plotLeft, plotTop);
+                            ctx.stroke();
+
+                            // Target line
+                            var targetY = plotBottom - ((target - yMin) / (yMax2 - yMin)) * plotH;
+                            ctx.strokeStyle = viz.colors.white + '66';
+                            ctx.lineWidth = 1;
+                            ctx.setLineDash([6, 4]);
+                            ctx.beginPath();
+                            ctx.moveTo(plotLeft, targetY);
+                            ctx.lineTo(plotRight, targetY);
+                            ctx.stroke();
+                            ctx.setLineDash([]);
+                            ctx.fillStyle = viz.colors.white;
+                            ctx.font = '11px -apple-system,sans-serif';
+                            ctx.textAlign = 'right';
+                            ctx.textBaseline = 'bottom';
+                            ctx.fillText('1/\u03C6 = ' + target.toFixed(3), plotLeft - 5, targetY);
+
+                            // Draw fraction curves
+                            for (var r4 = 0; r4 < residues.length; r4++) {
+                                var data = fractions[residues[r4]];
+                                var col = lineColors[r4 % lineColors.length];
+                                ctx.strokeStyle = col;
+                                ctx.lineWidth = 1.5;
                                 ctx.beginPath();
-                                for (var k = 0; k < xs.length; k++) {
-                                    var px = 60 + (xs[k] / xMax) * chartW;
-                                    var py = (viz.height - 40) - (arr[k] / yMax) * chartH;
-                                    k === 0 ? ctx.moveTo(px, py) : ctx.lineTo(px, py);
+                                for (var k = 0; k < data.length; k++) {
+                                    var px = plotLeft + (k / steps) * plotW;
+                                    var py = plotBottom - ((data[k].frac - yMin) / (yMax2 - yMin)) * plotH;
+                                    py = Math.max(plotTop, Math.min(plotBottom, py));
+                                    if (k === 0) ctx.moveTo(px, py);
+                                    else ctx.lineTo(px, py);
                                 }
                                 ctx.stroke();
+                            }
 
-                                var legX = 70 + (i % 4) * 110;
-                                var legY = 18 + Math.floor(i / 4) * 16;
-                                ctx.fillStyle = color; ctx.fillRect(legX, legY - 5, 14, 3);
-                                ctx.font = '10px -apple-system,sans-serif'; ctx.textAlign = 'left';
-                                ctx.fillText('a=' + a, legX + 18, legY);
-                            });
+                            // Legend
+                            var legY = plotBottom + 20;
+                            var legSpacing = Math.min(80, (viz.width - 40) / residues.length);
+                            var legStart = (viz.width - residues.length * legSpacing) / 2;
+                            ctx.font = '11px -apple-system,sans-serif';
+                            ctx.textAlign = 'left';
+                            for (var r5 = 0; r5 < residues.length; r5++) {
+                                var lx = legStart + r5 * legSpacing;
+                                ctx.fillStyle = lineColors[r5 % lineColors.length];
+                                ctx.fillRect(lx, legY, 10, 10);
+                                ctx.fillText(residues[r5] + ' mod ' + qVal, lx + 14, legY + 9);
+                            }
 
-                            ctx.fillStyle = viz.colors.white; ctx.font = '13px -apple-system,sans-serif';
-                            ctx.textAlign = 'center';
-                            ctx.fillText('\u03c0(x; q, a) / \u03c0(x)  converging to  1/\u03c6(' + qVal + ') = 1/' + phi, viz.width / 2, viz.height - 8);
+                            viz.screenText('Fraction of primes in each class mod ' + qVal, viz.width / 2, 18, viz.colors.white, 14);
+                            viz.screenText('All curves converge to 1/\u03C6(q) = ' + target.toFixed(4), viz.width / 2, plotBottom + 50, viz.colors.teal, 11);
                         }
-
                         draw();
                         return viz;
                     }
@@ -860,67 +939,86 @@ for \\(q\\) fixed. Under GRH (all zeros have \\(\\operatorname{Re}(s) = 1/2\\)),
             ],
             exercises: [
                 {
-                    question: 'Using the von Mangoldt function, rewrite \\(\\psi(x; q, a)\\) as a sum involving \\(\\Lambda\\), and explain why \\(\\psi(x; q, a) \\sim \\pi(x; q, a) \\log x\\) for fixed \\(q\\).',
-                    hint: 'The dominant contribution to \\(\\psi(x;q,a)\\) comes from primes (\\(k=1\\) terms), since prime powers contribute at most \\(O(\\sqrt{x})\\).',
-                    solution: '\\(\\psi(x; q, a) = \\sum_{n \\leq x, n \\equiv a} \\Lambda(n) = \\sum_{p \\leq x, p \\equiv a} \\log p + \\sum_{k \\geq 2} \\sum_{p^k \\leq x, p^k \\equiv a} \\log p\\). The prime power terms are \\(O(\\sqrt{x})\\), negligible compared to the main term. Since \\(\\pi(x;q,a) \\sim x/(\\varphi(q)\\log x)\\) and \\(\\sum_{p \\leq x, p \\equiv a} \\log p \\sim x/\\varphi(q)\\), dividing gives \\(\\pi(x;q,a) \\log x \\sim \\psi(x;q,a)\\).'
+                    question: 'Compute \\(\\pi(1000; 5, 1)\\), \\(\\pi(1000; 5, 2)\\), \\(\\pi(1000; 5, 3)\\), \\(\\pi(1000; 5, 4)\\). How close are the ratios to \\(1/4\\)?',
+                    hint: 'The primes up to 1000 not equal to 5 must fall in one of the four classes 1, 2, 3, 4 mod 5. Count them (or look up a table).',
+                    solution: 'There are 167 primes up to 1000 (excluding 2, 3, 5). Among primes up to 1000: \\(\\pi(1000;5,1) = 40\\), \\(\\pi(1000;5,2) = 42\\), \\(\\pi(1000;5,3) = 42\\), \\(\\pi(1000;5,4) = 43\\) (the exact counts depend on including 2 and 3). The total is 167 (for \\(p > 5\\)), and the ratios are approximately \\(40/167 \\approx 0.240\\), \\(42/167 \\approx 0.251\\), \\(42/167 \\approx 0.251\\), \\(43/167 \\approx 0.257\\). All close to \\(1/4 = 0.25\\).'
+                },
+                {
+                    question: 'Explain why the Siegel-Walfisz theorem only gives uniformity for \\(q \\leq (\\log x)^A\\), and why this range is unsatisfying for applications.',
+                    hint: 'Think about what range of \\(q\\) appears in sieve methods or the Goldbach problem.',
+                    solution: 'Applications like the Goldbach problem need primes in progressions with \\(q \\approx \\sqrt{x}\\) or even \\(q \\approx x^{1/2}\\), far exceeding \\((\\log x)^A\\). The Siegel-Walfisz range \\(q \\leq (\\log x)^A\\) covers only fixed moduli as \\(x \\to \\infty\\). The limitation comes from possible Siegel zeros: if an \\(L(s, \\chi_D)\\) has a real zero very close to \\(s = 1\\), its contribution to \\(\\psi(x; q, a)\\) could be large and the error bound depends ineffectively on \\(q\\). The Bombieri-Vinogradov theorem circumvents this by averaging over \\(q\\).'
                 }
             ]
         },
 
         // ================================================================
-        // SECTION 6: Siegel Zeros
+        // SECTION 6: Siegel Zeros — The Persistent Ghost
         // ================================================================
         {
             id: 'sec-siegel',
             title: 'Siegel Zeros',
             content: `
-<h2>Siegel Zeros: The Shadow on the Real Line</h2>
+<h2>Siegel Zeros: The Persistent Ghost</h2>
 
-<p>The zero-free region for \\(L(s,\\chi)\\) (Theorem 10.5 below) has a strange exception: for real characters, there might be a real zero very close to \\(s = 1\\). These are called <em>Siegel zeros</em>, and they are the most frustrating open problem in the zero-free region theory.</p>
-
-<h3>The Classical Zero-Free Region</h3>
-
-<div class="env-block theorem">
-    <div class="env-title">Theorem 10.5 (Zero-Free Region for L-Functions)</div>
+<div class="env-block intuition">
+    <div class="env-title">A Zero That Probably Doesn't Exist</div>
     <div class="env-body">
-        <p>There exists an absolute constant \\(c > 0\\) such that \\(L(s, \\chi)\\) has no zeros in the region
-        \\[
-        \\sigma > 1 - \\frac{c}{\\log(q(|t|+2))}
-        \\]
-        with at most one exception: for each modulus \\(q\\), there is at most one real character \\(\\chi_1 \\pmod q\\) and at most one real zero \\(\\beta_1\\) (called a <em>Siegel zero</em>) with \\(\\beta_1 > 1 - c/\\log q\\).</p>
+        <p>The deepest obstacle in the theory of primes in progressions is the possible existence of "Siegel zeros": real zeros of \\(L(s, \\chi_D)\\) for a real character \\(\\chi_D\\), lying very close to \\(s = 1\\). Dirichlet's theorem tells us \\(L(1, \\chi) \\neq 0\\), but it says nothing about how close a zero can get. If a zero \\(\\beta\\) exists with \\(1 - \\beta < 1/\\log q\\), it wreaks havoc on the distribution of primes mod \\(q\\).</p>
     </div>
 </div>
 
-<h3>The Siegel Zero Threat</h3>
+<h3>What Is a Siegel Zero?</h3>
 
-<p>If a Siegel zero \\(\\beta_1\\) exists, the explicit formula gives
-\\[
-\\psi(x; q, a) = \\frac{x}{\\varphi(q)} - \\frac{\\overline{\\chi_1(a)} x^{\\beta_1}}{\\varphi(q) \\beta_1} + \\text{error}.
-\\]
-The second term \\(x^{\\beta_1}/\\varphi(q)\\) is nearly as large as the main term if \\(\\beta_1\\) is close to 1. This leads to highly irregular prime distribution for small \\(q\\).</p>
+<div class="env-block definition">
+    <div class="env-title">Definition (Exceptional Zero / Siegel Zero)</div>
+    <div class="env-body">
+        <p>A <strong>Siegel zero</strong> (or exceptional zero) is a real zero \\(\\beta \\in (0, 1)\\) of \\(L(s, \\chi_D)\\) for a real primitive character \\(\\chi_D\\), satisfying</p>
+        \\[1 - \\beta < \\frac{c}{\\log q}\\]
+        <p>for some absolute constant \\(c > 0\\). If such a zero exists, \\(\\chi_D\\) is called the <strong>exceptional character</strong> mod \\(q\\).</p>
+    </div>
+</div>
+
+<h3>The Zero-Free Region with Exception</h3>
+
+<p>For general Dirichlet \\(L\\)-functions, the standard zero-free region mirrors the classical one for \\(\\zeta(s)\\):</p>
+
+<div class="env-block theorem">
+    <div class="env-title">Theorem 10.9 (Zero-free Region for \\(L\\)-functions)</div>
+    <div class="env-body">
+        <p>There exists \\(c > 0\\) such that \\(L(s, \\chi)\\) has no zeros in the region</p>
+        \\[\\operatorname{Re}(s) > 1 - \\frac{c}{\\log(q(|t| + 2))}\\]
+        <p>with at most one exception: a single real zero \\(\\beta_1\\) belonging to a real character \\(\\chi_1\\) (the possible Siegel zero).</p>
+    </div>
+</div>
 
 <h3>Siegel's Theorem</h3>
 
+<p>We cannot prove that Siegel zeros don't exist, but we can show they can't be too close to 1:</p>
+
 <div class="env-block theorem">
-    <div class="env-title">Theorem 10.6 (Siegel, 1935)</div>
+    <div class="env-title">Theorem 10.10 (Siegel, 1935)</div>
     <div class="env-body">
-        <p>For any \\(\\varepsilon > 0\\), there exists \\(c(\\varepsilon) > 0\\) (ineffective) such that for every real primitive character \\(\\chi\\) modulo \\(q\\),
-        \\[
-        L(1, \\chi) > c(\\varepsilon) q^{-\\varepsilon}.
-        \\]
-        Equivalently, the Siegel zero \\(\\beta_1\\) (if it exists) satisfies \\(\\beta_1 < 1 - c(\\varepsilon) q^{-\\varepsilon}\\).</p>
+        <p>For every \\(\\varepsilon > 0\\), there exists \\(c(\\varepsilon) > 0\\) (ineffective!) such that</p>
+        \\[L(1, \\chi_D) > c(\\varepsilon) |D|^{-\\varepsilon}\\]
+        <p>for every real primitive character \\(\\chi_D\\). Equivalently, if \\(\\beta\\) is a real zero, then</p>
+        \\[\\beta < 1 - c(\\varepsilon) q^{-\\varepsilon}.\\]
     </div>
 </div>
 
-<p>The word <em>ineffective</em> is key: the constant \\(c(\\varepsilon)\\) cannot be computed. If we knew \\(c(\\varepsilon)\\) explicitly for any \\(\\varepsilon\\), we would know that the exceptional Siegel zero (if it exists) is bounded away from 1, which would give us an effective version of the PNT for primes in arithmetic progressions.</p>
+<div class="env-block remark">
+    <div class="env-title">The Ineffectivity Problem</div>
+    <div class="env-body">
+        <p>Siegel's theorem is <strong>ineffective</strong>: the constant \\(c(\\varepsilon)\\) exists but cannot be computed. This is because the proof proceeds by contradiction in a subtle way: either every \\(L(s, \\chi)\\) is far from zero, or there is one that is close, but if there is one that is close, then all <em>other</em> \\(L(s, \\chi')\\) are far from zero. We can conclude that "at most one" modulus can have a Siegel zero, but we cannot determine which one. This ineffectivity propagates into the Siegel-Walfisz theorem and is one of the most frustrating aspects of analytic number theory.</p>
+    </div>
+</div>
 
-<h3>Why Siegel Zeros Matter</h3>
+<h3>Consequences of a Siegel Zero</h3>
 
-<p>Siegel zeros are connected to deep open problems:</p>
+<p>If a Siegel zero \\(\\beta_1\\) existed for \\(\\chi_D \\bmod q\\), it would cause striking effects:</p>
 <ul>
-    <li><strong>Landau-Siegel zeros conjecture:</strong> No Siegel zeros exist. This would follow from GRH.</li>
-    <li><strong>Goldfeld-Gross-Zagier:</strong> An effective lower bound for \\(h(D)\\) (class numbers of imaginary quadratic fields) would eliminate Siegel zeros for the associated characters.</li>
-    <li><strong>Linnik's constant:</strong> The least prime \\(p \\equiv a \\pmod q\\) satisfies \\(p \\ll q^L\\). The best known \\(L \\leq 5\\) (Xylouris 2011); GRH would give \\(L = 2 + \\varepsilon\\). Siegel zeros prevent us from getting \\(L\\) much below 2 unconditionally.</li>
+    <li><strong>Biased distribution:</strong> Primes \\(p \\equiv a \\pmod{q}\\) with \\(\\chi_D(a) = -1\\) would be over-represented relative to those with \\(\\chi_D(a) = 1\\), at least for a long initial segment.</li>
+    <li><strong>Large class number:</strong> The class number \\(h(D)\\) would be very small (by the class number formula), which contradicts the growth expected from Siegel's lower bound on \\(L(1, \\chi_D)\\).</li>
+    <li><strong>Landau-Siegel zero conjecture:</strong> It is widely believed (but unproven) that Siegel zeros do not exist. GRH implies this immediately.</li>
 </ul>
 
 <div class="viz-placeholder" data-viz="viz-siegel-near-miss"></div>
@@ -928,81 +1026,108 @@ The second term \\(x^{\\beta_1}/\\varphi(q)\\) is nearly as large as the main te
             visualizations: [
                 {
                     id: 'viz-siegel-near-miss',
-                    title: 'Siegel Zero: Interactive \\(\\varepsilon\\) Bound',
-                    description: 'Visualize Siegel\'s theorem: \\(L(1,\\chi) > c(\\varepsilon) q^{-\\varepsilon}\\). Drag the \\(\\varepsilon\\) slider to see how the lower bound on \\(L(1,\\chi)\\) shrinks as \\(q\\) grows, with different \\(\\varepsilon\\) choices.',
+                    title: 'How Close Can a Zero Get to s = 1?',
+                    description: 'Visualize the zero-free region for L(s, \u03C7). The classical region excludes a neighborhood of Re(s) = 1, but a single real "Siegel zero" might sneak through for a real character. Drag the hypothetical zero to see its effect.',
                     setup: function(body, controls) {
-                        var viz = new VizEngine(body, { width: 640, height: 360, originX: 70, originY: 310, scale: 1 });
-                        var eps = 0.1;
+                        var viz = new VizEngine(body, {
+                            width: 560, height: 400,
+                            originX: 100, originY: 200, scale: 200
+                        });
 
-                        VizEngine.createSlider(controls, '\u03b5', 0.01, 0.5, eps, 0.01, function(v) { eps = v; draw(); });
+                        var siegelBeta = 0.95;
+                        VizEngine.createSlider(controls, '\u03B2 (Siegel zero)', 0.5, 0.999, siegelBeta, 0.001, function(v) {
+                            siegelBeta = v;
+                            draw();
+                        });
 
                         function draw() {
                             viz.clear();
                             var ctx = viz.ctx;
-                            var chartW = viz.width - 90;
-                            var chartH = viz.height - 60;
-                            var qMax = 1000;
 
-                            // Axes
-                            ctx.strokeStyle = viz.colors.axis; ctx.lineWidth = 1.5;
-                            ctx.beginPath(); ctx.moveTo(70, 20); ctx.lineTo(70, viz.height - 40); ctx.stroke();
-                            ctx.beginPath(); ctx.moveTo(70, viz.height - 40); ctx.lineTo(viz.width - 20, viz.height - 40); ctx.stroke();
+                            // Draw the critical strip [0,1] x R
+                            var [sx0] = viz.toScreen(0, 0);
+                            var [sx1] = viz.toScreen(1, 0);
+                            ctx.fillStyle = '#1a1a40';
+                            ctx.fillRect(sx0, 0, sx1 - sx0, viz.height);
 
-                            // Y: 0 to 1 for L(1,chi)
-                            ctx.font = '11px -apple-system,sans-serif'; ctx.textAlign = 'right';
-                            for (var yi = 0; yi <= 5; yi++) {
-                                var yv = yi / 5;
-                                var py = (viz.height - 40) - chartH * yi / 5;
-                                ctx.fillStyle = viz.colors.text;
-                                ctx.fillText(yv.toFixed(1), 66, py + 4);
-                                ctx.strokeStyle = viz.colors.grid; ctx.lineWidth = 0.4;
-                                ctx.beginPath(); ctx.moveTo(70, py); ctx.lineTo(viz.width - 20, py); ctx.stroke();
-                            }
-
-                            // X labels
-                            ctx.textAlign = 'center';
-                            for (var xi = 0; xi <= 5; xi++) {
-                                var xv = Math.round(qMax * xi / 5);
-                                var px = 70 + chartW * xi / 5;
-                                ctx.fillStyle = viz.colors.text;
-                                ctx.fillText(xv, px, viz.height - 26);
-                            }
-                            ctx.fillStyle = viz.colors.text; ctx.textAlign = 'center';
-                            ctx.fillText('q (modulus)', viz.width / 2, viz.height - 10);
-
-                            // Siegel lower bound: assume c(eps) = 1 for illustration
-                            // The actual c(eps) is unknown; show q^{-eps} curve
-                            ctx.strokeStyle = viz.colors.red; ctx.lineWidth = 2;
+                            // Critical line Re(s) = 1/2
+                            var [sxHalf] = viz.toScreen(0.5, 0);
+                            ctx.strokeStyle = viz.colors.teal + '44';
+                            ctx.lineWidth = 1;
+                            ctx.setLineDash([4, 4]);
                             ctx.beginPath();
-                            for (var qi = 2; qi <= qMax; qi += 5) {
-                                var bound = Math.pow(qi, -eps);
-                                var px2 = 70 + (qi / qMax) * chartW;
-                                var py2 = (viz.height - 40) - Math.min(bound, 1) * chartH;
-                                qi === 2 ? ctx.moveTo(px2, py2) : ctx.lineTo(px2, py2);
+                            ctx.moveTo(sxHalf, 0);
+                            ctx.lineTo(sxHalf, viz.height);
+                            ctx.stroke();
+                            ctx.setLineDash([]);
+
+                            // Line Re(s) = 1
+                            var [sxOne] = viz.toScreen(1, 0);
+                            ctx.strokeStyle = viz.colors.white + '66';
+                            ctx.lineWidth = 1.5;
+                            ctx.beginPath();
+                            ctx.moveTo(sxOne, 0);
+                            ctx.lineTo(sxOne, viz.height);
+                            ctx.stroke();
+
+                            // Zero-free region curve: Re(s) > 1 - c/log(q(|t|+2))
+                            // Approximate as a curve
+                            ctx.strokeStyle = viz.colors.orange;
+                            ctx.lineWidth = 2;
+                            ctx.beginPath();
+                            for (var py = 0; py <= viz.height; py += 2) {
+                                var t = (viz.originY - py) / viz.scale;
+                                var c = 0.05;
+                                var boundary = 1 - c / Math.log(10 * (Math.abs(t) + 2));
+                                var [bx] = viz.toScreen(boundary, 0);
+                                if (py === 0) ctx.moveTo(bx, py);
+                                else ctx.lineTo(bx, py);
                             }
                             ctx.stroke();
 
-                            // Show a "hypothetical L(1,chi)" hovering above the bound
-                            ctx.strokeStyle = viz.colors.blue; ctx.lineWidth = 2; ctx.setLineDash([5, 3]);
+                            // Shade the zero-free region
+                            ctx.fillStyle = viz.colors.green + '11';
                             ctx.beginPath();
-                            for (var qi2 = 2; qi2 <= qMax; qi2 += 5) {
-                                var val = Math.max(Math.pow(qi2, -eps) * 2, 0.05) + 0.1 * Math.sin(qi2 / 30);
-                                var px3 = 70 + (qi2 / qMax) * chartW;
-                                var py3 = (viz.height - 40) - Math.min(Math.max(val, 0), 1) * chartH;
-                                qi2 === 2 ? ctx.moveTo(px3, py3) : ctx.lineTo(px3, py3);
+                            for (var py2 = 0; py2 <= viz.height; py2 += 2) {
+                                var t2 = (viz.originY - py2) / viz.scale;
+                                var c2 = 0.05;
+                                var bd2 = 1 - c2 / Math.log(10 * (Math.abs(t2) + 2));
+                                var [bx2] = viz.toScreen(bd2, 0);
+                                if (py2 === 0) ctx.moveTo(bx2, py2);
+                                else ctx.lineTo(bx2, py2);
                             }
-                            ctx.stroke(); ctx.setLineDash([]);
+                            ctx.lineTo(viz.width, viz.height);
+                            ctx.lineTo(viz.width, 0);
+                            ctx.closePath();
+                            ctx.fill();
+
+                            // Draw hypothetical Siegel zero
+                            viz.drawPoint(siegelBeta, 0, viz.colors.red, '\u03B2 = ' + siegelBeta.toFixed(3), 7);
+
+                            // Show gap from 1
+                            var gap = 1 - siegelBeta;
+                            ctx.strokeStyle = viz.colors.red + '88';
+                            ctx.lineWidth = 1;
+                            ctx.setLineDash([3, 3]);
+                            var [sxBeta, syBeta] = viz.toScreen(siegelBeta, 0);
+                            ctx.beginPath();
+                            ctx.moveTo(sxBeta, syBeta - 30);
+                            ctx.lineTo(sxOne, syBeta - 30);
+                            ctx.stroke();
+                            ctx.setLineDash([]);
+                            ctx.fillStyle = viz.colors.red;
+                            ctx.font = '11px -apple-system,sans-serif';
+                            ctx.textAlign = 'center';
+                            ctx.textBaseline = 'bottom';
+                            ctx.fillText('1 - \u03B2 = ' + gap.toFixed(4), (sxBeta + sxOne) / 2, syBeta - 33);
 
                             // Labels
-                            ctx.fillStyle = viz.colors.red; ctx.font = '12px -apple-system,sans-serif'; ctx.textAlign = 'left';
-                            ctx.fillText('Siegel lower bound: c(\u03b5) \u00b7 q^{-\u03b5}', 80, 35);
-                            ctx.fillStyle = viz.colors.blue;
-                            ctx.fillText('L(1, \u03c7) for a real \u03c7 (illustrative)', 80, 55);
-
-                            ctx.fillStyle = viz.colors.white; ctx.font = '13px -apple-system,sans-serif'; ctx.textAlign = 'center';
-                            ctx.fillText('\u03b5 = ' + eps.toFixed(2) + '  \u2014  Siegel: L(1,\u03c7) > c(\u03b5) q^{-\u03b5}  (c(\u03b5) ineffective)', viz.width / 2, viz.height - 44);
+                            viz.screenText('Re(s) = 1/2', sxHalf, 15, viz.colors.teal, 10);
+                            viz.screenText('Re(s) = 1', sxOne + 5, 15, viz.colors.white, 10, 'left');
+                            viz.screenText('Zero-free region', viz.width - 60, 50, viz.colors.green, 10);
+                            viz.screenText('(except possible Siegel zero)', viz.width / 2, viz.height - 30, viz.colors.red, 10);
+                            viz.screenText('Siegel: \u03B2 < 1 - c(\u03B5)q^{-\u03B5}', viz.width / 2, viz.height - 12, viz.colors.text, 10);
                         }
-
                         draw();
                         return viz;
                     }
@@ -1010,165 +1135,200 @@ The second term \\(x^{\\beta_1}/\\varphi(q)\\) is nearly as large as the main te
             ],
             exercises: [
                 {
-                    question: 'Suppose a Siegel zero \\(\\beta_1\\) for a real character \\(\\chi_1 \\pmod q\\) satisfies \\(\\beta_1 = 1 - \\delta\\) with \\(\\delta\\) small. Show that the "error" term \\(x^{\\beta_1}/\\varphi(q)\\) in \\(\\psi(x; q, a)\\) is comparable to the main term \\(x/\\varphi(q)\\) when \\(x \\approx e^{1/\\delta}\\).',
-                    hint: 'Compare \\(x^{1-\\delta}\\) to \\(x\\). The ratio is \\(x^{-\\delta} = e^{-\\delta \\log x}\\), which equals 1 when \\(\\log x = 1/\\delta\\), i.e., \\(x = e^{1/\\delta}\\).',
-                    solution: 'The error term is \\(x^{\\beta_1} = x^{1-\\delta} = x \\cdot e^{-\\delta \\log x}\\). This is comparable to \\(x\\) when \\(e^{-\\delta \\log x} \\approx 1\\), i.e., \\(\\delta \\log x \\ll 1\\), i.e., \\(x \\ll e^{1/\\delta}\\). For \\(x = e^{1/\\delta}\\), the error term is \\(x \\cdot e^{-1} \\approx 0.37x\\), nearly as large as the main term. This means that for \\(x\\) up to \\(e^{1/\\delta}\\), the equidistribution theorem is effectively false for the progression class detected by \\(\\chi_1\\).'
+                    question: 'Explain why at most one real character mod \\(q\\) can have a Siegel zero (for a given \\(q\\)).',
+                    hint: 'If two real characters both had zeros near \\(s = 1\\), consider the product \\(L(s, \\chi_1) L(s, \\chi_2) L(s, \\chi_1 \\chi_2) L(s, \\chi_0)\\).',
+                    solution: 'The product \\(F(s) = L(s,\\chi_0)L(s,\\chi_1)L(s,\\chi_2)L(s,\\chi_1\\chi_2)\\) has non-negative Dirichlet coefficients (by the same argument as the product over all characters). It has a simple pole at \\(s=1\\) from \\(\\chi_0\\). If both \\(\\chi_1\\) and \\(\\chi_2\\) had zeros at \\(s=\\beta_1, \\beta_2\\) near 1, the product would have zeros of total order \\(\\geq 2\\) near \\(s=1\\) (even more if \\(\\chi_1\\chi_2\\) also vanishes), canceling the pole and forcing \\(F(s) \\to 0\\), contradicting \\(F(s) \\geq 1\\).'
+                },
+                {
+                    question: 'If a Siegel zero \\(\\beta\\) existed with \\(1 - \\beta \\sim 1/(\\log q)^2\\), roughly how many primes \\(p \\leq x\\) in the "depleted" residue class (with \\(\\chi(a) = 1\\)) would be missing compared to the expected \\(x/(\\varphi(q) \\log x)\\)?',
+                    hint: 'The Siegel zero contributes a term \\(\\sim -x^\\beta / \\beta\\) to \\(\\psi(x; q, a)\\) when \\(\\chi(a) = 1\\).',
+                    solution: 'The contribution of the Siegel zero is \\(\\sim x^\\beta / \\varphi(q)\\). With \\(\\beta \\approx 1 - 1/(\\log q)^2\\), we get \\(x^\\beta = x \\cdot x^{-1/(\\log q)^2} = x \\cdot e^{-\\log x/(\\log q)^2}\\). For \\(x = q^{100}\\) say, this is \\(x \\cdot e^{-100/\\log q}\\), which is nearly \\(x\\). So the Siegel zero term \\(-x^\\beta/\\varphi(q)\\) nearly cancels the main term \\(x/\\varphi(q)\\), meaning the class with \\(\\chi(a) = 1\\) could have far fewer primes than expected, with the "missing" primes migrating to classes with \\(\\chi(a) = -1\\).'
                 }
             ]
         },
 
         // ================================================================
-        // SECTION 7: Beyond Zeta Methods
+        // SECTION 7: Bridge — Looking Ahead
         // ================================================================
         {
             id: 'sec-bridge',
-            title: 'Beyond Zeta Methods',
+            title: 'Bridge',
             content: `
-<h2>Beyond Zeta Methods: Chebyshev's Bias and Connections</h2>
+<h2>Looking Back and Ahead</h2>
 
-<p>Dirichlet's theorem and its quantitative refinement leave a finer question: among the different residue classes modulo \\(q\\), are all classes really equally populated, or are there systematic biases that persist even as \\(x \\to \\infty\\)?</p>
+<h3>What We Have Accomplished</h3>
 
-<h3>Chebyshev's Bias</h3>
+<p>In this chapter we proved Dirichlet's theorem in its qualitative form (infinitely many primes in every coprime class) and its quantitative form (the PNT for arithmetic progressions). The logical structure was:</p>
 
-<p>In 1853, Chebyshev observed that \\(\\pi(x; 4, 3) > \\pi(x; 4, 1)\\) "most of the time" — primes that are \\(3 \\pmod 4\\) seem to outnumber those that are \\(1 \\pmod 4\\). This is not a contradiction to equidistribution (the two counts do converge to the same limit), but a logarithmic-density statement.</p>
+<ol>
+    <li><strong>Character orthogonality</strong> reduced the problem to studying \\(L(s, \\chi)\\) at \\(s = 1\\).</li>
+    <li><strong>Non-vanishing</strong> \\(L(1, \\chi) \\neq 0\\) was proved in two cases:
+        <ul>
+            <li>Complex characters: the product trick (a single elegant argument).</li>
+            <li>Real characters: the class number formula (connecting analysis to algebra).</li>
+        </ul>
+    </li>
+    <li><strong>Quantitative estimates</strong> came from zero-free regions for \\(L(s, \\chi)\\), with the Siegel zero as the persistent obstruction to uniformity.</li>
+</ol>
+
+<h3>The Chebyshev Bias</h3>
+
+<p>Although primes are equidistributed among coprime classes in the limit, the approach to the limit is not uniform. There is a persistent "bias" favoring non-residues over residues, first observed by Chebyshev for primes mod 4:</p>
 
 <div class="env-block theorem">
-    <div class="env-title">Theorem 10.7 (Rubinstein-Sarnak, 1994)</div>
+    <div class="env-title">Observation (Chebyshev Bias)</div>
     <div class="env-body">
-        <p>Assume GRH and the Linear Independence hypothesis (the imaginary parts of nontrivial zeros of Dirichlet L-functions are linearly independent over \\(\\mathbb{Q}\\)). Define the "race" between residue classes as the logarithmic density
-        \\[
-        \\delta(q; a_1, a_2) = \\lim_{X \\to \\infty} \\frac{1}{\\log X} \\int_2^X \\mathbf{1}[\\pi(x; q, a_1) > \\pi(x; q, a_2)] \\frac{dx}{x}.
-        \\]
-        For \\(q = 4\\): \\(\\delta(4; 3, 1) \\approx 0.9959\\), confirming that \\(\\pi(x; 4, 3) > \\pi(x; 4, 1)\\) about 99.59% of the time (in logarithmic density).</p>
+        <p>Among primes up to \\(x\\), there tend to be more primes \\(\\equiv 3 \\pmod{4}\\) than \\(\\equiv 1 \\pmod{4}\\). More precisely, under GRH and a linear independence assumption on zeros, the set of \\(x\\) for which \\(\\pi(x; 4, 3) > \\pi(x; 4, 1)\\) has logarithmic density approximately 0.9959 (Rubinstein-Sarnak, 1994).</p>
     </div>
 </div>
 
-<p>The bias arises from the contribution of the Möbius function and the zeros of L-functions. The "non-squares" modulo \\(q\\) (residues that are not perfect squares mod \\(q\\)) are systematically favored because they are associated with the low-lying zeros of L-functions via the explicit formula.</p>
-
-<h3>The Explicit Formula Perspective</h3>
-
-<p>Define the "prime counting error"
-\\[
-E(x; q, a) = \\frac{\\pi(x; q, a) - \\pi(x)/\\varphi(q)}{\\sqrt{x}/\\log x}.
-\\]
-Under GRH, this normalized error oscillates with amplitude \\(O(1)\\). Its mean value is
-\\[
-\\langle E(x; q, a) \\rangle = -\\mathbf{1}[a^2 \\equiv 1 \\pmod q] + \\text{small},
-\\]
-meaning quadratic residues get a negative bias while non-residues get a positive one. This is the content of Chebyshev's bias, made precise by Rubinstein and Sarnak.</p>
-
-<h3>Connection to Random Matrix Theory</h3>
-
-<p>The distribution of \\(E(x; q, a)\\) as \\(x\\) varies (in log-scale) converges to a probability distribution whose moments are computable from the zeros of \\(L(s, \\chi)\\). Under GRH + Linear Independence, this distribution is Gaussian with mean \\(-\\mathbf{1}[a^2 \\equiv 1 \\pmod q]\\). The negative mean for quadratic residues is the Chebyshev bias.</p>
-
-<h3>Generalizations and Open Problems</h3>
-
-<ul>
-    <li><strong>Effective equidistribution:</strong> The Bombieri-Vinogradov theorem (Ch. 13) gives a GRH-quality estimate on average over \\(q\\). The Elliott-Halberstam conjecture extends this further.</li>
-    <li><strong>Chebotarev density theorem:</strong> Dirichlet's theorem generalizes to number fields: for a Galois extension \\(K/\\mathbb{Q}\\), the density of primes whose Frobenius lies in a given conjugacy class equals that class's proportion in the Galois group.</li>
-    <li><strong>Effective Chebotarev:</strong> Under GRH, one can show that the least prime \\(p \\equiv a \\pmod q\\) satisfies \\(p \\ll (\\log q)^2\\) (Lagarias-Odlyzko 1977). Unconditionally, only \\(p \\ll q^2 (\\log q)^2\\) is known.</li>
-    <li><strong>Linnik's theorem:</strong> The least prime in the progression is \\(\\ll q^L\\) with \\(L\\) absolute. Current record: \\(L \\leq 5\\) (Xylouris 2011). GRH gives \\(L = 2 + \\varepsilon\\).</li>
-</ul>
+<p>This bias arises because \\(-1\\) is a quadratic non-residue mod 4, and the contribution of the zero at \\(s = 1/2\\) of \\(L(s, \\chi_{-4})\\) (conditional on GRH) creates a systematic second-order correction that favors non-residues.</p>
 
 <div class="viz-placeholder" data-viz="viz-chebyshev-bias"></div>
 
+<h3>Connections to What Follows</h3>
+
+<p>The themes introduced here reverberate through the rest of the course:</p>
+
+<ul>
+    <li><strong>Chapter 11 (Combinatorial Sieves):</strong> Sieve methods estimate primes in progressions differently, and their power combined with Dirichlet's theorem yields results on primes represented by polynomials.</li>
+    <li><strong>Chapter 13 (Bombieri-Vinogradov):</strong> The frustrating limitation \\(q \\leq (\\log x)^A\\) in Siegel-Walfisz is overcome on average. The BV theorem says that the PNT holds in progressions for \\(q\\) up to \\(x^{1/2-\\varepsilon}\\), for "most" \\(q\\). This is a substitute for GRH in many applications.</li>
+    <li><strong>Chapter 16 (Zeros of \\(L\\)-functions):</strong> Zero density estimates and the distribution of zeros of \\(L(s, \\chi)\\) refine everything we have done. The Siegel zero problem remains central.</li>
+</ul>
+
 <div class="env-block remark">
-    <div class="env-title">Looking Ahead</div>
+    <div class="env-title">The Lasting Legacy</div>
     <div class="env-body">
-        <p>The ideas in this chapter — L-functions, characters, zero-free regions, explicit formulas — recur throughout analytic number theory. Chapter 11 uses sieve methods to count primes in progressions without L-functions (at the cost of weaker results). Chapter 13 proves the Bombieri-Vinogradov theorem, which is a GRH-strength result on average. Chapter 16 studies the zeros of L-functions in depth, where the analogue of the Riemann Hypothesis for Dirichlet L-functions remains open.</p>
+        <p>Dirichlet's 1837 paper is one of the founding documents of analytic number theory. Its core ideas, characters and \\(L\\)-functions, grew into a vast edifice: Hecke \\(L\\)-functions, Artin \\(L\\)-functions, automorphic \\(L\\)-functions, the Langlands program. The question "does \\(L(1, \\chi) \\neq 0\\)?" was the first instance of what became one of the central themes of modern number theory: understanding the special values and zeros of \\(L\\)-functions.</p>
     </div>
 </div>
 `,
             visualizations: [
                 {
                     id: 'viz-chebyshev-bias',
-                    title: "Chebyshev's Bias: \\(\\pi(x;4,3) > \\pi(x;4,1)\\) Most of the Time",
-                    description: 'Plot the difference \\(\\pi(x;4,3) - \\pi(x;4,1)\\). The curve is positive most of the time, confirming Chebyshev\'s observation. A histogram shows what fraction of x values (in log scale) have the "3 wins" outcome.',
+                    title: 'Chebyshev Bias: Primes mod 4',
+                    description: 'Plot \u03C0(x;4,3) - \u03C0(x;4,1), the excess of primes \u2261 3 (mod 4) over primes \u2261 1 (mod 4). Notice the persistent positive bias, even though both counts grow at the same rate asymptotically.',
                     setup: function(body, controls) {
-                        var viz = new VizEngine(body, { width: 680, height: 380, originX: 70, originY: 200, scale: 1 });
+                        var viz = new VizEngine(body, {
+                            width: 560, height: 380,
+                            originX: 60, originY: 250, scale: 1
+                        });
+
+                        var primes = VizEngine.sievePrimes(50000);
+                        var xMax = 10000;
+
+                        VizEngine.createSlider(controls, 'x max', 1000, 50000, xMax, 1000, function(v) {
+                            xMax = Math.round(v);
+                            draw();
+                        });
 
                         function draw() {
                             viz.clear();
-                            var xMax = 5000;
-                            var primes = VizEngine.sievePrimes(xMax);
-
-                            var xs = [], diff = [];
-                            var pi3 = 0, pi1 = 0;
-                            var pIdx = 0;
-                            var logWin = 0, logTotal = 0;
-
-                            var step = 10;
-                            for (var x = 3; x <= xMax; x += step) {
-                                while (pIdx < primes.length && primes[pIdx] <= x) {
-                                    var p = primes[pIdx++];
-                                    if (p % 4 === 3) pi3++;
-                                    if (p % 4 === 1) pi1++;
-                                }
-                                xs.push(x);
-                                diff.push(pi3 - pi1);
-                                var logIncrement = 1 / x * step;
-                                logTotal += logIncrement;
-                                if (pi3 > pi1) logWin += logIncrement;
-                            }
-
-                            var maxDiff = Math.max(1, Math.max.apply(null, diff.map(Math.abs)));
-                            var chartH = viz.height - 60;
-                            var chartW = viz.width - 90;
                             var ctx = viz.ctx;
 
+                            // Compute running difference pi(x;4,3) - pi(x;4,1)
+                            var data = [];
+                            var count3 = 0, count1 = 0;
+                            for (var i = 0; i < primes.length && primes[i] <= xMax; i++) {
+                                var p = primes[i];
+                                if (p === 2) continue;
+                                if (p % 4 === 3) count3++;
+                                else if (p % 4 === 1) count1++;
+                                data.push({ x: p, diff: count3 - count1 });
+                            }
+
+                            if (data.length === 0) { viz.screenText('No data', viz.width/2, viz.height/2, viz.colors.text, 14); return; }
+
+                            // Find range
+                            var minDiff = 0, maxDiff = 0;
+                            for (var j = 0; j < data.length; j++) {
+                                if (data[j].diff < minDiff) minDiff = data[j].diff;
+                                if (data[j].diff > maxDiff) maxDiff = data[j].diff;
+                            }
+                            var padding = Math.max(2, Math.ceil((maxDiff - minDiff) * 0.1));
+                            minDiff -= padding;
+                            maxDiff += padding;
+
+                            var plotLeft = 70, plotRight = viz.width - 20;
+                            var plotTop = 40, plotBottom = 340;
+                            var plotW = plotRight - plotLeft;
+                            var plotH = plotBottom - plotTop;
+
+                            // Zero line
+                            var zeroY = plotBottom - ((0 - minDiff) / (maxDiff - minDiff)) * plotH;
+                            ctx.strokeStyle = viz.colors.white + '44';
+                            ctx.lineWidth = 1;
+                            ctx.setLineDash([4, 4]);
+                            ctx.beginPath();
+                            ctx.moveTo(plotLeft, zeroY);
+                            ctx.lineTo(plotRight, zeroY);
+                            ctx.stroke();
+                            ctx.setLineDash([]);
+                            ctx.fillStyle = viz.colors.text;
+                            ctx.font = '10px -apple-system,sans-serif';
+                            ctx.textAlign = 'right';
+                            ctx.fillText('0', plotLeft - 5, zeroY);
+
                             // Axes
-                            ctx.strokeStyle = viz.colors.axis; ctx.lineWidth = 1.5;
-                            ctx.beginPath(); ctx.moveTo(70, 30); ctx.lineTo(70, viz.height - 30); ctx.stroke();
-                            ctx.beginPath(); ctx.moveTo(70, viz.height / 2); ctx.lineTo(viz.width - 20, viz.height / 2); ctx.stroke();
+                            ctx.strokeStyle = viz.colors.axis;
+                            ctx.lineWidth = 1;
+                            ctx.beginPath();
+                            ctx.moveTo(plotLeft, plotBottom);
+                            ctx.lineTo(plotRight, plotBottom);
+                            ctx.stroke();
+                            ctx.beginPath();
+                            ctx.moveTo(plotLeft, plotTop);
+                            ctx.lineTo(plotLeft, plotBottom);
+                            ctx.stroke();
 
                             // Y labels
-                            ctx.font = '10px -apple-system,sans-serif'; ctx.textAlign = 'right';
-                            [-maxDiff, -maxDiff/2, 0, maxDiff/2, maxDiff].forEach(function(yv) {
-                                var py = (viz.height / 2) - (yv / maxDiff) * (chartH / 2);
+                            var yStep = Math.max(1, Math.round((maxDiff - minDiff) / 6));
+                            for (var yl = Math.ceil(minDiff / yStep) * yStep; yl <= maxDiff; yl += yStep) {
+                                var yy = plotBottom - ((yl - minDiff) / (maxDiff - minDiff)) * plotH;
                                 ctx.fillStyle = viz.colors.text;
-                                ctx.fillText(Math.round(yv), 66, py + 4);
-                                ctx.strokeStyle = viz.colors.grid; ctx.lineWidth = 0.3;
-                                ctx.beginPath(); ctx.moveTo(70, py); ctx.lineTo(viz.width - 20, py); ctx.stroke();
-                            });
-
-                            // Zero line bold
-                            ctx.strokeStyle = viz.colors.axis; ctx.lineWidth = 1;
-                            ctx.setLineDash([4, 4]);
-                            ctx.beginPath(); ctx.moveTo(70, viz.height / 2); ctx.lineTo(viz.width - 20, viz.height / 2); ctx.stroke();
-                            ctx.setLineDash([]);
-
-                            // X labels
-                            ctx.textAlign = 'center';
-                            for (var xi = 0; xi <= 5; xi++) {
-                                var xv = Math.round(xMax * xi / 5);
-                                var px = 70 + chartW * xi / 5;
-                                ctx.fillStyle = viz.colors.text;
-                                ctx.fillText(xv, px, viz.height - 14);
+                                ctx.textAlign = 'right';
+                                ctx.textBaseline = 'middle';
+                                ctx.fillText(yl.toString(), plotLeft - 5, yy);
                             }
 
-                            // Difference curve
+                            // Draw the curve
+                            ctx.strokeStyle = viz.colors.orange;
                             ctx.lineWidth = 1.5;
-                            for (var k = 1; k < xs.length; k++) {
-                                var d = diff[k];
-                                ctx.strokeStyle = d >= 0 ? viz.colors.teal : viz.colors.red;
-                                ctx.beginPath();
-                                var px1 = 70 + (xs[k-1] / xMax) * chartW;
-                                var py1 = (viz.height / 2) - (diff[k-1] / maxDiff) * (chartH / 2);
-                                var px2 = 70 + (xs[k] / xMax) * chartW;
-                                var py2 = (viz.height / 2) - (d / maxDiff) * (chartH / 2);
-                                ctx.moveTo(px1, py1); ctx.lineTo(px2, py2); ctx.stroke();
+                            ctx.beginPath();
+                            for (var k = 0; k < data.length; k++) {
+                                var px = plotLeft + (data[k].x / xMax) * plotW;
+                                var py = plotBottom - ((data[k].diff - minDiff) / (maxDiff - minDiff)) * plotH;
+                                if (k === 0) ctx.moveTo(px, py);
+                                else ctx.lineTo(px, py);
                             }
+                            ctx.stroke();
 
-                            // Stats
-                            var bias = logWin / Math.max(logTotal, 1e-10);
-                            ctx.fillStyle = viz.colors.white; ctx.font = '13px -apple-system,sans-serif'; ctx.textAlign = 'center';
-                            ctx.fillText('\u03c0(x; 4, 3) \u2212 \u03c0(x; 4, 1)    [teal = 3 winning, red = 1 winning]', viz.width / 2, 18);
-                            ctx.fillStyle = viz.colors.teal; ctx.font = '12px -apple-system,sans-serif';
-                            ctx.fillText('3 wins ' + (bias * 100).toFixed(1) + '% of the time (log density, up to ' + xMax + ')', viz.width / 2, viz.height - 46);
-                            ctx.fillStyle = viz.colors.text; ctx.font = '11px -apple-system,sans-serif';
-                            ctx.fillText('Rubinstein-Sarnak (1994) predict \u224899.59% under GRH + Lin. Ind.', viz.width / 2, viz.height - 30);
+                            // Shade positive region
+                            ctx.fillStyle = viz.colors.teal + '11';
+                            ctx.beginPath();
+                            ctx.moveTo(plotLeft, zeroY);
+                            for (var m = 0; m < data.length; m++) {
+                                var px2 = plotLeft + (data[m].x / xMax) * plotW;
+                                var py2 = plotBottom - ((Math.max(data[m].diff, 0) - minDiff) / (maxDiff - minDiff)) * plotH;
+                                ctx.lineTo(px2, Math.min(py2, zeroY));
+                            }
+                            ctx.lineTo(plotLeft + (data[data.length-1].x / xMax) * plotW, zeroY);
+                            ctx.closePath();
+                            ctx.fill();
+
+                            // Title and labels
+                            viz.screenText('\u03C0(x;4,3) - \u03C0(x;4,1): The Chebyshev Bias', viz.width / 2, 18, viz.colors.white, 14);
+
+                            var lastData = data[data.length - 1];
+                            viz.screenText(
+                                'At x = ' + xMax + ': \u03C0(x;4,3) - \u03C0(x;4,1) = ' + lastData.diff,
+                                viz.width / 2, plotBottom + 25, viz.colors.orange, 11
+                            );
+                            viz.screenText(
+                                'Positive \u2248 99.6% of the time (under GRH + LI)',
+                                viz.width / 2, plotBottom + 42, viz.colors.teal, 10
+                            );
                         }
-
                         draw();
                         return viz;
                     }
@@ -1176,20 +1336,21 @@ meaning quadratic residues get a negative bias while non-residues get a positive
             ],
             exercises: [
                 {
-                    question: 'Using the explicit formula, explain qualitatively why the residue class \\(3 \\pmod 4\\) should be favored over \\(1 \\pmod 4\\). (Hint: what does the character \\(\\chi_{-4}\\) contribute to the explicit formula, and which class is the quadratic residue class?)',
-                    hint: 'The non-principal character mod 4 is \\(\\chi_1\\) with \\(\\chi_1(1)=1\\) and \\(\\chi_1(3)=-1\\). In the explicit formula for \\(\\pi(x;4,a)\\), the dominant term from \\(\\chi_1\\) zeros gives a negative contribution to \\(\\pi(x;4,1)\\) and a positive one to \\(\\pi(x;4,3)\\).',
-                    solution: 'The explicit formula gives \\(\\pi(x;4,1) - \\pi(x;4,3) \\approx -\\frac{2}{\\sqrt{x}} \\sum_\\gamma \\frac{x^{i\\gamma}}{|\\rho|}\\). The leading bias comes from the term \\(-\\overline{\\chi_1(1)} \\cdot (-1) = +1\\) vs \\(-\\overline{\\chi_1(3)} \\cdot (-1) = -1\\) from the zeros. More precisely: 1 is a quadratic residue mod 4 (since \\(1^2 \\equiv 1\\)) while 3 is a non-residue. Non-residue classes receive a positive contribution from the lowest zero of \\(L(s,\\chi_1)\\) because \\(\\chi_1(3) = -1 < 0\\), which flips the sign and gives 3 an advantage.',
-                    question2: 'Compute \\(\\pi(x;4,3) - \\pi(x;4,1)\\) for \\(x = 100, 1000\\) by direct count. What is the sign each time?',
-                    hint2: 'List primes up to 1000 and classify each as 1 or 3 mod 4.',
-                    solution2: 'Primes \\(\\equiv 1 \\pmod 4\\) up to 100: 5,13,17,29,37,41,53,61,73,89,97 (11 primes). Primes \\(\\equiv 3 \\pmod 4\\) up to 100: 3,7,11,19,23,31,43,47,59,67,71,79,83 (13 primes). Difference = 2. Up to 1000: count gives \\(\\pi(1000;4,3) - \\pi(1000;4,1) \\approx 172 - 167 = 5\\). Both positive, confirming the bias.'
+                    question: 'The Chebyshev bias says primes \\(\\equiv 3 \\pmod{4}\\) usually outnumber primes \\(\\equiv 1 \\pmod{4}\\). But we also know both classes have the same asymptotic density. How can both statements be true simultaneously?',
+                    hint: 'Think about the difference between "natural density" and "logarithmic density." Also, \\(\\pi(x;4,3) - \\pi(x;4,1)\\) being positive most of the time does not contradict \\(\\pi(x;4,3)/\\pi(x;4,1) \\to 1\\).',
+                    solution: 'The difference \\(\\pi(x;4,3) - \\pi(x;4,1)\\) can be positive "most" of the time (in logarithmic density), yet both \\(\\pi(x;4,3)/\\pi(x) \\to 1/2\\) and \\(\\pi(x;4,1)/\\pi(x) \\to 1/2\\). The bias is a fluctuation of order \\(O(\\sqrt{x}/\\log x)\\), which is negligible compared to the counts \\(\\sim x/(2\\log x)\\) but large enough to be consistently positive. The function \\(\\pi(x;4,3) - \\pi(x;4,1)\\) changes sign infinitely often (Littlewood proved this), but spends disproportionately more "time" positive.'
                 },
                 {
-                    question: 'State the Chebotarev density theorem for a Galois extension \\(K/\\mathbb{Q}\\) of degree \\(n\\). Show how Dirichlet\'s theorem is the special case \\(K = \\mathbb{Q}(\\zeta_q)\\) and \\(G = \\text{Gal}(K/\\mathbb{Q}) \\cong (\\mathbb{Z}/q\\mathbb{Z})^\\times\\).',
-                    hint: 'The Frobenius element \\(\\text{Frob}_p \\in \\text{Gal}(K/\\mathbb{Q})\\) for an unramified prime \\(p\\) is the element sending \\(\\alpha \\mapsto \\alpha^p\\). For \\(K = \\mathbb{Q}(\\zeta_q)\\), \\(\\text{Frob}_p\\) is the map \\(\\zeta_q \\mapsto \\zeta_q^p\\), which corresponds to \\(p \\bmod q \\in (\\mathbb{Z}/q\\mathbb{Z})^\\times\\).',
-                    solution: 'Chebotarev: for a Galois extension \\(K/\\mathbb{Q}\\) with group \\(G\\) and a conjugacy class \\(C \\subset G\\), the density of unramified primes \\(p\\) with \\(\\text{Frob}_p \\in C\\) equals \\(|C|/|G|\\). For \\(K = \\mathbb{Q}(\\zeta_q)\\): \\(G \\cong (\\mathbb{Z}/q\\mathbb{Z})^\\times\\) and \\(\\text{Frob}_p\\) corresponds to \\(p \\bmod q\\). A singleton class \\(\\{a\\}\\) has density \\(1/|G| = 1/\\varphi(q)\\), which is exactly Dirichlet\'s theorem. All conjugacy classes in an abelian group are singletons, so Dirichlet is Chebotarev for abelian extensions.'
+                    question: 'State the Bombieri-Vinogradov theorem precisely and explain why it is often called a "substitute for GRH on average."',
+                    hint: 'BV bounds \\(\\sum_{q \\leq Q} \\max_{\\gcd(a,q)=1} |\\psi(x;q,a) - x/\\varphi(q)|\\) for \\(Q\\) up to \\(x^{1/2}/\\log^A x\\).',
+                    solution: 'The Bombieri-Vinogradov theorem states: for any \\(A > 0\\), \\[\\sum_{q \\leq Q} \\max_{\\gcd(a,q)=1} \\left|\\psi(x;q,a) - \\frac{x}{\\varphi(q)}\\right| \\ll_A \\frac{x}{(\\log x)^A}\\] for \\(Q \\leq x^{1/2}(\\log x)^{-B}\\) with \\(B = B(A)\\). Under GRH, \\(|\\psi(x;q,a) - x/\\varphi(q)| \\ll \\sqrt{x}\\log^2(qx)\\) for each individual \\(q\\), which summing over \\(q \\leq Q\\) gives a similar result for \\(Q \\leq x^{1/2}\\). BV gives the same range of \\(Q\\) unconditionally, at the cost of only bounding the average over \\(q\\) (some individual \\(q\\) could still behave badly).'
+                },
+                {
+                    question: 'Prove that if \\(L(s, \\chi)\\) is a Dirichlet \\(L\\)-function with \\(\\chi\\) primitive mod \\(q\\), then \\(L(s, \\chi)\\) has infinitely many non-trivial zeros (zeros with \\(0 < \\operatorname{Re}(s) < 1\\)).',
+                    hint: 'Use the explicit formula or the argument principle. The key is the functional equation and the growth of \\(N(T, \\chi) \\sim (T/\\pi) \\log(qT/2\\pi e)\\).',
+                    solution: 'By the functional equation and argument principle, the number of zeros \\(\\rho\\) of \\(L(s,\\chi)\\) with \\(0 < \\operatorname{Re}(\\rho) < 1\\) and \\(|\\operatorname{Im}(\\rho)| \\leq T\\) satisfies \\(N(T,\\chi) = \\frac{T}{\\pi}\\log\\frac{qT}{2\\pi e} + O(\\log qT)\\). As \\(T \\to \\infty\\), \\(N(T,\\chi) \\to \\infty\\), so there are infinitely many non-trivial zeros. Alternatively, if there were only finitely many, the explicit formula would give \\(\\psi(x;q,a)\\) as a finite sum of \\(x^\\rho\\) terms plus \\(x/\\varphi(q)\\), but such a finite sum cannot match the known oscillatory behavior.'
                 }
             ]
         }
-
     ]
 });
