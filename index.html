@@ -1,0 +1,160 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Analytic Number Theory — Interactive</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.css">
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <div id="app">
+        <button id="sidebar-toggle" aria-label="Toggle sidebar">&#9776;</button>
+        <aside id="sidebar">
+            <div id="sidebar-header">
+                <h1>Analytic Number Theory</h1>
+                <p class="author">Apostol / Davenport / Iwaniec & Kowalski</p>
+                <div id="progress-container">
+                    <div id="progress-bar"><div id="progress-fill"></div></div>
+                    <span id="progress-text">0%</span>
+                </div>
+            </div>
+            <div id="search-container">
+                <input type="text" id="search-input" placeholder="Search topics...">
+            </div>
+            <nav id="chapter-nav"></nav>
+            <div id="sidebar-footer"><p class="copyright-notice" style="font-size:0.7rem;color:#888;margin-top:12px;text-align:center;">&copy; 2026 Hengzhe Zhao &middot; AGPL-3.0 &amp; Commercial</p>
+                <button id="reset-progress">Reset Progress</button>
+            </div>
+        </aside>
+        <main id="main-content">
+            <div id="welcome-screen">
+                <div class="welcome-hero">
+                    <h1>Analytic Number Theory</h1>
+                    <h2>解析数论 · Interactive</h2>
+                    <p class="welcome-description">
+                        From arithmetic functions to the Riemann zeta function, from the Prime Number Theorem
+                        to sieve methods and automorphic forms. Explore the deep connections between primes
+                        and complex analysis through interactive visualizations.
+                    </p>
+                </div>
+                <div class="roadmap">
+                    <h3>What You'll Explore</h3>
+                    <div class="roadmap-parts">
+                        <div class="roadmap-part">
+                            <h4>Part A: Foundations</h4>
+                            <ul>
+                                <li>Ch 0: The Drama of the Primes</li>
+                                <li>Ch 1: Arithmetic Functions</li>
+                                <li>Ch 2: Averages of Arithmetic Functions</li>
+                            </ul>
+                        </div>
+                        <div class="roadmap-part">
+                            <h4>Part B: Dirichlet Series &amp; Zeta</h4>
+                            <ul>
+                                <li>Ch 3: Dirichlet Series &amp; Euler Products</li>
+                                <li>Ch 4: The Riemann Zeta Function</li>
+                                <li>Ch 5: Analytic Continuation &amp; Functional Equation</li>
+                            </ul>
+                        </div>
+                        <div class="roadmap-part">
+                            <h4>Part C: The Prime Number Theorem</h4>
+                            <ul>
+                                <li>Ch 6: Zero-Free Regions</li>
+                                <li>Ch 7: The Prime Number Theorem</li>
+                                <li>Ch 8: The Explicit Formula &amp; the Error Term</li>
+                            </ul>
+                        </div>
+                        <div class="roadmap-part">
+                            <h4>Part D: L-Functions &amp; Progressions</h4>
+                            <ul>
+                                <li>Ch 9: Dirichlet Characters &amp; L-Functions</li>
+                                <li>Ch 10: Dirichlet's Theorem &amp; the L(1,&chi;) Problem</li>
+                            </ul>
+                        </div>
+                        <div class="roadmap-part">
+                            <h4>Part E: Sieve Methods</h4>
+                            <ul>
+                                <li>Ch 11: Combinatorial Sieves</li>
+                                <li>Ch 12: Selberg's Sieve &amp; Modern Sieves</li>
+                                <li>Ch 13: The Large Sieve &amp; Bombieri-Vinogradov</li>
+                            </ul>
+                        </div>
+                        <div class="roadmap-part">
+                            <h4>Part F: Advanced Methods</h4>
+                            <ul>
+                                <li>Ch 14: Exponential Sums</li>
+                                <li>Ch 15: The Circle Method</li>
+                                <li>Ch 16: Zeros of L-Functions</li>
+                                <li>Ch 17: Automorphic Forms: A First Look</li>
+                            </ul>
+                        </div>
+                        <div class="roadmap-part">
+                            <h4>Part G: Frontiers</h4>
+                            <ul>
+                                <li>Ch 18: Primes in Short Intervals</li>
+                                <li>Ch 19: Bounded Gaps Between Primes</li>
+                                <li>Ch 20: Computational Analytic Number Theory</li>
+                                <li>Ch 21: Open Problems &amp; the Road Ahead</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+                <p class="welcome-start">Select a chapter from the sidebar to begin your journey into the distribution of primes!</p>
+            </div>
+            <div id="chapter-content" style="display:none;">
+                <div id="chapter-header">
+                    <div id="chapter-number-badge"></div>
+                    <h1 id="chapter-title"></h1>
+                    <p id="chapter-subtitle"></p>
+                </div>
+                <div id="section-tabs"></div>
+                <article id="section-content"></article>
+                <div id="exercises-panel" style="display:none;">
+                    <h3>Exercises</h3>
+                    <div id="exercises-list"></div>
+                </div>
+                <div id="chapter-nav-buttons">
+                    <button id="prev-btn" disabled>&larr; Previous</button>
+                    <span id="section-indicator"></span>
+                    <button id="next-btn">Next &rarr;</button>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/contrib/auto-render.min.js"></script>
+    <script src="viz-engine.js"></script>
+
+    <!-- Chapter manifest for lazy loading -->
+    <script>
+    window.CHAPTER_MANIFEST = [
+        {number:0,  id:'ch00', title:'The Drama of the Primes',                    file:'ch00-drama-of-primes'},
+        {number:1,  id:'ch01', title:'Arithmetic Functions',                       file:'ch01-arithmetic-functions'},
+        {number:2,  id:'ch02', title:'Averages of Arithmetic Functions',           file:'ch02-averages'},
+        {number:3,  id:'ch03', title:'Dirichlet Series & Euler Products',          file:'ch03-dirichlet-series'},
+        {number:4,  id:'ch04', title:'The Riemann Zeta Function',                  file:'ch04-riemann-zeta'},
+        {number:5,  id:'ch05', title:'Analytic Continuation & Functional Equation',file:'ch05-analytic-continuation'},
+        {number:6,  id:'ch06', title:'Zero-Free Regions',                          file:'ch06-zero-free-regions'},
+        {number:7,  id:'ch07', title:'The Prime Number Theorem',                   file:'ch07-prime-number-theorem'},
+        {number:8,  id:'ch08', title:'The Explicit Formula & the Error Term',      file:'ch08-explicit-formula'},
+        {number:9,  id:'ch09', title:'Dirichlet Characters & L-Functions',         file:'ch09-dirichlet-characters'},
+        {number:10, id:'ch10', title:'Dirichlet\'s Theorem & the L(1,\u03C7) Problem',file:'ch10-dirichlet-theorem'},
+        {number:11, id:'ch11', title:'Sieve Methods I: Combinatorial Sieves',      file:'ch11-combinatorial-sieves'},
+        {number:12, id:'ch12', title:'Sieve Methods II: Selberg & Modern Sieves',  file:'ch12-selberg-sieve'},
+        {number:13, id:'ch13', title:'The Large Sieve & Bombieri-Vinogradov',      file:'ch13-large-sieve-bv'},
+        {number:14, id:'ch14', title:'Exponential Sums',                           file:'ch14-exponential-sums'},
+        {number:15, id:'ch15', title:'The Circle Method',                          file:'ch15-circle-method'},
+        {number:16, id:'ch16', title:'Zeros of L-Functions',                       file:'ch16-zeros-of-l-functions'},
+        {number:17, id:'ch17', title:'Automorphic Forms: A First Look',            file:'ch17-automorphic-forms'},
+        {number:18, id:'ch18', title:'Primes in Short Intervals',                  file:'ch18-short-intervals'},
+        {number:19, id:'ch19', title:'Bounded Gaps Between Primes',                file:'ch19-bounded-gaps'},
+        {number:20, id:'ch20', title:'Computational Analytic Number Theory',       file:'ch20-computational-ant'},
+        {number:21, id:'ch21', title:'Open Problems & the Road Ahead',             file:'ch21-open-problems'},
+    ];
+    </script>
+
+    <script src="app.js"></script>
+</body>
+</html>
