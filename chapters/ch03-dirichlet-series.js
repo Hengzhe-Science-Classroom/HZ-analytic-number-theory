@@ -5,186 +5,191 @@ window.CHAPTERS.push({
     title: 'Dirichlet Series & Euler Products',
     subtitle: 'Encoding arithmetic in the language of analysis',
     sections: [
-
         // ================================================================
-        // SECTION 1: Encoding Arithmetic in Analysis
+        // SECTION 1: Motivation
         // ================================================================
         {
             id: 'sec-motivation',
-            title: 'Encoding Arithmetic in Analysis',
+            title: 'Motivation',
             content: `
-<h2>Encoding Arithmetic in Analysis</h2>
+<h2>Why Dirichlet Series?</h2>
 
 <div class="env-block intuition">
     <div class="env-title">The Central Idea</div>
     <div class="env-body">
-        <p>Suppose you want to study a sequence of numbers \\(a(1), a(2), a(3), \\ldots\\) that encodes arithmetic information&mdash;say, \\(a(n) = 1\\) for all \\(n\\) (counting divisors), or \\(a(n) = \\Lambda(n)\\) (von Mangoldt), or \\(a(n) = \\mu(n)\\) (Mobius). How do you bring the tools of <em>analysis</em> to bear on purely <em>multiplicative</em> structure?</p>
-        <p>The answer: package the whole sequence into a single function of a complex variable \\(s\\), via the <strong>Dirichlet series</strong>
-        \\[F(s) = \\sum_{n=1}^{\\infty} \\frac{a(n)}{n^s}.\\]
-        Now analytic properties of \\(F\\) (poles, zeros, growth) become statements about the arithmetic of \\(a\\).</p>
+        <p>We have spent two chapters studying arithmetic functions: \\(\\mu(n)\\), \\(\\phi(n)\\), \\(\\Lambda(n)\\), \\(d(n)\\). We computed their averages by summing \\(\\sum_{n \\le x} f(n)\\) and estimating the error. But all of that was <em>elementary</em>: no complex analysis, no analytic continuation. We now introduce the machine that will transform number theory into analysis.</p>
     </div>
 </div>
 
-<h3>Why \\(n^{-s}\\) and Not Something Else?</h3>
+<p>The idea is breathtakingly simple. Given an arithmetic function \\(f: \\mathbb{N} \\to \\mathbb{C}\\), attach it to a <strong>generating series</strong>:</p>
 
-<p>The choice of weight \\(n^{-s}\\) is not arbitrary. Write \\(n^{-s} = e^{-s \\log n}\\). Then the "frequency" of the \\(n\\)-th term is \\(\\log n\\), the natural scale for multiplicative arithmetic (since \\(\\log nm = \\log n + \\log m\\)). Dirichlet series are the "Fourier series on the multiplicative group of positive integers."</p>
+\\[
+F(s) = \\sum_{n=1}^{\\infty} \\frac{f(n)}{n^s}, \\quad s \\in \\mathbb{C}.
+\\]
 
-<p>More precisely: if we set \\(x = e^{-u}\\) so that \\(n^{-s} = e^{-su\\log n} \\cdot \\ldots\\), we get a Laplace-type transform on the additive structure of \\(\\log n\\). This is the deep reason that the theory of Dirichlet series interacts so naturally with contour integration.</p>
+<p>This is a <strong>Dirichlet series</strong>. It encodes \\(f\\) in a way that turns two key operations, pointwise multiplication and Dirichlet convolution, into simple algebraic manipulations of the series.</p>
 
-<h3>Three Motivating Examples</h3>
+<h3>Why Not Power Series?</h3>
 
-<div class="env-block example">
-    <div class="env-title">Example 3.1 (Riemann Zeta Function)</div>
-    <div class="env-body">
-        <p>Take \\(a(n) = 1\\) for all \\(n\\):</p>
-        \\[\\zeta(s) = \\sum_{n=1}^{\\infty} \\frac{1}{n^s}, \\qquad \\operatorname{Re}(s) > 1.\\]
-        <p>This encodes the most basic arithmetic object: the density of all positive integers. Its analytic continuation and zeros govern the distribution of primes.</p>
-    </div>
-</div>
+<p>If you have studied generating functions in combinatorics, you might expect us to use a power series \\(\\sum f(n) x^n\\). The trouble is that number theory is <em>multiplicative</em>. The relation \\(f(mn) = f(m) f(n)\\) for multiplicative functions has no natural interpretation in the power series world, where the exponents add. In a Dirichlet series, the exponents multiply via \\(n^{-s} \\cdot m^{-s} = (nm)^{-s}\\), which is exactly what we need.</p>
 
 <div class="env-block example">
-    <div class="env-title">Example 3.2 (Mobius Function)</div>
+    <div class="env-title">Example: The Zeta Function</div>
     <div class="env-body">
-        <p>Take \\(a(n) = \\mu(n)\\):</p>
-        \\[\\frac{1}{\\zeta(s)} = \\sum_{n=1}^{\\infty} \\frac{\\mu(n)}{n^s}, \\qquad \\operatorname{Re}(s) > 1.\\]
-        <p>The identity \\(\\zeta(s) \\cdot (1/\\zeta(s)) = 1\\) is the analytic expression of \\(\\sum_{d|n} \\mu(d) = [n=1]\\).</p>
+        <p>The simplest arithmetic function is \\(f(n) = 1\\) for all \\(n\\). Its Dirichlet series is</p>
+        \\[\\zeta(s) = \\sum_{n=1}^{\\infty} \\frac{1}{n^s}.\\]
+        <p>This is the <strong>Riemann zeta function</strong>, the central object of this course. For now, it is just a series; soon it will become much more.</p>
     </div>
 </div>
 
 <div class="env-block example">
-    <div class="env-title">Example 3.3 (Von Mangoldt Function)</div>
+    <div class="env-title">Example: Other Familiar Series</div>
     <div class="env-body">
-        <p>Take \\(a(n) = \\Lambda(n)\\) (equaling \\(\\log p\\) if \\(n=p^k\\), else 0):</p>
-        \\[-\\frac{\\zeta'(s)}{\\zeta(s)} = \\sum_{n=1}^{\\infty} \\frac{\\Lambda(n)}{n^s}, \\qquad \\operatorname{Re}(s) > 1.\\]
-        <p>The poles and zeros of \\(\\zeta(s)\\) directly control the sum of \\(\\Lambda(n)\\) over \\(n \\le x\\), which is the prime-counting function \\(\\psi(x)\\).</p>
+        <p>Several arithmetic functions we have already encountered have natural Dirichlet series:</p>
+        <ul>
+            <li>\\(f(n) = \\mu(n)\\): the series \\(\\sum \\mu(n)/n^s = 1/\\zeta(s)\\).</li>
+            <li>\\(f(n) = \\Lambda(n)\\): the series \\(\\sum \\Lambda(n)/n^s = -\\zeta'(s)/\\zeta(s)\\).</li>
+            <li>\\(f(n) = d(n)\\): the series \\(\\sum d(n)/n^s = \\zeta(s)^2\\).</li>
+        </ul>
+        <p>Each identity encodes deep arithmetic in compact analytic form. We will prove all of these.</p>
     </div>
 </div>
 
-<h3>The Program of This Chapter</h3>
+<h3>The Program</h3>
 
-<p>We will:</p>
-<ol>
-    <li>Establish when a Dirichlet series converges (absolutely, conditionally, uniformly).</li>
-    <li>Prove the Euler product identity, connecting Dirichlet series to primes.</li>
-    <li>Develop algebraic properties: multiplication = Dirichlet convolution.</li>
-    <li>Prove the uniqueness theorem: the series determines \\(a(n)\\) completely.</li>
-    <li>Bridge to \\(\\zeta(s)\\) and Chapter 4.</li>
-</ol>
+<p>This chapter establishes the analytic foundations: convergence, the Euler product, formal properties (multiplication = Dirichlet convolution), and uniqueness. By the end, you will see exactly how \\(\\zeta(s)\\) arises as the bridge between prime factorization and complex analysis.</p>
 
 <div class="viz-placeholder" data-viz="viz-series-comparison"></div>
 `,
             visualizations: [
                 {
                     id: 'viz-series-comparison',
-                    title: 'Three Dirichlet Series: Convergence Compared',
-                    description: 'Compare partial sums of zeta(s), L(s,chi_4), and |a(n)| = 1/n^sigma for real s. Drag the sigma slider to see how the abscissa of convergence differs.',
+                    title: 'Comparing Dirichlet Series',
+                    description: 'Visualize the partial sums of several Dirichlet series for real \\(s\\). Drag the slider to change \\(s\\) and watch convergence behavior. For \\(s > 1\\) all series converge; as \\(s \\to 1^+\\), \\(\\zeta(s)\\) diverges.',
                     setup: function(body, controls) {
-                        var viz = new VizEngine(body, { width: 620, height: 340, originX: 70, originY: 300, scale: 1 });
-                        var sigma = 1.5;
-                        VizEngine.createSlider(controls, '\u03c3', 0.5, 3.0, sigma, 0.05, function(v) { sigma = v; draw(); });
+                        var viz = new VizEngine(body, {
+                            width: 560, height: 380,
+                            originX: 60, originY: 340, scale: 1
+                        });
 
-                        // chi_4: 1,-1,0,1,-1,0,...  (primitive character mod 4)
-                        function chi4(n) {
-                            var r = ((n % 4) + 4) % 4;
-                            if (r === 1) return 1;
-                            if (r === 3) return -1;
-                            return 0;
+                        var sVal = 2.0;
+                        VizEngine.createSlider(controls, 's', 1.05, 4.0, sVal, 0.05, function(v) {
+                            sVal = v; draw();
+                        });
+
+                        var primes = VizEngine.sievePrimes(200);
+
+                        function mobius(n) {
+                            if (n === 1) return 1;
+                            var result = 1;
+                            for (var i = 0; i < primes.length && primes[i] * primes[i] <= n; i++) {
+                                if (n % primes[i] === 0) {
+                                    n /= primes[i];
+                                    if (n % primes[i] === 0) return 0;
+                                    result = -result;
+                                }
+                            }
+                            if (n > 1) result = -result;
+                            return result;
+                        }
+
+                        function divisorCount(n) {
+                            var d = 0;
+                            for (var i = 1; i * i <= n; i++) {
+                                if (n % i === 0) { d++; if (i !== n / i) d++; }
+                            }
+                            return d;
                         }
 
                         function draw() {
                             viz.clear();
                             var ctx = viz.ctx;
-                            var N = 120;
-                            var w = viz.width, h = viz.height;
+                            var N = 60;
 
-                            // Chart area
-                            var left = 70, right = w - 20, top = 20, bottom = 300;
-                            var chartW = right - left, chartH = bottom - top;
+                            viz.screenText('Partial Sums of Dirichlet Series (real s = ' + sVal.toFixed(2) + ')', viz.width / 2, 20, viz.colors.white, 14);
 
                             // Compute partial sums
-                            var zetaSums = [], lSums = [], negDivSums = [];
-                            var zs = 0, ls = 0;
+                            var zetaSums = [], muSums = [], dSums = [];
+                            var zAcc = 0, mAcc = 0, dAcc = 0;
                             for (var n = 1; n <= N; n++) {
-                                zs += Math.pow(n, -sigma);
-                                ls += chi4(n) * Math.pow(n, -sigma);
-                                zetaSums.push(zs);
-                                lSums.push(ls);
+                                zAcc += 1 / Math.pow(n, sVal);
+                                mAcc += mobius(n) / Math.pow(n, sVal);
+                                dAcc += divisorCount(n) / Math.pow(n, sVal);
+                                zetaSums.push(zAcc);
+                                muSums.push(mAcc);
+                                dSums.push(dAcc);
                             }
 
-                            // Y scale: find max
-                            var maxVal = Math.max(zetaSums[N-1], Math.abs(lSums[0]));
-                            maxVal = Math.max(maxVal, 2);
-                            // auto-range
-                            var yRange = maxVal * 1.1;
-                            if (sigma <= 1.05) yRange = Math.min(yRange, 30);
+                            // Find range for y axis
+                            var allVals = zetaSums.concat(muSums).concat(dSums);
+                            var yMin = Math.min.apply(null, allVals);
+                            var yMax = Math.max.apply(null, allVals);
+                            var yRange = yMax - yMin || 1;
+                            yMin -= yRange * 0.1;
+                            yMax += yRange * 0.1;
+                            yRange = yMax - yMin;
 
-                            function sx(i) { return left + (i / N) * chartW; }
-                            function sy(v) { return bottom - (v / yRange) * chartH; }
+                            var chartL = 70, chartR = viz.width - 30;
+                            var chartT = 45, chartB = 310;
+                            var chartW = chartR - chartL, chartH = chartB - chartT;
 
-                            // Grid
+                            // Grid lines
                             ctx.strokeStyle = viz.colors.grid; ctx.lineWidth = 0.5;
-                            for (var g = 0; g <= 5; g++) {
-                                var gv = (g / 5) * yRange;
-                                var gy = sy(gv);
-                                ctx.beginPath(); ctx.moveTo(left, gy); ctx.lineTo(right, gy); ctx.stroke();
-                                ctx.fillStyle = viz.colors.text; ctx.font = '10px sans-serif';
+                            for (var g = 0; g <= 4; g++) {
+                                var gy = chartB - g / 4 * chartH;
+                                ctx.beginPath(); ctx.moveTo(chartL, gy); ctx.lineTo(chartR, gy); ctx.stroke();
+                                var gLabel = (yMin + g / 4 * yRange).toFixed(2);
+                                ctx.fillStyle = viz.colors.text; ctx.font = '10px -apple-system,sans-serif';
                                 ctx.textAlign = 'right'; ctx.textBaseline = 'middle';
-                                ctx.fillText(gv.toFixed(1), left - 4, gy);
+                                ctx.fillText(gLabel, chartL - 6, gy);
                             }
 
-                            // X axis labels
-                            ctx.fillStyle = viz.colors.text; ctx.font = '10px sans-serif';
+                            // x axis labels
                             ctx.textAlign = 'center'; ctx.textBaseline = 'top';
-                            [1, 20, 40, 60, 80, 100, 120].forEach(function(n) {
-                                ctx.fillText(n, sx(n), bottom + 4);
-                            });
-
-                            // Draw zeta partial sums
-                            ctx.strokeStyle = viz.colors.blue; ctx.lineWidth = 2;
-                            ctx.beginPath();
-                            for (var i = 0; i < N; i++) {
-                                var px = sx(i+1), py = sy(Math.min(zetaSums[i], yRange));
-                                if (i === 0) ctx.moveTo(px, py); else ctx.lineTo(px, py);
+                            for (var xl = 10; xl <= N; xl += 10) {
+                                var xx = chartL + (xl - 1) / (N - 1) * chartW;
+                                ctx.fillStyle = viz.colors.text; ctx.font = '10px -apple-system,sans-serif';
+                                ctx.fillText(xl.toString(), xx, chartB + 4);
                             }
-                            ctx.stroke();
+                            ctx.fillText('n', chartR + 10, chartB + 4);
 
-                            // Draw L(s,chi_4) partial sums (abs value for comparison)
-                            ctx.strokeStyle = viz.colors.orange; ctx.lineWidth = 2;
-                            ctx.beginPath();
-                            var started = false;
-                            for (var i = 0; i < N; i++) {
-                                var v = lSums[i];
-                                var px = sx(i+1), py = sy(Math.min(Math.abs(v), yRange));
-                                if (!started) { ctx.moveTo(px, py); started = true; } else ctx.lineTo(px, py);
+                            function plotSeries(sums, color) {
+                                ctx.strokeStyle = color; ctx.lineWidth = 2;
+                                ctx.beginPath();
+                                for (var i = 0; i < sums.length; i++) {
+                                    var px = chartL + i / (N - 1) * chartW;
+                                    var py = chartB - (sums[i] - yMin) / yRange * chartH;
+                                    if (i === 0) ctx.moveTo(px, py); else ctx.lineTo(px, py);
+                                }
+                                ctx.stroke();
                             }
-                            ctx.stroke();
 
-                            // Baseline
-                            ctx.strokeStyle = viz.colors.axis; ctx.lineWidth = 1;
-                            ctx.beginPath(); ctx.moveTo(left, bottom); ctx.lineTo(right, bottom); ctx.stroke();
-                            ctx.beginPath(); ctx.moveTo(left, top); ctx.lineTo(left, bottom); ctx.stroke();
+                            plotSeries(dSums, viz.colors.orange);
+                            plotSeries(zetaSums, viz.colors.blue);
+                            plotSeries(muSums, viz.colors.teal);
 
                             // Legend
-                            var lx = left + 20, ly = top + 10;
-                            ctx.font = '12px sans-serif'; ctx.textAlign = 'left'; ctx.textBaseline = 'middle';
+                            var ly = chartB + 28;
+                            ctx.font = '11px -apple-system,sans-serif'; ctx.textAlign = 'left';
                             ctx.fillStyle = viz.colors.blue;
-                            ctx.fillRect(lx, ly, 18, 3);
-                            ctx.fillText('\u03b6(s) = \u03a3 n\u207b\u03c3', lx + 24, ly + 1);
+                            ctx.fillRect(chartL, ly, 14, 3);
+                            ctx.fillText('\u03B6(s) = \u03A3 1/n\u02E2', chartL + 18, ly + 4);
+
+                            ctx.fillStyle = viz.colors.teal;
+                            ctx.fillRect(chartL + 140, ly, 14, 3);
+                            ctx.fillText('1/\u03B6(s) = \u03A3 \u03BC(n)/n\u02E2', chartL + 158, ly + 4);
+
                             ctx.fillStyle = viz.colors.orange;
-                            ctx.fillRect(lx, ly + 20, 18, 3);
-                            ctx.fillText('|L(s,\u03c7\u2084)| partial sums', lx + 24, ly + 21);
+                            ctx.fillRect(chartL + 320, ly, 14, 3);
+                            ctx.fillText('\u03B6(s)\u00B2 = \u03A3 d(n)/n\u02E2', chartL + 338, ly + 4);
 
-                            // Convergence status
-                            var zetaConverges = sigma > 1;
-                            var lConverges = sigma > 0;
-                            ctx.font = '11px sans-serif'; ctx.textAlign = 'right'; ctx.textBaseline = 'top';
-                            ctx.fillStyle = zetaConverges ? viz.colors.green : viz.colors.red;
-                            ctx.fillText('\u03b6(s): \u03c3_c = 1, ' + (zetaConverges ? 'converges' : 'diverges'), right - 4, top + 4);
-                            ctx.fillStyle = lConverges ? viz.colors.green : viz.colors.red;
-                            ctx.fillText('L(s,\u03c7\u2084): \u03c3_c = 0, ' + (lConverges ? 'converges' : 'diverges'), right - 4, top + 20);
-
-                            viz.screenText('\u03c3 = ' + sigma.toFixed(2), w / 2, bottom + 22, viz.colors.white, 13);
-                            viz.screenText('Partial sums S_N = \u03a3_{n=1}^{N} a(n)n\u207b\u03c3,  N up to 120', w / 2, top - 8, viz.colors.text, 11);
+                            // Converged values
+                            viz.screenText(
+                                '\u03B6(' + sVal.toFixed(2) + ') \u2248 ' + zetaSums[N - 1].toFixed(4) +
+                                '    1/\u03B6 \u2248 ' + muSums[N - 1].toFixed(4) +
+                                '    \u03B6\u00B2 \u2248 ' + dSums[N - 1].toFixed(4),
+                                viz.width / 2, ly + 22, viz.colors.white, 11
+                            );
                         }
                         draw();
                         return viz;
@@ -193,14 +198,9 @@ window.CHAPTERS.push({
             ],
             exercises: [
                 {
-                    question: 'Explain in your own words why the weight \\(n^{-s}\\) is natural for multiplicative arithmetic. What algebraic property of \\(\\log n\\) is key?',
-                    hint: 'Think about what happens to \\(\\log(nm)\\) versus \\(\\log n + \\log m\\).',
-                    solution: 'Since \\(\\log(nm) = \\log n + \\log m\\), the logarithm converts multiplication into addition. Writing \\(n^{-s} = e^{-s \\log n}\\), the Dirichlet series becomes a Laplace transform on the additive semigroup \\((\\mathbb{Z}_{>0}, \\times)\\) via the isomorphism \\(n \\mapsto \\log n\\). This is why Euler products factor over primes: primes are the "generators" of the multiplicative semigroup, and \\(\\log p\\) are the corresponding "frequencies."'
-                },
-                {
-                    question: 'Write the Dirichlet series for \\(a(n) = d(n)\\) (number of divisors). What well-known function does it equal?',
-                    hint: 'Use the multiplicativity of \\(d\\) and the Euler product. What is \\(\\sum_{k=0}^{\\infty} (k+1)p^{-ks}\\)?',
-                    solution: '\\(\\sum_{n=1}^{\\infty} d(n)/n^s = \\zeta(s)^2\\) for \\(\\operatorname{Re}(s) > 1\\). This follows from the Dirichlet convolution identity \\(d = \\mathbf{1} * \\mathbf{1}\\) and the multiplication theorem for Dirichlet series proved in Section 4.'
+                    question: 'Write down the Dirichlet series for the arithmetic function \\(f(n) = n\\). For which real values of \\(s\\) does it converge?',
+                    hint: 'The series is \\(\\sum n / n^s = \\sum 1/n^{s-1}\\). Compare with \\(\\zeta(s-1)\\).',
+                    solution: 'The series is \\(\\sum_{n=1}^\\infty n^{1-s} = \\zeta(s-1)\\). It converges for \\(\\operatorname{Re}(s-1) > 1\\), i.e., \\(\\operatorname{Re}(s) > 2\\).'
                 }
             ]
         },
@@ -214,149 +214,148 @@ window.CHAPTERS.push({
             content: `
 <h2>Convergence of Dirichlet Series</h2>
 
-<p>A Dirichlet series \\(F(s) = \\sum_{n=1}^{\\infty} a(n)n^{-s}\\) may converge for some values of \\(s \\in \\mathbb{C}\\) and diverge for others. The remarkable structure here is that the region of convergence is always a <em>right half-plane</em>.</p>
-
-<h3>The Abscissas of Convergence</h3>
-
-<div class="env-block definition">
-    <div class="env-title">Definition 3.1 (Abscissa of Convergence)</div>
+<div class="env-block intuition">
+    <div class="env-title">Half-Planes, Not Discs</div>
     <div class="env-body">
-        <p>The <strong>abscissa of convergence</strong> \\(\\sigma_c\\) of \\(\\sum a(n)n^{-s}\\) is the infimum of all \\(\\sigma_0 \\in \\mathbb{R}\\) such that the series converges for every \\(s\\) with \\(\\operatorname{Re}(s) > \\sigma_0\\). The series converges in the half-plane \\(\\{s : \\operatorname{Re}(s) > \\sigma_c\\}\\) and diverges for \\(\\operatorname{Re}(s) < \\sigma_c\\).</p>
-        <p>The <strong>abscissa of absolute convergence</strong> \\(\\sigma_a\\) is defined similarly with absolute convergence. One always has \\(\\sigma_c \\le \\sigma_a \\le \\sigma_c + 1\\).</p>
+        <p>A power series \\(\\sum a_n z^n\\) converges inside a disc \\(|z| < R\\). A Dirichlet series \\(\\sum a_n / n^s\\) converges in a <em>half-plane</em> \\(\\operatorname{Re}(s) > \\sigma_c\\). The reason is that \\(|n^{-s}| = n^{-\\sigma}\\) depends only on \\(\\sigma = \\operatorname{Re}(s)\\), not on \\(t = \\operatorname{Im}(s)\\). So convergence is determined by how far right we are, not by how far up or down.</p>
     </div>
 </div>
 
-<h3>The Half-Plane Theorem</h3>
+<h3>Absolute vs. Conditional Convergence</h3>
+
+<p>Write \\(s = \\sigma + it\\). There are two critical thresholds:</p>
+
+<div class="env-block definition">
+    <div class="env-title">Definition (Abscissae of Convergence)</div>
+    <div class="env-body">
+        <p>For a Dirichlet series \\(F(s) = \\sum a_n n^{-s}\\):</p>
+        <ul>
+            <li>The <strong>abscissa of convergence</strong> \\(\\sigma_c\\) is the infimum of all \\(\\sigma\\) such that the series converges for \\(\\operatorname{Re}(s) = \\sigma\\). The series converges for \\(\\operatorname{Re}(s) > \\sigma_c\\) and diverges for \\(\\operatorname{Re}(s) < \\sigma_c\\).</li>
+            <li>The <strong>abscissa of absolute convergence</strong> \\(\\sigma_a\\) is defined identically but with absolute convergence.</li>
+        </ul>
+        <p>We always have \\(\\sigma_c \\le \\sigma_a \\le \\sigma_c + 1\\).</p>
+    </div>
+</div>
+
+<p>The gap \\(\\sigma_a - \\sigma_c\\) can be as large as 1. The classic example is the alternating series \\(\\sum (-1)^{n-1} / n^s\\), which converges conditionally for \\(\\sigma > 0\\) but absolutely only for \\(\\sigma > 1\\), so \\(\\sigma_c = 0\\) and \\(\\sigma_a = 1\\).</p>
 
 <div class="env-block theorem">
-    <div class="env-title">Theorem 3.1 (Half-Plane of Convergence)</div>
+    <div class="env-title">Theorem 3.1 (Convergence Half-Plane)</div>
     <div class="env-body">
-        <p>If \\(\\sum a(n)n^{-s_0}\\) converges at \\(s_0 = \\sigma_0 + it_0\\), then it converges for every \\(s\\) with \\(\\operatorname{Re}(s) > \\sigma_0\\). Moreover, the convergence is uniform on every sector \\(|\\arg(s - s_0)| \\le \\theta < \\pi/2\\).</p>
+        <p>If \\(\\sum a_n n^{-s}\\) converges at \\(s = s_0\\), then it converges for all \\(s\\) with \\(\\operatorname{Re}(s) > \\operatorname{Re}(s_0)\\). Moreover, the convergence is uniform in any angular region \\(|\\arg(s - s_0)| \\le \\theta < \\pi/2\\).</p>
     </div>
 </div>
 
 <div class="env-block proof">
     <div class="env-title">Proof Sketch</div>
     <div class="env-body">
-        <p>Write \\(n^{-s} = n^{-s_0} \\cdot n^{-(s-s_0)}\\). Let \\(A(x) = \\sum_{n \\le x} a(n)n^{-s_0}\\) (partial sums, bounded by hypothesis). Abel summation gives</p>
-        \\[\\sum_{n=M}^{N} a(n)n^{-s} = A(N)\\cdot N^{-(s-s_0)} - A(M-1)\\cdot M^{-(s-s_0)} + (s-s_0)\\int_M^N A(x)x^{-(s-s_0)-1}\\,dx.\\]
-        <p>Since \\(A(x)\\) is bounded and \\(\\operatorname{Re}(s-s_0) > 0\\), each term \\(\\to 0\\) as \\(M, N \\to \\infty\\), giving the Cauchy criterion. Uniformity on sectors follows from bounding \\(|s-s_0|/\\operatorname{Re}(s-s_0) \\le 1/\\cos\\theta\\). \\(\\square\\)</p>
+        <p>Suppose \\(\\sum a_n n^{-s_0}\\) converges. Write \\(s = s_0 + w\\) with \\(\\operatorname{Re}(w) > 0\\). Then</p>
+        \\[\\frac{a_n}{n^s} = \\frac{a_n}{n^{s_0}} \\cdot \\frac{1}{n^w}.\\]
+        <p>Since \\(1/n^w \\to 0\\) monotonically and the partial sums \\(\\sum_{n \\le N} a_n n^{-s_0}\\) are bounded, Abel summation (summation by parts) gives convergence of the original series.</p>
     </div>
+    <div class="qed">&marker;</div>
 </div>
 
-<h3>Computing \\(\\sigma_c\\) and \\(\\sigma_a\\)</h3>
-
-<p>Let \\(A(x) = \\sum_{n \\le x} a(n)\\). Then:</p>
-\\[\\sigma_a = \\limsup_{n \\to \\infty} \\frac{\\log |a(n)|}{\\log n}, \\qquad \\sigma_c = \\limsup_{x \\to \\infty} \\frac{\\log |A(x)|}{\\log x}.\\]
-
-<div class="env-block example">
-    <div class="env-title">Example 3.4 (Standard Cases)</div>
-    <div class="env-body">
-        <ul>
-            <li>\\(\\zeta(s)\\): \\(a(n) = 1\\), \\(A(x) \\sim x\\), so \\(\\sigma_c = \\sigma_a = 1\\).</li>
-            <li>\\(L(s, \\chi)\\) for a non-principal character \\(\\chi\\): \\(A(x) = O(1)\\) (partial sums are bounded), so \\(\\sigma_c = 0\\), but \\(\\sigma_a = 1\\) since \\(|\\chi(n)| \\le 1\\).</li>
-            <li>\\(\\sum \\mu(n)/n^s = 1/\\zeta(s)\\): \\(\\sigma_c = 1/2\\) is equivalent to the Riemann Hypothesis (since \\(\\sum_{n \\le x}\\mu(n) = O(x^{1/2+\\varepsilon})\\) iff RH holds). Unconditionally, \\(\\sigma_c \\le 1\\).</li>
-        </ul>
-    </div>
-</div>
-
-<h3>Analytic Properties</h3>
+<h3>The Abscissa Formula</h3>
 
 <div class="env-block theorem">
-    <div class="env-title">Theorem 3.2 (Analyticity)</div>
+    <div class="env-title">Theorem 3.2 (Abscissa of Absolute Convergence)</div>
     <div class="env-body">
-        <p>In the half-plane of absolute convergence \\(\\operatorname{Re}(s) > \\sigma_a\\), the function \\(F(s) = \\sum a(n)n^{-s}\\) is holomorphic, and its derivatives may be computed term by term:</p>
-        \\[F^{(k)}(s) = \\sum_{n=1}^{\\infty} a(n) \\cdot \\frac{(-\\log n)^k}{n^s}.\\]
-        <p>In particular, \\(-F'(s)/F(s)\\) encodes the "log-derivative" structure crucial for prime counting.</p>
+        <p>\\[\\sigma_a = \\limsup_{n \\to \\infty} \\frac{\\log |a_1| + |a_2| + \\cdots + |a_n|}{\\log n}.\\]</p>
+        <p>In particular, if \\(|a_n| = O(n^\\alpha)\\), then \\(\\sigma_a \\le \\alpha + 1\\).</p>
+    </div>
+</div>
+
+<div class="env-block example">
+    <div class="env-title">Example: Abscissae for \\(\\zeta(s)\\)</div>
+    <div class="env-body">
+        <p>For \\(\\zeta(s) = \\sum 1/n^s\\), all coefficients are \\(a_n = 1\\). The series \\(\\sum 1/n^\\sigma\\) converges if and only if \\(\\sigma > 1\\) (by comparison with the integral \\(\\int_1^\\infty x^{-\\sigma} dx\\)). So \\(\\sigma_a = \\sigma_c = 1\\). In this case, the gap is zero.</p>
+    </div>
+</div>
+
+<div class="env-block remark">
+    <div class="env-title">The Strip of Conditional Convergence</div>
+    <div class="env-body">
+        <p>When \\(\\sigma_c < \\sigma_a\\), the strip \\(\\sigma_c < \\operatorname{Re}(s) < \\sigma_a\\) is a region of <em>conditional</em> convergence. The series converges, but not absolutely. This strip is analogous to the boundary of the disc of convergence for a power series, where convergence behavior can be subtle.</p>
     </div>
 </div>
 
 <div class="viz-placeholder" data-viz="viz-convergence-halfplane"></div>
+
 <div class="viz-placeholder" data-viz="viz-abscissa-wall"></div>
 `,
             visualizations: [
                 {
                     id: 'viz-convergence-halfplane',
-                    title: 'Convergence Half-Plane in the Complex s-Plane',
-                    description: 'The s-plane, with sigma = Re(s) on the horizontal axis and t = Im(s) vertical. The convergence region (sigma > sigma_c) is shaded green, divergence region red. Choose a series type to see how sigma_c changes.',
+                    title: 'Convergence Half-Plane',
+                    description: 'The complex \\(s\\)-plane divided into regions of absolute convergence, conditional convergence, and divergence. Drag \\(\\sigma_c\\) and \\(\\sigma_a\\) to explore different Dirichlet series.',
                     setup: function(body, controls) {
-                        var viz = new VizEngine(body, { width: 560, height: 420, originX: 220, originY: 210, scale: 70 });
-                        var seriesType = 'zeta';
-
-                        // Series selector
-                        var sel = document.createElement('select');
-                        sel.style.cssText = 'background:#1a1a40;color:#c9d1d9;border:1px solid #30363d;border-radius:4px;padding:4px 8px;font-size:0.82rem;margin-right:8px;';
-                        [['zeta', '\u03b6(s): \u03c3_c = 1'],
-                         ['chi4', 'L(s,\u03c7\u2084): \u03c3_c = 0'],
-                         ['mu_rh', '\u03a3\u03bc(n)/n^s: \u03c3_c = 1/2 (assume RH)'],
-                         ['ramanujan', '\u03a3\u03c4(n)/n^s: \u03c3_c = 13/2']].forEach(function(opt) {
-                            var o = document.createElement('option'); o.value = opt[0]; o.textContent = opt[1];
-                            sel.appendChild(o);
+                        var viz = new VizEngine(body, {
+                            width: 560, height: 380,
+                            originX: 280, originY: 190, scale: 50
                         });
-                        sel.addEventListener('change', function() { seriesType = sel.value; draw(); });
-                        controls.appendChild(sel);
 
-                        function sigmaCForType(t) {
-                            if (t === 'zeta') return 1;
-                            if (t === 'chi4') return 0;
-                            if (t === 'mu_rh') return 0.5;
-                            if (t === 'ramanujan') return 6.5;
-                            return 1;
-                        }
+                        var sigmaC = 0;
+                        var sigmaA = 1;
+
+                        var dragC = viz.addDraggable('sc', sigmaC, 0, viz.colors.teal, 8, function(x) {
+                            sigmaC = Math.min(x, sigmaA - 0.1);
+                            dragC.x = sigmaC; dragC.y = 0;
+                            draw();
+                        });
+                        var dragA = viz.addDraggable('sa', sigmaA, 0, viz.colors.orange, 8, function(x) {
+                            sigmaA = Math.max(x, sigmaC + 0.1);
+                            dragA.x = sigmaA; dragA.y = 0;
+                            draw();
+                        });
 
                         function draw() {
                             viz.clear();
                             var ctx = viz.ctx;
-                            var sc = sigmaCForType(seriesType);
-                            var w = viz.width, h = viz.height;
 
-                            // Shade convergence region (sigma > sc)
-                            var [scSx] = viz.toScreen(sc, 0);
-                            // Green: right of sigma_c
-                            ctx.fillStyle = viz.colors.green + '28';
-                            ctx.fillRect(scSx, 0, w - scSx, h);
-                            // Red: left of sigma_c
-                            ctx.fillStyle = viz.colors.red + '28';
-                            ctx.fillRect(0, 0, scSx, h);
+                            // Divergence region (left of sigma_c)
+                            var scScreen = viz.toScreen(sigmaC, 0)[0];
+                            var saScreen = viz.toScreen(sigmaA, 0)[0];
 
-                            // Grid
+                            ctx.fillStyle = viz.colors.red + '22';
+                            ctx.fillRect(0, 0, scScreen, viz.height);
+
+                            // Conditional convergence strip
+                            if (saScreen - scScreen > 1) {
+                                ctx.fillStyle = viz.colors.yellow + '22';
+                                ctx.fillRect(scScreen, 0, saScreen - scScreen, viz.height);
+                            }
+
+                            // Absolute convergence region
+                            ctx.fillStyle = viz.colors.green + '22';
+                            ctx.fillRect(saScreen, 0, viz.width - saScreen, viz.height);
+
                             viz.drawGrid(1);
                             viz.drawAxes();
 
-                            // Critical line (abscissa of convergence)
-                            ctx.strokeStyle = viz.colors.yellow; ctx.lineWidth = 2.5; ctx.setLineDash([8, 4]);
-                            ctx.beginPath(); ctx.moveTo(scSx, 0); ctx.lineTo(scSx, h); ctx.stroke();
+                            // Vertical lines at sigma_c and sigma_a
+                            ctx.strokeStyle = viz.colors.teal; ctx.lineWidth = 2;
+                            ctx.setLineDash([6, 4]);
+                            ctx.beginPath(); ctx.moveTo(scScreen, 0); ctx.lineTo(scScreen, viz.height); ctx.stroke();
+
+                            ctx.strokeStyle = viz.colors.orange;
+                            ctx.beginPath(); ctx.moveTo(saScreen, 0); ctx.lineTo(saScreen, viz.height); ctx.stroke();
                             ctx.setLineDash([]);
 
                             // Labels
-                            ctx.fillStyle = viz.colors.yellow; ctx.font = 'bold 13px sans-serif';
-                            ctx.textAlign = 'center'; ctx.textBaseline = 'bottom';
-                            ctx.fillText('\u03c3_c = ' + (sc % 1 === 0 ? sc : sc.toFixed(1)), scSx, h - 8);
+                            viz.screenText('\u03C3', viz.width - 15, viz.originY - 12, viz.colors.text, 13);
+                            viz.screenText('it', viz.originX + 12, 15, viz.colors.text, 13);
 
-                            ctx.fillStyle = viz.colors.green + 'cc'; ctx.font = '12px sans-serif';
-                            ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
-                            ctx.fillText('Convergence', Math.min(w - 60, scSx + (w - scSx) / 2), h / 2);
-                            ctx.fillStyle = viz.colors.red + 'cc';
-                            ctx.fillText('Divergence', Math.max(60, scSx / 2), h / 2);
-
-                            // Axis labels
-                            ctx.fillStyle = viz.colors.text; ctx.font = '12px sans-serif';
-                            ctx.textAlign = 'right'; ctx.textBaseline = 'top';
-                            ctx.fillText('\u03c3 = Re(s)', w - 4, viz.originY + 4);
-                            ctx.textAlign = 'left'; ctx.textBaseline = 'middle';
-                            ctx.fillText('it = Im(s)', viz.originX + 4, 12);
-
-                            // Mark s=2 as example point in convergence region (if sc < 2)
-                            if (sc < 2) {
-                                viz.drawPoint(2, 0, viz.colors.blue, 's = 2', 6);
+                            viz.screenText('Diverges', scScreen / 2, 25, viz.colors.red, 12);
+                            if (saScreen - scScreen > 50) {
+                                viz.screenText('Conditional', (scScreen + saScreen) / 2, 25, viz.colors.yellow, 11);
                             }
-                            // Mark s = sc - 0.5 in divergence region if well-defined
-                            if (sc > -2.5) {
-                                viz.drawPoint(sc - 0.5, 0, viz.colors.red, '', 5);
-                            }
+                            viz.screenText('Absolute', (saScreen + viz.width) / 2, 25, viz.colors.green, 12);
 
-                            // Title
-                            viz.screenText('Convergence Half-Plane for ' + sel.options[sel.selectedIndex].text, w/2, 10, viz.colors.white, 12);
+                            viz.screenText('\u03C3\u1D04 = ' + sigmaC.toFixed(2), scScreen, viz.height - 15, viz.colors.teal, 11);
+                            viz.screenText('\u03C3\u2090 = ' + sigmaA.toFixed(2), saScreen, viz.height - 15, viz.colors.orange, 11);
+
+                            viz.drawDraggables();
                         }
                         draw();
                         return viz;
@@ -365,87 +364,126 @@ window.CHAPTERS.push({
                 {
                     id: 'viz-abscissa-wall',
                     title: 'The Abscissa Wall',
-                    description: 'Animated visualization of the "wall" at sigma_c. Terms on the right side (sigma > sigma_c) decay; on the left they can grow. Watch the wall slide as you change sigma_c.',
+                    description: 'Compute partial sums \\(\\sum_{n=1}^{N} a_n / n^\\sigma\\) for real \\(\\sigma\\) to see the convergence/divergence transition. As \\(N\\) grows, the partial sums stabilize for \\(\\sigma > \\sigma_c\\) and blow up for \\(\\sigma < \\sigma_c\\).',
                     setup: function(body, controls) {
-                        var viz = new VizEngine(body, { width: 560, height: 320, originX: 60, originY: 160, scale: 1 });
-                        var sigmaC = 1.0;
-                        var sigmaProbe = 1.5;
+                        var viz = new VizEngine(body, {
+                            width: 560, height: 380,
+                            originX: 60, originY: 340, scale: 1
+                        });
 
-                        VizEngine.createSlider(controls, '\u03c3_c (wall)', 0, 2, sigmaC, 0.1, function(v) { sigmaC = v; draw(); });
-                        VizEngine.createSlider(controls, '\u03c3 (probe)', -0.5, 3, sigmaProbe, 0.1, function(v) { sigmaProbe = v; draw(); });
+                        var NVal = 100;
+                        var seriesType = 'zeta';
+
+                        VizEngine.createSlider(controls, 'N', 10, 500, NVal, 10, function(v) {
+                            NVal = Math.round(v); draw();
+                        });
+
+                        var btnZeta = VizEngine.createButton(controls, '\u03B6(s)', function() {
+                            seriesType = 'zeta'; draw();
+                        });
+                        var btnAlt = VizEngine.createButton(controls, 'Alt. zeta', function() {
+                            seriesType = 'alt'; draw();
+                        });
+                        var btnMu = VizEngine.createButton(controls, '1/\u03B6(s)', function() {
+                            seriesType = 'mu'; draw();
+                        });
+
+                        var primes = VizEngine.sievePrimes(600);
+
+                        function mobius(n) {
+                            if (n === 1) return 1;
+                            var nn = n, result = 1;
+                            for (var i = 0; i < primes.length && primes[i] * primes[i] <= nn; i++) {
+                                if (nn % primes[i] === 0) {
+                                    nn /= primes[i];
+                                    if (nn % primes[i] === 0) return 0;
+                                    result = -result;
+                                }
+                            }
+                            if (nn > 1) result = -result;
+                            return result;
+                        }
+
+                        function coeff(n) {
+                            if (seriesType === 'zeta') return 1;
+                            if (seriesType === 'alt') return Math.pow(-1, n - 1);
+                            return mobius(n);
+                        }
 
                         function draw() {
                             viz.clear();
                             var ctx = viz.ctx;
-                            var w = viz.width, h = viz.height;
 
-                            // Show N terms a(n)/n^sigma, bar heights
-                            var N = 30;
-                            var barW = (w - 100) / N;
-                            var left = 60, bottom = 280, top = 30;
-                            var chartH = bottom - top;
+                            var title = seriesType === 'zeta' ? '\u03B6(s): \u03C3\u1D04 = 1' :
+                                        seriesType === 'alt' ? 'Alternating: \u03C3\u1D04 = 0, \u03C3\u2090 = 1' :
+                                        '1/\u03B6(s): \u03C3\u1D04 = 1';
+                            viz.screenText('Partial sums of ' + title + '  (N = ' + NVal + ')', viz.width / 2, 20, viz.colors.white, 13);
 
-                            // Compute partial sums and term sizes
-                            var terms = [];
-                            for (var n = 1; n <= N; n++) {
-                                // a(n) = 1 for zeta-like series
-                                terms.push(Math.pow(n, -sigmaProbe));
-                            }
-                            var maxTerm = Math.max.apply(null, terms.map(Math.abs));
-                            if (maxTerm < 0.01) maxTerm = 0.01;
-                            // Cap display
-                            var dispMax = Math.min(maxTerm, 5);
-
-                            var converges = sigmaProbe > sigmaC;
-
-                            // Background shade
-                            ctx.fillStyle = (converges ? viz.colors.green : viz.colors.red) + '18';
-                            ctx.fillRect(left, top, w - left - 10, bottom - top);
-
-                            // Axis
-                            ctx.strokeStyle = viz.colors.axis; ctx.lineWidth = 1;
-                            ctx.beginPath(); ctx.moveTo(left, bottom); ctx.lineTo(w - 10, bottom); ctx.stroke();
-                            ctx.beginPath(); ctx.moveTo(left, top); ctx.lineTo(left, bottom); ctx.stroke();
-
-                            // Y gridlines
-                            ctx.strokeStyle = viz.colors.grid; ctx.lineWidth = 0.5;
-                            for (var g = 1; g <= 5; g++) {
-                                var gv = (g / 5) * dispMax;
-                                var gy = bottom - (Math.min(gv, dispMax) / dispMax) * chartH;
-                                ctx.beginPath(); ctx.moveTo(left, gy); ctx.lineTo(w - 10, gy); ctx.stroke();
-                                ctx.fillStyle = viz.colors.text; ctx.font = '9px sans-serif';
-                                ctx.textAlign = 'right'; ctx.textBaseline = 'middle';
-                                ctx.fillText(gv.toFixed(2), left - 3, gy);
-                            }
-
-                            // Bars
-                            for (var i = 0; i < N; i++) {
-                                var bx = left + i * barW;
-                                var bv = Math.min(terms[i], dispMax);
-                                var bh = (bv / dispMax) * chartH;
-                                var color = terms[i] <= terms[0] * 1.01 || converges ? viz.colors.blue : viz.colors.orange;
-                                ctx.fillStyle = color + '99';
-                                ctx.fillRect(bx + 1, bottom - bh, barW - 2, bh);
-                                ctx.strokeStyle = color; ctx.lineWidth = 0.5;
-                                ctx.strokeRect(bx + 1, bottom - bh, barW - 2, bh);
-                                // n label every 5
-                                if ((i + 1) % 5 === 0 || i === 0) {
-                                    ctx.fillStyle = viz.colors.text; ctx.font = '9px sans-serif';
-                                    ctx.textAlign = 'center'; ctx.textBaseline = 'top';
-                                    ctx.fillText(i + 1, bx + barW / 2, bottom + 3);
+                            // Compute partial sums for a range of sigma values
+                            var sigmaMin = seriesType === 'alt' ? -0.5 : 0.3;
+                            var sigmaMax = 3.0;
+                            var nSigma = 40;
+                            var sums = [];
+                            for (var i = 0; i < nSigma; i++) {
+                                var sigma = sigmaMin + (sigmaMax - sigmaMin) * i / (nSigma - 1);
+                                var acc = 0;
+                                for (var n = 1; n <= NVal; n++) {
+                                    acc += coeff(n) / Math.pow(n, sigma);
                                 }
+                                sums.push({ sigma: sigma, val: acc });
                             }
 
-                            // Status
-                            ctx.font = 'bold 13px sans-serif'; ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
-                            ctx.fillStyle = converges ? viz.colors.green : viz.colors.red;
-                            ctx.fillText(
-                                '\u03c3 = ' + sigmaProbe.toFixed(1) + (sigmaProbe > sigmaC ? ' > \u03c3_c: CONVERGES' : ' \u2264 \u03c3_c: DIVERGES (terms don\'t \u2192 0 fast enough)'),
-                                w / 2, top + 12
-                            );
+                            // Clamp for display
+                            var chartL = 70, chartR = viz.width - 30;
+                            var chartT = 45, chartB = 310;
+                            var chartW = chartR - chartL, chartH = chartB - chartT;
 
-                            ctx.fillStyle = viz.colors.yellow; ctx.font = '11px sans-serif';
-                            ctx.fillText('Terms a(n)/n^\u03c3 = 1/n^' + sigmaProbe.toFixed(1) + ',  \u03c3_c = ' + sigmaC.toFixed(1), w/2, bottom + 22);
+                            var yMin = -2, yMax = 8;
+                            for (var k = 0; k < sums.length; k++) {
+                                var v = Math.max(-10, Math.min(20, sums[k].val));
+                                sums[k].clamped = v;
+                            }
+
+                            // Y axis
+                            ctx.strokeStyle = viz.colors.grid; ctx.lineWidth = 0.5;
+                            ctx.fillStyle = viz.colors.text; ctx.font = '10px -apple-system,sans-serif';
+                            ctx.textAlign = 'right'; ctx.textBaseline = 'middle';
+                            for (var gy = -2; gy <= 8; gy += 2) {
+                                var yy = chartB - (gy - yMin) / (yMax - yMin) * chartH;
+                                ctx.beginPath(); ctx.moveTo(chartL, yy); ctx.lineTo(chartR, yy); ctx.stroke();
+                                ctx.fillText(gy.toString(), chartL - 6, yy);
+                            }
+
+                            // X axis labels
+                            ctx.textAlign = 'center'; ctx.textBaseline = 'top';
+                            for (var xs = Math.ceil(sigmaMin); xs <= sigmaMax; xs++) {
+                                var xp = chartL + (xs - sigmaMin) / (sigmaMax - sigmaMin) * chartW;
+                                ctx.fillStyle = viz.colors.text; ctx.font = '10px -apple-system,sans-serif';
+                                ctx.fillText('\u03C3=' + xs, xp, chartB + 4);
+                            }
+
+                            // Plot
+                            ctx.strokeStyle = viz.colors.blue; ctx.lineWidth = 2.5;
+                            ctx.beginPath();
+                            var started = false;
+                            for (var j = 0; j < sums.length; j++) {
+                                var px = chartL + j / (nSigma - 1) * chartW;
+                                var cv = Math.max(yMin, Math.min(yMax, sums[j].clamped));
+                                var py = chartB - (cv - yMin) / (yMax - yMin) * chartH;
+                                if (!started) { ctx.moveTo(px, py); started = true; } else ctx.lineTo(px, py);
+                            }
+                            ctx.stroke();
+
+                            // Mark sigma_c
+                            var sc = seriesType === 'alt' ? 0 : 1;
+                            var scX = chartL + (sc - sigmaMin) / (sigmaMax - sigmaMin) * chartW;
+                            ctx.strokeStyle = viz.colors.red; ctx.lineWidth = 2;
+                            ctx.setLineDash([6, 4]);
+                            ctx.beginPath(); ctx.moveTo(scX, chartT); ctx.lineTo(scX, chartB); ctx.stroke();
+                            ctx.setLineDash([]);
+                            viz.screenText('\u03C3\u1D04', scX, chartT - 10, viz.colors.red, 12);
+
+                            viz.screenText('\u03C3', chartR + 10, chartB + 4, viz.colors.text, 12);
                         }
                         draw();
                         return viz;
@@ -454,71 +492,86 @@ window.CHAPTERS.push({
             ],
             exercises: [
                 {
-                    question: 'Prove that \\(\\sigma_a - \\sigma_c \\le 1\\) for any Dirichlet series \\(\\sum a(n)n^{-s}\\).',
-                    hint: 'Suppose the series converges conditionally at \\(s_0\\). Use Abel summation to show absolute convergence at \\(s_0 + 1 + \\varepsilon\\).',
-                    solution: 'If \\(\\sum a(n)n^{-s_0}\\) converges, partial sums \\(A_N = \\sum_{n=1}^N a(n)n^{-s_0}\\) are bounded, say \\(|A_N| \\le M\\). By Abel summation, \\(\\sum_{n=M}^N |a(n)n^{-s}| \\le 2M \\cdot N^{-(\\sigma - \\sigma_0)} + |\\sigma - \\sigma_0| \\int_M^N M x^{-(\\sigma-\\sigma_0)-1}\\,dx \\to 0\\) provided \\(\\sigma > \\sigma_0 + 1\\). Thus absolute convergence holds for \\(\\operatorname{Re}(s) > \\sigma_c + 1\\), giving \\(\\sigma_a \\le \\sigma_c + 1\\).'
+                    question: 'Show that if \\(\\sum a_n n^{-s_0}\\) converges absolutely at \\(s_0\\), then it converges absolutely for all \\(s\\) with \\(\\operatorname{Re}(s) > \\operatorname{Re}(s_0)\\).',
+                    hint: 'Use the comparison \\(|a_n n^{-s}| = |a_n| n^{-\\sigma} \\le |a_n| n^{-\\sigma_0}\\) when \\(\\sigma > \\sigma_0\\).',
+                    solution: 'For \\(\\sigma = \\operatorname{Re}(s) > \\sigma_0 = \\operatorname{Re}(s_0)\\), we have \\(n^{-\\sigma} \\le n^{-\\sigma_0}\\) for all \\(n \\ge 1\\). So \\(|a_n n^{-s}| = |a_n| n^{-\\sigma} \\le |a_n| n^{-\\sigma_0}\\). Since \\(\\sum |a_n| n^{-\\sigma_0}\\) converges by hypothesis, the comparison test gives absolute convergence at \\(s\\).'
                 },
                 {
-                    question: 'Find \\(\\sigma_c\\) and \\(\\sigma_a\\) for the Dirichlet series with \\(a(n) = (-1)^{n-1}\\).',
-                    hint: 'What is the partial sum \\(A(x) = \\sum_{n \\le x} (-1)^{n-1}\\)? This is related to the Dirichlet eta function.',
-                    solution: '\\(A(x) \\in \\{0, 1\\}\\) (bounded), so \\(\\sigma_c = 0\\). Since \\(|a(n)| = 1\\), we have \\(\\sigma_a = 1\\). The series equals the eta function \\(\\eta(s) = (1 - 2^{1-s})\\zeta(s)\\), which converges conditionally for \\(\\operatorname{Re}(s) > 0\\) and absolutely for \\(\\operatorname{Re}(s) > 1\\).'
+                    question: 'The Dirichlet eta function is \\(\\eta(s) = \\sum_{n=1}^\\infty (-1)^{n-1} / n^s\\). Find \\(\\sigma_c\\) and \\(\\sigma_a\\). Show that \\(\\eta(s) = (1 - 2^{1-s})\\zeta(s)\\) for \\(\\operatorname{Re}(s) > 1\\).',
+                    hint: 'For conditional convergence, use the alternating series test. For the identity, write \\(\\zeta(s) - 2 \\cdot 2^{-s} \\zeta(s) = ?\\).',
+                    solution: 'The alternating series \\(\\sum (-1)^{n-1}/n^\\sigma\\) converges for \\(\\sigma > 0\\) by the alternating series test (the terms \\(1/n^\\sigma\\) decrease to 0), so \\(\\sigma_c = 0\\). It converges absolutely iff \\(\\sum 1/n^\\sigma\\) converges, so \\(\\sigma_a = 1\\). For the identity: \\(\\eta(s) = \\sum 1/n^s - 2\\sum 1/(2n)^s = \\zeta(s) - 2 \\cdot 2^{-s} \\zeta(s) = (1 - 2^{1-s})\\zeta(s)\\).'
                 }
             ]
         },
 
         // ================================================================
-        // SECTION 3: Euler Products
+        // SECTION 3: The Euler Product
         // ================================================================
         {
             id: 'sec-euler-product',
-            title: 'Euler Products',
+            title: 'The Euler Product',
             content: `
-<h2>Euler Products</h2>
+<h2>The Euler Product</h2>
 
-<p>One of the most profound identities in mathematics connects a sum over all positive integers to a product over primes.</p>
+<div class="env-block intuition">
+    <div class="env-title">Primes Meet Analysis</div>
+    <div class="env-body">
+        <p>The <strong>fundamental theorem of arithmetic</strong> says every positive integer factors uniquely into primes. The <strong>Euler product</strong> is the analytic translation of this fact. It says that \\(\\zeta(s)\\), which sums over all positive integers, can be written as a product over primes. This is the single most important identity in analytic number theory.</p>
+    </div>
+</div>
 
 <div class="env-block theorem">
-    <div class="env-title">Theorem 3.3 (Euler Product)</div>
+    <div class="env-title">Theorem 3.3 (Euler Product for \\(\\zeta(s)\\))</div>
     <div class="env-body">
-        <p>Let \\(f\\) be a completely multiplicative arithmetic function with \\(\\sum_{n=1}^{\\infty} |f(n)| < \\infty\\). Then</p>
-        \\[\\sum_{n=1}^{\\infty} f(n) = \\prod_{p \\text{ prime}} \\frac{1}{1 - f(p)},\\]
-        <p>where the product converges absolutely. In particular, for \\(\\operatorname{Re}(s) > 1\\):</p>
-        \\[\\zeta(s) = \\sum_{n=1}^{\\infty} \\frac{1}{n^s} = \\prod_{p} \\frac{1}{1 - p^{-s}}.\\]
+        <p>For \\(\\operatorname{Re}(s) > 1\\),</p>
+        \\[\\zeta(s) = \\sum_{n=1}^{\\infty} \\frac{1}{n^s} = \\prod_{p \\text{ prime}} \\frac{1}{1 - p^{-s}}.\\]
     </div>
 </div>
 
 <div class="env-block proof">
     <div class="env-title">Proof</div>
     <div class="env-body">
-        <p>For \\(\\operatorname{Re}(s) > 1\\), each geometric series converges:
-        \\[\\frac{1}{1 - p^{-s}} = \\sum_{k=0}^{\\infty} p^{-ks}.\\]
-        Multiply finitely many such series over primes \\(p \\le P\\):
-        \\[\\prod_{p \\le P} \\frac{1}{1-p^{-s}} = \\prod_{p \\le P} \\sum_{k=0}^{\\infty} p^{-ks} = \\sum_{\\substack{n=1 \\\\ p|n \\Rightarrow p \\le P}}^{\\infty} \\frac{1}{n^s},\\]
-        by unique factorization. The right side omits only integers with a prime factor \\(> P\\, \\), so</p>
-        \\[\\left| \\zeta(s) - \\prod_{p \\le P} \\frac{1}{1-p^{-s}} \\right| \\le \\sum_{n > P} n^{-\\sigma} \\to 0 \\quad (P \\to \\infty),\\]
-        <p>since \\(\\sum n^{-\\sigma}\\) converges for \\(\\sigma > 1\\). \\(\\square\\)</p>
+        <p>For each prime \\(p\\), the geometric series gives</p>
+        \\[\\frac{1}{1 - p^{-s}} = 1 + \\frac{1}{p^s} + \\frac{1}{p^{2s}} + \\frac{1}{p^{3s}} + \\cdots\\]
+        <p>provided \\(|p^{-s}| = p^{-\\sigma} < 1\\), which holds for \\(\\sigma > 0\\). Now consider the finite product over primes \\(p \\le P\\):</p>
+        \\[\\prod_{p \\le P} \\frac{1}{1 - p^{-s}} = \\prod_{p \\le P} \\left(\\sum_{k=0}^{\\infty} p^{-ks}\\right).\\]
+        <p>Expanding the product and using uniqueness of prime factorization, we get</p>
+        \\[\\prod_{p \\le P} \\frac{1}{1 - p^{-s}} = \\sum_{\\substack{n \\ge 1 \\\\ p | n \\Rightarrow p \\le P}} \\frac{1}{n^s}.\\]
+        <p>The right side sums over all \\(n\\) whose prime factors are all \\(\\le P\\). As \\(P \\to \\infty\\), this exhausts all positive integers, giving</p>
+        \\[\\prod_{p} \\frac{1}{1 - p^{-s}} = \\sum_{n=1}^{\\infty} \\frac{1}{n^s} = \\zeta(s).\\]
+        <p>The absolute convergence of \\(\\zeta(s)\\) for \\(\\sigma > 1\\) justifies the rearrangement.</p>
     </div>
+    <div class="qed">&marker;</div>
 </div>
 
-<h3>Euler Products and Multiplicativity</h3>
+<h3>The General Euler Product</h3>
 
 <div class="env-block theorem">
     <div class="env-title">Theorem 3.4 (Euler Product for Multiplicative Functions)</div>
     <div class="env-body">
-        <p>Let \\(f\\) be multiplicative and \\(\\sum |f(n)| n^{-\\sigma} < \\infty\\). Then</p>
-        \\[\\sum_{n=1}^{\\infty} \\frac{f(n)}{n^s} = \\prod_{p} \\left( \\sum_{k=0}^{\\infty} \\frac{f(p^k)}{p^{ks}} \\right).\\]
-        <p>If \\(f\\) is completely multiplicative, \\(f(p^k) = f(p)^k\\), and each local factor is \\((1 - f(p)p^{-s})^{-1}\\).</p>
+        <p>If \\(f\\) is a multiplicative function and \\(\\sum |f(n)| n^{-\\sigma}\\) converges, then</p>
+        \\[\\sum_{n=1}^{\\infty} \\frac{f(n)}{n^s} = \\prod_{p} \\left(1 + \\frac{f(p)}{p^s} + \\frac{f(p^2)}{p^{2s}} + \\cdots\\right).\\]
+        <p>If \\(f\\) is <em>completely</em> multiplicative (\\(f(mn) = f(m)f(n)\\) for all \\(m, n\\)), the product simplifies to</p>
+        \\[\\prod_{p} \\frac{1}{1 - f(p) p^{-s}}.\\]
     </div>
 </div>
-
-<h3>Infinitely Many Primes (Again)</h3>
 
 <div class="env-block example">
-    <div class="env-title">Example 3.5 (A New Proof of Infinitely Many Primes)</div>
+    <div class="env-title">Example: Euler Products for Familiar Functions</div>
     <div class="env-body">
-        <p>If there were finitely many primes, the product \\(\\prod_p (1-p^{-1})^{-1}\\) would be a finite number. But \\(\\sum_{n=1}^{\\infty} 1/n = \\infty\\) (harmonic series diverges), and \\(\\zeta(1) = \\prod_p (1-p^{-1})^{-1}\\). Contradiction. Therefore there are infinitely many primes.</p>
+        <ul>
+            <li>\\(\\mu(n)\\): Since \\(\\mu(p) = -1\\) and \\(\\mu(p^k) = 0\\) for \\(k \\ge 2\\), the Euler product is \\(\\prod_p (1 - p^{-s}) = 1/\\zeta(s)\\).</li>
+            <li>\\(\\phi(n)/n\\): Since \\(\\phi\\) is multiplicative with \\(\\phi(p^k) = p^{k-1}(p-1)\\), the Euler product is \\(\\prod_p (1 - p^{-s})/(1 - p^{1-s}) = \\zeta(s-1)/\\zeta(s)\\).</li>
+            <li>\\(|\\mu(n)|\\) (the squarefree indicator): \\(\\prod_p (1 + p^{-s}) = \\zeta(s)/\\zeta(2s)\\).</li>
+        </ul>
     </div>
 </div>
+
+<h3>Why the Euler Product Matters</h3>
+
+<p>The Euler product reveals that <strong>the analytic properties of \\(\\zeta(s)\\) encode information about the primes</strong>. The zeros and poles of \\(\\zeta(s)\\) control the distribution of primes. If \\(\\zeta(s)\\) had no zeros near the line \\(\\operatorname{Re}(s) = 1\\), we could prove the Prime Number Theorem. This is exactly the strategy we will follow in Chapters 6 and 7.</p>
+
+<p>Another immediate consequence: <strong>\\(\\zeta(s) \\ne 0\\) for \\(\\operatorname{Re}(s) > 1\\)</strong>, since each factor \\((1 - p^{-s})^{-1}\\) is nonzero there, and the product converges absolutely.</p>
 
 <div class="viz-placeholder" data-viz="viz-euler-product-assembly"></div>
 `,
@@ -526,105 +579,105 @@ window.CHAPTERS.push({
                 {
                     id: 'viz-euler-product-assembly',
                     title: 'Euler Product Assembly',
-                    description: 'Multiply factors (1 - p^{-s})^{-1} one prime at a time, for real s > 1. Watch the partial product converge to zeta(s). The bar chart tracks the ratio (partial product / zeta(s)).',
+                    description: 'Watch the Euler product build \\(\\zeta(s)\\) one prime at a time. Each factor \\((1-p^{-s})^{-1}\\) contributes the integers whose largest prime factor is \\(p\\). The partial product converges to \\(\\zeta(s)\\).',
                     setup: function(body, controls) {
-                        var viz = new VizEngine(body, { width: 600, height: 360, originX: 60, originY: 300, scale: 1 });
-                        var sigma = 2.0;
-                        var nPrimes = 10;
+                        var viz = new VizEngine(body, {
+                            width: 560, height: 380,
+                            originX: 60, originY: 340, scale: 1
+                        });
 
-                        VizEngine.createSlider(controls, '\u03c3 (real s)', 1.1, 4.0, sigma, 0.1, function(v) { sigma = v; draw(); });
-                        VizEngine.createSlider(controls, '# primes', 1, 20, nPrimes, 1, function(v) { nPrimes = Math.round(v); draw(); });
+                        var sVal = 2.0;
+                        VizEngine.createSlider(controls, 's (real)', 1.1, 4.0, sVal, 0.1, function(v) {
+                            sVal = v; draw();
+                        });
 
-                        var PRIMES = VizEngine.sievePrimes(80);
-
-                        // Compute zeta(sigma) by partial sum (300 terms)
-                        function zetaApprox(sig, N) {
-                            var s = 0;
-                            for (var n = 1; n <= N; n++) s += Math.pow(n, -sig);
-                            return s;
-                        }
+                        var primes = VizEngine.sievePrimes(100);
 
                         function draw() {
                             viz.clear();
                             var ctx = viz.ctx;
-                            var w = viz.width, h = viz.height;
-                            var left = 60, bottom = 280, top = 30;
-                            var chartH = bottom - top;
 
-                            var zetaVal = zetaApprox(sigma, 500);
+                            viz.screenText('Euler Product: \u03B6(' + sVal.toFixed(1) + ') = \u220F (1 - p\u207B\u02E2)\u207B\u00B9', viz.width / 2, 20, viz.colors.white, 14);
 
-                            // Compute partial products
+                            // Compute partial Euler products
+                            var nPrimes = Math.min(25, primes.length);
                             var products = [];
-                            var prod = 1;
-                            for (var i = 0; i < Math.min(nPrimes, PRIMES.length); i++) {
-                                prod *= 1 / (1 - Math.pow(PRIMES[i], -sigma));
-                                products.push(prod);
+                            var acc = 1;
+                            for (var i = 0; i < nPrimes; i++) {
+                                acc *= 1 / (1 - Math.pow(primes[i], -sVal));
+                                products.push({ p: primes[i], val: acc });
                             }
 
-                            var maxProd = Math.max(products[products.length - 1], zetaVal) * 1.05;
-                            var barW = Math.min(30, (w - left - 20) / (products.length + 1));
-                            var gap = 4;
+                            // Also compute zeta directly for comparison
+                            var zetaVal = 0;
+                            for (var n = 1; n <= 10000; n++) zetaVal += 1 / Math.pow(n, sVal);
 
-                            function barH(v) { return (v / maxProd) * chartH; }
+                            var chartL = 70, chartR = viz.width - 30;
+                            var chartT = 50, chartB = 300;
+                            var chartW = chartR - chartL, chartH = chartB - chartT;
 
-                            // zeta line
-                            var zetaY = bottom - barH(zetaVal);
-                            ctx.strokeStyle = viz.colors.yellow; ctx.lineWidth = 1.5; ctx.setLineDash([6, 4]);
-                            ctx.beginPath(); ctx.moveTo(left, zetaY); ctx.lineTo(w - 10, zetaY); ctx.stroke();
-                            ctx.setLineDash([]);
-                            ctx.fillStyle = viz.colors.yellow; ctx.font = '11px sans-serif'; ctx.textAlign = 'left'; ctx.textBaseline = 'middle';
-                            ctx.fillText('\u03b6(' + sigma.toFixed(1) + ') \u2248 ' + zetaVal.toFixed(4), left + 4, zetaY - 8);
+                            var yMin = 0.8, yMax = Math.max(zetaVal * 1.15, products[nPrimes - 1].val * 1.1);
 
-                            // Axes
-                            ctx.strokeStyle = viz.colors.axis; ctx.lineWidth = 1;
-                            ctx.beginPath(); ctx.moveTo(left, bottom); ctx.lineTo(w - 10, bottom); ctx.stroke();
-                            ctx.beginPath(); ctx.moveTo(left, top); ctx.lineTo(left, bottom); ctx.stroke();
-
-                            // Y gridlines
+                            // Grid
                             ctx.strokeStyle = viz.colors.grid; ctx.lineWidth = 0.5;
-                            for (var g = 1; g <= 5; g++) {
-                                var gv = (g / 5) * maxProd;
-                                var gy = bottom - barH(gv);
-                                ctx.beginPath(); ctx.moveTo(left, gy); ctx.lineTo(w - 10, gy); ctx.stroke();
-                                ctx.fillStyle = viz.colors.text; ctx.font = '9px sans-serif';
-                                ctx.textAlign = 'right'; ctx.textBaseline = 'middle';
-                                ctx.fillText(gv.toFixed(2), left - 3, gy);
+                            ctx.fillStyle = viz.colors.text; ctx.font = '10px -apple-system,sans-serif';
+                            ctx.textAlign = 'right'; ctx.textBaseline = 'middle';
+                            var yStep = Math.max(0.2, Math.round((yMax - yMin) / 5 * 10) / 10);
+                            for (var gy = Math.ceil(yMin / yStep) * yStep; gy <= yMax; gy += yStep) {
+                                var yy = chartB - (gy - yMin) / (yMax - yMin) * chartH;
+                                ctx.beginPath(); ctx.moveTo(chartL, yy); ctx.lineTo(chartR, yy); ctx.stroke();
+                                ctx.fillText(gy.toFixed(1), chartL - 6, yy);
                             }
 
-                            // Bars: partial products
-                            for (var i = 0; i < products.length; i++) {
-                                var bx = left + i * (barW + gap);
-                                var bv = products[i];
-                                var bh2 = barH(bv);
-                                // Color by ratio to zeta
-                                var ratio = bv / zetaVal;
-                                var green = Math.floor(Math.min(ratio, 1) * 200);
-                                ctx.fillStyle = 'rgba(63,' + green + ',160,0.75)';
-                                ctx.fillRect(bx, bottom - bh2, barW, bh2);
-                                ctx.strokeStyle = viz.colors.purple; ctx.lineWidth = 0.8;
-                                ctx.strokeRect(bx, bottom - bh2, barW, bh2);
+                            // Horizontal line at zeta(s) value
+                            var zetaY = chartB - (zetaVal - yMin) / (yMax - yMin) * chartH;
+                            ctx.strokeStyle = viz.colors.blue + '66'; ctx.lineWidth = 1;
+                            ctx.setLineDash([4, 4]);
+                            ctx.beginPath(); ctx.moveTo(chartL, zetaY); ctx.lineTo(chartR, zetaY); ctx.stroke();
+                            ctx.setLineDash([]);
+                            ctx.fillStyle = viz.colors.blue; ctx.textAlign = 'left';
+                            ctx.fillText('\u03B6(' + sVal.toFixed(1) + ') = ' + zetaVal.toFixed(6), chartR - 120, zetaY - 8);
+
+                            // Bar chart of partial products
+                            var barW = Math.min(18, chartW / nPrimes - 2);
+                            for (var j = 0; j < nPrimes; j++) {
+                                var bx = chartL + (j + 0.5) / nPrimes * chartW;
+                                var bVal = Math.min(products[j].val, yMax);
+                                var by = chartB - (bVal - yMin) / (yMax - yMin) * chartH;
+                                var bBase = chartB - (0 - yMin) / (yMax - yMin) * chartH;
+                                bBase = chartB;
+
+                                var factor = products[j].val / (j > 0 ? products[j - 1].val : 1);
+                                var intensity = Math.min(1, (factor - 1) * 5);
+                                var alpha = Math.round(0x44 + intensity * 0x88).toString(16);
+
+                                ctx.fillStyle = viz.colors.teal + alpha;
+                                ctx.fillRect(bx - barW / 2, by, barW, bBase - by);
+                                ctx.strokeStyle = viz.colors.teal; ctx.lineWidth = 1;
+                                ctx.strokeRect(bx - barW / 2, by, barW, bBase - by);
+
                                 // Prime label
-                                ctx.fillStyle = viz.colors.text; ctx.font = '10px sans-serif';
-                                ctx.textAlign = 'center'; ctx.textBaseline = 'top';
-                                ctx.fillText('p' + (i+1) + '=' + PRIMES[i], bx + barW / 2, bottom + 3);
-                                // Ratio label on bar
-                                if (barW >= 18) {
-                                    ctx.fillStyle = viz.colors.white; ctx.font = '9px sans-serif';
-                                    ctx.textAlign = 'center'; ctx.textBaseline = 'bottom';
-                                    ctx.fillText((ratio * 100).toFixed(0) + '%', bx + barW / 2, bottom - bh2 - 1);
+                                if (nPrimes <= 20 || j % 2 === 0) {
+                                    ctx.fillStyle = viz.colors.text; ctx.font = '9px -apple-system,sans-serif';
+                                    ctx.textAlign = 'center'; ctx.textBaseline = 'top';
+                                    ctx.fillText(products[j].p.toString(), bx, chartB + 3);
                                 }
                             }
 
-                            // Final ratio text
-                            if (products.length > 0) {
-                                var finalRatio = products[products.length - 1] / zetaVal;
-                                ctx.font = 'bold 13px sans-serif'; ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
-                                ctx.fillStyle = viz.colors.white;
-                                ctx.fillText(
-                                    '\u220f_{p \u2264 ' + PRIMES[products.length - 1] + '} (1-p^{-' + sigma.toFixed(1) + '})^{-1} = ' + products[products.length-1].toFixed(4) + '  (' + (finalRatio * 100).toFixed(1) + '% of \u03b6)',
-                                    w / 2, top + 12
-                                );
-                            }
+                            // Label
+                            viz.screenText('primes p', chartR + 10, chartB + 8, viz.colors.text, 10);
+
+                            // Show convergence
+                            var last = products[nPrimes - 1].val;
+                            var error = Math.abs(zetaVal - last);
+                            viz.screenText(
+                                'After ' + nPrimes + ' primes: product = ' + last.toFixed(6) + '   error = ' + error.toExponential(2),
+                                viz.width / 2, chartB + 40, viz.colors.white, 12
+                            );
+                            viz.screenText(
+                                'Each bar shows the cumulative product \u220F_{p\u2264P} (1-p\u207B\u02E2)\u207B\u00B9',
+                                viz.width / 2, chartB + 58, viz.colors.text, 10
+                            );
                         }
                         draw();
                         return viz;
@@ -633,72 +686,93 @@ window.CHAPTERS.push({
             ],
             exercises: [
                 {
-                    question: 'Prove that \\(\\zeta(s)\\) has no zeros in the half-plane \\(\\operatorname{Re}(s) > 1\\) using the Euler product.',
-                    hint: 'Show that \\(1/\\zeta(s) = \\prod_p (1 - p^{-s})\\) converges absolutely for \\(\\operatorname{Re}(s) > 1\\). A convergent product of factors that do not vanish is itself non-zero.',
-                    solution: 'For \\(\\sigma > 1\\), we have \\(\\sum_p p^{-\\sigma} \\le \\sum_n n^{-\\sigma} < \\infty\\), so \\(\\prod_p (1 - p^{-s})\\) converges absolutely (since \\(\\sum_p |p^{-s}| \\le \\sum_p p^{-\\sigma} < \\infty\\)). Each factor \\(|1 - p^{-s}| \\ge 1 - p^{-\\sigma} > 0\\). An absolutely convergent product of non-zero factors is non-zero, so \\(1/\\zeta(s) \\ne 0\\), meaning \\(\\zeta(s) \\ne 0\\) for \\(\\sigma > 1\\).'
+                    question: 'Prove that \\(\\sum_{n=1}^\\infty \\mu(n)/n^s = 1/\\zeta(s)\\) for \\(\\operatorname{Re}(s) > 1\\) using the Euler product.',
+                    hint: 'Compute the Euler product for \\(\\mu\\): since \\(\\mu(p) = -1\\) and \\(\\mu(p^k) = 0\\) for \\(k \\ge 2\\), the local factor at \\(p\\) is \\(1 - p^{-s}\\).',
+                    solution: 'The Euler product for \\(\\sum \\mu(n)/n^s\\) is \\(\\prod_p (1 + \\mu(p)p^{-s} + \\mu(p^2)p^{-2s} + \\cdots) = \\prod_p (1 - p^{-s})\\). But \\(\\zeta(s) = \\prod_p (1 - p^{-s})^{-1}\\), so \\(\\sum \\mu(n)/n^s = \\prod_p (1 - p^{-s}) = 1/\\zeta(s)\\).'
                 },
                 {
-                    question: 'Use the Euler product to derive \\(\\zeta(s)^2 = \\sum_{n=1}^{\\infty} d(n)/n^s\\), where \\(d(n)\\) is the number of divisors of \\(n\\).',
-                    hint: 'At each prime \\(p\\), compare the local factors of \\(\\zeta(s)^2\\) with the generating function \\(\\sum_{k=0}^{\\infty} d(p^k) p^{-ks}\\). What is \\(d(p^k)\\)?',
-                    solution: '\\(d(p^k) = k+1\\), so \\(\\sum_{k=0}^{\\infty}(k+1)p^{-ks} = (1-p^{-s})^{-2}\\). Since the Euler product of \\(\\zeta(s)\\) has local factor \\((1-p^{-s})^{-1}\\), squaring gives local factor \\((1-p^{-s})^{-2}\\). By unique factorization, reassembling over all primes yields \\(\\zeta(s)^2 = \\sum_{n=1}^{\\infty} d(n)/n^s\\). Alternatively: \\(\\zeta(s)^2 = (\\sum_m m^{-s})(\\sum_n n^{-s}) = \\sum_k (\\sum_{mn=k} 1) k^{-s} = \\sum_k d(k) k^{-s}\\).'
+                    question: 'Show that \\(\\sum_{n=1}^\\infty d(n)/n^s = \\zeta(s)^2\\) for \\(\\operatorname{Re}(s) > 1\\), where \\(d(n)\\) is the number of divisors of \\(n\\).',
+                    hint: 'Use the fact that \\(d = 1 * 1\\) (Dirichlet convolution) and that the Dirichlet series of a convolution is the product of the individual series.',
+                    solution: 'Since \\(d(n) = \\sum_{d|n} 1 = (1 * 1)(n)\\), the Dirichlet series is \\(\\sum d(n)/n^s = (\\sum 1/n^s)(\\sum 1/n^s) = \\zeta(s)^2\\). Alternatively, the Euler product: \\(d(p^k) = k+1\\), so the local factor is \\(\\sum_{k=0}^\\infty (k+1)p^{-ks} = (1-p^{-s})^{-2}\\), and the product over \\(p\\) gives \\(\\zeta(s)^2\\).'
                 }
             ]
         },
 
         // ================================================================
-        // SECTION 4: Algebraic Properties
+        // SECTION 4: Formal Properties
         // ================================================================
         {
             id: 'sec-formal-properties',
-            title: 'Algebraic Properties',
+            title: 'Formal Properties',
             content: `
-<h2>Algebraic Properties: Dirichlet Convolution</h2>
+<h2>Algebra of Dirichlet Series</h2>
 
-<p>The key algebraic fact: multiplying two Dirichlet series corresponds exactly to Dirichlet convolution of their coefficients.</p>
+<div class="env-block intuition">
+    <div class="env-title">Dirichlet Series as a Ring</div>
+    <div class="env-body">
+        <p>Dirichlet series can be added, subtracted, and multiplied. The multiplication law is the key surprise: the product of two Dirichlet series corresponds to <strong>Dirichlet convolution</strong> of their coefficients, not pointwise multiplication. This is the reason Dirichlet series are the natural generating functions for multiplicative number theory.</p>
+    </div>
+</div>
+
+<h3>Multiplication = Dirichlet Convolution</h3>
 
 <div class="env-block theorem">
-    <div class="env-title">Theorem 3.5 (Multiplication = Dirichlet Convolution)</div>
+    <div class="env-title">Theorem 3.5 (Product of Dirichlet Series)</div>
     <div class="env-body">
-        <p>Let \\(F(s) = \\sum a(n)n^{-s}\\) and \\(G(s) = \\sum b(n)n^{-s}\\) converge absolutely for \\(\\operatorname{Re}(s) > \\sigma_0\\). Then for \\(\\operatorname{Re}(s) > \\sigma_0\\):</p>
-        \\[F(s) \\cdot G(s) = \\sum_{n=1}^{\\infty} \\frac{(a * b)(n)}{n^s},\\]
-        <p>where \\((a * b)(n) = \\sum_{d|n} a(d) b(n/d)\\) is the <strong>Dirichlet convolution</strong>.</p>
+        <p>If \\(F(s) = \\sum a_n n^{-s}\\) and \\(G(s) = \\sum b_n n^{-s}\\) both converge absolutely, then</p>
+        \\[F(s) \\cdot G(s) = \\sum_{n=1}^{\\infty} \\frac{c_n}{n^s}, \\quad \\text{where } c_n = \\sum_{d | n} a_d \\, b_{n/d} = (a * b)(n).\\]
     </div>
 </div>
 
 <div class="env-block proof">
     <div class="env-title">Proof</div>
     <div class="env-body">
-        <p>Since both series converge absolutely, we may multiply and rearrange freely:</p>
-        \\[F(s)G(s) = \\left(\\sum_m \\frac{a(m)}{m^s}\\right)\\left(\\sum_n \\frac{b(n)}{n^s}\\right) = \\sum_{m,n \\ge 1} \\frac{a(m)b(n)}{(mn)^s} = \\sum_{k=1}^{\\infty} \\frac{1}{k^s} \\sum_{mn=k} a(m)b(n).\\]
-        <p>The inner sum \\(\\sum_{mn=k} a(m)b(n) = \\sum_{d|k} a(d)b(k/d) = (a*b)(k)\\). \\(\\square\\)</p>
+        <p>Multiply the two series:</p>
+        \\[F(s) G(s) = \\left(\\sum_{m=1}^{\\infty} \\frac{a_m}{m^s}\\right) \\left(\\sum_{k=1}^{\\infty} \\frac{b_k}{k^s}\\right) = \\sum_{m,k \\ge 1} \\frac{a_m b_k}{(mk)^s}.\\]
+        <p>Since both series converge absolutely, we can rearrange freely. Collecting terms with \\(mk = n\\), i.e., \\(m = d\\), \\(k = n/d\\) for each divisor \\(d\\) of \\(n\\):</p>
+        \\[F(s) G(s) = \\sum_{n=1}^{\\infty} \\frac{1}{n^s} \\sum_{d | n} a_d \\, b_{n/d} = \\sum_{n=1}^{\\infty} \\frac{(a * b)(n)}{n^s}.\\]
     </div>
+    <div class="qed">&marker;</div>
 </div>
 
-<h3>The Ring of Formal Dirichlet Series</h3>
-
-<p>With pointwise addition and Dirichlet convolution, the set of arithmetic functions forms a commutative ring. The identity element is the function \\(\\mathbf{e}(1) = 1\\), \\(\\mathbf{e}(n) = 0\\) for \\(n > 1\\) (whose Dirichlet series is 1). The multiplicative inverse of \\(F(s)\\) corresponds to the inverse under Dirichlet convolution.</p>
+<p>This theorem has powerful consequences. Every identity involving Dirichlet convolution immediately becomes an identity among Dirichlet series:</p>
 
 <div class="env-block example">
-    <div class="env-title">Example 3.6 (Key Identities)</div>
+    <div class="env-title">Example: Mobius Inversion via Dirichlet Series</div>
     <div class="env-body">
-        <ul>
-            <li>\\(\\zeta(s) \\cdot \\frac{1}{\\zeta(s)} = 1\\) corresponds to \\(\\mathbf{1} * \\mu = \\mathbf{e}\\), i.e., \\(\\sum_{d|n} \\mu(d) = [n=1]\\).</li>
-            <li>\\(\\zeta(s)^2 = \\sum d(n)n^{-s}\\) corresponds to \\(d = \\mathbf{1} * \\mathbf{1}\\), the divisor sum.</li>
-            <li>\\(\\zeta(s-1)/\\zeta(s) = \\sum \\varphi(n)n^{-s}\\) corresponds to \\(\\varphi = \\text{id} * \\mu\\) (id-function Dirichlet-convolved with Mobius).</li>
-        </ul>
+        <p>The Mobius inversion formula \\(g = f * 1 \\Leftrightarrow f = g * \\mu\\) is the statement that \\(1/\\zeta(s)\\) is the Dirichlet series for \\(\\mu\\). If \\(G(s) = F(s) \\zeta(s)\\), then \\(F(s) = G(s) / \\zeta(s) = G(s) \\cdot \\sum \\mu(n)/n^s\\).</p>
     </div>
 </div>
 
-<h3>The Log Derivative</h3>
-
-<p>Differentiating \\(\\log F(s) = -\\sum_p \\log(1 - f(p)p^{-s})\\) and applying the chain rule gives the log-derivative formula:</p>
+<h3>The Logarithmic Derivative</h3>
 
 <div class="env-block theorem">
-    <div class="env-title">Theorem 3.6 (Log Derivative of Euler Product)</div>
+    <div class="env-title">Theorem 3.6 (Logarithmic Derivative of \\(\\zeta(s)\\))</div>
     <div class="env-body">
-        <p>For \\(\\operatorname{Re}(s) > 1\\):</p>
-        \\[\\frac{\\zeta'(s)}{\\zeta(s)} = -\\sum_{n=1}^{\\infty} \\frac{\\Lambda(n)}{n^s},\\]
-        <p>where \\(\\Lambda(n) = \\log p\\) if \\(n = p^k\\) for some prime \\(p\\) and \\(k \\ge 1\\), and \\(\\Lambda(n) = 0\\) otherwise.</p>
+        <p>For \\(\\operatorname{Re}(s) > 1\\),</p>
+        \\[-\\frac{\\zeta'(s)}{\\zeta(s)} = \\sum_{n=1}^{\\infty} \\frac{\\Lambda(n)}{n^s}\\]
+        <p>where \\(\\Lambda\\) is the von Mangoldt function.</p>
+    </div>
+</div>
+
+<div class="env-block proof">
+    <div class="env-title">Proof</div>
+    <div class="env-body">
+        <p>Taking the logarithm of the Euler product:</p>
+        \\[\\log \\zeta(s) = -\\sum_p \\log(1 - p^{-s}) = \\sum_p \\sum_{k=1}^{\\infty} \\frac{p^{-ks}}{k} = \\sum_p \\sum_{k=1}^{\\infty} \\frac{1}{k \\cdot p^{ks}}.\\]
+        <p>Differentiating with respect to \\(s\\):</p>
+        \\[\\frac{\\zeta'(s)}{\\zeta(s)} = -\\sum_p \\sum_{k=1}^{\\infty} \\frac{\\log p}{p^{ks}} = -\\sum_{n=1}^{\\infty} \\frac{\\Lambda(n)}{n^s}\\]
+        <p>since \\(\\Lambda(p^k) = \\log p\\) and \\(\\Lambda(n) = 0\\) if \\(n\\) is not a prime power.</p>
+    </div>
+    <div class="qed">&marker;</div>
+</div>
+
+<p>The identity \\(-\\zeta'/\\zeta = \\sum \\Lambda(n)/n^s\\) is one of the most important in the subject. It connects the <em>zeros</em> of \\(\\zeta(s)\\) (which appear as poles of \\(-\\zeta'/\\zeta\\)) to the distribution of primes (encoded in \\(\\Lambda\\)).</p>
+
+<div class="env-block remark">
+    <div class="env-title">Formal Inverse</div>
+    <div class="env-body">
+        <p>If \\(F(s) = \\sum a_n n^{-s}\\) with \\(a_1 \\ne 0\\), the series has a formal Dirichlet-series inverse \\(1/F(s) = \\sum b_n n^{-s}\\) where \\(b_1 = 1/a_1\\) and the \\(b_n\\) are determined recursively by \\((a * b)(n) = \\delta_n\\) (the identity for convolution). For \\(\\zeta(s)\\), this inverse is \\(\\sum \\mu(n)/n^s\\).</p>
     </div>
 </div>
 
@@ -707,122 +781,96 @@ window.CHAPTERS.push({
             visualizations: [
                 {
                     id: 'viz-log-derivative',
-                    title: '-\\u03b6\'(s)/\\u03b6(s) = \\u2211 \\u039b(n)/n^s: Von Mangoldt Weights',
-                    description: 'The von Mangoldt function Lambda(n) is the coefficient of the log-derivative of zeta. Bars show log(p) at prime powers p^k. Partial sums converge to -zeta\'(s)/zeta(s) for real s > 1.',
+                    title: 'The Logarithmic Derivative \\(-\\zeta\'(s)/\\zeta(s)\\)',
+                    description: 'Plot the function \\(-\\zeta\'(s)/\\zeta(s)\\) for real \\(s > 1\\). The partial sums \\(\\sum_{n \\le N} \\Lambda(n)/n^s\\) approximate it. The von Mangoldt function concentrates on prime powers.',
                     setup: function(body, controls) {
-                        var viz = new VizEngine(body, { width: 600, height: 360, originX: 60, originY: 300, scale: 1 });
-                        var sigma = 2.0;
-                        var N = 40;
-                        VizEngine.createSlider(controls, '\u03c3', 1.1, 4.0, sigma, 0.1, function(v) { sigma = v; draw(); });
-                        VizEngine.createSlider(controls, 'N terms', 5, 80, N, 1, function(v) { N = Math.round(v); draw(); });
+                        var viz = new VizEngine(body, {
+                            width: 560, height: 380,
+                            originX: 60, originY: 340, scale: 1
+                        });
 
-                        var PRIMES = VizEngine.sievePrimes(200);
+                        var NVal = 200;
+                        VizEngine.createSlider(controls, 'N (terms)', 20, 500, NVal, 10, function(v) {
+                            NVal = Math.round(v); draw();
+                        });
+
+                        var primes = VizEngine.sievePrimes(600);
 
                         function vonMangoldt(n) {
-                            for (var i = 0; i < PRIMES.length; i++) {
-                                var p = PRIMES[i];
+                            if (n <= 1) return 0;
+                            for (var i = 0; i < primes.length; i++) {
+                                var p = primes[i];
                                 if (p * p > n) break;
                                 if (n % p === 0) {
-                                    var pk = n;
-                                    while (pk % p === 0) pk /= p;
-                                    if (pk === 1) return Math.log(p);
-                                    return 0;
+                                    // Check if n is a power of p
+                                    var m = n;
+                                    while (m % p === 0) m /= p;
+                                    return m === 1 ? Math.log(p) : 0;
                                 }
                             }
-                            if (n > 1) return Math.log(n); // n is prime
-                            return 0;
+                            // n is prime
+                            return Math.log(n);
                         }
 
                         function draw() {
                             viz.clear();
                             var ctx = viz.ctx;
-                            var w = viz.width, h = viz.height;
-                            var left = 60, bottom = 280, top = 30;
-                            var chartH = bottom - top;
 
-                            // Compute Lambda(n)/n^sigma and partial sums
-                            var terms = [];
-                            var partialSum = 0;
-                            for (var n = 1; n <= N; n++) {
-                                var lam = vonMangoldt(n);
-                                var t = lam * Math.pow(n, -sigma);
-                                terms.push({ n: n, lam: lam, t: t });
-                                partialSum += t;
+                            viz.screenText('-\u03B6\'(s)/\u03B6(s) = \u03A3 \u039B(n)/n\u02E2  (N = ' + NVal + ')', viz.width / 2, 20, viz.colors.white, 13);
+
+                            var chartL = 70, chartR = viz.width - 30;
+                            var chartT = 50, chartB = 310;
+                            var chartW = chartR - chartL, chartH = chartB - chartT;
+
+                            var sigmaMin = 1.05, sigmaMax = 4.0;
+                            var nPts = 60;
+
+                            // Compute -zeta'/zeta via partial sums
+                            var values = [];
+                            for (var i = 0; i < nPts; i++) {
+                                var sigma = sigmaMin + (sigmaMax - sigmaMin) * i / (nPts - 1);
+                                var acc = 0;
+                                for (var n = 1; n <= NVal; n++) {
+                                    var lam = vonMangoldt(n);
+                                    if (lam > 0) acc += lam / Math.pow(n, sigma);
+                                }
+                                values.push({ sigma: sigma, val: acc });
                             }
 
-                            // Reference: -zeta'/zeta at sigma by numerical diff
-                            var eps = 0.0001;
-                            function zetaApprox(s) {
-                                var v = 0;
-                                for (var i = 1; i <= 1000; i++) v += Math.pow(i, -s);
-                                return v;
-                            }
-                            var zetaLogDeriv = -(Math.log(zetaApprox(sigma + eps)) - Math.log(zetaApprox(sigma - eps))) / (2 * eps);
+                            var yMin = 0, yMax = Math.max.apply(null, values.map(function(v) { return v.val; })) * 1.1;
+                            if (yMax < 1) yMax = 5;
 
-                            var maxTerm = 0;
-                            terms.forEach(function(t) { maxTerm = Math.max(maxTerm, t.t); });
-                            if (maxTerm < 0.001) maxTerm = 0.1;
-
-                            var barW = Math.max(4, Math.min(18, (w - left - 20) / N - 1));
-                            var gap = 1;
-
-                            // Axes
-                            ctx.strokeStyle = viz.colors.axis; ctx.lineWidth = 1;
-                            ctx.beginPath(); ctx.moveTo(left, bottom); ctx.lineTo(w - 10, bottom); ctx.stroke();
-                            ctx.beginPath(); ctx.moveTo(left, top); ctx.lineTo(left, bottom); ctx.stroke();
-
-                            // Y gridlines
-                            var maxDisplay = maxTerm * 1.2;
+                            // Grid
                             ctx.strokeStyle = viz.colors.grid; ctx.lineWidth = 0.5;
-                            for (var g = 1; g <= 4; g++) {
-                                var gv = (g / 4) * maxDisplay;
-                                var gy = bottom - (gv / maxDisplay) * chartH;
-                                ctx.beginPath(); ctx.moveTo(left, gy); ctx.lineTo(w - 10, gy); ctx.stroke();
-                                ctx.fillStyle = viz.colors.text; ctx.font = '9px sans-serif';
-                                ctx.textAlign = 'right'; ctx.textBaseline = 'middle';
-                                ctx.fillText(gv.toFixed(3), left - 3, gy);
+                            ctx.fillStyle = viz.colors.text; ctx.font = '10px -apple-system,sans-serif';
+                            ctx.textAlign = 'right'; ctx.textBaseline = 'middle';
+                            var yStep = Math.max(1, Math.round((yMax - yMin) / 5));
+                            for (var gy = 0; gy <= yMax; gy += yStep) {
+                                var yy = chartB - (gy - yMin) / (yMax - yMin) * chartH;
+                                ctx.beginPath(); ctx.moveTo(chartL, yy); ctx.lineTo(chartR, yy); ctx.stroke();
+                                ctx.fillText(gy.toFixed(0), chartL - 6, yy);
                             }
 
-                            // Bars
-                            for (var i = 0; i < terms.length; i++) {
-                                var d = terms[i];
-                                var bx = left + i * (barW + gap);
-                                var bh = (d.t / maxDisplay) * chartH;
-                                var isPrimePow = d.lam > 0;
-                                ctx.fillStyle = isPrimePow ? (Number.isInteger(Math.log(d.n) / Math.log(Math.round(Math.exp(d.lam)))) ? viz.colors.blue + 'cc' : viz.colors.purple + 'cc') : viz.colors.grid;
-                                if (isPrimePow) {
-                                    ctx.fillStyle = d.lam > 1 ? viz.colors.orange + 'cc' : viz.colors.blue + 'cc';
-                                }
-                                ctx.fillRect(bx, bottom - bh, barW, bh);
-                                // n labels at primes and small n
-                                if (d.n <= 20 || (d.lam > 0 && d.n <= N)) {
-                                    ctx.fillStyle = viz.colors.text; ctx.font = '9px sans-serif';
-                                    ctx.textAlign = 'center'; ctx.textBaseline = 'top';
-                                    ctx.fillText(d.n, bx + barW / 2, bottom + 2);
-                                }
+                            // X axis
+                            ctx.textAlign = 'center'; ctx.textBaseline = 'top';
+                            for (var xs = Math.ceil(sigmaMin); xs <= sigmaMax; xs++) {
+                                var xp = chartL + (xs - sigmaMin) / (sigmaMax - sigmaMin) * chartW;
+                                ctx.fillText('\u03C3=' + xs, xp, chartB + 4);
                             }
 
-                            // Partial sum line
-                            ctx.strokeStyle = viz.colors.teal; ctx.lineWidth = 1.5; ctx.setLineDash([4, 3]);
-                            var cumY = bottom - (partialSum / maxDisplay) * chartH;
-                            ctx.beginPath(); ctx.moveTo(left, cumY); ctx.lineTo(left + (N - 1) * (barW + gap) + barW, cumY); ctx.stroke();
-                            ctx.setLineDash([]);
+                            // Plot
+                            ctx.strokeStyle = viz.colors.purple; ctx.lineWidth = 2.5;
+                            ctx.beginPath();
+                            for (var j = 0; j < values.length; j++) {
+                                var px = chartL + j / (nPts - 1) * chartW;
+                                var py = chartB - (Math.min(values[j].val, yMax) - yMin) / (yMax - yMin) * chartH;
+                                if (j === 0) ctx.moveTo(px, py); else ctx.lineTo(px, py);
+                            }
+                            ctx.stroke();
 
-                            // Reference -zeta'/zeta line
-                            var refY = bottom - (zetaLogDeriv / maxDisplay) * chartH;
-                            ctx.strokeStyle = viz.colors.yellow; ctx.lineWidth = 2; ctx.setLineDash([8, 4]);
-                            ctx.beginPath(); ctx.moveTo(left, refY); ctx.lineTo(w - 10, refY); ctx.stroke();
-                            ctx.setLineDash([]);
-
-                            ctx.font = '11px sans-serif'; ctx.textAlign = 'right'; ctx.textBaseline = 'middle';
-                            ctx.fillStyle = viz.colors.yellow;
-                            ctx.fillText('-\u03b6\'(\u03c3)/\u03b6(\u03c3) \u2248 ' + zetaLogDeriv.toFixed(4), w - 12, refY - 8);
-                            ctx.fillStyle = viz.colors.teal;
-                            ctx.fillText('\u03a3_{n\u2264N} \u039b(n)/n^\u03c3 \u2248 ' + partialSum.toFixed(4), w - 12, cumY + 10);
-
-                            // Title
-                            viz.screenText('-\u03b6\'(s)/\u03b6(s) = \u03a3 \u039b(n)/n^s,  \u03c3 = ' + sigma.toFixed(1), w/2, top + 12, viz.colors.white, 12);
-                            viz.screenText('Blue: \u039b(p)=log p (primes)   Orange: \u039b(p^k)=log p (higher powers)', w/2, top + 28, viz.colors.text, 10);
+                            // Annotation
+                            viz.screenText('-\u03B6\'/\u03B6 \u2192 \u221E as \u03C3 \u2192 1\u207A (pole of \u03B6 at s=1)', viz.width / 2, chartB + 35, viz.colors.purple, 11);
+                            viz.screenText('The pole encodes \u03C0(x) ~ x/ln(x)', viz.width / 2, chartB + 52, viz.colors.text, 10);
                         }
                         draw();
                         return viz;
@@ -831,188 +879,149 @@ window.CHAPTERS.push({
             ],
             exercises: [
                 {
-                    question: 'Show that the Dirichlet convolution \\(\\mathbf{1} * \\mathbf{1}\\) counts divisors. That is, verify \\((\\mathbf{1} * \\mathbf{1})(n) = d(n)\\).',
-                    hint: 'Expand the convolution formula \\(\\sum_{d|n} 1 \\cdot 1\\).',
-                    solution: '\\((\\mathbf{1}*\\mathbf{1})(n) = \\sum_{d|n} 1 \\cdot 1 = \\sum_{d|n} 1 = d(n)\\), the number of positive divisors of \\(n\\). This gives the identity \\(\\zeta(s)^2 = \\sum d(n)n^{-s}\\).'
+                    question: 'Show that the Dirichlet series for \\(\\sigma(n) = \\sum_{d|n} d\\) is \\(\\zeta(s)\\zeta(s-1)\\). What is the abscissa of convergence?',
+                    hint: 'Write \\(\\sigma = \\mathrm{id} * 1\\) where \\(\\mathrm{id}(n) = n\\). What is the Dirichlet series for \\(\\mathrm{id}(n)\\)?',
+                    solution: 'Since \\(\\sigma(n) = \\sum_{d|n} d = (\\mathrm{id} * 1)(n)\\), the Dirichlet series is \\(\\sum \\sigma(n)/n^s = (\\sum n/n^s)(\\sum 1/n^s) = \\zeta(s-1)\\zeta(s)\\). The series \\(\\zeta(s-1)\\) converges for \\(\\operatorname{Re}(s) > 2\\), so \\(\\sigma_c = 2\\).'
                 },
                 {
-                    question: 'Verify the identity \\(-\\zeta\'(s)/\\zeta(s) = \\sum_{n=1}^{\\infty} \\Lambda(n)n^{-s}\\) by differentiating the Euler product \\(\\log \\zeta(s) = -\\sum_p \\log(1-p^{-s})\\).',
-                    hint: 'Differentiate term by term using the chain rule. Expand \\(-\\log(1-p^{-s})\\) as a power series.',
-                    solution: 'Differentiating \\(\\log \\zeta(s) = -\\sum_p \\log(1-p^{-s})\\): \\[\\frac{\\zeta\'(s)}{\\zeta(s)} = \\sum_p \\frac{-p^{-s}\\log p}{1-p^{-s}} \\cdot (-1) \\cdot (-1) = -\\sum_p \\frac{(\\log p) p^{-s}}{1-p^{-s}}.\\] Expanding \\((\\log p)p^{-s}/(1-p^{-s}) = \\sum_{k=1}^{\\infty}(\\log p)p^{-ks}\\), and summing over all \\(p\\) and \\(k\\) gives \\(\\sum_{n}\\Lambda(n)n^{-s}\\) by unique factorization.'
+                    question: 'Verify that \\(-\\zeta\'(s)/\\zeta(s) = \\sum \\Lambda(n)/n^s\\) can also be derived from the identity \\(\\Lambda = \\mu * \\log\\) (Dirichlet convolution of \\(\\mu\\) and \\(\\log\\)).',
+                    hint: 'What is the Dirichlet series for \\(f(n) = \\log n\\)? Differentiate \\(\\zeta(s)\\) to find it.',
+                    solution: 'The Dirichlet series for \\(\\log n\\) is \\(-\\zeta\'(s) = \\sum (\\log n)/n^s\\). So \\(\\sum \\Lambda(n)/n^s = \\sum (\\mu * \\log)(n)/n^s = (\\sum \\mu(n)/n^s)(\\sum (\\log n)/n^s) = (1/\\zeta(s))(-\\zeta\'(s)) = -\\zeta\'(s)/\\zeta(s)\\).'
                 }
             ]
         },
 
         // ================================================================
-        // SECTION 5: Uniqueness Theorem
+        // SECTION 5: Uniqueness
         // ================================================================
         {
             id: 'sec-uniqueness',
-            title: 'Uniqueness Theorem',
+            title: 'Uniqueness',
             content: `
-<h2>The Uniqueness Theorem</h2>
+<h2>Uniqueness of Dirichlet Series</h2>
 
-<p>A Dirichlet series is not just a formal object: the function it represents determines its coefficients uniquely. This is the Dirichlet analogue of the uniqueness theorem for power series.</p>
+<div class="env-block intuition">
+    <div class="env-title">Can Two Different Functions Share a Series?</div>
+    <div class="env-body">
+        <p>If two arithmetic functions \\(f\\) and \\(g\\) produce the same Dirichlet series \\(\\sum f(n)/n^s = \\sum g(n)/n^s\\) in some half-plane, must \\(f = g\\)? The answer is <strong>yes</strong>, and this is not obvious. The proof relies on the fact that the functions \\(n^{-s}\\) are "independent" as functions of \\(s\\).</p>
+    </div>
+</div>
 
 <div class="env-block theorem">
-    <div class="env-title">Theorem 3.7 (Uniqueness)</div>
+    <div class="env-title">Theorem 3.7 (Uniqueness Theorem for Dirichlet Series)</div>
     <div class="env-body">
-        <p>Suppose \\(\\sum_{n=1}^{\\infty} a(n)n^{-s} = 0\\) for all \\(s\\) in some half-plane \\(\\operatorname{Re}(s) > \\sigma_0\\) where the series converges absolutely. Then \\(a(n) = 0\\) for all \\(n \\ge 1\\).</p>
-        <p>Equivalently: if \\(\\sum a(n)n^{-s} = \\sum b(n)n^{-s}\\) in a half-plane of absolute convergence, then \\(a(n) = b(n)\\) for all \\(n\\).</p>
+        <p>Suppose \\(\\sum a_n n^{-s} = \\sum b_n n^{-s}\\) for all \\(s\\) in some half-plane \\(\\operatorname{Re}(s) > \\sigma_0\\). Then \\(a_n = b_n\\) for all \\(n \\ge 1\\).</p>
     </div>
 </div>
 
 <div class="env-block proof">
     <div class="env-title">Proof</div>
     <div class="env-body">
-        <p>Let \\(F(s) = \\sum_{n=1}^{\\infty} a(n)n^{-s} = 0\\) for \\(\\sigma > \\sigma_0\\). We recover \\(a(n)\\) from \\(F\\) by a "Mellin-type" extraction. The key step:</p>
-        <p><strong>Step 1.</strong> Suppose \\(a(1) \\ne 0\\). For large real \\(s = \\sigma \\to \\infty\\):</p>
-        \\[F(s) = a(1) + \\sum_{n=2}^{\\infty} a(n)n^{-s} = a(1) + O(2^{-\\sigma}).\\]
-        <p>As \\(\\sigma \\to \\infty\\), \\(F(\\sigma) \\to a(1)\\). But \\(F(\\sigma) = 0\\), so \\(a(1) = 0\\). Contradiction.</p>
-        <p><strong>Step 2.</strong> Inductively, if \\(a(1) = a(2) = \\cdots = a(n_0-1) = 0\\), then \\(n_0^s F(s) = a(n_0) + \\sum_{n > n_0} a(n)(n_0/n)^s\\). As \\(\\sigma \\to \\infty\\), this \\(\\to a(n_0)\\). Since the left side is 0, \\(a(n_0) = 0\\). \\(\\square\\)</p>
+        <p>Let \\(c_n = a_n - b_n\\), so \\(\\sum c_n n^{-s} = 0\\) for \\(\\operatorname{Re}(s) > \\sigma_0\\). We want \\(c_n = 0\\) for all \\(n\\).</p>
+        <p>Suppose not, and let \\(N\\) be the smallest index with \\(c_N \\ne 0\\). Then</p>
+        \\[0 = \\sum_{n=N}^{\\infty} \\frac{c_n}{n^s} = \\frac{c_N}{N^s} + \\sum_{n=N+1}^{\\infty} \\frac{c_n}{n^s}.\\]
+        <p>Multiply through by \\(N^s\\):</p>
+        \\[c_N = -\\sum_{n=N+1}^{\\infty} c_n \\left(\\frac{N}{n}\\right)^s.\\]
+        <p>As \\(\\sigma = \\operatorname{Re}(s) \\to +\\infty\\), each term \\((N/n)^s \\to 0\\) since \\(N/n < 1\\). The right side tends to 0, forcing \\(c_N = 0\\), a contradiction.</p>
+    </div>
+    <div class="qed">&marker;</div>
+</div>
+
+<div class="env-block remark">
+    <div class="env-title">Analogy with Power Series</div>
+    <div class="env-body">
+        <p>For power series, uniqueness follows from the identity theorem of complex analysis (or simply by evaluating derivatives at the origin). For Dirichlet series, the proof is more elementary but uses a different trick: sending \\(\\sigma \\to +\\infty\\) to isolate individual coefficients.</p>
     </div>
 </div>
 
 <h3>Consequences</h3>
 
-<div class="env-block remark">
-    <div class="env-title">Why Uniqueness Matters</div>
-    <div class="env-body">
-        <p>Uniqueness means we can read off arithmetic identities directly from analytic identities between Dirichlet series. For instance:</p>
-        <ul>
-            <li>\\(\\zeta(s)^2 = \\sum d(n)n^{-s}\\) forces \\(d = \\mathbf{1}*\\mathbf{1}\\).</li>
-            <li>\\(\\zeta(s)/\\zeta(2s) = \\sum |\\mu(n)|n^{-s}\\) (squarefree indicator), since the Euler factors match.</li>
-            <li>Any identity between Euler products yields a Dirichlet convolution identity via uniqueness.</li>
-        </ul>
-    </div>
-</div>
+<p>Uniqueness means that identities between Dirichlet series immediately translate into identities between arithmetic functions. For instance, from \\(\\zeta(s)^2 = \\sum d(n)/n^s\\) and the uniqueness theorem, we can conclude \\(d = 1 * 1\\) without any direct combinatorial argument.</p>
 
-<div class="env-block theorem">
-    <div class="env-title">Theorem 3.8 (Perron-type Extraction)</div>
-    <div class="env-body">
-        <p>More quantitatively, if \\(\\sum |a(n)| n^{-\\sigma_0} < \\infty\\), then for any \\(\\sigma > \\sigma_0\\) and any \\(T > 0\\),</p>
-        \\[\\frac{1}{2T} \\int_{-T}^{T} F(\\sigma + it) \\, n^{\\sigma + it} \\, dt \\longrightarrow a(n) \\quad \\text{as } T \\to \\infty.\\]
-        <p>This Mellin inversion formula is the basis of Perron's theorem, used in Chapter 7 to extract \\(\\psi(x) = \\sum_{n \\le x} \\Lambda(n)\\) from \\(-\\zeta'/\\zeta\\).</p>
-    </div>
-</div>
+<p>Uniqueness also justifies the "formal" manipulations we have been doing: if we derive an identity by algebraic manipulation of convergent Dirichlet series, the resulting coefficient identity holds for all \\(n\\).</p>
 
 <div class="viz-placeholder" data-viz="viz-spiral-partial-sums"></div>
 `,
             visualizations: [
                 {
                     id: 'viz-spiral-partial-sums',
-                    title: 'Partial Sums of n^{-s} in the Complex Plane',
-                    description: 'Each term 1/n^s is a complex number. Their partial sums trace a spiral in C. Adjust sigma and t to see how the spiral\'s shape reflects convergence.',
+                    title: 'Partial Sums of \\(n^{-s}\\) in the Complex Plane',
+                    description: 'For complex \\(s = \\sigma + it\\), the terms \\(n^{-s} = n^{-\\sigma} e^{-it \\log n}\\) are complex numbers that spiral as \\(n\\) grows. Watch the partial sums \\(\\sum_{n=1}^{N} n^{-s}\\) trace a path in \\(\\mathbb{C}\\). Convergence means the path settles to a limit.',
                     setup: function(body, controls) {
-                        var viz = new VizEngine(body, { width: 560, height: 440, originX: 280, originY: 220, scale: 1 });
-                        var sigma = 1.5, t = 10.0, N = 60;
-                        var animating = false, animId = null;
-
-                        VizEngine.createSlider(controls, '\u03c3', 0.3, 3.0, sigma, 0.05, function(v) { sigma = v; if (!animating) draw(); });
-                        VizEngine.createSlider(controls, 't', 0, 40, t, 0.5, function(v) { t = v; if (!animating) draw(); });
-                        VizEngine.createSlider(controls, 'N terms', 5, 120, N, 1, function(v) { N = Math.round(v); if (!animating) draw(); });
-
-                        var animBtn = VizEngine.createButton(controls, 'Animate t', function() {
-                            if (animating) {
-                                animating = false;
-                                if (animId) { cancelAnimationFrame(animId); animId = null; }
-                                animBtn.textContent = 'Animate t';
-                            } else {
-                                animating = true;
-                                animBtn.textContent = 'Stop';
-                                var t0 = null;
-                                function step(ts) {
-                                    if (!t0) t0 = ts;
-                                    t = ((ts - t0) / 800) % 40;
-                                    draw();
-                                    if (animating) animId = requestAnimationFrame(step);
-                                }
-                                animId = requestAnimationFrame(step);
-                            }
+                        var viz = new VizEngine(body, {
+                            width: 560, height: 400,
+                            originX: 280, originY: 200, scale: 80
                         });
 
-                        function cPow(n, sig, ti) {
-                            // n^{-s} = n^{-sigma} * e^{-i*t*log(n)}
-                            var mag = Math.pow(n, -sig);
-                            var arg = -ti * Math.log(n);
-                            return [mag * Math.cos(arg), mag * Math.sin(arg)];
-                        }
+                        var sigma = 1.5;
+                        var tVal = 5.0;
+                        var NVal = 80;
+
+                        VizEngine.createSlider(controls, '\u03C3 (Re)', 0.6, 3.0, sigma, 0.1, function(v) {
+                            sigma = v; draw();
+                        });
+                        VizEngine.createSlider(controls, 't (Im)', 0, 20, tVal, 0.5, function(v) {
+                            tVal = v; draw();
+                        });
+                        VizEngine.createSlider(controls, 'N', 10, 200, NVal, 5, function(v) {
+                            NVal = Math.round(v); draw();
+                        });
 
                         function draw() {
                             viz.clear();
+                            viz.drawGrid(0.5);
+                            viz.drawAxes();
                             var ctx = viz.ctx;
-                            var w = viz.width, h = viz.height;
-                            var cx = viz.originX, cy = viz.originY;
 
-                            // Dynamic scale: find max excursion
-                            var pts = [[0, 0]];
-                            var rx = 0, ry = 0;
-                            for (var n = 1; n <= N; n++) {
-                                var c = cPow(n, sigma, t);
-                                rx += c[0]; ry += c[1];
-                                pts.push([rx, ry]);
+                            viz.screenText('Partial sums of \u03B6(' + sigma.toFixed(1) + ' + ' + tVal.toFixed(1) + 'i)  in \u2102', viz.width / 2, 15, viz.colors.white, 13);
+
+                            // Compute partial sums
+                            var sumRe = 0, sumIm = 0;
+                            var points = [{ re: 0, im: 0 }];
+                            for (var n = 1; n <= NVal; n++) {
+                                var mag = Math.pow(n, -sigma);
+                                var angle = -tVal * Math.log(n);
+                                sumRe += mag * Math.cos(angle);
+                                sumIm += mag * Math.sin(angle);
+                                points.push({ re: sumRe, im: sumIm });
                             }
-                            var maxR = 0;
-                            pts.forEach(function(p) { maxR = Math.max(maxR, Math.sqrt(p[0]*p[0]+p[1]*p[1])); });
-                            if (maxR < 0.1) maxR = 0.1;
-                            var scale = Math.min(180, (Math.min(w, h) * 0.42) / maxR);
 
-                            // Grid circles
-                            ctx.strokeStyle = viz.colors.grid; ctx.lineWidth = 0.5;
-                            var gridR = maxR;
-                            for (var r = gridR / 4; r <= gridR * 1.1; r += gridR / 4) {
-                                ctx.beginPath(); ctx.arc(cx, cy, r * scale, 0, Math.PI * 2); ctx.stroke();
+                            // Draw path
+                            ctx.strokeStyle = viz.colors.blue + '88'; ctx.lineWidth = 1;
+                            ctx.beginPath();
+                            for (var i = 0; i < points.length; i++) {
+                                var pt = viz.toScreen(points[i].re, points[i].im);
+                                if (i === 0) ctx.moveTo(pt[0], pt[1]); else ctx.lineTo(pt[0], pt[1]);
                             }
-                            // Axes
-                            ctx.strokeStyle = viz.colors.axis; ctx.lineWidth = 1;
-                            ctx.beginPath(); ctx.moveTo(0, cy); ctx.lineTo(w, cy); ctx.stroke();
-                            ctx.beginPath(); ctx.moveTo(cx, 0); ctx.lineTo(cx, h); ctx.stroke();
-                            ctx.fillStyle = viz.colors.text; ctx.font = '10px sans-serif';
-                            ctx.textAlign = 'right'; ctx.textBaseline = 'top';
-                            ctx.fillText('Re', w - 2, cy + 2);
-                            ctx.textAlign = 'left'; ctx.textBaseline = 'bottom';
-                            ctx.fillText('Im', cx + 2, 2);
+                            ctx.stroke();
 
-                            // Draw spiral path
-                            if (pts.length > 1) {
+                            // Draw individual term vectors for first few
+                            var limit = Math.min(15, NVal);
+                            for (var j = 0; j < limit; j++) {
+                                var p1 = points[j], p2 = points[j + 1];
+                                var alpha = Math.max(0x22, Math.round(0xFF * (1 - j / limit)));
+                                ctx.strokeStyle = viz.colors.teal + alpha.toString(16).padStart(2, '0');
+                                ctx.lineWidth = 1.5;
                                 ctx.beginPath();
-                                ctx.moveTo(cx + pts[0][0] * scale, cy - pts[0][1] * scale);
-                                for (var i = 1; i < pts.length; i++) {
-                                    var alpha = Math.max(0.2, i / pts.length);
-                                    ctx.strokeStyle = 'rgba(88,166,255,' + alpha + ')';
-                                    ctx.lineWidth = 1 + alpha;
-                                    ctx.lineTo(cx + pts[i][0] * scale, cy - pts[i][1] * scale);
-                                    if (i % 5 === 0 || i === pts.length - 1) {
-                                        ctx.stroke();
-                                        ctx.beginPath();
-                                        ctx.moveTo(cx + pts[i][0] * scale, cy - pts[i][1] * scale);
-                                    }
-                                }
+                                var s1 = viz.toScreen(p1.re, p1.im);
+                                var s2 = viz.toScreen(p2.re, p2.im);
+                                ctx.moveTo(s1[0], s1[1]);
+                                ctx.lineTo(s2[0], s2[1]);
                                 ctx.stroke();
                             }
 
-                            // Mark starting point (origin)
-                            viz.drawScreenPoint(cx, cy, viz.colors.green, 5);
-                            ctx.fillStyle = viz.colors.green; ctx.font = '11px sans-serif';
-                            ctx.textAlign = 'left'; ctx.textBaseline = 'bottom';
-                            ctx.fillText('S_0 = 0', cx + 8, cy - 4);
+                            // Mark the final partial sum
+                            var final = points[points.length - 1];
+                            viz.drawPoint(final.re, final.im, viz.colors.orange, null, 5);
 
-                            // Mark final partial sum
-                            var final = pts[pts.length - 1];
-                            var fx = cx + final[0] * scale, fy = cy - final[1] * scale;
-                            viz.drawScreenPoint(fx, fy, viz.colors.orange, 6);
-                            ctx.fillStyle = viz.colors.orange; ctx.font = '11px sans-serif';
-                            ctx.textAlign = 'left'; ctx.textBaseline = 'bottom';
-                            var re = final[0], im = final[1];
-                            ctx.fillText('S_' + N + ' = ' + re.toFixed(3) + (im >= 0 ? '+' : '') + im.toFixed(3) + 'i', fx + 8, fy - 4);
+                            // Label
+                            viz.screenText(
+                                'S_N = ' + final.re.toFixed(4) + ' + ' + final.im.toFixed(4) + 'i',
+                                viz.width / 2, viz.height - 15, viz.colors.orange, 12
+                            );
 
-                            // Convergence note
-                            var converges = sigma > 1;
-                            ctx.font = 'bold 12px sans-serif'; ctx.textAlign = 'center'; ctx.textBaseline = 'top';
-                            ctx.fillStyle = converges ? viz.colors.green : viz.colors.red;
-                            ctx.fillText('\u03c3 = ' + sigma.toFixed(2) + ',  t = ' + t.toFixed(1) + '  \u2192 s = \u03c3 + it', w / 2, 10);
-                            ctx.fillStyle = viz.colors.text; ctx.font = '11px sans-serif';
-                            ctx.fillText(converges ? 'Spiral converges (\u03c3 > 1)' : 'Spiral may diverge (\u03c3 \u2264 1)', w / 2, 28);
+                            // Origin
+                            viz.drawPoint(0, 0, viz.colors.white, 'O', 3);
                         }
                         draw();
                         return viz;
@@ -1021,28 +1030,28 @@ window.CHAPTERS.push({
             ],
             exercises: [
                 {
-                    question: 'Use the uniqueness theorem to prove: if \\(\\sum a(n)n^{-s} = \\sum b(n)n^{-s}\\) for \\(\\operatorname{Re}(s) > \\sigma_0\\), then \\(a(n) = b(n)\\) for all \\(n\\).',
-                    hint: 'Apply the uniqueness theorem to the Dirichlet series \\(\\sum (a(n)-b(n))n^{-s}\\).',
-                    solution: 'Let \\(c(n) = a(n) - b(n)\\). Then \\(\\sum c(n)n^{-s} = 0\\) for \\(\\operatorname{Re}(s) > \\sigma_0\\). By Theorem 3.7, taking \\(s = \\sigma \\to \\infty\\), we get \\(c(1) = \\lim_{\\sigma\\to\\infty} \\sum c(n)n^{-\\sigma} = 0\\). Then \\(\\sigma^s \\sum_{n\\ge 2} c(n)n^{-s} \\to c(2)\\) as \\(\\sigma\\to\\infty\\), so \\(c(2) = 0\\). By induction all \\(c(n) = 0\\).'
-                },
-                {
-                    question: 'Explain why the uniqueness theorem implies that no non-trivial Dirichlet series can be identically zero except if all coefficients vanish. What would it mean for a Dirichlet series to be zero on a convergent open set but not everywhere?',
-                    hint: 'Think about the identity theorem for holomorphic functions. A holomorphic function that vanishes on a set with an accumulation point in its domain must vanish everywhere in its connected domain.',
-                    solution: 'Since a Dirichlet series converging in a half-plane defines a holomorphic function there, and the half-plane is connected, the identity theorem for holomorphic functions implies that if the function is zero on any set with an accumulation point in the half-plane, it is identically zero. The uniqueness theorem then recovers the stronger statement: once the analytic function is identically zero, all coefficients must vanish. So a non-trivial Dirichlet series (not all coefficients zero) represents a non-zero holomorphic function in its half-plane of convergence.'
+                    question: 'Use the uniqueness theorem to prove that if \\(f\\) is completely multiplicative and \\(\\sum f(n)/n^s\\) converges absolutely in some half-plane, then \\(f(1) = 1\\).',
+                    hint: 'Compare the Dirichlet series with itself after applying the Euler product. What does the constant term tell you?',
+                    solution: 'The Euler product gives \\(\\sum f(n)/n^s = \\prod_p (1 - f(p)p^{-s})^{-1}\\). Evaluating the product at \\(s \\to +\\infty\\): each factor \\(\\to 1\\), so the product \\(\\to 1\\). But the Dirichlet series \\(\\to f(1)\\) (all terms with \\(n > 1\\) vanish). By uniqueness (or directly), \\(f(1) = 1\\).'
                 }
             ]
         },
 
         // ================================================================
-        // SECTION 6: Enter zeta(s)
+        // SECTION 6: Bridge to Zeta
         // ================================================================
         {
             id: 'sec-bridge',
-            title: 'Enter \\u03b6(s)',
+            title: 'Enter \u03B6(s)',
             content: `
-<h2>Enter \\(\\zeta(s)\\): Bridge to Chapter 4</h2>
+<h2>Enter \\(\\zeta(s)\\): The Bridge to Prime Distribution</h2>
 
-<p>Everything in this chapter has been preparation for one function. The Riemann zeta function is the canonical Dirichlet series, and it concentrates all the themes we have developed.</p>
+<div class="env-block intuition">
+    <div class="env-title">Where We Stand</div>
+    <div class="env-body">
+        <p>We have built the algebraic and analytic framework of Dirichlet series. Let us now focus on the single most important example: \\(\\zeta(s) = \\sum 1/n^s\\). We collect everything we know and preview what comes next.</p>
+    </div>
+</div>
 
 <h3>What We Know About \\(\\zeta(s)\\) So Far</h3>
 
@@ -1050,64 +1059,198 @@ window.CHAPTERS.push({
     <div class="env-title">Summary: Properties of \\(\\zeta(s)\\) for \\(\\operatorname{Re}(s) > 1\\)</div>
     <div class="env-body">
         <ol>
-            <li><strong>Convergence.</strong> \\(\\zeta(s) = \\sum_{n=1}^{\\infty} n^{-s}\\) converges absolutely for \\(\\operatorname{Re}(s) > 1\\), so \\(\\sigma_a = 1\\).</li>
-            <li><strong>Holomorphicity.</strong> \\(\\zeta\\) is holomorphic for \\(\\operatorname{Re}(s) > 1\\), with \\(\\zeta^{(k)}(s) = (-1)^k \\sum_{n=1}^{\\infty} (\\log n)^k n^{-s}\\).</li>
-            <li><strong>Euler product.</strong> \\(\\zeta(s) = \\prod_p (1-p^{-s})^{-1}\\), which implies \\(\\zeta(s) \\ne 0\\) for \\(\\sigma > 1\\).</li>
-            <li><strong>Log derivative.</strong> \\(\\zeta'/\\zeta = -\\sum \\Lambda(n) n^{-s}\\), connecting \\(\\zeta\\) to prime powers.</li>
-            <li><strong>Divergence at \\(s = 1\\).</strong> \\(\\zeta(s) \\to \\infty\\) as \\(s \\to 1^+\\) (harmonic series diverges), so \\(\\zeta\\) has a singularity at \\(s = 1\\).</li>
+            <li><strong>Convergence:</strong> \\(\\zeta(s) = \\sum 1/n^s\\) converges absolutely for \\(\\operatorname{Re}(s) > 1\\).</li>
+            <li><strong>Euler product:</strong> \\(\\zeta(s) = \\prod_p (1 - p^{-s})^{-1}\\).</li>
+            <li><strong>Non-vanishing:</strong> \\(\\zeta(s) \\ne 0\\) for \\(\\operatorname{Re}(s) > 1\\).</li>
+            <li><strong>Pole at \\(s = 1\\):</strong> \\(\\zeta(s)\\) has a simple pole at \\(s = 1\\) with residue 1. This follows from comparison with \\(\\int_1^\\infty x^{-s} dx = 1/(s-1)\\).</li>
+            <li><strong>Logarithmic derivative:</strong> \\(-\\zeta'(s)/\\zeta(s) = \\sum \\Lambda(n)/n^s\\).</li>
         </ol>
     </div>
 </div>
 
-<h3>What Remains to Be Done</h3>
+<h3>The Pole at \\(s = 1\\) and the Infinitude of Primes</h3>
 
-<p>The real power of \\(\\zeta(s)\\) comes from its <em>analytic continuation</em> beyond \\(\\operatorname{Re}(s) > 1\\). We need to:</p>
-<ul>
-    <li>Extend \\(\\zeta(s)\\) to all \\(s \\in \\mathbb{C}\\) except \\(s = 1\\) (Chapter 4, using the integral representation).</li>
-    <li>Identify the nature of the singularity at \\(s = 1\\): it is a simple pole with residue 1 (Chapter 4).</li>
-    <li>Establish the functional equation \\(\\zeta(s) = 2^s \\pi^{s-1} \\sin(\\pi s/2) \\Gamma(1-s) \\zeta(1-s)\\) (Chapter 5).</li>
-    <li>Locate the zeros of \\(\\zeta(s)\\): trivial zeros at \\(s = -2, -4, -6, \\ldots\\) and non-trivial zeros in the critical strip (Chapters 5-6).</li>
-    <li>Prove \\(\\psi(x) \\sim x\\) (the Prime Number Theorem) using the zeros of \\(\\zeta\\) (Chapter 7).</li>
-</ul>
-
-<div class="env-block intuition">
-    <div class="env-title">The Guiding Picture</div>
+<div class="env-block theorem">
+    <div class="env-title">Theorem 3.8 (Euler's Proof Revisited)</div>
     <div class="env-body">
-        <p>Think of \\(\\zeta(s)\\) as a "generating function" that packages all primes. Every prime \\(p\\) contributes a local factor \\((1-p^{-s})^{-1}\\). The zeros and poles of \\(\\zeta(s)\\) are precisely the "resonances" between these local factors&mdash;they encode global information about how primes are distributed.</p>
-        <p>The Riemann Hypothesis asserts that all non-trivial zeros lie on the line \\(\\operatorname{Re}(s) = 1/2\\). This is equivalent to the sharpest possible error bound in the Prime Number Theorem: \\(\\pi(x) = \\operatorname{Li}(x) + O(\\sqrt{x} \\log x)\\).</p>
+        <p>There are infinitely many primes.</p>
     </div>
 </div>
 
-<h3>The Pole at \\(s = 1\\) and the PNT</h3>
-
-<p>The simple pole of \\(\\zeta(s)\\) at \\(s = 1\\) with residue 1 is equivalent to the Prime Number Theorem in the rough sense. More precisely:</p>
-\\[\\sum_{n=1}^{\\infty} \\frac{1}{n^s} \\sim \\frac{1}{s-1} \\quad (s \\to 1^+),\\]
-and Perron's formula converts this into
-\\[\\psi(x) = \\sum_{n \\le x} \\Lambda(n) \\sim x \\quad (x \\to \\infty).\\]
-
-<div class="env-block remark">
-    <div class="env-title">Roadmap from Here</div>
+<div class="env-block proof">
+    <div class="env-title">Proof (via the Euler product)</div>
     <div class="env-body">
-        <p>Chapter 4 extends \\(\\zeta(s)\\) to \\(\\mathbb{C} \\setminus \\{1\\}\\) using the Euler-Maclaurin formula and the integral representation. The key tool is the Gamma function and the completed zeta function \\(\\xi(s) = \\frac{1}{2}s(s-1)\\pi^{-s/2}\\Gamma(s/2)\\zeta(s)\\), which satisfies \\(\\xi(s) = \\xi(1-s)\\).</p>
+        <p>Suppose there are only finitely many primes \\(p_1, \\ldots, p_k\\). Then the Euler product</p>
+        \\[\\zeta(s) = \\prod_{i=1}^{k} \\frac{1}{1 - p_i^{-s}}\\]
+        <p>would be a finite product of functions holomorphic and nonzero at \\(s = 1\\). In particular, \\(\\zeta(1)\\) would be a finite number. But \\(\\zeta(s) \\to +\\infty\\) as \\(s \\to 1^+\\) (since the harmonic series diverges), contradiction.</p>
+    </div>
+    <div class="qed">&marker;</div>
+</div>
+
+<p>This is Euler's famous analytic proof of the infinitude of primes (1737). It goes far beyond Euclid's proof because it is <em>quantitative</em>: the rate at which \\(\\zeta(s) \\to \\infty\\) as \\(s \\to 1^+\\) encodes how dense the primes are.</p>
+
+<h3>A Quantitative Statement</h3>
+
+<div class="env-block theorem">
+    <div class="env-title">Theorem 3.9 (Sum over Primes)</div>
+    <div class="env-body">
+        <p>\\[\\sum_p \\frac{1}{p^s} = \\log\\frac{1}{s-1} + M + O(s-1) \\quad \\text{as } s \\to 1^+\\]</p>
+        <p>where \\(M\\) is Mertens' constant. In particular, \\(\\sum 1/p\\) diverges, confirming that primes are "not too sparse."</p>
     </div>
 </div>
 
-<div class="viz-placeholder" data-viz="viz-euler-product-assembly"></div>
+<div class="env-block proof">
+    <div class="env-title">Proof Sketch</div>
+    <div class="env-body">
+        <p>From the Euler product, \\(\\log \\zeta(s) = -\\sum_p \\log(1 - p^{-s}) = \\sum_p p^{-s} + O(1)\\) for \\(s\\) near 1 (the higher-order terms \\(p^{-2s}/2 + \\cdots\\) converge). Since \\(\\zeta(s) \\sim 1/(s-1)\\), we get \\(\\log \\zeta(s) \\sim \\log 1/(s-1)\\), hence \\(\\sum_p p^{-s} \\sim \\log 1/(s-1)\\).</p>
+    </div>
+    <div class="qed">&marker;</div>
+</div>
+
+<h3>What Comes Next</h3>
+
+<p>This is just the beginning. The Dirichlet series representation of \\(\\zeta(s)\\) converges only for \\(\\operatorname{Re}(s) > 1\\), but the really interesting things happen at and to the left of the line \\(\\operatorname{Re}(s) = 1\\). In the next chapter, we will:</p>
+
+<ol>
+    <li>Extend \\(\\zeta(s)\\) to all of \\(\\mathbb{C}\\) by <strong>analytic continuation</strong>.</li>
+    <li>Establish the <strong>functional equation</strong> \\(\\xi(s) = \\xi(1-s)\\).</li>
+    <li>Study the <strong>zeros</strong> of \\(\\zeta(s)\\), which control the error in the Prime Number Theorem.</li>
+</ol>
+
+<p>The bridge between primes and analysis is now fully constructed. The rest of the course is about crossing it.</p>
+
+<div class="viz-placeholder" data-viz="viz-spiral-partial-sums-zeta"></div>
 `,
-            visualizations: [],
+            visualizations: [
+                {
+                    id: 'viz-spiral-partial-sums-zeta',
+                    title: 'The Pole of \\(\\zeta(s)\\) at \\(s = 1\\)',
+                    description: 'Watch \\(\\zeta(s)\\) blow up as \\(s \\to 1^+\\) along the real axis. The Euler product perspective: each prime factor \\((1-p^{-s})^{-1}\\) contributes a finite but growing amount. Drag \\(s\\) toward 1 to see the divergence.',
+                    setup: function(body, controls) {
+                        var viz = new VizEngine(body, {
+                            width: 560, height: 380,
+                            originX: 80, originY: 300, scale: 1
+                        });
+
+                        var sVal = 1.5;
+                        VizEngine.createSlider(controls, 's', 1.01, 3.0, sVal, 0.01, function(v) {
+                            sVal = v; draw();
+                        });
+
+                        function draw() {
+                            viz.clear();
+                            var ctx = viz.ctx;
+
+                            viz.screenText('\u03B6(s) near s = 1: divergence and the pole', viz.width / 2, 20, viz.colors.white, 14);
+
+                            var chartL = 90, chartR = viz.width - 30;
+                            var chartT = 50, chartB = 280;
+                            var chartW = chartR - chartL, chartH = chartB - chartT;
+
+                            // Plot zeta(s) for s in [1.01, 3]
+                            var nPts = 100;
+                            var sMin = 1.01, sMax = 3.0;
+                            var values = [];
+                            for (var i = 0; i < nPts; i++) {
+                                var s = sMin + (sMax - sMin) * i / (nPts - 1);
+                                // Approximate zeta(s) via partial sum
+                                var z = 0;
+                                for (var n = 1; n <= 5000; n++) z += 1 / Math.pow(n, s);
+                                values.push({ s: s, z: z });
+                            }
+
+                            // Also 1/(s-1) for comparison
+                            var yMax = 20;
+                            var yMin = 0;
+
+                            // Grid
+                            ctx.strokeStyle = viz.colors.grid; ctx.lineWidth = 0.5;
+                            ctx.fillStyle = viz.colors.text; ctx.font = '10px -apple-system,sans-serif';
+                            ctx.textAlign = 'right'; ctx.textBaseline = 'middle';
+                            for (var gy = 0; gy <= yMax; gy += 5) {
+                                var yy = chartB - (gy / yMax) * chartH;
+                                ctx.beginPath(); ctx.moveTo(chartL, yy); ctx.lineTo(chartR, yy); ctx.stroke();
+                                ctx.fillText(gy.toString(), chartL - 6, yy);
+                            }
+
+                            // X axis
+                            ctx.textAlign = 'center'; ctx.textBaseline = 'top';
+                            for (var xs = 1; xs <= 3; xs += 0.5) {
+                                var xp = chartL + (xs - sMin) / (sMax - sMin) * chartW;
+                                ctx.fillText(xs.toFixed(1), xp, chartB + 4);
+                            }
+
+                            // Plot 1/(s-1)
+                            ctx.strokeStyle = viz.colors.text + '66'; ctx.lineWidth = 1;
+                            ctx.setLineDash([4, 4]);
+                            ctx.beginPath();
+                            for (var j = 0; j < nPts; j++) {
+                                var ss = values[j].s;
+                                var approx = 1 / (ss - 1);
+                                var px = chartL + j / (nPts - 1) * chartW;
+                                var py = chartB - Math.min(approx, yMax) / yMax * chartH;
+                                if (j === 0) ctx.moveTo(px, py); else ctx.lineTo(px, py);
+                            }
+                            ctx.stroke();
+                            ctx.setLineDash([]);
+
+                            // Plot zeta
+                            ctx.strokeStyle = viz.colors.blue; ctx.lineWidth = 2.5;
+                            ctx.beginPath();
+                            for (var k = 0; k < nPts; k++) {
+                                var px2 = chartL + k / (nPts - 1) * chartW;
+                                var py2 = chartB - Math.min(values[k].z, yMax) / yMax * chartH;
+                                if (k === 0) ctx.moveTo(px2, py2); else ctx.lineTo(px2, py2);
+                            }
+                            ctx.stroke();
+
+                            // Mark current s
+                            var curX = chartL + (sVal - sMin) / (sMax - sMin) * chartW;
+                            var curZ = 0;
+                            for (var m = 1; m <= 5000; m++) curZ += 1 / Math.pow(m, sVal);
+                            var curY = chartB - Math.min(curZ, yMax) / yMax * chartH;
+
+                            ctx.strokeStyle = viz.colors.orange; ctx.lineWidth = 1;
+                            ctx.setLineDash([3, 3]);
+                            ctx.beginPath(); ctx.moveTo(curX, chartB); ctx.lineTo(curX, curY); ctx.stroke();
+                            ctx.setLineDash([]);
+                            viz.drawScreenPoint(curX, curY, viz.colors.orange, 5);
+
+                            // Legend
+                            var ly = chartB + 28;
+                            ctx.font = '11px -apple-system,sans-serif'; ctx.textAlign = 'left';
+                            ctx.fillStyle = viz.colors.blue;
+                            ctx.fillRect(chartL, ly, 14, 3);
+                            ctx.fillText('\u03B6(s)', chartL + 18, ly + 4);
+
+                            ctx.fillStyle = viz.colors.text;
+                            ctx.fillRect(chartL + 80, ly, 14, 3);
+                            ctx.fillText('1/(s\u22121)', chartL + 98, ly + 4);
+
+                            // Current value
+                            viz.screenText(
+                                's = ' + sVal.toFixed(2) + '   \u03B6(s) \u2248 ' + curZ.toFixed(4) +
+                                '   1/(s\u22121) = ' + (1 / (sVal - 1)).toFixed(4),
+                                viz.width / 2, ly + 24, viz.colors.orange, 12
+                            );
+                        }
+                        draw();
+                        return viz;
+                    }
+                }
+            ],
             exercises: [
                 {
-                    question: 'Verify directly that \\(\\zeta(s) \\to \\infty\\) as \\(s \\to 1^+\\) (real approach) by comparing \\(\\sum n^{-s}\\) to the integral \\(\\int_1^{\\infty} x^{-s}\\,dx = 1/(s-1)\\).',
-                    hint: 'Use the integral test: for \\(s > 1\\), \\(\\sum_{n=1}^N n^{-s} \\ge \\int_1^{N+1} x^{-s}\\,dx\\). Let \\(N \\to \\infty\\) and then \\(s \\to 1^+\\).',
-                    solution: 'By the integral test, \\(\\zeta(s) \\ge \\int_1^{\\infty} x^{-s}\\,dx = 1/(s-1)\\) for \\(s > 1\\). As \\(s \\to 1^+\\), \\(1/(s-1) \\to \\infty\\), so \\(\\zeta(s) \\to \\infty\\). More precisely, one shows \\(\\zeta(s) = 1/(s-1) + O(1)\\) as \\(s \\to 1^+\\), establishing the simple pole with residue 1.'
+                    question: 'Show that \\(\\sum_p 1/p^2\\) converges. What does this say about the density of primes?',
+                    hint: 'Compare with \\(\\sum 1/n^2\\), or use the fact that \\(\\zeta(2) < \\infty\\) and the Euler product.',
+                    solution: 'From the Euler product, \\(\\log \\zeta(s) = \\sum_p \\sum_{k=1}^\\infty p^{-ks}/k\\). At \\(s = 2\\), \\(\\zeta(2) = \\pi^2/6 < \\infty\\), so \\(\\log \\zeta(2) < \\infty\\). Since \\(\\sum_p p^{-2} \\le \\log \\zeta(2)\\), it converges. This means primes are sparse enough that the sum of their reciprocal squares converges, even though \\(\\sum 1/p\\) diverges.'
                 },
                 {
-                    question: 'Using the Euler product, prove that \\(-\\log \\zeta(\\sigma) \\sim \\log(\\sigma - 1)\\) as \\(\\sigma \\to 1^+\\), and deduce that \\(\\sum_p p^{-\\sigma} \\to \\infty\\) as \\(\\sigma \\to 1^+\\).',
-                    hint: 'Use \\(\\log \\zeta(\\sigma) = -\\sum_p \\log(1-p^{-\\sigma})\\) and compare with \\(\\sum_p p^{-\\sigma}\\). Use \\(-\\log(1-x) = x + x^2/2 + \\ldots \\ge x\\).',
-                    solution: 'Since \\(\\zeta(\\sigma) \\sim 1/(\\sigma-1)\\), we have \\(\\log \\zeta(\\sigma) \\sim \\log 1/(\\sigma-1) = -\\log(\\sigma-1) \\to \\infty\\). From \\(\\log \\zeta(\\sigma) = -\\sum_p \\log(1-p^{-\\sigma}) \\ge \\sum_p p^{-\\sigma}\\) (since \\(-\\log(1-x) \\ge x\\) for \\(0 < x < 1\\)), it follows that \\(\\sum_p p^{-\\sigma} \\le \\log\\zeta(\\sigma)\\). The other direction: \\(-\\log(1-x) \\le x/(1-x)\\), so \\(\\log\\zeta(\\sigma) \\le \\sum_p p^{-\\sigma}/(1-p^{-\\sigma}) \\le (1 + o(1)) \\sum_p p^{-\\sigma}\\). Thus \\(\\sum_p p^{-\\sigma} \\sim \\log(1/(\\sigma-1)) \\to \\infty\\).'
+                    question: 'Use the Euler product to show that \\(\\prod_p (1 - 1/p) = 0\\). Interpret this probabilistically.',
+                    hint: 'Take the reciprocal: \\(\\prod_p (1-1/p)^{-1} = \\zeta(1) = +\\infty\\).',
+                    solution: 'We have \\(\\prod_{p \\le P} (1 - 1/p)^{-1} = \\sum_{\\substack{n: p|n \\Rightarrow p \\le P}} 1/n \\to \\zeta(1) = +\\infty\\). So \\(\\prod_p (1 - 1/p) = 0\\). Probabilistically: if you independently remove multiples of each prime \\(p\\) with probability \\(1/p\\), the probability that a random integer "survives" all sieving is \\(\\prod (1-1/p) = 0\\). This is consistent with the fact that the only integer not divisible by any prime is 1, which has density 0.'
                 }
             ]
         }
-
-    ] // end sections
-}); // end CHAPTERS.push
+    ]
+});
